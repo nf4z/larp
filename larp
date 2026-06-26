@@ -36,6 +36,11 @@ local TeleportService = game:GetService("TeleportService")
             local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
             local activeStates = (getgenv and getgenv()) or {}
+local currentRunToken = {}
+activeStates._1rzHubLiteRunToken = currentRunToken
+local function isCurrentRun()
+    return activeStates._1rzHubLiteRunToken == currentRunToken
+end
 pcall(function()
     local openUi = CoreGui:FindFirstChild("OpenUI")
     if openUi then
@@ -2093,6 +2098,7 @@ activeStates.BGSI_Lite_SeasonActive = false
 activeStates.BGSI_Lite_GlobalIncentiveActive = false
 activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
+activeStates.BGSI_Lite_AllowMinigameStarts = false
 local function isPriorityAutomationActive()
     return activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive
 end
@@ -2308,6 +2314,9 @@ if type(getgenv) == "function" then
             end
         end)
         if activeStates then
+            if activeStates._1rzHubLiteRunToken == currentRunToken then
+                activeStates._1rzHubLiteRunToken = nil
+            end
             activeStates.FluentLite = nil
             activeStates.LoadedMobileUI = false
             activeStates._1rzHubLite_Loaded = false
@@ -2418,7 +2427,62 @@ do
         end)
     end
 
+    local function isMinigameAutomationEnabled(minigameName)
+        if minigameName == "Robot Claw" then
+            return Config.autoRobotClaw == true
+        elseif minigameName == "Pet Match" then
+            return Config.autoPetMatch == true or Config.autoCircusPetMatch == true
+        elseif minigameName == "Dance Off" then
+            return Config.autoDanceOff == true
+        elseif minigameName == "Hyper Darts" then
+            return Config.autoHyperDarts == true
+        elseif minigameName == "Island Race" then
+            return Config.autoIslandRace == true
+        end
+        return false
+    end
+
+    local function updateMinigameStartGuard()
+        activeStates.BGSI_Lite_AllowMinigameStarts =
+            Config.autoRobotClaw == true
+            or Config.autoPetMatch == true
+            or Config.autoCircusPetMatch == true
+            or Config.autoDanceOff == true
+            or Config.autoHyperDarts == true
+            or Config.autoIslandRace == true
+    end
+
+    local function installMinigameRemoteGuard()
+        if activeStates.BGSI_Lite_MinigameRemoteGuardInstalled then
+            return
+        end
+        local hookMeta = hookmetamethod
+        if type(hookMeta) ~= "function" or type(getnamecallmethod) ~= "function" then
+            return
+        end
+        activeStates.BGSI_Lite_MinigameRemoteGuardInstalled = true
+        local originalNamecall
+        originalNamecall = hookMeta(game, "__namecall", function(self, ...)
+            local methodName = getnamecallmethod()
+            local args = { ... }
+            if self == remoteEvent
+                and methodName == "FireServer"
+                and (args[1] == "StartMinigame" or args[1] == "SkipMinigameCooldown")
+                and activeStates.BGSI_Lite_AllowMinigameStarts ~= true then
+                return nil
+            end
+            return originalNamecall(self, ...)
+        end)
+    end
+
+    updateMinigameStartGuard()
+    pcall(installMinigameRemoteGuard)
+
     local function startMinigame(minigameName)
+        updateMinigameStartGuard()
+        if not isCurrentRun() or not isMinigameAutomationEnabled(minigameName) then
+            return false
+        end
         if not canStartMinigame(minigameName) then
             return false
         end
@@ -2785,6 +2849,7 @@ do
         Callback = function(isEnabled)
             Config.autoRobotClaw = isEnabled
             Config.autoMinigames = false
+            updateMinigameStartGuard()
             if not isEnabled then
                 _G._Lite_ActiveClawMachine = nil
                 _G.BGSI_IslandRaceReserved = false
@@ -2800,6 +2865,7 @@ do
         Callback = function(isEnabled)
             Config.autoPetMatch = isEnabled
             Config.autoCircusPetMatch = isEnabled
+            updateMinigameStartGuard()
             saveConfig()
         end,
     })
@@ -2809,6 +2875,7 @@ do
         Default = Config.autoDanceOff,
         Callback = function(isEnabled)
             Config.autoDanceOff = isEnabled
+            updateMinigameStartGuard()
             saveConfig()
         end,
     })
@@ -2818,6 +2885,7 @@ do
         Default = Config.autoHyperDarts,
         Callback = function(isEnabled)
             Config.autoHyperDarts = isEnabled
+            updateMinigameStartGuard()
             saveConfig()
         end,
     })
@@ -2827,6 +2895,7 @@ do
         Default = Config.autoIslandRace,
         Callback = function(isEnabled)
             Config.autoIslandRace = isEnabled
+            updateMinigameStartGuard()
             if not isEnabled then
                 _G.BGSI_IslandRaceReserved = false
             end
@@ -2848,6 +2917,7 @@ do
         Default = Config.autoFishing,
         Callback = function(isEnabled)
             Config.autoFishing = isEnabled
+            updateMinigameStartGuard()
             saveConfig()
         end,
     })
@@ -2892,9 +2962,9 @@ do
     })
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(Config.autoRobotClaw and 0.05 or 0.5)
-            if Config.autoRobotClaw then
+            if isCurrentRun() and Config.autoRobotClaw then
                 local ok, err = pcall(runRobotClawStep)
                 if not ok and Config.robotClawDebug then
                     warn("[1rzLite][RobotClaw]", err)
@@ -2904,52 +2974,52 @@ do
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait((Config.autoPetMatch or Config.autoCircusPetMatch) and 0.12 or 0.75)
-            if Config.autoPetMatch or Config.autoCircusPetMatch then
+            if isCurrentRun() and (Config.autoPetMatch or Config.autoCircusPetMatch) then
                 pcall(runPetMatchStep)
             end
         end
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(Config.autoDanceOff and 0.05 or 0.75)
-            if Config.autoDanceOff then
+            if isCurrentRun() and Config.autoDanceOff then
                 pcall(runDanceOffStep)
             end
         end
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(Config.autoHyperDarts and 0.05 or 0.75)
-            if Config.autoHyperDarts then
+            if isCurrentRun() and Config.autoHyperDarts then
                 pcall(runHyperDartsStep)
             end
         end
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(Config.autoIslandRace and 0.25 or 1)
-            if Config.autoIslandRace then
+            if isCurrentRun() and Config.autoIslandRace then
                 pcall(runIslandRaceStep)
             end
         end
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(Config.autoFishing and 0.1 or 1)
-            if Config.autoFishing then
+            if isCurrentRun() and Config.autoFishing then
                 pcall(runFishingStep)
             end
         end
     end)
 
     task.spawn(function()
-        while true do
+        while isCurrentRun() do
             task.wait(1) -- Refresh every 1 second
             refreshChunkerAroundPlayer()
         end
@@ -7163,7 +7233,7 @@ activeStates.GetCarnivalRebirthCountText = function()
     if not ok or type(playerData) ~= "table" then
         return "Loading..."
     end
-    local rebirthCount = math.max(0, math.floor(tonumber(playerData.CarnivalRebirths) or 0))
+    local rebirthCount = activeStates.GetCarnivalRebirths and math.max(0, math.floor(activeStates.GetCarnivalRebirths(playerData))) or math.max(0, math.floor(tonumber(playerData.CarnivalRebirths) or 0))
     if rebirthCount == 1 then
         return "You have done 1 Carnival Rebirth"
     end
@@ -7358,19 +7428,149 @@ activeStates.GetCarnivalRebirthCost = function(nextRebirth)
     end
     return (nextRebirth - 1) * 500000000 + 10000000000
 end
+local function findNestedNumberByKey(sourceTable, keyNames, depth, seen)
+    if type(sourceTable) ~= "table" or type(keyNames) ~= "table" then
+        return nil
+    end
+    depth = tonumber(depth) or 0
+    seen = seen or {}
+    if seen[sourceTable] then
+        return nil
+    end
+    seen[sourceTable] = true
+
+    local keyLookup = {}
+    for _, keyName in ipairs(keyNames) do
+        keyLookup[string.lower(tostring(keyName)):gsub("[%s_%-]", "")] = true
+    end
+
+    for key, value in pairs(sourceTable) do
+        if keyLookup[string.lower(tostring(key)):gsub("[%s_%-]", "")] then
+            local numericValue = tonumber(value)
+            if numericValue then
+                return numericValue
+            end
+            if type(value) == "table" then
+                numericValue = tonumber(value.Amount or value.Value or value.Count or value.Total)
+                if numericValue then
+                    return numericValue
+                end
+            end
+        end
+    end
+
+    if depth <= 0 then
+        return nil
+    end
+    for _, value in pairs(sourceTable) do
+        if type(value) == "table" then
+            local nestedValue = findNestedNumberByKey(value, keyNames, depth - 1, seen)
+            if nestedValue then
+                return nestedValue
+            end
+        end
+    end
+    return nil
+end
+
+activeStates.GetCarnivalCoins = function(playerData)
+    return findNestedNumberByKey(playerData, {
+        "CarnivalCoins",
+        "CarnivalCoin",
+        "Carnival Currency",
+        "CarnivalCurrency",
+        "FestivalCoins",
+        "FestivalCoin",
+        "Festival Currency",
+        "FestivalCurrency",
+    }, 5) or 0
+end
+
+activeStates.GetCarnivalRebirths = function(playerData)
+    return findNestedNumberByKey(playerData, {
+        "CarnivalRebirths",
+        "CarnivalRebirth",
+        "Carnival Rebirths",
+        "Carnival Rebirth",
+    }, 4) or 0
+end
+
+activeStates.GetBestCarnivalRebirthCost = function(currentRebirths)
+    currentRebirths = math.max(0, math.floor(tonumber(currentRebirths) or 0))
+    local costs = {}
+    for _, rebirthIndex in ipairs({ currentRebirths + 1, currentRebirths, currentRebirths + 2 }) do
+        if rebirthIndex >= 1 then
+            local cost = tonumber(activeStates.GetCarnivalRebirthCost(rebirthIndex))
+            if cost and cost > 0 then
+                table.insert(costs, cost)
+            end
+        end
+    end
+    table.sort(costs)
+    return costs[1] or activeStates.GetCarnivalRebirthCost(currentRebirths + 1)
+end
+
+local lastCarnivalRebirthAttemptAt = 0
+local function fireCarnivalRebirthRemote()
+    pcall(function()
+        remoteEvent:FireServer("CarnivalRebirth")
+    end)
+    pcall(function()
+        remoteEvent:FireServer("CarnivalRebirth", true)
+    end)
+    pcall(function()
+        remoteFunction:InvokeServer("CarnivalRebirth")
+    end)
+    pcall(function()
+        if not carnivalRemoteModule then
+            carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+        end
+        if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+            carnivalRemoteModule:FireServer("CarnivalRebirth")
+        end
+    end)
+    pcall(function()
+        if not carnivalRemoteModule then
+            carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+        end
+        if carnivalRemoteModule and type(carnivalRemoteModule.InvokeServer) == "function" then
+            carnivalRemoteModule:InvokeServer("CarnivalRebirth")
+        end
+    end)
+end
+
 activeStates.RunAutoCarnivalRebirth = function()
     if not profileStore or not profileStore.IsReady or not profileStore:IsReady() then
         return
     end
-    local playerData = profileStore:Get()
+    local ok, playerData = pcall(function()
+        return profileStore:Get()
+    end)
+    if not ok then
+        return
+    end
     if type(playerData) ~= "table" then
         return
     end
-    local carnivalCoins = tonumber(playerData.CarnivalCoins) or 0
-    local carnivalRebirths = tonumber(playerData.CarnivalRebirths) or 0
-    local nextCost = activeStates.GetCarnivalRebirthCost(carnivalRebirths + 1)
-    if carnivalCoins >= nextCost then
-        remoteEvent:FireServer("CarnivalRebirth")
+    local carnivalCoins = activeStates.GetCarnivalCoins(playerData)
+    local carnivalRebirths = math.max(0, math.floor(activeStates.GetCarnivalRebirths(playerData)))
+    local nextCost = activeStates.GetBestCarnivalRebirthCost(carnivalRebirths)
+    if carnivalCoins >= nextCost and tick() - lastCarnivalRebirthAttemptAt >= 0.75 then
+        lastCarnivalRebirthAttemptAt = tick()
+        for _ = 1, 3 do
+            fireCarnivalRebirthRemote()
+            task.wait(0.15)
+            local refreshedOk, refreshedData = pcall(function()
+                return profileStore:Get()
+            end)
+            if refreshedOk and type(refreshedData) == "table" then
+                local refreshedRebirths = math.max(0, math.floor(activeStates.GetCarnivalRebirths(refreshedData)))
+                if refreshedRebirths > carnivalRebirths then
+                    pcall(activeStates.UpdateCarnivalRebirthCountParagraph)
+                    break
+                end
+            end
+        end
     end
 end
 
@@ -7509,7 +7709,7 @@ task.spawn(function()
         if Config.AutoCarnivalRebirth then
             pcall(activeStates.RunAutoCarnivalRebirth)
         end
-        task.wait(Config.AutoCarnivalRebirth and 1 or 5)
+        task.wait(Config.AutoCarnivalRebirth and 0.5 or 5)
     end
 end)
 task.spawn(function()
