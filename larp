@@ -593,9 +593,6 @@ local function isValidEggInstance(scriptStateZO)
             if type(scriptStateCF) ~= "string" or scriptStateCF == "" then
         return false
     end
-    if riftSet and scriptStateCF == "Egg" then
-        return false
-    end
     if getEggDataLookup()[scriptStateCF] then
         return true
     end
@@ -2149,7 +2146,11 @@ local scriptStateOG = Fluent:CreateWindow({
         return false
     end
     local function downloadImageBytes(scriptStateRB)
-        local scriptStatePD = request or http_request or(syn and syn.request) or(http and http.request)
+        local scriptStatePD = request or http_request or(type(syn) == "table" and rawget(syn, "request")) or rawget((getgenv and getgenv()) or _G, "http_request")
+        if type(scriptStatePD) ~= "function" then
+            local httpTable = rawget((getgenv and getgenv()) or _G, "http")
+            scriptStatePD = type(httpTable) == "table" and rawget(httpTable, "request") or nil
+        end
             if scriptStatePD then
             local scriptStateIQ, scriptStateYB = pcall(function()
                 return scriptStatePD({
@@ -2182,11 +2183,11 @@ local scriptStateOG = Fluent:CreateWindow({
             return scriptStateAJ
         end
         if type(syn) == "table" then
-            if type(syn.getcustomasset) == "function" then
-                return syn.getcustomasset
+            if type(rawget(syn, "getcustomasset")) == "function" then
+                return rawget(syn, "getcustomasset")
             end
-            if type(syn.getsynasset) == "function" then
-                return syn.getsynasset
+            if type(rawget(syn, "getsynasset")) == "function" then
+                return rawget(syn, "getsynasset")
             end
         end
         return nil
@@ -2555,7 +2556,7 @@ do
         if not ok or type(playTransition) ~= "function" then
             return
         end
-        local hookApi = hookfunction or hookfunc or replaceclosure
+        local hookApi = hookfunction or rawget((getgenv and getgenv()) or _G, "hookfunc") or replaceclosure
         if type(hookApi) ~= "function" then
             return
         end
@@ -3362,9 +3363,13 @@ Fluent:Notify({
             if not debugLabel or typeof(debugLabel) ~= "Instance" then
                 return
             end
-            debugLabel.RichText = true
-            debugLabel.Text = tostring(labelText or "")
-            local scriptStateACY = debugLabel
+            if not (debugLabel:IsA("TextLabel") or debugLabel:IsA("TextButton")) then
+                return
+            end
+            local debugTextObject = debugLabel :: any
+            debugTextObject.RichText = true
+            debugTextObject.Text = tostring(labelText or "")
+            local scriptStateACY = debugTextObject
             resizeDebugLabelToText(scriptStateACY)
             task.defer(function()
                 resizeDebugLabelToText(scriptStateACY)
@@ -3518,7 +3523,7 @@ do
                 }
                 local scriptStateZX = locationPriorities[scriptStateTO]
                 for loopSlotAZ, scriptStateUK in ipairs(eggLocations) do
-                    local scriptStateSQ = formatEggLocationOption(scriptStateUK, loopSlotAZ)
+                    local scriptStateSQ = formatEggLocationOption(scriptStateUK)
                     scriptStateAFS[scriptStateSQ] = scriptStateUK.key
                     table.insert(scriptStateCJ, scriptStateSQ)
                     if scriptStateUK.key == scriptStateZX then
@@ -3689,7 +3694,7 @@ task.spawn(function()
             if activeStates.BGSI_Lite_LuckEggActive then
                 activeStates.BGSI_Lite_LuckEggActive = false
             end
-            task.wait(BGSI_FEATURE_IDLE_WAIT or 0.85)
+            task.wait(tonumber(rawget((getgenv and getgenv()) or _G, "BGSI_FEATURE_IDLE_WAIT")) or 0.85)
             continue
         end
         local summonedEgg = workspace:FindFirstChild("SummonedEgg")
@@ -4374,7 +4379,7 @@ do
             Config.autoRiftEggSpawn = scriptStateCG
             if scriptStateCG then
                 hatchSelectedRiftEgg()
-                lastRiftSpawnAt = tick()
+                scriptStateADK = tick()
             end
             saveConfig()
         end,
@@ -6763,7 +6768,11 @@ local function getRebirthMachineCost(scriptStateKB)
     return scriptStateKB
 end
 local function runRebirthFuse(scriptStateQZ, scriptStateACW)
-    local scriptStateLH = request or http_request or(syn and syn.request) or(http and http.request)
+    local scriptStateLH = request or http_request or(type(syn) == "table" and rawget(syn, "request")) or rawget((getgenv and getgenv()) or _G, "http_request")
+    if type(scriptStateLH) ~= "function" then
+        local httpTable = rawget((getgenv and getgenv()) or _G, "http")
+        scriptStateLH = type(httpTable) == "table" and rawget(httpTable, "request") or nil
+    end
             if type(scriptStateLH) ~= "function" then
         return false
     end
@@ -7023,16 +7032,13 @@ remoteEvent.OnClientEvent:Connect(function(scriptStateKW, scriptStateNY, ...)
         local scriptStateFL = scriptStateACH.Name or(scriptStateACH.Pet and scriptStateACH.Pet.Name) or "Unknown"
             local scriptStateEQ = petRarityData and petRarityData[scriptStateFL] or {
         }
-        local scriptStatePG = scriptStateEQ.Rarity or "Unknown"
+        local scriptStatePG = tostring(scriptStateEQ.Rarity or "Unknown")
             if scriptStatePG ~= "Secret" and scriptStatePG ~= "Infinity" then
             continue
         end
         local scriptStateLS = scriptStateACH.Shiny or(scriptStateACH.Pet and scriptStateACH.Pet.Shiny) or false
             local scriptStateNI = scriptStateACH.Mythic or(scriptStateACH.Pet and scriptStateACH.Pet.Mythic) or false
         local scriptStateKK = scriptStateACH.XL or(scriptStateACH.Pet and scriptStateACH.Pet.XL) or false
-            if scriptStateNI and not(scriptStatePG == "Legendary" or scriptStatePG == "Secret" or scriptStatePG == "Infinity") then
-            scriptStateNI = false
-        end
         local scriptStateKY = 3447003
             if scriptStatePG == "Secret" then
             if scriptStateLS and scriptStateNI then
@@ -7428,7 +7434,7 @@ activeStates.GetCarnivalRebirthCost = function(nextRebirth)
     end
     return (nextRebirth - 1) * 500000000 + 10000000000
 end
-local function findNestedNumberByKey(sourceTable, keyNames, depth, seen)
+activeStates.FindNestedNumberByKey = function(sourceTable, keyNames, depth, seen)
     if type(sourceTable) ~= "table" or type(keyNames) ~= "table" then
         return nil
     end
@@ -7464,7 +7470,7 @@ local function findNestedNumberByKey(sourceTable, keyNames, depth, seen)
     end
     for _, value in pairs(sourceTable) do
         if type(value) == "table" then
-            local nestedValue = findNestedNumberByKey(value, keyNames, depth - 1, seen)
+            local nestedValue = activeStates.FindNestedNumberByKey(value, keyNames, depth - 1, seen)
             if nestedValue then
                 return nestedValue
             end
@@ -7474,7 +7480,7 @@ local function findNestedNumberByKey(sourceTable, keyNames, depth, seen)
 end
 
 activeStates.GetCarnivalCoins = function(playerData)
-    return findNestedNumberByKey(playerData, {
+    return activeStates.FindNestedNumberByKey(playerData, {
         "CarnivalCoins",
         "CarnivalCoin",
         "Carnival Currency",
@@ -7487,7 +7493,7 @@ activeStates.GetCarnivalCoins = function(playerData)
 end
 
 activeStates.GetCarnivalRebirths = function(playerData)
-    return findNestedNumberByKey(playerData, {
+    return activeStates.FindNestedNumberByKey(playerData, {
         "CarnivalRebirths",
         "CarnivalRebirth",
         "Carnival Rebirths",
@@ -7510,8 +7516,8 @@ activeStates.GetBestCarnivalRebirthCost = function(currentRebirths)
     return costs[1] or activeStates.GetCarnivalRebirthCost(currentRebirths + 1)
 end
 
-local lastCarnivalRebirthAttemptAt = 0
-local function fireCarnivalRebirthRemote()
+activeStates.LastCarnivalRebirthAttemptAt = tonumber(activeStates.LastCarnivalRebirthAttemptAt) or 0
+activeStates.FireCarnivalRebirthRemote = function()
     pcall(function()
         remoteEvent:FireServer("CarnivalRebirth")
     end)
@@ -7555,10 +7561,10 @@ activeStates.RunAutoCarnivalRebirth = function()
     local carnivalCoins = activeStates.GetCarnivalCoins(playerData)
     local carnivalRebirths = math.max(0, math.floor(activeStates.GetCarnivalRebirths(playerData)))
     local nextCost = activeStates.GetBestCarnivalRebirthCost(carnivalRebirths)
-    if carnivalCoins >= nextCost and tick() - lastCarnivalRebirthAttemptAt >= 0.75 then
-        lastCarnivalRebirthAttemptAt = tick()
+    if carnivalCoins >= nextCost and tick() - activeStates.LastCarnivalRebirthAttemptAt >= 0.75 then
+        activeStates.LastCarnivalRebirthAttemptAt = tick()
         for _ = 1, 3 do
-            fireCarnivalRebirthRemote()
+            activeStates.FireCarnivalRebirthRemote()
             task.wait(0.15)
             local refreshedOk, refreshedData = pcall(function()
                 return profileStore:Get()
