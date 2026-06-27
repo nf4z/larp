@@ -120,6 +120,9 @@ local configFile = "1rzHubLiteConfig.json"
     optimisedGemGenie = false,
     gemGenieTargetItem = "Shadow Crystal",
     autoSeason = false,
+    autoChallengePassQuests = false,
+    autoClaimChallengePassRewards = false,
+    autoResetChallengePass = false,
     autoDailyHourlyChallenge = false,
     autoGlobalIncentive = false,
     autoClaimGlobalIncentive = false,
@@ -2093,11 +2096,12 @@ end
 activeStates.BGSI_Lite_GemGenieActive = false
 activeStates.BGSI_Lite_SeasonActive = false
 activeStates.BGSI_Lite_GlobalIncentiveActive = false
+activeStates.BGSI_Lite_ChallengePassActive = false
 activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_AllowMinigameStarts = false
 local function isPriorityAutomationActive()
-    return activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive
+    return activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive or activeStates.BGSI_Lite_ChallengePassActive
 end
 local scriptStateGV, scriptStateSR = false, false
 local pauseInProgress = false
@@ -5669,6 +5673,32 @@ end) do
             Config.autoSeason = scriptStateJF;saveConfig()
         end,
     })
+    scriptStateUC:AddSection("Challenge Pass")
+    scriptStateUC:AddToggle("AutoChallengePassQuests", {
+        Title = "Auto Bubble Challenge Pass",
+        Default = Config.autoChallengePassQuests,
+        Callback = function(isEnabled)
+            Config.autoChallengePassQuests = isEnabled == true
+            saveConfig()
+        end,
+    })
+    scriptStateUC:AddToggle("AutoClaimChallengePassRewards", {
+        Title = "Auto Claim Challenge Pass Rewards",
+        Default = Config.autoClaimChallengePassRewards,
+        Callback = function(isEnabled)
+            Config.autoClaimChallengePassRewards = isEnabled == true
+            saveConfig()
+        end,
+    })
+    scriptStateUC:AddToggle("AutoResetChallengePass", {
+        Title = "Auto Gem Reset Challenge Pass",
+        Default = Config.autoResetChallengePass,
+        Callback = function(isEnabled)
+            Config.autoResetChallengePass = isEnabled == true
+            saveConfig()
+        end,
+    })
+    scriptStateUC:AddSection("Season Pass")
     scriptStateUC:AddToggle("AutoDailyHourly", {
         Title = "Auto Season Pass Quests (daily/hourly)",
         Default = Config.autoDailyHourlyChallenge,
@@ -5787,6 +5817,245 @@ task.spawn(function()
             end)
         end
         task.wait(5)
+    end
+end)
+activeStates.GetChallengePassQuestById = function(challengeQuestId)
+    if type(challengeQuestId) ~= "string" or challengeQuestId == "" then
+        return nil
+    end
+    if not profileStore:IsReady() then
+        return nil
+    end
+    local playerData = profileStore:Get()
+    if not playerData then
+        return nil
+    end
+    if questModule and type(questModule.FindById) == "function" then
+        local ok, questData = pcall(function()
+            return questModule:FindById(playerData, challengeQuestId)
+        end)
+        if ok and type(questData) == "table" then
+            return questData
+        end
+    end
+    for _, questContainer in ipairs({
+        playerData.Quests,
+        playerData.ActiveQuests,
+        playerData.DailyChallenges,
+        playerData.HourlyChallenges,
+        playerData.Challenges,
+    }) do
+        if type(questContainer) == "table" then
+            for _, questData in pairs(questContainer) do
+                if type(questData) == "table" and (questData.Id == challengeQuestId or questData.ID == challengeQuestId) then
+                    return questData
+                end
+            end
+        end
+    end
+    return nil
+end
+
+activeStates.GetChallengePassQuestList = function()
+    local challengeQuestList = {}
+    for challengeIndex = 1, 3 do
+        local challengeQuestId = "bubble-challenge-"..tostring(challengeIndex)
+        local challengeQuest = activeStates.GetChallengePassQuestById(challengeQuestId)
+        if type(challengeQuest) == "table" and challengeQuest.Claimed ~= true then
+            challengeQuest.Id = challengeQuest.Id or challengeQuest.ID or challengeQuestId
+            table.insert(challengeQuestList, challengeQuest)
+        end
+    end
+    return challengeQuestList
+end
+
+activeStates.HasUnfinishedChallengePassQuest = function(challengeQuestList)
+    if type(challengeQuestList) ~= "table" then
+        return false
+    end
+    for _, challengeQuest in ipairs(challengeQuestList) do
+        if type(challengeQuest) == "table" and type(challengeQuest.Tasks) == "table" then
+            for _, taskIndex in ipairs(makeIndexList(challengeQuest.Tasks)) do
+                local challengeTask = challengeQuest.Tasks[taskIndex]
+                if type(challengeTask) == "table" then
+                    local taskRequirement = getBountyTaskRequirement(challengeTask)
+                    local taskProgress = getBountyTaskProgress(challengeQuest, taskIndex)
+                    if type(taskRequirement) == "number" and taskProgress < taskRequirement then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+activeStates.GetChallengePassModule = function()
+    if type(activeStates.BGSI_Lite_ChallengePassModule) == "table" then
+        return activeStates.BGSI_Lite_ChallengePassModule
+    end
+    pcall(function()
+        activeStates.BGSI_Lite_ChallengePassModule = require(ReplicatedStorage.Shared.Data.ChallengePass)
+    end)
+    return type(activeStates.BGSI_Lite_ChallengePassModule) == "table" and activeStates.BGSI_Lite_ChallengePassModule or nil
+end
+
+activeStates.ShouldResetChallengePass = function()
+    if not profileStore:IsReady() then
+        return false
+    end
+    local playerData = profileStore:Get()
+    local challengePassData = playerData and playerData.ChallengePass
+    if type(challengePassData) ~= "table" then
+        return false
+    end
+    local challengePassModule = activeStates.GetChallengePassModule()
+    local finalTier = challengePassModule and tonumber(challengePassModule.FinalTier) or 15
+    local currentTier = 0
+    if challengePassModule and type(challengePassModule.GetTier) == "function" then
+        local ok, tierResult = pcall(function()
+            return challengePassModule:GetTier(tonumber(challengePassData.Points) or 0)
+        end)
+        if ok and type(tierResult) == "number" then
+            currentTier = tierResult
+        end
+    end
+    if currentTier <= 0 then
+        currentTier = tonumber(challengePassData.Tier) or 0
+    end
+    if currentTier < finalTier then
+        return false
+    end
+    if type(challengePassData.Claimed) == "table" and #challengePassData.Claimed < finalTier then
+        return false
+    end
+    if challengePassModule and type(challengePassModule.GetResetCost) == "function" and itemUtil and type(itemUtil.CanAfford) == "function" then
+        local ok, resetCost = pcall(function()
+            return challengePassModule:GetResetCost(tonumber(challengePassData.GemResets) or 0)
+        end)
+        if ok and type(resetCost) == "table" then
+            local canAffordOk, canAfford = pcall(function()
+                return itemUtil:CanAfford(playerData, resetCost)
+            end)
+            if canAffordOk and canAfford == false then
+                return false
+            end
+        end
+    end
+    return true
+end
+
+task.spawn(function()
+    while true do
+        if Config.autoClaimChallengePassRewards then
+            pcall(function()
+                remoteEvent:FireServer("ChallengePassClaimAll")
+                remoteEvent:FireServer("ChallengePassClaimReward")
+            end)
+            pcall(function()
+                if not carnivalRemoteModule then
+                    carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+                end
+                if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+                    carnivalRemoteModule:FireServer("ChallengePassClaimAll")
+                    carnivalRemoteModule:FireServer("ChallengePassClaimReward")
+                end
+            end)
+        end
+        task.wait(2)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if Config.autoResetChallengePass then
+            if activeStates.ShouldResetChallengePass() then
+                pcall(function()
+                    remoteEvent:FireServer("ChallengePassClaimAll")
+                    remoteEvent:FireServer("ChallengePassClaimReward")
+                end)
+                task.wait(0.5)
+                pcall(function()
+                    remoteEvent:FireServer("ChallengePassReset")
+                end)
+                pcall(function()
+                    if not carnivalRemoteModule then
+                        carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+                    end
+                    if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+                        carnivalRemoteModule:FireServer("ChallengePassReset")
+                    end
+                end)
+                task.wait(3)
+            end
+        end
+        task.wait(2)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if Config.autoChallengePassQuests ~= true then
+            if activeStates.BGSI_Lite_ChallengePassActive then
+                activeStates.BGSI_Lite_ChallengePassActive = false
+                resumeNormalAutomation()
+            end
+            task.wait(0.5)
+            continue
+        end
+        if activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive then
+            task.wait(0.5)
+            continue
+        end
+        local challengeQuestList = activeStates.GetChallengePassQuestList()
+        if not activeStates.HasUnfinishedChallengePassQuest(challengeQuestList) then
+            activeStates.BGSI_Lite_ChallengePassActive = false
+            resumeNormalAutomation()
+            task.wait(2)
+            continue
+        end
+        activeStates.BGSI_Lite_ChallengePassActive = true
+        pauseNormalAutomation()
+        for _, challengeQuest in ipairs(challengeQuestList) do
+            if Config.autoChallengePassQuests ~= true then
+                break
+            end
+            if activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive then
+                break
+            end
+            local challengeQuestId = challengeQuest.Id or challengeQuest.ID
+            for _, taskIndex in ipairs(makeIndexList(challengeQuest.Tasks)) do
+                if Config.autoChallengePassQuests ~= true then
+                    break
+                end
+                local challengeTask = challengeQuest.Tasks[taskIndex]
+                if type(challengeTask) == "table" then
+                    local taskRequirement = getBountyTaskRequirement(challengeTask)
+                    local taskProgress = getBountyTaskProgress(challengeQuest, taskIndex)
+                    if type(taskRequirement) == "number" and taskProgress < taskRequirement then
+                        local shouldContinueChallengePass = function()
+                            return Config.autoChallengePassQuests == true
+                                and not activeStates.BGSI_Lite_GemGenieActive
+                                and not activeStates.BGSI_Lite_SeasonActive
+                                and not activeStates.BGSI_Lite_GlobalIncentiveActive
+                        end
+                        local getChallengeQuest = function()
+                            return activeStates.GetChallengePassQuestById(challengeQuestId)
+                        end
+                        if isCoinOrCollectBountyTask(challengeTask) then
+                            runCollectCurrencyBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass, getBountyCurrencyName(challengeTask))
+                        elseif isHatchBountyTask(challengeTask) then
+                            runHatchBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
+                        elseif isBubbleBountyTask(challengeTask) or tostring(challengeQuestId or ""):match("^bubble%-challenge%-%d+$") then
+                            runBubbleBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
+                        else
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.5)
     end
 end)
 task.spawn(function()
