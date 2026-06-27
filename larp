@@ -145,6 +145,8 @@ local configFile = "1rzHubLiteConfig.json"
     webhookLowCurrencyCooldownMinutes = 30,
     selectedTicketTeam = "",
     selectedPearlTeam = "",
+    selectedTicketReturnTeam = "",
+    selectedPearlReturnTeam = "",
     webhookRarities = {
         Secret = true,
         Legendary = false,
@@ -596,6 +598,9 @@ local function isValidEggInstance(scriptStateZO)
             if type(scriptStateCF) ~= "string" or scriptStateCF == "" then
         return false
     end
+    if autoPatchEnabled and scriptStateCF == "Egg" then
+        return false
+    end
     if getEggDataLookup()[scriptStateCF] then
         return true
     end
@@ -767,16 +772,23 @@ local function getEggLocationByKey(loopSlotAV, scriptStatePE, scriptStateES)
     return nil
 end
 local function chooseBestEggLocation(scriptStateAAH)
-    local scriptStateJB = getEggLocationsByName(scriptStateAAH, false)
-            if # scriptStateJB == 0 then
-        return nil
-    end
     local scriptStateAET = type(Config.selectedEggLocationPriorities) == "table" and Config.selectedEggLocationPriorities or {
     }
     local scriptStateABK = scriptStateAET[scriptStateAAH]
+    local scriptStateJB = getEggLocationsByName(scriptStateAAH, false)
             local scriptStateVE = getEggLocationByKey(scriptStateAAH, scriptStateABK, false)
             if scriptStateVE then
         return scriptStateVE
+    end
+            if # scriptStateJB == 0 then
+        scriptStateJB = getEggLocationsByName(scriptStateAAH, true)
+        scriptStateVE = getEggLocationByKey(scriptStateAAH, scriptStateABK, true)
+        if scriptStateVE then
+            return scriptStateVE
+        end
+    end
+            if # scriptStateJB == 0 then
+        return nil
     end
     return scriptStateJB[1]
 end
@@ -845,6 +857,11 @@ end)
 local teleportOffsetY = 3
             local function teleportToEggByName(scriptStateABE)
     local scriptStateAEM = getSelectedEggTeleportPosition(scriptStateABE)
+            if not scriptStateAEM then
+        clearEggScanCache()
+        patchEggChunkerModule()
+        scriptStateAEM = getSelectedEggTeleportPosition(scriptStateABE)
+    end
             if not scriptStateAEM then
         return false
     end
@@ -1310,6 +1327,7 @@ end
 local function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
     local scriptStateUA = 0
     while scriptStateAAJ() do
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         local scriptStateVL = scriptStateWT()
             if not scriptStateVL then
             break
@@ -1351,7 +1369,11 @@ local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, 
     teleportToCFrame(CFrame.new(78, 9, - 110))
     task.wait(0.4)
     local teleportStartTime = tick()
+    local lastSellTime = 0
+    local lastProgress = -1
+    local lastProgressAt = tick()
     while scriptStateFF() do
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         local scriptStateABM = scriptStateIO()
             if not scriptStateABM then
             break
@@ -1365,9 +1387,29 @@ local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, 
             if type(bountyRequirement) == "number" and bountyProgress >= bountyRequirement then
             break
         end
+        if bountyProgress > lastProgress then
+            lastProgress = bountyProgress
+            lastProgressAt = tick()
+        elseif tick() - lastProgressAt >= 45 then
+            pcall(function()
+                remoteEvent:FireServer("SellBubble")
+            end)
+            break
+        elseif tick() - lastProgressAt >= 15 then
+            pcall(function()
+                remoteEvent:FireServer("SellBubble")
+            end)
+            lastSellTime = tick()
+        end
         if tick() - teleportStartTime >= 2 then
             teleportToCFrame(CFrame.new(78, 9, - 110))
             teleportStartTime = tick()
+        end
+        if tick() - lastSellTime >= 4 then
+            pcall(function()
+                remoteEvent:FireServer("SellBubble")
+            end)
+            lastSellTime = tick()
         end
         pcall(function()
             remoteEvent:FireServer("BlowBubble")
@@ -1378,6 +1420,7 @@ end
 
 do
 local ticketFarmCFrame = CFrame.new(9913.1104, 26.3498, 185.9215)
+local pearlFarmCFrame = CFrame.new(-23666.748048675, 7.887024402618408, -2.196840524673462)
 local ticketCollectPickupRemote
 
 local pickupFireCooldowns = {}
@@ -1442,18 +1485,60 @@ local function equipPetTeam(scriptStateTargetTeam)
     if scriptStateTeamData and tostring(scriptStateTeamData.TeamEquipped) == tostring(scriptStateResolvedTeam) then
         return true
     end
-    for _, scriptStateTeamAction in ipairs({ "EquipTeam", "EquipPetTeam", "SetTeam", "SelectTeam", "SetEquippedTeam" }) do
-        pcall(function()
-            remoteEvent:FireServer(scriptStateTeamAction, scriptStateResolvedTeam)
-        end)
-        local scriptStateDeadline = tick() + 0.45
-        repeat
-            task.wait(0.05)
-            scriptStateTeamData = getPetTeamState()
-            if scriptStateTeamData and tostring(scriptStateTeamData.TeamEquipped) == tostring(scriptStateResolvedTeam) then
-                return true
+    local scriptStateTeamPayloads = {
+        scriptStateResolvedTeam,
+        tonumber(scriptStateResolvedTeam),
+        tostring(scriptStateResolvedTeam),
+        { Team = scriptStateResolvedTeam },
+        { TeamIndex = tonumber(scriptStateResolvedTeam) or scriptStateResolvedTeam },
+        { Index = tonumber(scriptStateResolvedTeam) or scriptStateResolvedTeam },
+    }
+    for _, scriptStateTeamAction in ipairs({
+        "EquipTeam",
+        "EquipPetTeam",
+        "SetTeam",
+        "SelectTeam",
+        "SetEquippedTeam",
+        "SetTeamEquipped",
+        "ChangeTeam",
+        "SwitchTeam",
+    }) do
+        for _, scriptStateTeamPayload in ipairs(scriptStateTeamPayloads) do
+            if scriptStateTeamPayload ~= nil then
+                pcall(function()
+                    remoteEvent:FireServer(scriptStateTeamAction, scriptStateTeamPayload)
+                end)
+                pcall(function()
+                    remoteFunction:InvokeServer(scriptStateTeamAction, scriptStateTeamPayload)
+                end)
+                pcall(function()
+                    if not carnivalRemoteModule then
+                        carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+                    end
+                    if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+                        carnivalRemoteModule:FireServer(scriptStateTeamAction, scriptStateTeamPayload)
+                    end
+                end)
+                local scriptStateDeadline = tick() + 0.35
+                repeat
+                    task.wait(0.05)
+                    scriptStateTeamData = getPetTeamState()
+                    if scriptStateTeamData and tostring(scriptStateTeamData.TeamEquipped) == tostring(scriptStateResolvedTeam) then
+                        return true
+                    end
+                until tick() >= scriptStateDeadline
             end
-        until tick() >= scriptStateDeadline
+        end
+    end
+    return false
+end
+
+local function equipReturnPetTeam(scriptStateReturnTeam, scriptStatePreviousTeam)
+    if type(scriptStateReturnTeam) == "string" and scriptStateReturnTeam ~= "" then
+        return equipPetTeam(scriptStateReturnTeam)
+    end
+    if scriptStatePreviousTeam ~= nil then
+        return equipPetTeam(scriptStatePreviousTeam)
     end
     return false
 end
@@ -1930,17 +2015,35 @@ local function teleportToWorldPortal(worldName)
     end)
 end
 
+local function getRenderedGiftFolders()
+    local giftFolders, seenGiftFolders = {}, {}
+    local function addGiftFolder(giftFolder)
+        if typeof(giftFolder) == "Instance" and not seenGiftFolders[giftFolder] then
+            seenGiftFolders[giftFolder] = true
+            table.insert(giftFolders, giftFolder)
+        end
+    end
+    local renderedFolder = Workspace:FindFirstChild("Rendered")
+    addGiftFolder(renderedFolder and renderedFolder:FindFirstChild("Gifts"))
+    addGiftFolder(Workspace:FindFirstChild("Gifts"))
+    return giftFolders
+end
+
 local function claimAllRenderedGifts()
-    local giftsFolder = Workspace:FindFirstChild("Rendered")
-    giftsFolder = giftsFolder and giftsFolder:FindFirstChild("Gifts")
-    if not giftsFolder then
-        return
+    local giftFolders = getRenderedGiftFolders()
+    if #giftFolders == 0 then
+        return 0
     end
-    for _, giftInstance in ipairs(giftsFolder:GetChildren()) do
-        pcall(function()
-            remoteEvent:FireServer("ClaimGift", giftInstance.Name)
-        end)
+    local claimedGifts = 0
+    for _, giftFolder in ipairs(giftFolders) do
+        for _, giftInstance in ipairs(giftFolder:GetChildren()) do
+            pcall(function()
+                remoteEvent:FireServer("ClaimGift", giftInstance.Name)
+            end)
+            claimedGifts = claimedGifts + 1
+        end
     end
+    return claimedGifts
 end
 
 local function useMysteryBoxesForPearls()
@@ -1948,19 +2051,22 @@ local function useMysteryBoxesForPearls()
     pcall(function()
         remoteEvent:FireServer("UseGift", selectedBox, 50)
     end)
-    claimAllRenderedGifts()
+    local claimedGifts = claimAllRenderedGifts()
     task.wait()
-    claimAllRenderedGifts()
+    claimedGifts = claimedGifts + claimAllRenderedGifts()
+    return claimedGifts
 end
 
 local function runTicketPickupTask(scriptStateGetQuest, scriptStateTaskIndex, scriptStateRequirement, scriptStateShouldContinue)
     while ticketPickupTaskRunning and scriptStateShouldContinue() do
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         task.wait(0.2)
     end
     if not scriptStateShouldContinue() then
         return
     end
     ticketPickupTaskRunning = true
+    activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
     local scriptStateTeamData = getPetTeamState()
     local scriptStatePreviousTeam = scriptStateTeamData and scriptStateTeamData.TeamEquipped or nil
     activeStates.BGSI_Lite_TicketPickupActive = true
@@ -1968,18 +2074,28 @@ local function runTicketPickupTask(scriptStateGetQuest, scriptStateTaskIndex, sc
     teleportToWorldPortal("Minigame Paradise")
     task.wait(0.35)
     if type(Config.selectedTicketTeam) == "string" and Config.selectedTicketTeam ~= "" then
-        equipPetTeam(Config.selectedTicketTeam)
+        local scriptStateTeamEquipDeadline = tick() + 6
+        repeat
+            if equipPetTeam(Config.selectedTicketTeam) then
+                break
+            end
+            task.wait(0.35)
+        until tick() >= scriptStateTeamEquipDeadline
     end
+    teleportToCFrame(ticketFarmCFrame)
     local scriptStateLastTeleport = 0
     pcall(function()
         while scriptStateShouldContinue() do
+            activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
             local scriptStateQuest = scriptStateGetQuest()
             if not scriptStateQuest then
                 break
             end
             local scriptStateTask = scriptStateQuest.Tasks and scriptStateQuest.Tasks[scriptStateTaskIndex]
             local scriptStateNeeded = scriptStateTask and getBountyTaskRequirement(scriptStateTask) or scriptStateRequirement
-            if getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex) >= scriptStateNeeded or scriptStateQuest.Completed == true then
+            if getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex) >= scriptStateNeeded
+                or scriptStateQuest.Completed == true
+                or (type(scriptStateTask) == "table" and scriptStateTask.Completed == true) then
                 break
             end
             if tick() - scriptStateLastTeleport >= 2 then
@@ -1991,46 +2107,64 @@ local function runTicketPickupTask(scriptStateGetQuest, scriptStateTaskIndex, sc
         end
     end)
     activeStates.BGSI_Lite_TicketPickupActive = false
-    if scriptStatePreviousTeam ~= nil then
-        equipPetTeam(scriptStatePreviousTeam)
-    end
+    equipReturnPetTeam(Config.selectedTicketReturnTeam, scriptStatePreviousTeam)
     ticketPickupTaskRunning = false
 end
 activeStates.BGSI_Lite_RunTicketPickupTask = runTicketPickupTask
 
 local function runPearlMysteryBoxTask(scriptStateGetQuest, scriptStateTaskIndex, scriptStateRequirement, scriptStateShouldContinue)
     while pearlPickupTaskRunning and scriptStateShouldContinue() do
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         task.wait(0.2)
     end
     if not scriptStateShouldContinue() then
         return
     end
     pearlPickupTaskRunning = true
+    activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
     local scriptStateTeamData = getPetTeamState()
     local scriptStatePreviousTeam = scriptStateTeamData and scriptStateTeamData.TeamEquipped or nil
     teleportToWorldPortal("Seven Seas")
     task.wait(0.35)
     if type(Config.selectedPearlTeam) == "string" and Config.selectedPearlTeam ~= "" then
-        equipPetTeam(Config.selectedPearlTeam)
+        local scriptStateTeamEquipDeadline = tick() + 6
+        repeat
+            if equipPetTeam(Config.selectedPearlTeam) then
+                break
+            end
+            task.wait(0.35)
+        until tick() >= scriptStateTeamEquipDeadline
     end
+    teleportToCFrame(pearlFarmCFrame)
     pcall(function()
         while scriptStateShouldContinue() do
+            activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
             local scriptStateQuest = scriptStateGetQuest()
             if not scriptStateQuest then
                 break
             end
             local scriptStateTask = scriptStateQuest.Tasks and scriptStateQuest.Tasks[scriptStateTaskIndex]
             local scriptStateNeeded = scriptStateTask and getBountyTaskRequirement(scriptStateTask) or scriptStateRequirement
-            if getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex) >= scriptStateNeeded or scriptStateQuest.Completed == true then
+            if getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex) >= scriptStateNeeded
+                or scriptStateQuest.Completed == true
+                or (type(scriptStateTask) == "table" and scriptStateTask.Completed == true) then
                 break
             end
+            teleportToCFrame(pearlFarmCFrame)
             useMysteryBoxesForPearls()
+            local scriptStateUpdatedQuest = scriptStateGetQuest()
+            local scriptStateUpdatedTask = scriptStateUpdatedQuest and scriptStateUpdatedQuest.Tasks and scriptStateUpdatedQuest.Tasks[scriptStateTaskIndex]
+            local scriptStateUpdatedNeeded = scriptStateUpdatedTask and getBountyTaskRequirement(scriptStateUpdatedTask) or scriptStateNeeded
+            if not scriptStateUpdatedQuest
+                or getBountyTaskProgress(scriptStateUpdatedQuest, scriptStateTaskIndex) >= scriptStateUpdatedNeeded
+                or scriptStateUpdatedQuest.Completed == true
+                or (type(scriptStateUpdatedTask) == "table" and scriptStateUpdatedTask.Completed == true) then
+                break
+            end
             task.wait(math.clamp(tonumber(Config.autoOpenMysteryDelay) or 0.2, 0.1, 2))
         end
     end)
-    if scriptStatePreviousTeam ~= nil then
-        equipPetTeam(scriptStatePreviousTeam)
-    end
+    equipReturnPetTeam(Config.selectedPearlReturnTeam, scriptStatePreviousTeam)
     pearlPickupTaskRunning = false
 end
 activeStates.BGSI_Lite_RunPearlMysteryBoxTask = runPearlMysteryBoxTask
@@ -2050,6 +2184,7 @@ local function runCollectCurrencyBountyTask(scriptStateSM, scriptStateOX, script
     local shopItemLoopCount = 0
             local scriptStateSK = tick()
     while scriptStateSS() do
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         local scriptStateBL = scriptStateSM()
             if not scriptStateBL then
             break
@@ -2100,10 +2235,26 @@ activeStates.BGSI_Lite_ChallengePassActive = false
 activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_AllowMinigameStarts = false
+activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+activeStates.BGSI_Lite_NormalAutomationPaused = false
 local function isPriorityAutomationActive()
     return activeStates.BGSI_Lite_GemGenieActive or activeStates.BGSI_Lite_SeasonActive or activeStates.BGSI_Lite_GlobalIncentiveActive or activeStates.BGSI_Lite_ChallengePassActive
 end
-local scriptStateGV, scriptStateSR = false, false
+local function clearDisabledPriorityStates()
+    if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
+        activeStates.BGSI_Lite_GemGenieActive = false
+    end
+    if activeStates.BGSI_Lite_SeasonActive and Config.autoDailyHourlyChallenge ~= true then
+        activeStates.BGSI_Lite_SeasonActive = false
+    end
+    if activeStates.BGSI_Lite_GlobalIncentiveActive and Config.autoGlobalIncentive ~= true then
+        activeStates.BGSI_Lite_GlobalIncentiveActive = false
+    end
+    if activeStates.BGSI_Lite_ChallengePassActive and Config.autoChallengePassQuests ~= true then
+        activeStates.BGSI_Lite_ChallengePassActive = false
+    end
+end
+local scriptStateGV, scriptStateSR = nil, nil
 local pauseInProgress = false
             local function pauseNormalAutomation()
     if pauseInProgress then
@@ -2114,16 +2265,39 @@ local pauseInProgress = false
     scriptStateSR = Config.autoBounty
     Config.autoHatch = false
     Config.autoBounty = false
+    activeStates.BGSI_Lite_NormalAutomationPaused = true
 end
 local function resumeNormalAutomation()
     if not pauseInProgress then
+        activeStates.BGSI_Lite_NormalAutomationPaused = false
         return
     end
     pauseInProgress = false
     Config.autoHatch = scriptStateGV or Config.autoHatch
     Config.autoBounty = scriptStateSR or Config.autoBounty
-    scriptStateGV, scriptStateSR = false, false
+    if Config.autoHatch then
+        activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
+    end
+    scriptStateGV, scriptStateSR = nil, nil
+    activeStates.BGSI_Lite_NormalAutomationPaused = false
 end
+task.spawn(function()
+    while true do
+        task.wait(5)
+        clearDisabledPriorityStates()
+        local lastQuestWork = tonumber(activeStates.BGSI_Lite_LastQuestAutomationAt) or 0
+        local priorityStale = isPriorityAutomationActive() and tick() - lastQuestWork > 45
+        if priorityStale then
+            activeStates.BGSI_Lite_GemGenieActive = false
+            activeStates.BGSI_Lite_SeasonActive = false
+            activeStates.BGSI_Lite_GlobalIncentiveActive = false
+            activeStates.BGSI_Lite_ChallengePassActive = false
+        end
+        if not isPriorityAutomationActive() then
+            resumeNormalAutomation()
+        end
+    end
+end)
 local scriptStateOG = Fluent:CreateWindow({
     Title = "LarpLite - BGSI",
     SubTitle = "free",
@@ -3582,6 +3756,7 @@ do
         Callback = function(selectedEggCallback)
             if selectedEggCallback and selectedEggCallback ~= scriptStateVO then
                 Config.selectedEgg = selectedEggCallback
+            activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
             saveConfig()
             refreshEggLocationDropdown(true)
             end
@@ -3627,7 +3802,18 @@ do
         Title = "Auto Hatch",
         Default = Config.autoHatch,
         Callback = function(scriptStateRG)
-            Config.autoHatch = scriptStateRG;saveConfig()
+            Config.autoHatch = scriptStateRG
+            if scriptStateRG then
+                clearDisabledPriorityStates()
+                activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
+                task.spawn(function()
+                    local selectedEggForTeleport = Config.selectedEgg
+                    if type(selectedEggForTeleport) == "string" and selectedEggForTeleport ~= "" and not isPriorityAutomationActive() then
+                        teleportToEggByName(selectedEggForTeleport)
+                    end
+                end)
+            end
+            saveConfig()
         end,
     })
     eggTab:AddToggle("NoHatchAnim", {
@@ -3740,6 +3926,7 @@ task.spawn(function()
             scriptStateAFX = 0;
             continue
         end
+        clearDisabledPriorityStates()
         if isPriorityAutomationActive() or activeStates.BGSI_Lite_LuckEggActive or activeStates.BGSI_Lite_RiftEggActive then
             continue
         end
@@ -3751,11 +3938,13 @@ task.spawn(function()
             if type(scriptStateEL) ~= "string" or scriptStateEL == "" then
             continue
         end
-        if tick() - scriptStateAFX >= 10 then
+        if activeStates.BGSI_Lite_ForceAutoHatchTeleport or tick() - scriptStateAFX >= 10 then
+            activeStates.BGSI_Lite_ForceAutoHatchTeleport = false
+            local teleportSucceeded = false
             pcall(function()
-                teleportToEggByName(scriptStateEL)
+                teleportSucceeded = teleportToEggByName(scriptStateEL)
             end)
-            scriptStateAFX = tick()
+            scriptStateAFX = teleportSucceeded and tick() or tick() - 8.5
         end
         fireHatchEgg(scriptStateEL)
     end
@@ -5655,7 +5844,16 @@ end) do
         Title = "Auto Gem Genie",
         Default = Config.autoGemGenie,
         Callback = function(scriptStatePC)
-            Config.autoGemGenie = scriptStatePC;saveConfig()
+            Config.autoGemGenie = scriptStatePC
+            activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+            if scriptStatePC then
+                activeStates.BGSI_Lite_GemGenieActive = true
+                pauseNormalAutomation()
+            else
+                activeStates.BGSI_Lite_GemGenieActive = false
+                resumeNormalAutomation()
+            end
+            saveConfig()
         end,
     })
     scriptStateUC:AddToggle("OptimisedGemGenie", {
@@ -5679,6 +5877,17 @@ end) do
         Default = Config.autoChallengePassQuests,
         Callback = function(isEnabled)
             Config.autoChallengePassQuests = isEnabled == true
+            activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+            if Config.autoChallengePassQuests then
+                activeStates.BGSI_Lite_ChallengePassActive = true
+                pauseNormalAutomation()
+                task.spawn(function()
+                    teleportToCFrame(CFrame.new(78, 9, - 110))
+                end)
+            else
+                activeStates.BGSI_Lite_ChallengePassActive = false
+                resumeNormalAutomation()
+            end
             saveConfig()
         end,
     })
@@ -5709,11 +5918,18 @@ end) do
     scriptStateUC:AddSection("Collection Teams")
     local ticketTeamDropdown
     local pearlTeamDropdown
+    local ticketReturnTeamDropdown
+    local pearlReturnTeamDropdown
     local ticketTeamOptionKeys, pearlTeamOptionKeys = {}, {}
-    local function buildPetTeamOptions(selectedTeamKey, optionKeyStore)
+    local ticketReturnTeamOptionKeys, pearlReturnTeamOptionKeys = {}, {}
+    local function buildPetTeamOptions(selectedTeamKey, optionKeyStore, includeRestorePrevious)
         local scriptStateOptions = {}
         for scriptStateExistingLabel in pairs(optionKeyStore) do
             optionKeyStore[scriptStateExistingLabel] = nil
+        end
+        if includeRestorePrevious == true then
+            optionKeyStore["(Restore previous team)"] = ""
+            table.insert(scriptStateOptions, "(Restore previous team)")
         end
         local scriptStateTeamData = activeStates.BGSI_Lite_GetPetTeamState()
         local scriptStateTeams = scriptStateTeamData and scriptStateTeamData.Teams
@@ -5726,6 +5942,17 @@ end) do
             end
         end
         table.sort(scriptStateOptions)
+        if includeRestorePrevious == true then
+            table.sort(scriptStateOptions, function(scriptStateLeftOption, scriptStateRightOption)
+                if scriptStateLeftOption == "(Restore previous team)" then
+                    return true
+                end
+                if scriptStateRightOption == "(Restore previous team)" then
+                    return false
+                end
+                return string.lower(scriptStateLeftOption) < string.lower(scriptStateRightOption)
+            end)
+        end
         if # scriptStateOptions == 0 then
             scriptStateOptions = { "(No teams found - refresh)" }
         end
@@ -5740,9 +5967,11 @@ end) do
     end
     local ticketTeamOptions, ticketTeamDefault = buildPetTeamOptions(Config.selectedTicketTeam, ticketTeamOptionKeys)
     local pearlTeamOptions, pearlTeamDefault = buildPetTeamOptions(Config.selectedPearlTeam, pearlTeamOptionKeys)
+    local ticketReturnTeamOptions, ticketReturnTeamDefault = buildPetTeamOptions(Config.selectedTicketReturnTeam, ticketReturnTeamOptionKeys, true)
+    local pearlReturnTeamOptions, pearlReturnTeamDefault = buildPetTeamOptions(Config.selectedPearlReturnTeam, pearlReturnTeamOptionKeys, true)
     ticketTeamDropdown = scriptStateUC:AddDropdown("TicketPetTeam", {
         Title = "Ticket Pet Team",
-        Description = "Used during ticket collection quests in Minigame Paradise, then your previous team is restored.",
+        Description = "Used during ticket collection quests in Minigame Paradise.",
         Values = ticketTeamOptions,
         Default = ticketTeamDefault,
         Multi = false,
@@ -5755,9 +5984,24 @@ end) do
             end
         end,
     })
+    ticketReturnTeamDropdown = scriptStateUC:AddDropdown("TicketReturnPetTeam", {
+        Title = "Ticket Return Team",
+        Description = "Equipped after ticket collection finishes. Leave on restore previous to use the old behavior.",
+        Values = ticketReturnTeamOptions,
+        Default = ticketReturnTeamDefault,
+        Multi = false,
+        Search = true,
+        Callback = function(scriptStateSelectedTeamLabel)
+            local scriptStateSelectedTeamKey = ticketReturnTeamOptionKeys[scriptStateSelectedTeamLabel]
+            if scriptStateSelectedTeamKey ~= nil then
+                Config.selectedTicketReturnTeam = tostring(scriptStateSelectedTeamKey)
+                saveConfig()
+            end
+        end,
+    })
     pearlTeamDropdown = scriptStateUC:AddDropdown("PearlPetTeam", {
         Title = "Pearl Pet Team",
-        Description = "Used during pearl collection quests in Seven Seas, then your previous team is restored.",
+        Description = "Used during pearl collection quests in Seven Seas.",
         Values = pearlTeamOptions,
         Default = pearlTeamDefault,
         Multi = false,
@@ -5766,6 +6010,21 @@ end) do
             local scriptStateSelectedTeamKey = pearlTeamOptionKeys[scriptStateSelectedTeamLabel]
             if scriptStateSelectedTeamKey ~= nil then
                 Config.selectedPearlTeam = tostring(scriptStateSelectedTeamKey)
+                saveConfig()
+            end
+        end,
+    })
+    pearlReturnTeamDropdown = scriptStateUC:AddDropdown("PearlReturnPetTeam", {
+        Title = "Pearl Return Team",
+        Description = "Equipped after pearl collection finishes. Leave on restore previous to use the old behavior.",
+        Values = pearlReturnTeamOptions,
+        Default = pearlReturnTeamDefault,
+        Multi = false,
+        Search = true,
+        Callback = function(scriptStateSelectedTeamLabel)
+            local scriptStateSelectedTeamKey = pearlReturnTeamOptionKeys[scriptStateSelectedTeamLabel]
+            if scriptStateSelectedTeamKey ~= nil then
+                Config.selectedPearlReturnTeam = tostring(scriptStateSelectedTeamKey)
                 saveConfig()
             end
         end,
@@ -5782,6 +6041,15 @@ end) do
                     ticketTeamDropdown:SetValue(scriptStateDefault)
                 end)
             end
+            local ticketReturnOptions, ticketReturnDefault = buildPetTeamOptions(Config.selectedTicketReturnTeam, ticketReturnTeamOptionKeys, true)
+            if ticketReturnTeamDropdown.SetValues then
+                ticketReturnTeamDropdown:SetValues(ticketReturnOptions)
+            end
+            if ticketReturnTeamDropdown.SetValue then
+                pcall(function()
+                    ticketReturnTeamDropdown:SetValue(ticketReturnDefault)
+                end)
+            end
             local pearlOptions, pearlDefault = buildPetTeamOptions(Config.selectedPearlTeam, pearlTeamOptionKeys)
             if pearlTeamDropdown.SetValues then
                 pearlTeamDropdown:SetValues(pearlOptions)
@@ -5789,6 +6057,15 @@ end) do
             if pearlTeamDropdown.SetValue then
                 pcall(function()
                     pearlTeamDropdown:SetValue(pearlDefault)
+                end)
+            end
+            local pearlReturnOptions, pearlReturnDefault = buildPetTeamOptions(Config.selectedPearlReturnTeam, pearlReturnTeamOptionKeys, true)
+            if pearlReturnTeamDropdown.SetValues then
+                pearlReturnTeamDropdown:SetValues(pearlReturnOptions)
+            end
+            if pearlReturnTeamDropdown.SetValue then
+                pcall(function()
+                    pearlReturnTeamDropdown:SetValue(pearlReturnDefault)
                 end)
             end
         end,
@@ -5900,6 +6177,46 @@ activeStates.GetChallengePassModule = function()
     return type(activeStates.BGSI_Lite_ChallengePassModule) == "table" and activeStates.BGSI_Lite_ChallengePassModule or nil
 end
 
+activeStates.FireChallengePassAction = function(actionName, ...)
+    if type(actionName) ~= "string" or actionName == "" then
+        return
+    end
+    local actionArgs = { ... }
+    pcall(function()
+        remoteEvent:FireServer(actionName, table.unpack(actionArgs))
+    end)
+    pcall(function()
+        if not carnivalRemoteModule then
+            carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
+        end
+        if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+            carnivalRemoteModule:FireServer(actionName, table.unpack(actionArgs))
+        end
+    end)
+end
+
+activeStates.ClaimChallengePassRewards = function()
+    activeStates.FireChallengePassAction("ChallengePassClaimAll")
+    activeStates.FireChallengePassAction("ChallengePassClaimReward")
+    for rewardIndex = 1, 25 do
+        activeStates.FireChallengePassAction("ChallengePassClaimReward", rewardIndex)
+    end
+end
+
+activeStates.TryResetChallengePass = function(forceAttempt)
+    local now = tick()
+    if now - (tonumber(activeStates.BGSI_Lite_LastChallengePassResetAttempt) or 0) < 10 then
+        return
+    end
+    if forceAttempt ~= true and not activeStates.ShouldResetChallengePass() then
+        return
+    end
+    activeStates.BGSI_Lite_LastChallengePassResetAttempt = now
+    pcall(activeStates.ClaimChallengePassRewards)
+    task.wait(0.5)
+    activeStates.FireChallengePassAction("ChallengePassReset")
+end
+
 activeStates.ShouldResetChallengePass = function()
     if not profileStore:IsReady() then
         return false
@@ -5908,6 +6225,9 @@ activeStates.ShouldResetChallengePass = function()
     local challengePassData = playerData and playerData.ChallengePass
     if type(challengePassData) ~= "table" then
         return false
+    end
+    if challengePassData.CanReset == true or challengePassData.Completed == true or challengePassData.Complete == true then
+        return true
     end
     local challengePassModule = activeStates.GetChallengePassModule()
     local finalTier = challengePassModule and tonumber(challengePassModule.FinalTier) or 15
@@ -5921,12 +6241,9 @@ activeStates.ShouldResetChallengePass = function()
         end
     end
     if currentTier <= 0 then
-        currentTier = tonumber(challengePassData.Tier) or 0
+        currentTier = tonumber(challengePassData.Tier or challengePassData.CurrentTier or challengePassData.Level) or 0
     end
     if currentTier < finalTier then
-        return false
-    end
-    if type(challengePassData.Claimed) == "table" and #challengePassData.Claimed < finalTier then
         return false
     end
     if challengePassModule and type(challengePassModule.GetResetCost) == "function" and itemUtil and type(itemUtil.CanAfford) == "function" then
@@ -5948,19 +6265,7 @@ end
 task.spawn(function()
     while true do
         if Config.autoClaimChallengePassRewards then
-            pcall(function()
-                remoteEvent:FireServer("ChallengePassClaimAll")
-                remoteEvent:FireServer("ChallengePassClaimReward")
-            end)
-            pcall(function()
-                if not carnivalRemoteModule then
-                    carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
-                end
-                if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
-                    carnivalRemoteModule:FireServer("ChallengePassClaimAll")
-                    carnivalRemoteModule:FireServer("ChallengePassClaimReward")
-                end
-            end)
+            pcall(activeStates.ClaimChallengePassRewards)
         end
         task.wait(2)
     end
@@ -5970,22 +6275,7 @@ task.spawn(function()
     while true do
         if Config.autoResetChallengePass then
             if activeStates.ShouldResetChallengePass() then
-                pcall(function()
-                    remoteEvent:FireServer("ChallengePassClaimAll")
-                    remoteEvent:FireServer("ChallengePassClaimReward")
-                end)
-                task.wait(0.5)
-                pcall(function()
-                    remoteEvent:FireServer("ChallengePassReset")
-                end)
-                pcall(function()
-                    if not carnivalRemoteModule then
-                        carnivalRemoteModule = require(ReplicatedStorage.Shared.Framework.Network.Remote)
-                    end
-                    if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
-                        carnivalRemoteModule:FireServer("ChallengePassReset")
-                    end
-                end)
+                activeStates.TryResetChallengePass(false)
                 task.wait(3)
             end
         end
@@ -5995,6 +6285,7 @@ end)
 
 task.spawn(function()
     while true do
+        clearDisabledPriorityStates()
         if Config.autoChallengePassQuests ~= true then
             if activeStates.BGSI_Lite_ChallengePassActive then
                 activeStates.BGSI_Lite_ChallengePassActive = false
@@ -6009,12 +6300,19 @@ task.spawn(function()
         end
         local challengeQuestList = activeStates.GetChallengePassQuestList()
         if not activeStates.HasUnfinishedChallengePassQuest(challengeQuestList) then
+            if Config.autoClaimChallengePassRewards or Config.autoResetChallengePass then
+                pcall(activeStates.ClaimChallengePassRewards)
+            end
+            if Config.autoResetChallengePass then
+                activeStates.TryResetChallengePass(true)
+            end
             activeStates.BGSI_Lite_ChallengePassActive = false
             resumeNormalAutomation()
             task.wait(2)
             continue
         end
         activeStates.BGSI_Lite_ChallengePassActive = true
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         pauseNormalAutomation()
         for _, challengeQuest in ipairs(challengeQuestList) do
             if Config.autoChallengePassQuests ~= true then
@@ -6043,11 +6341,11 @@ task.spawn(function()
                             return activeStates.GetChallengePassQuestById(challengeQuestId)
                         end
                         if isCoinOrCollectBountyTask(challengeTask) then
-                            runCollectCurrencyBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass, getBountyCurrencyName(challengeTask))
+                            pcall(runCollectCurrencyBountyTask, getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass, getBountyCurrencyName(challengeTask))
                         elseif isHatchBountyTask(challengeTask) then
-                            runHatchBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
+                            pcall(runHatchBountyTask, getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
                         elseif isBubbleBountyTask(challengeTask) or tostring(challengeQuestId or ""):match("^bubble%-challenge%-%d+$") then
-                            runBubbleBountyTask(getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
+                            pcall(runBubbleBountyTask, getChallengeQuest, taskIndex, taskRequirement, shouldContinueChallengePass)
                         else
                             task.wait(0.1)
                         end
@@ -6167,6 +6465,7 @@ local function runGemGenieTask(loopSlotAE, scriptStateWA)
 end
 task.spawn(function()
     while true do
+        clearDisabledPriorityStates()
         if not Config.autoGemGenie then
             if activeStates.BGSI_Lite_GemGenieActive then
                 activeStates.BGSI_Lite_GemGenieActive = false
@@ -6215,6 +6514,7 @@ task.spawn(function()
             continue
         end
         activeStates.BGSI_Lite_GemGenieActive = true
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         pauseNormalAutomation()
         for loopSlotDF, scriptStateBJ in ipairs(makeIndexList(scriptStateMU.Tasks)) do
             if not Config.autoGemGenie then
@@ -6232,11 +6532,11 @@ task.spawn(function()
                         return getGemGenieQuestData()
                     end
                     if isCoinOrCollectBountyTask(scriptStateWX) then
-                        runCollectCurrencyBountyTask(fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD, getBountyCurrencyName(scriptStateWX))
+                        pcall(runCollectCurrencyBountyTask, fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD, getBountyCurrencyName(scriptStateWX))
                     elseif isHatchBountyTask(scriptStateWX) then
-                        runHatchBountyTask(fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD)
+                        pcall(runHatchBountyTask, fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD)
                     elseif isBubbleBountyTask(scriptStateWX) then
-                        runBubbleBountyTask(fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD)
+                        pcall(runBubbleBountyTask, fallbackUtilityB, scriptStateBJ, scriptStateGT, fallbackUtilityD)
                     else
                         task.wait(0.08)
                     end
@@ -6353,6 +6653,7 @@ task.spawn(function()
             continue
         end
         activeStates.BGSI_Lite_SeasonActive = true
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         pauseNormalAutomation()
         for loopSlotDL, scriptStateZC in ipairs(scriptStateSA) do
             if not Config.autoDailyHourlyChallenge then
@@ -6381,11 +6682,11 @@ task.spawn(function()
                             return runSeasonChallengeTask(scriptStateKZ)
                         end
                         if isCoinOrCollectBountyTask(scriptStateDY) then
-                            runCollectCurrencyBountyTask(fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA, getBountyCurrencyName(scriptStateDY))
+                            pcall(runCollectCurrencyBountyTask, fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA, getBountyCurrencyName(scriptStateDY))
                         elseif isHatchBountyTask(scriptStateDY) then
-                            runHatchBountyTask(fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA)
+                            pcall(runHatchBountyTask, fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA)
                         elseif isBubbleBountyTask(scriptStateDY) then
-                            runBubbleBountyTask(fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA)
+                            pcall(runBubbleBountyTask, fallbackUtilityG, scriptStateAC, scriptStateADS, fallbackUtilityA)
                         else
                             task.wait(0.08)
                         end
@@ -6500,6 +6801,7 @@ task.spawn(function()
             continue
         end
         activeStates.BGSI_Lite_GlobalIncentiveActive = true
+        activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
         pauseNormalAutomation()
         for loopSlotZ, scriptStateVX in ipairs(scriptStateEW) do
             if not Config.autoGlobalIncentive then
@@ -6528,11 +6830,11 @@ task.spawn(function()
                             return runGlobalIncentiveTask(scriptStateHW)
                         end
                         if isCoinOrCollectBountyTask(scriptStateAFI) then
-                            runCollectCurrencyBountyTask(fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC, getBountyCurrencyName(scriptStateAFI))
+                            pcall(runCollectCurrencyBountyTask, fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC, getBountyCurrencyName(scriptStateAFI))
                         elseif isHatchBountyTask(scriptStateAFI) then
-                            runHatchBountyTask(fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC)
+                            pcall(runHatchBountyTask, fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC)
                         elseif isBubbleBountyTask(scriptStateAFI) then
-                            runBubbleBountyTask(fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC)
+                            pcall(runBubbleBountyTask, fallbackUtilityF, scriptStateADB, scriptStateSF, fallbackUtilityC)
                         else
                             task.wait(0.5)
                         end
