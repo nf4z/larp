@@ -5542,19 +5542,38 @@ end
 local function getPetEnchantList(scriptStateHJ)
     local scriptStateRI = {
     }
-    local scriptStateYY = scriptStateHJ and(scriptStateHJ.Enchants or scriptStateHJ.Enchantments) or {
-    }
-    for loopSlotBP = 1, 2 do
-        local scriptStateYE = scriptStateYY[loopSlotBP] or scriptStateYY[tostring(loopSlotBP)]
+    local function addEnchantValue(scriptStateYE)
         if type(scriptStateYE) == "string" and scriptStateYE ~= "" then
-            scriptStateRI[loopSlotBP] = scriptStateYE
+            table.insert(scriptStateRI, scriptStateYE)
         elseif type(scriptStateYE) == "table" then
-            local scriptStateKR = scriptStateYE.Id or scriptStateYE.ID or scriptStateYE.Name or scriptStateYE.Enchant or ""
+            local scriptStateKR = scriptStateYE.id or scriptStateYE.Id or scriptStateYE.ID or scriptStateYE.Name or scriptStateYE.name or scriptStateYE.Enchant or scriptStateYE.enchant or ""
             if scriptStateKR and scriptStateKR ~= "" then
-                scriptStateRI[loopSlotBP] = tostring(scriptStateKR)
+                table.insert(scriptStateRI, tostring(scriptStateKR))
             end
         end
     end
+    if type(scriptStateHJ) ~= "table" then
+        return scriptStateRI
+    end
+    for _, enchantContainer in ipairs({
+        scriptStateHJ.Enchants,
+        scriptStateHJ.Enchantments,
+    }) do
+        if type(enchantContainer) == "table" then
+            for enchantKey, enchantValue in pairs(enchantContainer) do
+                if type(enchantKey) == "string" and enchantValue == true then
+                    addEnchantValue(enchantKey)
+                elseif type(enchantValue) == "table" or type(enchantValue) == "string" then
+                    addEnchantValue(enchantValue)
+                end
+            end
+        elseif type(enchantContainer) == "string" then
+            addEnchantValue(enchantContainer)
+        end
+    end
+    addEnchantValue(scriptStateHJ.Enchant)
+    addEnchantValue(scriptStateHJ.Enchantment)
+    addEnchantValue(scriptStateHJ.Blessing)
     return scriptStateRI
 end
 local function findPetEnchantSlot(scriptStateKS, scriptStateAY)
@@ -5597,8 +5616,21 @@ local specialWebhookEnchantNames = {
     luckboost = "Luck Boost",
 }
 local function getWebhookEnchantDisplayName(enchantName)
+    local enchantLevel = nil
+    if type(enchantName) == "table" then
+        enchantLevel = enchantName.Level or enchantName.level
+        enchantName = enchantName.Id or enchantName.id or enchantName.ID or ""
+    end
     if type(enchantName) ~= "string" or enchantName == "" then
         return nil
+    end
+    if enchantModule and type(enchantModule.GetFullTitle) == "function" then
+        local ok, title = pcall(function()
+            return enchantModule:GetFullTitle(enchantName, enchantLevel)
+        end)
+        if ok and type(title) == "string" and title ~= "" then
+            return title
+        end
     end
     local normalizedName = normalizeEnchantName(enchantName)
     if specialWebhookEnchantNames[normalizedName] then
@@ -5621,11 +5653,105 @@ local function getWebhookEnchantDisplayName(enchantName)
         return firstLetter:upper()..rest:lower()
     end)
 end
-local function getWebhookSuperLegendaryEnchantText(webhookPetEntry)
+local function getSuperLegendaryWebhookEnchantList(petData)
+    local enchantNames = {}
+    if type(petData) ~= "table" or type(petData.Enchants) ~= "table" then
+        return enchantNames
+    end
+    for _, enchantEntry in pairs(petData.Enchants) do
+        local enchantId
+        local enchantLevel
+        if type(enchantEntry) == "table" then
+            enchantId = enchantEntry.Id or enchantEntry.id or enchantEntry.ID
+            enchantLevel = enchantEntry.Level or enchantEntry.level
+        elseif type(enchantEntry) == "string" then
+            enchantId = enchantEntry
+        end
+        if type(enchantId) == "string" and enchantId ~= "" then
+            table.insert(enchantNames, {
+                Id = enchantId,
+                Level = enchantLevel,
+            })
+        end
+    end
+    return enchantNames
+end
+activeStates.BGSI_Lite_GetWebhookPetEntryId = function(webhookPetEntry)
+    if type(webhookPetEntry) ~= "table" then
+        return nil
+    end
+    for _, idKey in ipairs({
+        "Id",
+        "ID",
+        "id",
+        "Guid",
+        "GUID",
+        "guid",
+        "UUID",
+        "uuid",
+        "UID",
+        "uid",
+    }) do
+        local idValue = webhookPetEntry[idKey]
+        if idValue ~= nil and tostring(idValue) ~= "" then
+            return tostring(idValue)
+        end
+    end
+    return activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry.Pet)
+        or activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry.Data)
+        or activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry.Info)
+end
+activeStates.BGSI_Lite_DoesStoredWebhookPetMatch = function(storedPet, petName, isShiny, isMythic, isXL)
+    if type(storedPet) ~= "table" then
+        return false
+    end
+    local storedName = storedPet.Name or storedPet.PetName or storedPet.Pet
+    if type(storedName) ~= "string" or storedName ~= petName then
+        return false
+    end
+    if isShiny ~= nil and (storedPet.Shiny == true or storedPet.IsShiny == true) ~= (isShiny == true) then
+        return false
+    end
+    if isMythic ~= nil and (storedPet.Mythic == true or storedPet.IsMythic == true) ~= (isMythic == true) then
+        return false
+    end
+    if isXL ~= nil and (storedPet.XL == true or storedPet.IsXL == true) ~= (isXL == true) then
+        return false
+    end
+    return true
+end
+activeStates.BGSI_Lite_FindStoredWebhookPet = function(webhookPetEntry, petName, isShiny, isMythic, isXL)
+    local targetPetId = activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry)
+    local ok, playerData = pcall(function()
+        return profileStore:IsReady() and profileStore:Get() or nil
+    end)
+    local petList = ok and type(playerData) == "table" and playerData.Pets or nil
+    if type(petList) ~= "table" then
+        return nil
+    end
+    if targetPetId then
+        for _, storedPet in ipairs(petList) do
+            if type(storedPet) == "table" then
+                local storedPetId = activeStates.BGSI_Lite_GetWebhookPetEntryId(storedPet)
+                if storedPetId == targetPetId then
+                    return storedPet
+                end
+            end
+        end
+    end
+    for petIndex = # petList, 1, - 1 do
+        local storedPet = petList[petIndex]
+        if activeStates.BGSI_Lite_DoesStoredWebhookPetMatch(storedPet, petName, isShiny, isMythic, isXL) then
+            return storedPet
+        end
+    end
+    return nil
+end
+local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, isMythic, isXL)
     local enchantNames, seenEnchantNames = {}, {}
     local function addEnchantSource(source)
-        local enchantList = getPetEnchantList(source)
-        for enchantSlot = 1, 2 do
+        local enchantList = getSuperLegendaryWebhookEnchantList(source)
+        for enchantSlot = 1, # enchantList do
             local enchantName = enchantList[enchantSlot]
             local displayName = getWebhookEnchantDisplayName(enchantName)
             if displayName and not seenEnchantNames[displayName] then
@@ -5639,6 +5765,16 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry)
         addEnchantSource(webhookPetEntry.Pet)
         addEnchantSource(webhookPetEntry.Data)
         addEnchantSource(webhookPetEntry.Info)
+    end
+    if # enchantNames == 0 then
+        for retryIndex = 1, 10 do
+            local storedPet = activeStates.BGSI_Lite_FindStoredWebhookPet(webhookPetEntry, petName, isShiny, isMythic, isXL)
+            addEnchantSource(storedPet)
+            if # enchantNames > 0 then
+                break
+            end
+            task.wait(0.1)
+        end
     end
     if # enchantNames == 0 then
         return nil
@@ -7770,35 +7906,17 @@ end)
 activeStates.BGSI_Lite_RecentPetWebhookKeys = type(activeStates.BGSI_Lite_RecentPetWebhookKeys) == "table" and activeStates.BGSI_Lite_RecentPetWebhookKeys or {}
 local recentPetWebhookKeys = activeStates.BGSI_Lite_RecentPetWebhookKeys
 local function isSuperLegendaryWebhookPet(webhookPetEntry, petData)
-    if type(petData) == "table" then
-        if petData.Super == true or petData.SuperLegendary == true or petData.Celestial == true then
-            return true
-        end
-        for _, value in pairs(petData) do
-            if type(value) == "string" and string.lower(value):find("super", 1, true) then
-                return true
-            end
-        end
+    local isLegendaryBasePet = type(petData) == "table" and petData.Rarity == "Legendary"
+    if not isLegendaryBasePet then
+        return false
     end
     if type(webhookPetEntry) == "table" then
-        if webhookPetEntry.Super == true or webhookPetEntry.SuperLegendary == true or webhookPetEntry.Celestial == true then
+        if webhookPetEntry.Super == true then
             return true
         end
         local nestedPet = webhookPetEntry.Pet
-        if type(nestedPet) == "table" and (nestedPet.Super == true or nestedPet.SuperLegendary == true or nestedPet.Celestial == true) then
+        if type(nestedPet) == "table" and nestedPet.Super == true then
             return true
-        end
-        for _, value in pairs(webhookPetEntry) do
-            if type(value) == "string" and string.lower(value):find("super", 1, true) then
-                return true
-            end
-        end
-        if type(nestedPet) == "table" then
-            for _, value in pairs(nestedPet) do
-                if type(value) == "string" and string.lower(value):find("super", 1, true) then
-                    return true
-                end
-            end
         end
     end
     return false
@@ -7949,7 +8067,7 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
             end
         end
         if isSuperLegendaryPet then
-            local superLegendaryEnchantText = getWebhookSuperLegendaryEnchantText(scriptStateACH)
+            local superLegendaryEnchantText = getWebhookSuperLegendaryEnchantText(scriptStateACH, scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK)
             if superLegendaryEnchantText then
                 table.insert(scriptStateYA, superLegendaryEnchantText)
             end
