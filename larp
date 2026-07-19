@@ -5862,6 +5862,26 @@ do
         activeStates.BGSI_Lite_DashboardBestHatchChance = 0
         activeStates.BGSI_Lite_DashboardHandledCommands = {}
         activeStates.BGSI_Lite_DashboardPendingHatches = {}
+        activeStates.BGSI_Lite_DashboardEggDiscoveries = {}
+        activeStates.BGSI_Lite_RecordEggDiscovery = function(eggName, petName, rarity, imageAssetId, shiny, mythic, xl, super)
+            local discoveryKey = table.concat({eggName, petName, tostring(shiny), tostring(mythic), tostring(xl), tostring(super)}, "|")
+            local discovery = activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey]
+            if not discovery then
+                discovery = {
+                    eggName = eggName,
+                    petName = petName,
+                    rarity = rarity,
+                    imageAssetId = imageAssetId,
+                    shiny = shiny,
+                    mythic = mythic,
+                    xl = xl,
+                    super = super,
+                    quantity = 0,
+                }
+                activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey] = discovery
+            end
+            discovery.quantity = discovery.quantity + 1
+        end
         local dashboardRequest = request or http_request or (type(syn) == "table" and rawget(syn, "request")) or rawget(activeStates, "http_request")
         if type(dashboardRequest) ~= "function" then
             local httpTable = rawget(activeStates, "http")
@@ -5871,6 +5891,7 @@ do
         local lastDashboardState
         local dashboardConnected
         local dashboardFailureLogAt = 0
+        local dashboardSyncDelay = 1
         local pendingDashboardCommandResults = {}
         local lastInventorySignature
         local dashboardConfigKeys = {
@@ -5944,11 +5965,13 @@ do
                 return nil
             end
             local image
-            if pet.Shiny == true and pet.Mythic == true then
+            local shiny = pet.Shiny == true or (type(pet.Pet) == "table" and pet.Pet.Shiny == true)
+            local mythic = pet.Mythic == true or (type(pet.Pet) == "table" and pet.Pet.Mythic == true)
+            if shiny and mythic then
                 image = images[4] or images.MythicShiny or images["Shiny Mythic"] or images.ShinyMythic
-            elseif pet.Shiny == true then
+            elseif shiny then
                 image = images[2] or images.Shiny
-            elseif pet.Mythic == true then
+            elseif mythic then
                 image = images[3] or images.Mythic
             else
                 image = images[1] or images.Normal
@@ -6004,13 +6027,23 @@ do
 
         task.spawn(function()
             while isCurrentRun() do
-                task.wait(Config.dashboardSyncEnabled and 2 or 0.85)
+                task.wait(Config.dashboardSyncEnabled and dashboardSyncDelay or 0.85)
+                dashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
+                dashboardIngestToken = tostring(Config.dashboardIngestToken or ""):match("^%s*(.-)%s*$") or ""
+                dashboardEndpoint = string.gsub(dashboardEndpoint, "/+$", "")
+                if dashboardEndpoint ~= "" and not string.match(dashboardEndpoint, "^https?://") then
+                    dashboardEndpoint = "https://"..dashboardEndpoint
+                end
+                if dashboardEndpoint ~= "" and not string.find(dashboardEndpoint, "/api/", 1, true) then
+                    dashboardEndpoint = dashboardEndpoint.."/api/proxy/heartbeat"
+                end
                 if Config.dashboardSyncEnabled and dashboardEndpoint ~= "" and dashboardIngestToken ~= "" then
                     if type(dashboardRequest) ~= "function" then
                         if dashboardConnected ~= false then
                             print("["..LocalPlayer.Name.."] Account Dashboard request function unavailable.")
                         end
                         dashboardConnected = false
+                        dashboardSyncDelay = math.min(120, dashboardSyncDelay * 2)
                         continue
                     end
 
@@ -6028,7 +6061,10 @@ do
                     end
                     local pendingDashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
                     local sentDashboardHatchCount = math.min(#pendingDashboardHatches, 100)
+                    local dashboardEggDiscoveries = activeStates.BGSI_Lite_DashboardEggDiscoveries
+                    local sentDashboardEggDiscoveries = {}
                     local payload = {
+                        protocolVersion = 2,
                         userId = tostring(LocalPlayer.UserId),
                         username = LocalPlayer.Name,
                         displayName = LocalPlayer.DisplayName,
@@ -6054,6 +6090,27 @@ do
                             table.insert(payload.hatches, pendingDashboardHatches[hatchIndex])
                         end
                     end
+                    for discoveryKey, discovery in pairs(dashboardEggDiscoveries) do
+                        if payload.eggDiscoveries and #payload.eggDiscoveries >= 20 then
+                            break
+                        end
+                        local sentQuantity = math.max(0, math.floor(tonumber(discovery.quantity) or 0))
+                        if sentQuantity > 0 then
+                            payload.eggDiscoveries = payload.eggDiscoveries or {}
+                            table.insert(payload.eggDiscoveries, {
+                                eggName = discovery.eggName,
+                                petName = discovery.petName,
+                                rarity = discovery.rarity,
+                                imageAssetId = discovery.imageAssetId,
+                                shiny = discovery.shiny,
+                                mythic = discovery.mythic,
+                                xl = discovery.xl,
+                                super = discovery.super,
+                                quantity = sentQuantity,
+                            })
+                            sentDashboardEggDiscoveries[discoveryKey] = sentQuantity
+                        end
+                    end
                     if #pendingDashboardCommandResults > 0 then
                         payload.commandResults = pendingDashboardCommandResults
                     end
@@ -6067,19 +6124,38 @@ do
                         lastDashboardState = currentState
                     end
 
+                    local encodedPayload = HttpService:JSONEncode(payload)
+                    if #encodedPayload > 700000 and payload.inventory then
+                        payload.inventory = nil
+                        encodedPayload = HttpService:JSONEncode(payload)
+                        includeInventory = false
+                        lastInventorySync = 0
+                        lastInventorySignature = nil
+                        print("["..LocalPlayer.Name.."] Account Dashboard inventory snapshot was too large. Sending live status without inventory.")
+                    end
+
                     local requestOk, response = pcall(dashboardRequest, {
                         Url = dashboardEndpoint,
                         Method = "POST",
                         Headers = {
                             ["Content-Type"] = "application/json",
                             ["Authorization"] = "Bearer "..dashboardIngestToken,
+                            ["X-Larplite-Protocol"] = "2",
                         },
-                        Body = HttpService:JSONEncode(payload),
+                        Body = encodedPayload,
                     })
                     local statusCode = requestOk and type(response) == "table" and tonumber(response.StatusCode or response.Status or response.status_code) or nil
                     local responseBody = requestOk and type(response) == "table" and tostring(response.Body or response.body or "") or ""
-                    local syncSucceeded = requestOk and ((statusCode and statusCode >= 200 and statusCode < 300) or (not statusCode and string.find(responseBody, '"ok":true', 1, true)))
+                    local responsePayload
+                    pcall(function()
+                        responsePayload = HttpService:JSONDecode(responseBody)
+                    end)
+                    local syncSucceeded = requestOk
+                        and (not statusCode or (statusCode >= 200 and statusCode < 300))
+                        and type(responsePayload) == "table"
+                        and responsePayload.ok == true
                     if syncSucceeded then
+                        dashboardSyncDelay = math.max(5, tonumber(responsePayload.heartbeatSeconds) or 10)
                         if not dashboardConnected then
                             print("["..LocalPlayer.Name.."] Account Dashboard connected.")
                         end
@@ -6088,10 +6164,15 @@ do
                         for _ = 1, sentDashboardHatchCount do
                             table.remove(pendingDashboardHatches, 1)
                         end
-                        local responsePayload
-                        pcall(function()
-                            responsePayload = HttpService:JSONDecode(responseBody)
-                        end)
+                        for discoveryKey, sentQuantity in pairs(sentDashboardEggDiscoveries) do
+                            local discovery = dashboardEggDiscoveries[discoveryKey]
+                            if discovery then
+                                discovery.quantity = math.max(0, (tonumber(discovery.quantity) or 0) - sentQuantity)
+                                if discovery.quantity <= 0 then
+                                    dashboardEggDiscoveries[discoveryKey] = nil
+                                end
+                            end
+                        end
                         for _, dashboardCommand in ipairs(type(responsePayload) == "table" and responsePayload.commands or {}) do
                             local commandId = tonumber(dashboardCommand.id)
                             if commandId and not activeStates.BGSI_Lite_DashboardHandledCommands[commandId] then
@@ -6306,6 +6387,16 @@ do
                             dashboardFailureLogAt = tick()
                         end
                         dashboardConnected = false
+                        if statusCode == 401 or statusCode == 403 then
+                            dashboardSyncDelay = 60
+                        elseif statusCode == 404 then
+                            dashboardSyncDelay = 30
+                        elseif statusCode == 413 then
+                            dashboardInventoryEnabled = false
+                            dashboardSyncDelay = 5
+                        else
+                            dashboardSyncDelay = math.min(120, math.max(5, dashboardSyncDelay * 2))
+                        end
                         if includeInventory then
                             lastInventorySync = 0
                             lastInventorySignature = nil
@@ -6314,6 +6405,7 @@ do
                 else
                     dashboardConnected = nil
                     lastDashboardState = nil
+                    dashboardSyncDelay = 1
                 end
             end
         end)
@@ -9125,6 +9217,17 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
             end
             local dashboardIsSuper = isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo)
             local dashboardRarity = dashboardIsSuper and "Super Legendary" or tostring(dashboardPetInfo.Rarity or "Unknown")
+            local dashboardEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "Unknown Egg")
+            activeStates.BGSI_Lite_RecordEggDiscovery(
+                dashboardEggName,
+                tostring(dashboardPetName),
+                dashboardRarity,
+                getDashboardPetAssetId(dashboardHatchPet, dashboardPetInfo),
+                dashboardShiny == true,
+                dashboardMythic == true,
+                dashboardXL == true,
+                dashboardIsSuper
+            )
             if dashboardRarity == "Secret" or dashboardRarity == "Infinity" or dashboardIsSuper then
                 local dashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
                 if type(dashboardHatches) == "table" then
@@ -9133,7 +9236,8 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
                         petName = tostring(dashboardPetName),
                         rarity = dashboardRarity,
                         chance = dashboardOneInChance,
-                        eggName = tostring(activeStates.BGSI_Lite_CurrentEggName or ""),
+                        eggName = dashboardEggName,
+                        imageAssetId = getDashboardPetAssetId(dashboardHatchPet, dashboardPetInfo),
                         shiny = dashboardShiny == true,
                         mythic = dashboardMythic == true,
                         xl = dashboardXL == true,
