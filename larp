@@ -5864,7 +5864,7 @@ do
         activeStates.BGSI_Lite_DashboardHandledCommands = {}
         activeStates.BGSI_Lite_DashboardPendingHatches = {}
         activeStates.BGSI_Lite_DashboardEggDiscoveries = {}
-        activeStates.BGSI_Lite_RecordEggDiscovery = function(eggName, petName, rarity, imageAssetId, shiny, mythic, xl, super)
+        activeStates.BGSI_Lite_RecordEggDiscovery = function(eggName, petName, rarity, imageAssetId, shiny, mythic, xl, super, enchantments)
             local discoveryKey = table.concat({eggName, petName, tostring(shiny), tostring(mythic), tostring(xl), tostring(super)}, "|")
             local discovery = activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey]
             if not discovery then
@@ -5877,10 +5877,13 @@ do
                     mythic = mythic,
                     xl = xl,
                     super = super,
+                    enchantments = enchantments,
                     quantity = 0,
                 }
                 activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey] = discovery
             end
+            discovery.imageAssetId = imageAssetId or discovery.imageAssetId
+            discovery.enchantments = enchantments
             discovery.quantity = discovery.quantity + 1
         end
         local dashboardRequest = request or http_request or (type(syn) == "table" and rawget(syn, "request")) or rawget(activeStates, "http_request")
@@ -5961,8 +5964,12 @@ do
                 return nil
             end
             local image
-            local shiny = pet.Shiny == true or (type(pet.Pet) == "table" and pet.Pet.Shiny == true)
-            local mythic = pet.Mythic == true or (type(pet.Pet) == "table" and pet.Pet.Mythic == true)
+            local shiny = pet.Shiny == true
+                or (type(pet.Pet) == "table" and pet.Pet.Shiny == true)
+                or (type(pet.Data) == "table" and pet.Data.Shiny == true)
+            local mythic = pet.Mythic == true
+                or (type(pet.Pet) == "table" and pet.Pet.Mythic == true)
+                or (type(pet.Data) == "table" and pet.Data.Mythic == true)
             if shiny and mythic then
                 image = images[4] or images.MythicShiny or images["Shiny Mythic"] or images.ShinyMythic
             elseif shiny then
@@ -6031,7 +6038,7 @@ do
                     local petName = tostring(pet.Name or "Unknown Pet")
                     local petRarity = tostring(petInfo and petInfo.Rarity or "")
                     local imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
-                    local stackKey = table.concat({petName, petRarity, tostring(imageAssetId or ""), tostring(pet.Shiny == true), tostring(pet.Mythic == true), tostring(pet.Super == true)}, "|")
+                    local stackKey = table.concat({petName, petRarity, tostring(imageAssetId or ""), tostring(pet.Shiny == true), tostring(pet.Mythic == true), tostring(pet.XL == true), tostring(pet.Super == true)}, "|")
                     local stack = inventoryStacks[stackKey]
                     if not stack then
                         stack = {
@@ -6043,6 +6050,7 @@ do
                             imageAssetId = imageAssetId,
                             shiny = pet.Shiny == true,
                             mythic = pet.Mythic == true,
+                            xl = pet.XL == true,
                             super = pet.Super == true,
                         }
                         inventoryStacks[stackKey] = stack
@@ -6157,6 +6165,7 @@ do
                                 mythic = discovery.mythic,
                                 xl = discovery.xl,
                                 super = discovery.super,
+                                enchantments = discovery.enchantments,
                                 quantity = sentQuantity,
                             })
                             sentDashboardEggDiscoveries[discoveryKey] = sentQuantity
@@ -7000,7 +7009,7 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isS
         end
     end
     if # enchantNames == 0 then
-        return nil
+        return nil, enchantNames
     end
     local enchantLines = {
         "<:orange_book:1462135985759326370> **Enchantments**:"
@@ -7008,7 +7017,7 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isS
     for enchantIndex = 1, # enchantNames do
         table.insert(enchantLines, "\t > **<:four_leaf_clover:1462133363182796810> "..enchantNames[enchantIndex].."**")
     end
-    return table.concat(enchantLines, "\n")
+    return table.concat(enchantLines, "\n"), enchantNames
 end
 local function isSpecialEnchant(scriptStateADR)
     local scriptStateABZ = getEnchantData(scriptStateADR)
@@ -9266,9 +9275,18 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
             local dashboardPetInfo = petRarityData and petRarityData[dashboardPetName] or {}
             local dashboardChancePercent = tonumber(checkLowCurrencyWebhook(dashboardPetName, dashboardPetInfo)) or 100
             local dashboardOneInChance = dashboardChancePercent > 0 and (100 / dashboardChancePercent) or 0
-            local dashboardShiny = dashboardHatchPet.Shiny or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Shiny) or false
-            local dashboardMythic = dashboardHatchPet.Mythic or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Mythic) or false
-            local dashboardXL = dashboardHatchPet.XL or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.XL) or false
+            local dashboardShiny = dashboardHatchPet.Shiny
+                or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Shiny)
+                or (dashboardHatchPet.Data and dashboardHatchPet.Data.Shiny)
+                or false
+            local dashboardMythic = dashboardHatchPet.Mythic
+                or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Mythic)
+                or (dashboardHatchPet.Data and dashboardHatchPet.Data.Mythic)
+                or false
+            local dashboardXL = dashboardHatchPet.XL
+                or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.XL)
+                or (dashboardHatchPet.Data and dashboardHatchPet.Data.XL)
+                or false
             if dashboardShiny then
                 dashboardOneInChance = dashboardOneInChance * 40
             end
@@ -9287,7 +9305,15 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
                 activeStates.BGSI_Lite_DashboardBestHatchChance = dashboardOneInChance
             end
             local dashboardIsSuper = isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo)
-            local dashboardRarity = dashboardIsSuper and "Super Legendary" or tostring(dashboardPetInfo.Rarity or "Unknown")
+            local dashboardIsCelestial = dashboardHatchPet.Celestial == true
+                or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Celestial == true)
+                or (dashboardHatchPet.Data and dashboardHatchPet.Data.Celestial == true)
+            local dashboardRarity = dashboardIsCelestial and "Celestial" or (dashboardIsSuper and "Super Legendary" or tostring(dashboardPetInfo.Rarity or "Unknown"))
+            local dashboardEnchantments = {}
+            if dashboardIsSuper then
+                local _, enchantNames = getWebhookSuperLegendaryEnchantText(dashboardHatchPet, dashboardPetName, dashboardShiny, dashboardMythic, dashboardXL)
+                dashboardEnchantments = enchantNames or {}
+            end
             local dashboardEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "Unknown Egg")
             activeStates.BGSI_Lite_RecordEggDiscovery(
                 dashboardEggName,
@@ -9297,9 +9323,10 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
                 dashboardShiny == true,
                 dashboardMythic == true,
                 dashboardXL == true,
-                dashboardIsSuper
+                dashboardIsSuper,
+                dashboardEnchantments
             )
-            if dashboardRarity == "Secret" or dashboardRarity == "Infinity" or dashboardIsSuper then
+            if dashboardRarity == "Secret" or dashboardRarity == "Infinity" or dashboardRarity == "Void" or dashboardRarity == "Celestial" or dashboardIsSuper then
                 local dashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
                 if type(dashboardHatches) == "table" then
                     table.insert(dashboardHatches, {
@@ -9313,6 +9340,7 @@ activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(fun
                         mythic = dashboardMythic == true,
                         xl = dashboardXL == true,
                         super = dashboardIsSuper,
+                        enchantments = dashboardEnchantments,
                     })
                     if #dashboardHatches > 500 then
                         table.remove(dashboardHatches, 1)
