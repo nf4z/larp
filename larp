@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.17"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.18"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -6968,38 +6968,70 @@ do
 		activeStates.BGSI_Lite_DashboardItemIconCache = type(activeStates.BGSI_Lite_DashboardItemIconCache) == "table"
 			and activeStates.BGSI_Lite_DashboardItemIconCache
 			or {}
-		activeStates.BGSI_Lite_GetDashboardItemAssetId = function(item)
+		if activeStates.BGSI_Lite_DashboardConfigOptionsVersion ~= 2 then
+			activeStates.BGSI_Lite_DashboardConfigOptions = nil
+			activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt = 0
+			activeStates.BGSI_Lite_DashboardConfigOptionsVersion = 2
+		end
+		activeStates.BGSI_Lite_GetDashboardItemIcon = function(item)
 			if type(item) ~= "table" or not item.Type then
 				return nil
 			end
 			local cacheKey = table.concat({ tostring(item.Type), tostring(item.Name or item.Currency or ""), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
-			local cachedAssetId = activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey]
-			if cachedAssetId then
-				return cachedAssetId
+			local cachedIcon = activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey]
+			if type(cachedIcon) == "table" then
+				return cachedIcon
 			end
-			local imageAssetId
+			local icon
 			if itemUtil and type(itemUtil.UpdateIcon) == "function" then
 				local iconContainer = Instance.new("Frame")
+				iconContainer.Size = UDim2.fromScale(1, 1)
+				iconContainer.BackgroundTransparency = 1
 				local iconLabel = Instance.new("ImageLabel")
 				iconLabel.Name = "Label"
+				iconLabel.Size = UDim2.fromScale(1, 1)
+				iconLabel.BackgroundTransparency = 1
 				iconLabel.Parent = iconContainer
 				pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, item)
+				local imageLayers = {}
 				for _, descendant in ipairs(iconContainer:GetDescendants()) do
-					if descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
-						imageAssetId = string.match(tostring(descendant.Image or ""), "rbxassetid://(%d+)")
+					if (descendant:IsA("ImageLabel") or descendant:IsA("ImageButton")) and descendant.Visible then
+						local imageAssetId = string.match(tostring(descendant.Image or ""), "rbxassetid://(%d+)")
 							or string.match(tostring(descendant.Image or ""), "[?&]id=(%d+)")
 							or string.match(tostring(descendant.Image or ""), "^(%d+)$")
-						if imageAssetId then
-							break
+						if imageAssetId and imageAssetId ~= "0" then
+							local scale = math.max(descendant.Size.X.Scale, descendant.Size.Y.Scale)
+							local ancestor = descendant.Parent
+							while ancestor and ancestor ~= iconContainer do
+								if ancestor:IsA("GuiObject") then
+									scale *= math.max(ancestor.Size.X.Scale, ancestor.Size.Y.Scale)
+								end
+								ancestor = ancestor.Parent
+							end
+							table.insert(imageLayers, {
+								imageAssetId = imageAssetId,
+								name = descendant.Name,
+								zIndex = descendant.ZIndex,
+								scale = scale > 0 and scale or 1,
+							})
 						end
 					end
 				end
+				table.sort(imageLayers, function(left, right)
+					return left.zIndex < right.zIndex
+				end)
+				if #imageLayers > 0 then
+					icon = {
+						imageAssetId = imageLayers[#imageLayers].imageAssetId,
+						imageLayers = imageLayers,
+					}
+				end
 				iconContainer:Destroy()
 			end
-			if imageAssetId then
-				activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey] = imageAssetId
+			if icon then
+				activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey] = icon
 			end
-			return imageAssetId
+			return icon
 		end
 
 		task.spawn(function()
@@ -7188,12 +7220,15 @@ do
 								value = value,
 								label = tostring(label or value),
 							}
-							local imageAssetId = type(optionData) == "table" and getAssetId(optionData, 0, {}) or nil
-							if not imageAssetId and type(optionItem) == "table" then
-								imageAssetId = activeStates.BGSI_Lite_GetDashboardItemAssetId(optionItem)
-							end
+							local itemIcon = type(optionItem) == "table"
+								and activeStates.BGSI_Lite_GetDashboardItemIcon(optionItem)
+							local imageAssetId = itemIcon and itemIcon.imageAssetId
+								or type(optionData) == "table" and getAssetId(optionData, 0, {})
 							if imageAssetId then
 								option.imageAssetId = imageAssetId
+							end
+							if itemIcon and #itemIcon.imageLayers > 0 then
+								option.imageLayers = itemIcon.imageLayers
 							end
 							table.insert(details.configOptions[configKey], option)
 						end
