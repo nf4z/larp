@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.17"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -6965,6 +6965,42 @@ do
 			return string.match(tostring(image or ""), "rbxassetid://(%d+)")
 				or string.match(tostring(image or ""), "^(%d+)$")
 		end
+		activeStates.BGSI_Lite_DashboardItemIconCache = type(activeStates.BGSI_Lite_DashboardItemIconCache) == "table"
+			and activeStates.BGSI_Lite_DashboardItemIconCache
+			or {}
+		activeStates.BGSI_Lite_GetDashboardItemAssetId = function(item)
+			if type(item) ~= "table" or not item.Type then
+				return nil
+			end
+			local cacheKey = table.concat({ tostring(item.Type), tostring(item.Name or item.Currency or ""), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
+			local cachedAssetId = activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey]
+			if cachedAssetId then
+				return cachedAssetId
+			end
+			local imageAssetId
+			if itemUtil and type(itemUtil.UpdateIcon) == "function" then
+				local iconContainer = Instance.new("Frame")
+				local iconLabel = Instance.new("ImageLabel")
+				iconLabel.Name = "Label"
+				iconLabel.Parent = iconContainer
+				pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, item)
+				for _, descendant in ipairs(iconContainer:GetDescendants()) do
+					if descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
+						imageAssetId = string.match(tostring(descendant.Image or ""), "rbxassetid://(%d+)")
+							or string.match(tostring(descendant.Image or ""), "[?&]id=(%d+)")
+							or string.match(tostring(descendant.Image or ""), "^(%d+)$")
+						if imageAssetId then
+							break
+						end
+					end
+				end
+				iconContainer:Destroy()
+			end
+			if imageAssetId then
+				activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey] = imageAssetId
+			end
+			return imageAssetId
+		end
 
 		task.spawn(function()
 			while isCurrentRun() do
@@ -7137,7 +7173,7 @@ do
 							details.configOptions = cachedConfigOptions
 						else
 						local configOptionSeen = {}
-						local function addConfigOption(configKey, value, label, optionData)
+						local function addConfigOption(configKey, value, label, optionData, optionItem)
 							if value == nil then
 								return
 							end
@@ -7153,6 +7189,9 @@ do
 								label = tostring(label or value),
 							}
 							local imageAssetId = type(optionData) == "table" and getAssetId(optionData, 0, {}) or nil
+							if not imageAssetId and type(optionItem) == "table" then
+								imageAssetId = activeStates.BGSI_Lite_GetDashboardItemAssetId(optionItem)
+							end
 							if imageAssetId then
 								option.imageAssetId = imageAssetId
 							end
@@ -7160,10 +7199,16 @@ do
 						end
 
 						for eggName, eggInfo in pairs(getEggDataLookup()) do
-							addConfigOption("selectedEgg", eggName, eggName, eggInfo)
+							if not string.lower(tostring(eggName)):find(" golden$") then
+								addConfigOption("selectedEgg", eggName, eggName, eggInfo)
+							end
 						end
-						addConfigOption("selectedEgg", activeStates.BGSI_Lite_CurrentEggName)
-						addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
+						if not string.lower(tostring(activeStates.BGSI_Lite_CurrentEggName or "")):find(" golden$") then
+							addConfigOption("selectedEgg", activeStates.BGSI_Lite_CurrentEggName)
+						end
+						if not string.lower(tostring(activeStates.BGSI_Lite_LuckEggName or "")):find(" golden$") then
+							addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
+						end
 						for riftName, riftInfo in pairs(type(riftData) == "table" and riftData or {}) do
 							if type(riftInfo) == "table" and riftInfo.Type == "Egg" then
 								addConfigOption("selectedRiftEgg", riftName, riftName, riftInfo)
@@ -7217,9 +7262,11 @@ do
 						addConfigOption("equippedTargetEnchant2", "", "None")
 						for potionName, potion in pairs(type(potionData) == "table" and potionData or {}) do
 							if type(potionName) == "string" and type(potion) == "table" then
-								addConfigOption("potionType", potionName, potionName, potion)
-								addConfigOption("shrinePotion", potionName, potionName, potion)
-								addConfigOption("gemGenieTargetItem", potionName, potionName, potion)
+								local potionItem = { Type = "Potion", Name = potionName, Level = 1 }
+								local potionLabel = getItemText("GetName", potionItem, potionName)
+								addConfigOption("potionType", potionName, potionLabel, potion, potionItem)
+								addConfigOption("shrinePotion", potionName, potionLabel, potion, potionItem)
+								addConfigOption("gemGenieTargetItem", potionName, potionLabel, potion, potionItem)
 							end
 						end
 						for level = 1, 7 do
@@ -7230,11 +7277,13 @@ do
 						end
 						for powerupName, powerup in pairs(type(giftData) == "table" and giftData or {}) do
 							if type(powerupName) == "string" then
-								addConfigOption("gemGenieTargetItem", powerupName, powerupName, powerup)
+								local powerupItem = { Type = "Powerup", Name = powerupName }
+								local powerupLabel = getItemText("GetName", powerupItem, powerupName)
+								addConfigOption("gemGenieTargetItem", powerupName, powerupLabel, powerup, powerupItem)
 								if type(powerup) == "table" and powerup.Type == "Gift" then
-									addConfigOption("selectedMysteryBox", powerupName, powerupName, powerup)
+									addConfigOption("selectedMysteryBox", powerupName, powerupLabel, powerup, powerupItem)
 								elseif type(powerup) == "table" and powerup.Type == "Fragment" then
-									addConfigOption("selectedFragments", powerupName, powerupName, powerup)
+									addConfigOption("selectedFragments", powerupName, powerupLabel, powerup, powerupItem)
 								end
 							end
 						end
@@ -7246,9 +7295,11 @@ do
 								return
 							end
 							if type(shopItem) == "string" then
-								addConfigOption("selectedShopItems", shopItem, shopItem, giftData and giftData[shopItem])
+								local shopItemData = { Type = "Powerup", Name = shopItem }
+								local shopItemLabel = getItemText("GetName", shopItemData, shopItem)
+								addConfigOption("selectedShopItems", shopItem, shopItemLabel, giftData and giftData[shopItem], shopItemData)
 								if string.find(string.lower(shopItem), "fragment", 1, true) then
-									addConfigOption("selectedFragments", shopItem, shopItem, giftData and giftData[shopItem])
+									addConfigOption("selectedFragments", shopItem, shopItemLabel, giftData and giftData[shopItem], shopItemData)
 								end
 								return
 							end
@@ -7259,17 +7310,23 @@ do
 							local itemName = type(item) == "table" and (item.Name or item.Item or item.ItemName or item.Id)
 								or type(item) == "string" and item
 							if itemName then
+								local shopItemDescriptor = type(item) == "table" and item or { Type = "Powerup", Name = itemName }
+								if not shopItemDescriptor.Type then
+									shopItemDescriptor = { Type = "Powerup", Name = itemName }
+								end
 								local itemOptionData = type(item) == "table" and item or nil
 								if not itemOptionData or not getAssetId(itemOptionData, 0, {}) then
 									itemOptionData = giftData and giftData[itemName]
 								end
-								addConfigOption("selectedShopItems", itemName, itemName, itemOptionData)
+								local itemLabel = getItemText("GetName", shopItemDescriptor, itemName)
+								addConfigOption("selectedShopItems", itemName, itemLabel, itemOptionData, shopItemDescriptor)
 								if string.find(string.lower(tostring(itemName)), "fragment", 1, true) then
 									addConfigOption(
 										"selectedFragments",
 										itemName,
-										itemName,
-										itemOptionData
+										itemLabel,
+										itemOptionData,
+										shopItemDescriptor
 									)
 								end
 							end
