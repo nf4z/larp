@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.6"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.7"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -7752,7 +7752,7 @@ do
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoEquipBestPets and 3 or 0.85)
-			if Config.autoEquipBestPets then
+			if Config.autoEquipBestPets and not Config.autoEnchant then
 				pcall(function()
 					remoteEvent:FireServer("EquipBestPets")
 				end)
@@ -8567,23 +8567,28 @@ local function prepareAutoEnchantTeam()
 		return false
 	end
 	activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = tick()
-	remoteEvent:FireServer("UnequipAllPets")
+	local equippedPetIdSet = {}
 	for _, petId in ipairs(equippedPetIds) do
-		remoteEvent:FireServer("UnequipPet", petId)
+		local normalizedPetId = tostring(petId)
+		equippedPetIdSet[normalizedPetId] = true
+		if not selectedPetIdSet[normalizedPetId] then
+			remoteEvent:FireServer("UnequipPet", petId)
+		end
 	end
-	task.wait(0.15)
 	for _, petId in ipairs(selectedPetIds) do
-		remoteEvent:FireServer("EquipPet", petId)
+		if not equippedPetIdSet[petId] then
+			remoteEvent:FireServer("EquipPet", petId)
+		end
 	end
 	local equipDeadline = tick() + 4
 	repeat
 		task.wait(0.2)
 		equippedPetIds = getEnchantablePets()
-		local equippedPetIdSet = {}
+		equippedPetIdSet = {}
 		for _, petId in ipairs(equippedPetIds) do
 			equippedPetIdSet[tostring(petId)] = true
 		end
-		teamMatches = true
+		teamMatches = #equippedPetIds == #selectedPetIds
 		for _, petId in ipairs(selectedPetIds) do
 			if not equippedPetIdSet[petId] then
 				teamMatches = false
