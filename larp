@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.18"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.19"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -230,6 +230,26 @@ local function loadConfig()
 	end
 	return defaultConfig
 end
+local superLegendaryEnchantPriorityKeys = {
+	["hatch-blessing-plus"] = true,
+	["luck-boost-plus"] = true,
+	["hatch-blessing"] = true,
+	["luck-boost"] = true,
+}
+local function normalizeSuperLegendaryEnchantPriorities(priorities)
+	local normalizedPriorities = {}
+	local seenPriorities = {}
+	if type(priorities) == "table" then
+		for _, priorityKey in ipairs(priorities) do
+			priorityKey = tostring(priorityKey)
+			if superLegendaryEnchantPriorityKeys[priorityKey] and not seenPriorities[priorityKey] then
+				seenPriorities[priorityKey] = true
+				table.insert(normalizedPriorities, priorityKey)
+			end
+		end
+	end
+	return normalizedPriorities
+end
 -- Saves the current config when a setting changes.
 local function saveConfig()
 	if not writefile then
@@ -357,6 +377,9 @@ local function refreshChunkerAroundPlayer()
 end
 
 Config = loadConfig()
+Config.superLegendaryEnchantPriorities = normalizeSuperLegendaryEnchantPriorities(
+	Config.superLegendaryEnchantPriorities
+)
 if Config.dashboardSyncAutoEnabled ~= true then
 	Config.dashboardSyncEnabled = true
 	Config.dashboardSyncAutoEnabled = true
@@ -8149,12 +8172,15 @@ do
 														dashboardConfigKeySet[configKey]
 														and type(configValue) == type(defaultConfig[configKey])
 													then
-														Config[configKey] = configValue
+												Config[configKey] = configKey == "superLegendaryEnchantPriorities"
+													and normalizeSuperLegendaryEnchantPriorities(configValue)
+													or configValue
 														appliedConfigCount = appliedConfigCount + 1
 													end
 											end
 											saveConfig()
 											activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+											activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
 											clearDisabledPriorityStates()
 											_G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
 											pcall(function()
@@ -8766,25 +8792,56 @@ local function getWebhookEnchantDisplayName(enchantName)
 end
 local function getSuperLegendaryWebhookEnchantList(petData)
 	local enchantNames = {}
-	if type(petData) ~= "table" or type(petData.Enchants) ~= "table" then
+	local seenEnchants = {}
+	if type(petData) ~= "table" then
 		return enchantNames
 	end
-	for _, enchantEntry in pairs(petData.Enchants) do
+	local function addEnchantEntry(enchantEntry, fallbackId)
 		local enchantId
 		local enchantLevel
 		if type(enchantEntry) == "table" then
-			enchantId = enchantEntry.Id or enchantEntry.id or enchantEntry.ID
+			enchantId = enchantEntry.Id
+				or enchantEntry.id
+				or enchantEntry.ID
+				or enchantEntry.Name
+				or enchantEntry.name
+				or enchantEntry.Enchant
+				or enchantEntry.enchant
 			enchantLevel = enchantEntry.Level or enchantEntry.level
 		elseif type(enchantEntry) == "string" then
 			enchantId = enchantEntry
+		elseif type(fallbackId) == "string" and (enchantEntry == true or type(enchantEntry) == "number") then
+			enchantId = fallbackId
+			enchantLevel = type(enchantEntry) == "number" and enchantEntry or nil
 		end
-		if type(enchantId) == "string" and enchantId ~= "" then
+		enchantId = enchantId or fallbackId
+		local enchantKey = tostring(enchantId or "") .. ":" .. tostring(enchantLevel or "")
+		if type(enchantId) == "string" and enchantId ~= "" and not seenEnchants[enchantKey] then
+			seenEnchants[enchantKey] = true
 			table.insert(enchantNames, {
 				Id = enchantId,
 				Level = enchantLevel,
 			})
 		end
 	end
+	local function addEnchantSource(source)
+		if type(source) ~= "table" then
+			return
+		end
+		local enchantList = source.Enchants or source.Enchantments
+		if type(enchantList) == "table" then
+			for enchantKey, enchantEntry in pairs(enchantList) do
+				addEnchantEntry(enchantEntry, type(enchantKey) == "string" and enchantKey or nil)
+			end
+		end
+		addEnchantEntry(source.Enchant)
+		addEnchantEntry(source.Enchantment)
+		addEnchantEntry(source.Blessing)
+	end
+	addEnchantSource(petData)
+	addEnchantSource(petData.Pet)
+	addEnchantSource(petData.Data)
+	addEnchantSource(petData.Info)
 	return enchantNames
 end
 activeStates.BGSI_Lite_GetWebhookPetEntryId = function(webhookPetEntry)
@@ -9196,9 +9253,9 @@ local function prepareAutoEnchantTeam()
 	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
 		return false
 	end
-	local superEnchantPriorities = type(Config.superLegendaryEnchantPriorities) == "table"
-		and Config.superLegendaryEnchantPriorities
-		or {}
+	local superEnchantPriorities = normalizeSuperLegendaryEnchantPriorities(
+		Config.superLegendaryEnchantPriorities
+	)
 	local superEnchantPriorityIndexes = {}
 	for priorityIndex, enchantKey in ipairs(superEnchantPriorities) do
 		superEnchantPriorityIndexes[tostring(enchantKey)] = priorityIndex
