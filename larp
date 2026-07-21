@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.3"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.5"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -6674,7 +6674,145 @@ do
 							inventory = {},
 							prizes = {},
 							quests = { completedTotal = 0, completed = {}, active = {} },
+							configOptions = {},
 						}
+						local cachedConfigOptions = activeStates.BGSI_Lite_DashboardConfigOptions
+						if type(cachedConfigOptions) == "table"
+							and tick() - (tonumber(activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt) or 0) < 30
+						then
+							details.configOptions = cachedConfigOptions
+						else
+						local configOptionSeen = {}
+						local function addConfigOption(configKey, value, label)
+							if value == nil then
+								return
+							end
+							local optionKey = tostring(value)
+							configOptionSeen[configKey] = configOptionSeen[configKey] or {}
+							if configOptionSeen[configKey][optionKey] then
+								return
+							end
+							configOptionSeen[configKey][optionKey] = true
+							details.configOptions[configKey] = details.configOptions[configKey] or {}
+							table.insert(details.configOptions[configKey], {
+								value = value,
+								label = tostring(label or value),
+							})
+						end
+
+						for eggName in pairs(getEggDataLookup()) do
+							addConfigOption("selectedEgg", eggName)
+						end
+						addConfigOption("selectedEgg", activeStates.BGSI_Lite_CurrentEggName)
+						addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
+						for riftName, riftInfo in pairs(type(riftData) == "table" and riftData or {}) do
+							if type(riftInfo) == "table" and riftInfo.Type == "Egg" then
+								addConfigOption("selectedRiftEgg", riftName)
+							elseif type(riftInfo) == "table" and riftInfo.Type == "Chest" then
+								addConfigOption("selectedChest", riftName)
+							end
+						end
+						local rendered = Workspace:FindFirstChild("Rendered")
+						local renderedChests = rendered and rendered:FindFirstChild("Chests")
+						for _, chest in ipairs(renderedChests and renderedChests:GetChildren() or {}) do
+							addConfigOption("selectedWorldChest", chest.Name)
+						end
+						local chestData = safeRequireTable(function()
+							return require(ReplicatedStorage.Shared.Data.Chests)
+						end) or {}
+						for chestName in pairs(chestData) do
+							addConfigOption("selectedWorldChest", chestName)
+						end
+						for _, chestName in ipairs({ "Giant Chest", "Infinity Chest", "Ticket Chest", "Void Chest" }) do
+							addConfigOption("selectedWorldChest", chestName)
+						end
+						for enchantName in pairs(type(enchantData) == "table" and enchantData or {}) do
+							if type(enchantName) == "string" and not string.lower(enchantName):find("^super%-") then
+								addConfigOption("equippedTargetEnchant", enchantName)
+								addConfigOption("equippedTargetEnchant2", enchantName)
+							end
+						end
+						addConfigOption("equippedTargetEnchant2", "", "None")
+						for potionName, potion in pairs(type(potionData) == "table" and potionData or {}) do
+							if type(potionName) == "string" and type(potion) == "table" then
+								addConfigOption("potionType", potionName)
+								addConfigOption("shrinePotion", potionName)
+								addConfigOption("gemGenieTargetItem", potionName)
+							end
+						end
+						for level = 1, 7 do
+							addConfigOption("potionLevel", level)
+							if level <= 5 then
+								addConfigOption("shrineLevel", level)
+							end
+						end
+						for powerupName, powerup in pairs(type(giftData) == "table" and giftData or {}) do
+							if type(powerupName) == "string" then
+								addConfigOption("gemGenieTargetItem", powerupName)
+								if type(powerup) == "table" and powerup.Type == "Gift" then
+									addConfigOption("selectedMysteryBox", powerupName)
+								end
+							end
+						end
+						local shops = safeRequireTable(function()
+							return require(ReplicatedStorage.Shared.Data.Shops)
+						end) or {}
+						local function addShopItem(shopItem, depth)
+							if depth > 4 or shopItem == nil then
+								return
+							end
+							if type(shopItem) == "string" then
+								addConfigOption("selectedShopItems", shopItem)
+								return
+							end
+							if type(shopItem) ~= "table" then
+								return
+							end
+							local item = shopItem.Item or shopItem.Product or shopItem
+							local itemName = type(item) == "table" and (item.Name or item.Item or item.ItemName or item.Id)
+								or type(item) == "string" and item
+							if itemName then
+								addConfigOption("selectedShopItems", itemName)
+							end
+							if type(item) == "table" and item.Product then
+								addShopItem(item.Product, depth + 1)
+							end
+						end
+						for shopName, shop in pairs(shops) do
+							addConfigOption("selectedShops", shopName)
+							if type(shop) == "table" then
+								for _, listName in ipairs({ "PermanentItems", "RandomItems", "Items", "Slots" }) do
+									for _, shopItem in pairs(type(shop[listName]) == "table" and shop[listName] or {}) do
+										addShopItem(shopItem, 0)
+									end
+								end
+							end
+						end
+						local ownedPetNames = {}
+						for _, pet in ipairs(type(playerData.Pets) == "table" and playerData.Pets or {}) do
+							if type(pet) == "table" and type(pet.Name) == "string" and not ownedPetNames[pet.Name] then
+								ownedPetNames[pet.Name] = true
+								addConfigOption("RebirthPetName", pet.Name)
+								addConfigOption("AdminRebirthPetName", pet.Name)
+							end
+						end
+						for teamKey, team in pairs(type(playerData.Teams) == "table" and playerData.Teams or {}) do
+							local teamName = type(team) == "table" and (team.Name or team.TeamName) or nil
+							local teamLabel = string.format("%s [%s]", tostring(teamName or "Team"), tostring(teamKey))
+							for _, configKey in ipairs({ "selectedPearlTeam", "selectedTicketTeam", "selectedPearlReturnTeam", "selectedTicketReturnTeam" }) do
+								addConfigOption(configKey, teamKey, teamLabel)
+							end
+						end
+						addConfigOption("selectedPearlReturnTeam", "", "Restore previous team")
+						addConfigOption("selectedTicketReturnTeam", "", "Restore previous team")
+						for _, options in pairs(details.configOptions) do
+							table.sort(options, function(left, right)
+								return string.lower(left.label) < string.lower(right.label)
+							end)
+						end
+						activeStates.BGSI_Lite_DashboardConfigOptions = details.configOptions
+						activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt = tick()
+						end
 
 						local leaderstatsFolder = LocalPlayer:FindFirstChild("leaderstats")
 						for _, leaderstat in ipairs(leaderstatsFolder and leaderstatsFolder:GetChildren() or {}) do
@@ -7274,12 +7412,11 @@ do
 													error("The selected item is no longer owned")
 												end
 												quantity = math.min(quantity, amountBefore)
-												local activeEffectSignature = HttpService:JSONEncode({
-													ActiveBuffs = playerData.ActiveBuffs,
-													ActivePotions = playerData.ActivePotions,
-												})
 												if itemType == "Potion" then
-													remoteEvent:FireServer("UsePotion", itemName, itemLevel, quantity)
+													for _ = 1, quantity do
+														remoteEvent:FireServer("UsePotion", itemName, itemLevel)
+														task.wait(0.1)
+													end
 												elseif itemType == "Rune" then
 													remoteEvent:FireServer("UseRune", itemName, itemTier, quantity)
 												elseif itemType == "Powerup" then
@@ -7311,50 +7448,29 @@ do
 												else
 													error("This item cannot be used from the dashboard")
 												end
+												local requiredDecrease = itemType == "Potion" and quantity or 1
+												local updatedAmount = amountBefore
 												local updateDeadline = tick() + 12
 												repeat
 													task.wait(0.1)
 													playerData = profileStore:IsReady() and profileStore:Get() or nil
-													local updatedOk, updatedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
-													if updatedOk and (tonumber(updatedAmount) or amountBefore) < amountBefore then
-														return
+													local updatedOk, currentAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
+													if updatedOk then
+														updatedAmount = math.max(0, math.floor(tonumber(currentAmount) or amountBefore))
 													end
-													if
-														itemType == "Potion"
-														and type(playerData) == "table"
-														and HttpService:JSONEncode({
-															ActiveBuffs = playerData.ActiveBuffs,
-															ActivePotions = playerData.ActivePotions,
-														}) ~= activeEffectSignature
-													then
+													if amountBefore - updatedAmount >= requiredDecrease then
 														return
 													end
 												until tick() >= updateDeadline
-												if itemType == "Potion" then
-													remoteEvent:FireServer("UsePotion", itemName, itemLevel, 1)
-													updateDeadline = tick() + 8
-													repeat
-														task.wait(0.1)
-														playerData = profileStore:IsReady() and profileStore:Get() or nil
-														local updatedOk, updatedAmount = pcall(
-															itemUtil.GetOwnedAmount,
-															itemUtil,
-															playerData,
-															item
-														)
-														if updatedOk and (tonumber(updatedAmount) or amountBefore) < amountBefore then
-															return
-														end
-														if
-															type(playerData) == "table"
-															and HttpService:JSONEncode({
-																ActiveBuffs = playerData.ActiveBuffs,
-																ActivePotions = playerData.ActivePotions,
-															}) ~= activeEffectSignature
-														then
-															return
-														end
-													until tick() >= updateDeadline
+												if itemType == "Potion" and updatedAmount < amountBefore then
+													error(
+														"The game only used "
+															.. tostring(amountBefore - updatedAmount)
+															.. " of "
+															.. tostring(quantity)
+															.. " "
+															.. itemName
+													)
 												end
 												error("The game did not use " .. itemName)
 											end)
