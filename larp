@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.7"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.8"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -8511,16 +8511,37 @@ local function prepareAutoEnchantTeam()
 	for _, pet in ipairs(playerData.Pets) do
 		local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
 		local rarity = petInfo and petInfo.Rarity
+		local superEnchantScore = 0
+		if pet.Super == true and rarity == "Legendary" then
+			for _, enchantName in ipairs(getPetEnchantList(pet)) do
+				local normalizedEnchantName = normalizeEnchantName(enchantName)
+				if normalizedEnchantName == "luckboost" or normalizedEnchantName == "hatchblessing" then
+					superEnchantScore += 1
+				elseif
+					normalizedEnchantName == "luckboostplus"
+					or normalizedEnchantName == "hatchblessingplus"
+					or normalizedEnchantName == "luckboost+"
+					or normalizedEnchantName == "hatchblessing+"
+				then
+					superEnchantScore += 2
+				end
+			end
+		end
 		if
-			pet.Super ~= true
-			and (pet.Shiny == true or pet.IsShiny == true)
-			and (rarity == "Celestial" or rarity == "Secret")
+			superEnchantScore > 0
+			or (
+				pet.Super ~= true
+				and (pet.Shiny == true or pet.IsShiny == true)
+				and (rarity == "Celestial" or rarity == "Secret")
+			)
 		then
 			table.insert(candidates, {
 				pet = pet,
-				priority = rarity == "Celestial" and 2 or 1,
-				enchantScore = (findPetEnchantSlot(pet, "secret-hunter") and 1 or 0)
-					+ (findPetEnchantSlot(pet, "ultra-roller") and 1 or 0),
+				priority = superEnchantScore > 0 and 3 or (rarity == "Celestial" and 2 or 1),
+				enchantScore = superEnchantScore > 0
+					and superEnchantScore
+					or ((findPetEnchantSlot(pet, "secret-hunter") and 1 or 0)
+						+ (findPetEnchantSlot(pet, "ultra-roller") and 1 or 0)),
 			})
 		end
 	end
@@ -8537,17 +8558,26 @@ local function prepareAutoEnchantTeam()
 		return tostring(leftCandidate.pet.Id) < tostring(rightCandidate.pet.Id)
 	end)
 	local maxPetsEquipped = 13
+	local maxSupersEquipped = tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3
 	pcall(function()
 		local statsModule = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
 		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
 	end)
 	local selectedPetIds = {}
 	local selectedPetIdSet = {}
-	for index = 1, math.min(maxPetsEquipped, #candidates) do
-		local petId = tostring(candidates[index].pet.Id or "")
-		if petId ~= "" then
+	local selectedSuperCount = 0
+	for _, candidate in ipairs(candidates) do
+		if #selectedPetIds >= maxPetsEquipped then
+			break
+		end
+		local petId = tostring(candidate.pet.Id or "")
+		local isSuperLegendary = candidate.pet.Super == true
+		if petId ~= "" and (not isSuperLegendary or selectedSuperCount < maxSupersEquipped) then
 			table.insert(selectedPetIds, petId)
 			selectedPetIdSet[petId] = true
+			if isSuperLegendary then
+				selectedSuperCount += 1
+			end
 		end
 	end
 	local equippedPetIds = getEnchantablePets()
