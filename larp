@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.12"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.13"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -954,14 +954,19 @@ local function fireHatchEgg(scriptStateQC)
 	end
 
 	local requestTime = tick()
-	if requestTime - (tonumber(activeStates.BGSI_Lite_LastHatchRequestAt) or 0) < 0.1 then
+	if requestTime - (tonumber(activeStates.BGSI_Lite_LastHatchAttemptAt) or 0) < 0.1 then
 		return false
 	end
-	activeStates.BGSI_Lite_LastHatchRequestAt = requestTime
+	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
-	return pcall(function()
+	local hatchRequestSucceeded = pcall(function()
 		remoteEvent:FireServer("HatchEgg", scriptStateQC, getMaxHatchAmount())
 	end)
+	if hatchRequestSucceeded then
+		activeStates.BGSI_Lite_LastHatchRequestAt = requestTime
+		activeStates.BGSI_Lite_LastHatchRequestedEgg = scriptStateQC
+	end
+	return hatchRequestSucceeded
 end
 local function getBountyTaskRequirement(scriptStateVB)
 	if not scriptStateVB then
@@ -6524,26 +6529,35 @@ do
 						break
 					end
 				end
-				local currentEggName
-				if activeStates.BGSI_Lite_LuckEggActive == true then
+				local lastHatchRequestAt = tonumber(activeStates.BGSI_Lite_LastHatchRequestAt) or 0
+				local lastHatchEventAt = tonumber(activeStates.BGSI_Lite_LastHatchEventAt) or 0
+				local recentHatchActivity = currentSampleTime - math.max(lastHatchRequestAt, lastHatchEventAt) <= 8
+				local currentEggName = recentHatchActivity
+					and tostring(activeStates.BGSI_Lite_LastHatchRequestedEgg or "")
+					or nil
+				if (not currentEggName or currentEggName == "") and activeStates.BGSI_Lite_LuckEggActive == true then
 					currentEggName = activeStates.BGSI_Lite_LuckEggName
 						or activeStates.BGSI_Lite_FindLuckEggName()
 						or "4x Luck Ultra Carnival Egg"
-				elseif Config.autoRiftEgg == true then
+				elseif (not currentEggName or currentEggName == "") and activeStates.BGSI_Lite_RiftEggActive == true then
 					currentEggName = tostring(Config.selectedRiftEgg or "")
 				end
-				if (not currentEggName or currentEggName == "") and Config.autoHatch == true then
+				if
+					(not currentEggName or currentEggName == "")
+					and (
+						Config.autoHatch == true
+						or scriptStateGV == true
+						or recentHatchActivity
+						or hatchRate > 0
+					)
+				then
 					currentEggName = tostring(Config.selectedEgg or "")
 				end
 				if not currentEggName or currentEggName == "" then
 					currentEggName = "None"
 				end
 				local isHatching = currentEggName ~= "None"
-					and (
-						activeStates.BGSI_Lite_LuckEggActive == true
-						or Config.autoRiftEgg == true
-						or Config.autoHatch == true
-					)
+					and (recentHatchActivity or hatchRate > 0)
 				activeStates.BGSI_Lite_CurrentEggName = currentEggName
 				activeStates.BGSI_Lite_IsHatching = isHatching
 				activeStates.BGSI_Lite_CurrentHatchRate = hatchRate
@@ -6631,6 +6645,14 @@ do
 		local dashboardFailureLogAt = 0
 		local dashboardSyncDelay = 1
 		local pendingDashboardCommandResults = {}
+		local carriedReloadConfirmation = activeStates.BGSI_Lite_PendingReloadConfirmation
+		if type(carriedReloadConfirmation) == "table" and tonumber(carriedReloadConfirmation.id) then
+			table.insert(pendingDashboardCommandResults, {
+				id = tonumber(carriedReloadConfirmation.id),
+				success = true,
+			})
+			activeStates.BGSI_Lite_PendingReloadConfirmation = nil
+		end
 		activeStates.BGSI_Lite_PendingDashboardReload = nil
 		local lastInventorySignature
 		activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
@@ -7554,15 +7576,6 @@ do
 								end
 								dashboardConnected = true
 								pendingDashboardCommandResults = {}
-								if
-									activeStates.BGSI_Lite_SentDashboardCommandResultCount > 0
-									and activeStates.BGSI_Lite_PendingDashboardReload
-								then
-									local reloadScript = activeStates.BGSI_Lite_PendingDashboardReload
-									activeStates.BGSI_Lite_PendingDashboardReload = nil
-									task.defer(reloadScript)
-									return
-								end
 								for _ = 1, sentDashboardHatchCount do
 									table.remove(pendingDashboardHatches, 1)
 								end
@@ -7853,16 +7866,51 @@ do
 											end
 										elseif dashboardCommand.type == "reload-script" then
 											commandSucceeded, commandError = pcall(function()
+												local reloadNonce = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 												local scriptSource = game:HttpGet(
-													"https://raw.githubusercontent.com/ayelathan/larp/refs/heads/main/larp"
+													"https://raw.githubusercontent.com/ayelathan/larp/refs/heads/main/larp?reload="
+														.. reloadNonce,
+													true
 												)
+												local downloadedVersion = scriptSource:match(
+													'BGSI_Lite_ScriptVersion%s*=%s*"([^"]+)"'
+												)
+												if not downloadedVersion then
+													error("The downloaded script has no version marker")
+												end
+												local requestedVersion = tostring(
+													dashboardCommand.version or dashboardCommand.targetVersion or ""
+												)
+												if requestedVersion ~= "" and downloadedVersion ~= requestedVersion then
+													error(
+														"GitHub returned version "
+															.. downloadedVersion
+															.. " while "
+															.. requestedVersion
+															.. " was requested"
+													)
+												end
 												local compiledScript, compileError = loadstring(scriptSource)
 												if type(compiledScript) ~= "function" then
 													error(compileError or "The latest script could not be compiled")
 												end
-												activeStates.BGSI_Lite_PendingDashboardReload = compiledScript
+												activeStates.BGSI_Lite_PendingReloadConfirmation = {
+													id = commandId,
+													version = downloadedVersion,
+												}
+												commandDeferred = true
+												print(
+													"["
+														.. LocalPlayer.Name
+														.. "] Loading script version "
+														.. downloadedVersion
+												)
+												task.defer(compiledScript)
 											end)
-											if commandSucceeded then
+											if not commandSucceeded then
+												activeStates.BGSI_Lite_PendingReloadConfirmation = nil
+												commandDeferred = false
+											else
 												commandError = nil
 											end
 										elseif dashboardCommand.type == "rejoin" then
