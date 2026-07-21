@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.5"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.6"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -6634,7 +6634,7 @@ do
 								return nil
 							end
 							seen[value] = true
-							for _, key in ipairs({ "Image", "Icon", "ImageId", "AssetId", "Thumbnail" }) do
+							for _, key in ipairs({ "Image", "Icon", "ImageId", "IconId", "AssetId", "ImageAssetId", "Thumbnail", "Texture" }) do
 								local assetId = getAssetId(value[key], depth + 1, seen)
 								if assetId then
 									return assetId
@@ -6827,20 +6827,37 @@ do
 						local currencyUtil = safeRequireTable(function()
 							return require(ReplicatedStorage.Shared.Utils.CurrencyUtil)
 						end)
+						local reportedCurrencies = {}
 						for currencyName, currencyInfo in pairs(currencyData) do
 							local balanceOk, amount = pcall(currencyUtil.GetBalance, currencyUtil, playerData, currencyName)
 							if balanceOk and type(amount) == "number" and amount ~= 0 then
+								local imageAssetId = getAssetId(currencyInfo, 0, {})
+								if not imageAssetId and itemUtil and type(itemUtil.UpdateIcon) == "function" then
+									local iconContainer = Instance.new("Frame")
+									local iconLabel = Instance.new("ImageLabel")
+									iconLabel.Name = "Label"
+									iconLabel.Parent = iconContainer
+									pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, {
+										Type = "Currency",
+										Currency = currencyName,
+									})
+									imageAssetId = getAssetId(iconContainer:FindFirstChild("Border", true), 0, {})
+										or getAssetId(iconContainer:FindFirstChild("Icon", true), 0, {})
+										or getAssetId(iconLabel.Image, 0, {})
+									iconContainer:Destroy()
+								end
 								table.insert(details.currencies, {
 									key = tostring(currencyName),
 									name = tostring(currencyInfo.Display or currencyName),
 									amount = tostring(amount),
-									imageAssetId = getAssetId(currencyInfo, 0, {}),
+									imageAssetId = imageAssetId,
 								})
+								reportedCurrencies[string.lower(tostring(currencyName))] = true
 							end
 						end
 						local bubbles = tonumber(playerData.Bubbles)
 							or (type(playerData.Stats) == "table" and tonumber(playerData.Stats.Bubbles))
-						if bubbles and bubbles ~= 0 then
+						if bubbles and bubbles ~= 0 and not reportedCurrencies.bubbles then
 							table.insert(details.currencies, { key = "Bubbles", name = "Bubbles", amount = tostring(bubbles) })
 						end
 						table.sort(details.currencies, function(left, right)
