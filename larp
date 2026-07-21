@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.20.12"
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -6562,7 +6562,7 @@ do
 			end
 		end
 	end)
-	do
+	task.spawn(function()
 		local dashboardEndpoint = tostring(Config.dashboardEndpoint or "")
 		local dashboardIngestToken = tostring(Config.dashboardIngestToken or "")
 		local dashboardInventoryEnabled = true
@@ -8058,7 +8058,7 @@ do
 				end
 			end
 		end)
-	end
+	end)
 	task.spawn(function()
 		local lastJuly4thClaimAt = 0
 		while isCurrentRun() do
