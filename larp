@@ -6,10 +6,10 @@ if type(getgenv) == "function" then
 		globalEnv._1rzHubLiteCleanup = nil
 	end
 	pcall(function()
-		local previousFluent = rawget(globalEnv, "FluentLite")
-		if previousFluent and type(previousFluent.Destroy) == "function" then
-			previousFluent:Destroy()
-			globalEnv.FluentLite = nil
+		local previousRayfieldWindow = rawget(globalEnv, "RayfieldGen2Window")
+		if previousRayfieldWindow and type(previousRayfieldWindow.Unload) == "function" then
+			previousRayfieldWindow:Unload()
+			globalEnv.RayfieldGen2Window = nil
 		end
 	end)
 	pcall(function()
@@ -50,7 +50,73 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.21.21"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.22.10"
+activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.22.10",
+		releasedAt = "July 22, 2026 at 3:03 PM CT",
+		notes = {
+			{
+				title = "Update history",
+				description = "The Main tab now lists every recorded release by version and update time.",
+				icon = "history",
+			},
+			{
+				title = "Detailed changelogs",
+				description = "Click any version to open its complete changelog in a dedicated popup.",
+				icon = "file-clock",
+			},
+		},
+	},
+	{
+		version = "2026.07.22.09",
+		releasedAt = "July 22, 2026",
+		notes = {
+			{
+				title = "Main tab changelog",
+				description = "Added the latest release notes directly to the Main tab.",
+				icon = "list",
+			},
+		},
+	},
+	{
+		version = "2026.07.22.08",
+		releasedAt = "July 22, 2026",
+		notes = {
+			{
+				title = "Update popup",
+				description = "Added a one-time Rayfield changelog popup for every new script version.",
+				icon = "message-square-more",
+			},
+			{
+				title = "Rayfield Gen2",
+				description = "Replaced the previous interface and added native tabs, controls, stats, and changelog popups.",
+				icon = "layout-dashboard",
+			},
+			{
+				title = "Live stats added",
+				description = "Added hatch rate, Luck, Hatch Speed, FPS, uptime, server players, and live hatching state.",
+				icon = "chart-no-axes-combined",
+			},
+			{
+				title = "Hatching fixed",
+				description = "Saved No Hatch Animation settings now apply after joining and remain active across script reloads.",
+				icon = "egg",
+			},
+			{
+				title = "Dropdowns fixed",
+				description = "Dynamic egg, shop, fragment, box, enchant, and team options now refresh correctly with current game data.",
+				icon = "list-filter",
+			},
+			{
+				title = "Performance controls",
+				description = "Added automatic minimum graphics, an FPS cap, and improved render-distance handling.",
+				icon = "gauge",
+			},
+		},
+	},
+}
+activeStates.BGSI_Lite_ReleaseNotes = activeStates.BGSI_Lite_ReleaseHistory[1].notes
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
@@ -185,8 +251,10 @@ local defaultConfig = {
 	AutoCarnivalRebirth = false,
 
 	disableRendering = false,
+	setfps = 60,
 	renderDistance = 250,
 	chunkerRenderDistance = 4,
+	lastSeenScriptVersion = "",
 }
 local legacyConfigFile = "1rzHubConfig.json"
 local Config
@@ -388,7 +456,24 @@ if Config.dashboardSyncAutoEnabled ~= true then
 	saveConfig()
 end
 Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 4))
+Config.setfps = math.max(1, math.floor(tonumber(Config.setfps) or 60))
 _G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
+
+activeStates.BGSI_Lite_ApplyPerformanceSettings = function()
+	pcall(function()
+		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+	end)
+	pcall(function()
+		UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1
+	end)
+	pcall(function()
+		local fpsCapFunction = rawget(activeStates, "setfpscap") or rawget(activeStates, "set_fps_cap")
+		if type(fpsCapFunction) == "function" then
+			fpsCapFunction(Config.setfps)
+		end
+	end)
+end
+activeStates.BGSI_Lite_ApplyPerformanceSettings()
 
 -- Current clients do not expose Workspace.StreamingTargetRadius. The game
 -- controls rendered objects through each Chunker's RenderDistance instead.
@@ -432,21 +517,295 @@ for loopSlotBI, scriptStateAAX in pairs(defaultConfig) do
 	end
 end
 activeStates.AutoGuessThatPet = Config.autoGuessThatPet
-local Fluent
+local Interface
 do
-	local fluentFile = "Fluent.lua"
-	local fluentSource
-	if isfile and isfile(fluentFile) then
-		fluentSource = readfile(fluentFile)
-	else
-		fluentSource = game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")
+	local rayfieldFile = "RayfieldGen2.lua"
+	local rayfieldSource
+	local cachedRayfieldSource
+	if isfile and isfile(rayfieldFile) then
+		cachedRayfieldSource = readfile(rayfieldFile)
+	end
+	pcall(function()
+		local latestRayfieldSource = game:HttpGet("https://sirius.menu/gen2")
+		if
+			type(latestRayfieldSource) == "string"
+			and #latestRayfieldSource > 10000
+			and string.find(latestRayfieldSource, "CreateDropdown", 1, true)
+			and string.find(latestRayfieldSource, "CreateStat", 1, true)
+		then
+			rayfieldSource = latestRayfieldSource
+		end
+	end)
+	if rayfieldSource and writefile then
+		pcall(writefile, rayfieldFile, rayfieldSource)
+	elseif
+		type(cachedRayfieldSource) == "string"
+		and #cachedRayfieldSource > 10000
+		and string.find(cachedRayfieldSource, "CreateDropdown", 1, true)
+		and string.find(cachedRayfieldSource, "CreateStat", 1, true)
+	then
+		rayfieldSource = cachedRayfieldSource
+	end
+	if not rayfieldSource then
+		rayfieldSource = game:HttpGet("https://sirius.menu/gen2")
 		if writefile then
-			pcall(writefile, fluentFile, fluentSource)
+			pcall(writefile, rayfieldFile, rayfieldSource)
 		end
 	end
-	Fluent = loadstring(fluentSource)()
+	local Rayfield = loadstring(rayfieldSource)()
+	local rayfieldWindow
+
+	local function getDefaultValue(properties)
+		local defaultValue = properties.Default
+		if properties.Multi then
+			if type(defaultValue) ~= "table" then
+				return defaultValue and { tostring(defaultValue) } or {}
+			end
+			local selectedValues = {}
+			for key, value in pairs(defaultValue) do
+				if type(key) == "number" and type(value) == "string" then
+					table.insert(selectedValues, value)
+				elseif value == true and type(key) == "string" then
+					table.insert(selectedValues, key)
+				end
+			end
+			return selectedValues
+		end
+		if type(defaultValue) == "table" then
+			return defaultValue[1]
+		end
+		if type(defaultValue) == "number" and type(properties.Values) == "table" then
+			return properties.Values[defaultValue]
+		end
+		return defaultValue
+	end
+
+	local function wrapValueElement(element)
+		local wrappedElement = {
+			Native = element,
+		}
+		function wrappedElement:SetValue(value)
+			self.Native:Set(value)
+		end
+		return wrappedElement
+	end
+
+	local function normalizeDropdownOptions(values)
+		local normalizedOptions = {}
+		local seenOptions = {}
+		for _, value in ipairs(type(values) == "table" and values or {}) do
+			if type(value) == "string" and value ~= "" and not seenOptions[value] then
+				seenOptions[value] = true
+				table.insert(normalizedOptions, value)
+			end
+		end
+		return normalizedOptions
+	end
+
+	local function wrapDropdown(element)
+		local wrappedElement = wrapValueElement(element)
+		function wrappedElement:SetValues(values)
+			self.Native:Refresh(normalizeDropdownOptions(values))
+		end
+		function wrappedElement:Refresh(values)
+			self.Native:Refresh(normalizeDropdownOptions(values))
+		end
+		return wrappedElement
+	end
+
+	local tabMethods = {}
+	function tabMethods:AddSection(title)
+		return self.Native:CreateSection({ name = title })
+	end
+	function tabMethods:AddButton(properties)
+		return self.Native:CreateButton({
+			name = properties.Title,
+			description = properties.Description,
+			callback = properties.Callback,
+		})
+	end
+	function tabMethods:AddToggle(flag, properties)
+		return wrapValueElement(self.Native:CreateToggle({
+			name = properties.Title,
+			description = properties.Description,
+			value = properties.Default == true,
+			flag = flag,
+			forgetState = true,
+			callback = properties.Callback,
+		}))
+	end
+	function tabMethods:AddSlider(flag, properties)
+		return wrapValueElement(self.Native:CreateSlider({
+			name = properties.Title,
+			description = properties.Description,
+			range = { properties.Min or 0, properties.Max or 100 },
+			increment = 10 ^ -(properties.Rounding or 0),
+			value = properties.Default,
+			suffix = properties.Suffix,
+			flag = flag,
+			forgetState = true,
+			callback = properties.Callback,
+		}))
+	end
+	function tabMethods:AddDropdown(flag, properties)
+		local dropdownOptions = normalizeDropdownOptions(properties.Values)
+		return wrapDropdown(self.Native:CreateDropdown({
+			name = properties.Title,
+			description = properties.Description,
+			options = dropdownOptions,
+			value = getDefaultValue(properties),
+			multiSelect = properties.Multi == true,
+			placeholder = properties.Placeholder,
+			flag = flag,
+			forgetState = true,
+			callback = properties.Callback,
+		}))
+	end
+	function tabMethods:AddInput(flag, properties)
+		return wrapValueElement(self.Native:CreateInput({
+			name = properties.Title,
+			description = properties.Description,
+			value = tostring(properties.Default or ""),
+			placeholder = properties.Placeholder,
+			numeric = properties.Numeric == true,
+			flag = flag,
+			forgetState = true,
+			callback = properties.Callback,
+		}))
+	end
+	function tabMethods:AddParagraph(properties)
+		local paragraphContent = tostring(properties.Content or "")
+		local paragraphElement
+		paragraphElement = self.Native:CreateInput({
+			name = properties.Title,
+			value = paragraphContent,
+			forgetState = true,
+			callback = function()
+				if paragraphElement then
+					paragraphElement:Set(paragraphContent, true)
+				end
+			end,
+		})
+		local wrappedParagraph = {}
+		function wrappedParagraph:SetDesc(content)
+			paragraphContent = tostring(content or "")
+			paragraphElement:Set(paragraphContent, true)
+		end
+		return wrappedParagraph
+	end
+	function tabMethods:AddReleaseHistory(releaseHistory)
+		self:AddSection("Update history")
+		for _, release in ipairs(releaseHistory) do
+			local releaseEntry = release
+			self.Native:CreateButton({
+				name = "Version " .. tostring(releaseEntry.version),
+				description = tostring(releaseEntry.releasedAt) .. " - " .. tostring(#releaseEntry.notes) .. " changes",
+				icon = "history",
+				callback = function()
+					Interface:Popup({
+						Title = "What's new",
+						SubTitle = "Version "
+							.. tostring(releaseEntry.version)
+							.. " - "
+							.. tostring(releaseEntry.releasedAt),
+						Boxes = releaseEntry.notes,
+						Options = {
+							{
+								text = "Close",
+								style = "primary",
+							},
+						},
+					})
+				end,
+			})
+		end
+	end
+	function tabMethods:AddChangelog()
+		self:AddReleaseHistory(activeStates.BGSI_Lite_ReleaseHistory)
+	end
+	function tabMethods:AddStat(properties)
+		return wrapValueElement(self.Native:CreateStat({
+			name = properties.Title,
+			description = properties.Description,
+			icon = properties.Icon,
+			value = tonumber(properties.Default) or 0,
+			prefix = properties.Prefix,
+			suffix = properties.Suffix,
+			compact = properties.Compact == true,
+			changeMode = properties.ChangeMode or "absolute",
+			changeBaseline = properties.ChangeBaseline or "previous",
+			numberEasing = properties.NumberEasing ~= false,
+		}))
+	end
+
+	local windowMethods = {}
+	function windowMethods:AddTab(properties)
+		local nativeTab = self.Native:CreateTab({
+			name = properties.Title,
+			icon = properties.Icon,
+		})
+		local wrappedTab = setmetatable({ Native = nativeTab }, { __index = tabMethods })
+		table.insert(self.Tabs, wrappedTab)
+		return wrappedTab
+	end
+	function windowMethods:SelectTab(index)
+		local tab = self.Tabs[index]
+		if tab then
+			self.Native:Navigate(tab.Native)
+		end
+	end
+	function windowMethods:Minimize()
+		self.Native:ToggleHide()
+	end
+	function windowMethods:Destroy()
+		self.Native:Unload()
+	end
+
+	Interface = {}
+	function Interface:CreateWindow(properties)
+		rayfieldWindow = Rayfield:CreateWindow({
+			name = properties.Title,
+			subtitle = properties.SubTitle,
+			theme = "default",
+			showName = "LarpLite",
+		})
+		activeStates.RayfieldGen2Window = rayfieldWindow
+		return setmetatable({ Native = rayfieldWindow, Tabs = {} }, { __index = windowMethods })
+	end
+	function Interface:Notify(properties)
+		if rayfieldWindow then
+			rayfieldWindow:Notify({
+				title = properties.Title,
+				content = properties.Content,
+				duration = properties.Duration,
+			})
+		end
+	end
+	function Interface:Popup(properties)
+		if rayfieldWindow and type(rayfieldWindow.Popup) == "function" then
+			return rayfieldWindow:Popup({
+				title = properties.Title,
+				subtitle = properties.SubTitle,
+				content = properties.Content,
+				boxes = properties.Boxes,
+				options = properties.Options,
+				dismissable = properties.Dismissable ~= false,
+			})
+		end
+		Interface:Notify({
+			Title = properties.Title,
+			Content = properties.Content or properties.SubTitle or "Updated successfully.",
+			Duration = 8,
+		})
+		return nil
+	end
+	function Interface:Destroy()
+		if rayfieldWindow and not rayfieldWindow.unloaded then
+			rayfieldWindow:Unload()
+		end
+	end
 end
-activeStates.FluentLite = Fluent
+activeStates.RayfieldGen2 = Interface
 local profileStore = require(ReplicatedStorage.Client.Framework.Services.LocalData)
 local timeModule = require(ReplicatedStorage.Shared.Framework.Utilities.Math.Time)
 local questModule = require(ReplicatedStorage.Shared.Utils.Stats.QuestUtil)
@@ -509,7 +868,55 @@ local remoteFunction = networkRemote:WaitForChild("RemoteFunction")
 local hatchEffectModule, scriptStateID
 pcall(function()
 	hatchEffectModule = require(ReplicatedStorage.Client.Effects.HatchEgg)
-	scriptStateID = hatchEffectModule and hatchEffectModule.Play or nil
+	if hatchEffectModule and type(hatchEffectModule.Play) == "function" then
+		if type(rawget(hatchEffectModule, "_BGSI_LITE_ORIGINAL_PLAY")) ~= "function" then
+			hatchEffectModule._BGSI_LITE_ORIGINAL_PLAY = hatchEffectModule.Play
+		end
+		scriptStateID = hatchEffectModule._BGSI_LITE_ORIGINAL_PLAY
+	end
+end)
+activeStates.BGSI_Lite_HideHatchInterface = function(hatchController)
+	local playerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
+	local screenGui = playerGui and playerGui:FindFirstChild("ScreenGui")
+	local hatchingFrame = screenGui and screenGui:FindFirstChild("Hatching")
+	local hudFrame = screenGui and screenGui:FindFirstChild("HUD")
+	if hatchingFrame then
+		hatchingFrame.Visible = false
+	end
+	if hudFrame then
+		hudFrame.Visible = true
+	end
+	if type(hatchController) == "table" then
+		hatchController.animationPlaying = false
+	end
+end
+activeStates.BGSI_Lite_NoHatchAnimationPlay = function(self)
+	activeStates.BGSI_Lite_HideHatchInterface(self)
+end
+activeStates.BGSI_Lite_ApplyHatchAnimationSetting = function()
+	if not hatchEffectModule or type(scriptStateID) ~= "function" then
+		return false
+	end
+	if Config.noHatchAnim == true then
+		hatchEffectModule.Play = activeStates.BGSI_Lite_NoHatchAnimationPlay
+		activeStates.BGSI_Lite_HideHatchInterface(hatchEffectModule)
+	else
+		hatchEffectModule.Play = scriptStateID
+	end
+	return true
+end
+activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+task.spawn(function()
+	while isCurrentRun() do
+		task.wait(0.5)
+		if
+			Config.noHatchAnim == true
+			and hatchEffectModule
+			and hatchEffectModule.Play ~= activeStates.BGSI_Lite_NoHatchAnimationPlay
+		then
+			activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+		end
+	end
 end)
 -- Teleport helper: moves the character root to a CFrame safely.
 local function teleportToCFrame(targetCFrame)
@@ -930,7 +1337,7 @@ local function refreshEggScanNotification(scriptStateNT)
 	scanNotificationInProgress = false
 	if not scriptStateNT then
 		if scriptStateMS then
-			Fluent:Notify({
+			Interface:Notify({
 				Title = "Egg scan",
 				Content = scriptStateAEF > 0
 						and ("Done - found " .. scriptStateAEF .. " egg(s) from " .. scriptStateVI .. " chunker location(s).")
@@ -938,7 +1345,7 @@ local function refreshEggScanNotification(scriptStateNT)
 				Duration = 6,
 			})
 		else
-			Fluent:Notify({
+			Interface:Notify({
 				Title = "Egg scan",
 				Content = "Failed: " .. tostring(scriptStateAEF),
 				Duration = 5,
@@ -2963,7 +3370,7 @@ task.spawn(function()
 		end
 	end
 end)
-local scriptStateOG = Fluent:CreateWindow({
+local scriptStateOG = Interface:CreateWindow({
 	Title = "LarpLite - BGSI",
 	SubTitle = "free",
 	TabWidth = 100,
@@ -3075,7 +3482,7 @@ do
 		scriptStatePI.ImageTransparency = 0
 		scriptStatePI.Draggable = true
 		scriptStatePI.MouseButton1Click:Connect(function()
-			local scriptStateFR = getgenv()._1rzHubToggleFluent
+			local scriptStateFR = getgenv()._1rzHubToggleRayfield
 			if type(scriptStateFR) == "function" then
 				local scriptStateLC = pcall(scriptStateFR)
 				if scriptStateLC then
@@ -3087,13 +3494,17 @@ do
 			end)
 		end)
 	end
-	getgenv()._1rzHubToggleFluent = function()
+	getgenv()._1rzHubToggleRayfield = function()
 		scriptStateOG:Minimize()
 	end
 end
 local scriptStateDB = scriptStateOG:AddTab({
 	Title = "Main",
 	Icon = "home",
+})
+activeStates.BGSI_Lite_StatsTab = scriptStateOG:AddTab({
+	Title = "Stats",
+	Icon = "chart-no-axes-combined",
 })
 local eggTab = scriptStateOG:AddTab({
 	Title = "Eggs",
@@ -3143,17 +3554,186 @@ local scriptStateAFW = scriptStateOG:AddTab({
 	Title = "Other",
 	Icon = "workflow",
 })
+do
+	local statsTab = activeStates.BGSI_Lite_StatsTab
+	statsTab:AddSection("Live session")
+	local liveStatsPrimary = statsTab.Native:CreateGroup()
+	local liveStatsPerformance = statsTab.Native:CreateGroup()
+	local liveStatsStatus = statsTab.Native:CreateGroup()
+	local liveStatsServer = statsTab.Native:CreateGroup()
+	local liveStatHandles = {
+		Hatches = liveStatsPrimary:CreateStat({
+			name = "Total hatches",
+			icon = "egg",
+			value = 0,
+			changeMode = "absolute",
+		}),
+		HatchRate = liveStatsPrimary:CreateStat({
+			name = "Hatch rate",
+			icon = "gauge",
+			value = 0,
+			suffix = "/m",
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		Luck = liveStatsPerformance:CreateStat({
+			name = "Luck",
+			icon = "clover",
+			value = 0,
+			suffix = "%",
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		HatchSpeed = liveStatsPerformance:CreateStat({
+			name = "Hatch speed",
+			icon = "fast-forward",
+			value = 0,
+			suffix = "%",
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		Fps = liveStatsStatus:CreateStat({
+			name = "FPS",
+			icon = "monitor",
+			value = 0,
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		Uptime = liveStatsStatus:CreateStat({
+			name = "Uptime (seconds)",
+			icon = "clock",
+			value = 0,
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		Players = liveStatsServer:CreateStat({
+			name = "Server players",
+			icon = "users",
+			value = #Players:GetPlayers(),
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+		Hatching = liveStatsServer:CreateStat({
+			name = "Hatching",
+			icon = "radio",
+			value = 0,
+			changeMode = "absolute",
+			numberEasing = false,
+		}),
+	}
+	local statsStartedAt = tick()
+
+	local function parseDebugNumber(debugText)
+		local numberText, magnitude = tostring(debugText or ""):gsub("<.->", ""):gsub("&nbsp;", " "):match(
+			"([%+%-]?[%d][%d,]*%.?%d*)%s*([kKmMbBtT]?)"
+		)
+		local numberValue = tonumber(numberText and numberText:gsub(",", "") or "")
+		if not numberValue then
+			return nil
+		end
+		local multipliers = {
+			k = 1e3,
+			m = 1e6,
+			b = 1e9,
+			t = 1e12,
+		}
+		return numberValue * (multipliers[string.lower(magnitude or "")] or 1)
+	end
+
+	local function getDebugStatValues()
+		local playerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
+		local screenGui = playerGui and playerGui:FindFirstChild("ScreenGui")
+		local debugGui = screenGui and screenGui:FindFirstChild("_debug")
+		local debugTags = debugGui and debugGui:FindFirstChild("Tags")
+		local luckValue
+		local hatchSpeedValue
+		for _, debugTag in ipairs(debugTags and debugTags:GetChildren() or {}) do
+			local debugLabel = debugTag:FindFirstChild("Label")
+			if debugLabel and (debugLabel:IsA("TextLabel") or debugLabel:IsA("TextButton")) then
+				local debugText = tostring(debugLabel.Text or ""):gsub("<.->", ""):gsub("&nbsp;", " ")
+				local identifier = string.lower(tostring(debugTag.Name) .. " " .. debugText)
+				if identifier:find("hatch", 1, true) and identifier:find("speed", 1, true) then
+					hatchSpeedValue = parseDebugNumber(debugText) or hatchSpeedValue
+				elseif
+					identifier:find("luck", 1, true)
+					and not identifier:find("secret", 1, true)
+					and not identifier:find("infinity", 1, true)
+					and not identifier:find("egg", 1, true)
+				then
+					luckValue = parseDebugNumber(debugText) or luckValue
+				end
+			end
+		end
+		return luckValue, hatchSpeedValue
+	end
+
+	task.spawn(function()
+		local frameCount = 0
+		local fpsSampleStartedAt = tick()
+		local currentFps = 0
+		local renderConnection = RunService.RenderStepped:Connect(function()
+			frameCount += 1
+		end)
+		while isCurrentRun() do
+			task.wait(1)
+			local now = tick()
+			local elapsed = math.max(0.001, now - fpsSampleStartedAt)
+			currentFps = math.floor(frameCount / elapsed + 0.5)
+			frameCount = 0
+			fpsSampleStartedAt = now
+			pcall(function()
+				liveStatHandles.HatchRate:Set(tonumber(activeStates.BGSI_Lite_CurrentHatchRate) or 0)
+				liveStatHandles.Fps:Set(currentFps)
+				liveStatHandles.Uptime:Set(math.floor(now - statsStartedAt))
+				liveStatHandles.Players:Set(#Players:GetPlayers())
+				liveStatHandles.Hatching:Set(activeStates.BGSI_Lite_IsHatching == true and 1 or 0)
+			end)
+			pcall(function()
+				local playerData = profileStore:Get()
+				liveStatHandles.Hatches:Set(tonumber(playerData.Stats and playerData.Stats.Hatches) or 0)
+			end)
+			pcall(function()
+				local luckValue, hatchSpeedValue = getDebugStatValues()
+				if luckValue then
+					liveStatHandles.Luck:Set(luckValue)
+				end
+				if hatchSpeedValue then
+					liveStatHandles.HatchSpeed:Set(hatchSpeedValue)
+				end
+			end)
+		end
+		renderConnection:Disconnect()
+	end)
+end
 if type(getgenv) == "function" then
 	getgenv()._1rzHubLiteCleanup = function()
 		pcall(function()
-			if activeStates and activeStates.FluentLite and type(activeStates.FluentLite.Destroy) == "function" then
-				activeStates.FluentLite:Destroy()
+			if activeStates and activeStates.RayfieldGen2 and type(activeStates.RayfieldGen2.Destroy) == "function" then
+				activeStates.RayfieldGen2:Destroy()
+			end
+		end)
+		pcall(function()
+			if
+				activeStates
+				and activeStates.RayfieldGen2Window
+				and type(activeStates.RayfieldGen2Window.Unload) == "function"
+			then
+				activeStates.RayfieldGen2Window:Unload()
 			end
 		end)
 		pcall(function()
 			local openUi = CoreGui:FindFirstChild("OpenUI")
 			if openUi then
 				openUi:Destroy()
+			end
+		end)
+		pcall(function()
+			if
+				hatchEffectModule
+				and hatchEffectModule.Play == activeStates.BGSI_Lite_NoHatchAnimationPlay
+				and type(scriptStateID) == "function"
+			then
+				hatchEffectModule.Play = scriptStateID
 			end
 		end)
 		if activeStates then
@@ -3166,20 +3746,21 @@ if type(getgenv) == "function" then
 					activeStates.BGSI_Lite_WebhookConnection = nil
 				end
 			end)
-			activeStates.FluentLite = nil
+			activeStates.RayfieldGen2 = nil
+			activeStates.RayfieldGen2Window = nil
+			activeStates.BGSI_Lite_HideHatchInterface = nil
+			activeStates.BGSI_Lite_NoHatchAnimationPlay = nil
+			activeStates.BGSI_Lite_ApplyHatchAnimationSetting = nil
+			activeStates._1rzHubToggleRayfield = nil
 			activeStates.LoadedMobileUI = false
 			activeStates._1rzHubLite_Loaded = false
 			activeStates._1rzHubLite_LoadComplete = false
 		end
 	end
 end
-scriptStateDB:AddParagraph({
-	Title = "1rzHub Lite",
-	Content = "this is 1rzhub but lite (for the people who like em younger)",
-})
-
+scriptStateDB:AddChangelog()
 scriptStateOG:SelectTab(1)
-Fluent:Notify({
+Interface:Notify({
 	Title = "1rzHub Lite",
 	Content = "Loading...",
 	Duration = 3,
@@ -3801,7 +4382,7 @@ do
 	local function refreshEggDropdownOptions(scriptStateMQ)
 		local scriptStateTT = safeGetChildren(scriptStateMQ == true)
 		if #scriptStateTT == 0 then
-			Fluent:Notify({
+			Interface:Notify({
 				Title = "Eggs",
 				Content = "No tracked eggs found yet.",
 				Duration = 4,
@@ -3878,6 +4459,9 @@ do
 			end)
 		end,
 	})
+	task.defer(function()
+		refreshEggDropdownOptions(false)
+	end)
 	eggTab:AddSection("Hatch")
 	eggTab:AddToggle("AutoHatch", {
 		Title = "Auto Hatch",
@@ -3907,25 +4491,7 @@ do
 		Callback = function(scriptStateGQ)
 			Config.noHatchAnim = scriptStateGQ
 			saveConfig()
-			if not hatchEffectModule then
-				return
-			end
-			if scriptStateGQ then
-				hatchEffectModule.Play = function(self, scriptStateUW)
-					if scriptStateUW and scriptStateUW.Pets then
-						local scriptStateCL = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-						if scriptStateCL:FindFirstChild("Hatching") then
-							scriptStateCL.Hatching.Visible = false
-						end
-						if scriptStateCL:FindFirstChild("HUD") then
-							scriptStateCL.HUD.Visible = true
-						end
-						self.animationPlaying = false
-					end
-				end
-			else
-				hatchEffectModule.Play = scriptStateID
-			end
+			activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
 		end,
 	})
 	eggTab:AddToggle("AutoSpamR", {
@@ -6465,6 +7031,7 @@ do
 			saveConfig()
 		end,
 	})
+	task.defer(refreshShopDropdowns)
 
 	gameTab:AddToggle("AutoBuyFragments", {
 		Title = "Auto Buy Fragments",
@@ -6632,6 +7199,9 @@ do
 			fireRemoteEventRepeatedly(mysteryBoxDropdown, getGiftNames())
 		end,
 	})
+	task.defer(function()
+		fireRemoteEventRepeatedly(mysteryBoxDropdown, getGiftNames())
+	end)
 	gameTab:AddToggle("AutoOpenMystery", {
 		Title = "Auto Open Box",
 		Default = Config.autoOpenMystery,
@@ -12708,6 +13278,22 @@ do
 			end)
 		end,
 	})
+	scriptStateAFW:AddInput("SetFps", {
+		Title = "FPS cap",
+		Description = "Caps the client frame rate while the script is running.",
+		Default = tostring(Config.setfps),
+		Placeholder = "60",
+		Numeric = true,
+		Callback = function(value)
+			local fpsCap = tonumber(value)
+			if not fpsCap or fpsCap ~= fpsCap then
+				return
+			end
+			Config.setfps = math.max(1, math.floor(fpsCap))
+			saveConfig()
+			activeStates.BGSI_Lite_ApplyPerformanceSettings()
+		end,
+	})
 	scriptStateAFW:AddInput("ChunkerRenderDistance", {
 		Title = "Chunk render distance",
 		Description = "yk",
@@ -12729,8 +13315,27 @@ do
 	pcall(function()
 		RunService:Set3dRenderingEnabled(not Config.disableRendering)
 	end)
+	activeStates.BGSI_Lite_ApplyPerformanceSettings()
 end
-Fluent:Notify({
+if tostring(Config.lastSeenScriptVersion or "") ~= tostring(activeStates.BGSI_Lite_ScriptVersion) then
+	Interface:Popup({
+		Title = "LarpLite updated",
+		SubTitle = "Version "
+			.. tostring(activeStates.BGSI_Lite_ScriptVersion)
+			.. " - "
+			.. tostring(activeStates.BGSI_Lite_ReleaseHistory[1].releasedAt),
+		Boxes = activeStates.BGSI_Lite_ReleaseNotes,
+		Options = {
+			{
+				text = "Continue",
+				style = "primary",
+			},
+		},
+	})
+	Config.lastSeenScriptVersion = activeStates.BGSI_Lite_ScriptVersion
+	saveConfig()
+end
+Interface:Notify({
 	Title = "1rzHub Lite",
 	Content = "Loaded.",
 	Duration = 3,
