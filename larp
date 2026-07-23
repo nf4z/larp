@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -62,13 +62,13 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.07.23.06",
+		version = "2026.07.23.08",
 		releasedAt = "July 23, 2026",
 		notes = {
 			{
-				title = "Potion use stabilized",
-				description = "Dashboard and automatic potion use now follow the game's network wrapper and pace individual retries to avoid remote throttling.",
-				icon = "flask-conical",
+				title = "Less idle time",
+				description = "Keeps hatching between enchant checks and moves on sooner when a quest stops progressing.",
+				icon = "gauge",
 			},
 		},
 	},
@@ -77,8 +77,8 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 23, 2026",
 		notes = {
 			{
-				title = "Super Legendary controls",
-				description = "The in-game Enchant tab can now select which Super Legendary enchants qualify for automatic team equipment.",
+				title = "Super Legendary priorities",
+				description = "Choose which Super Legendary enchants count when the script builds your team.",
 				icon = "sparkles",
 			},
 		},
@@ -89,12 +89,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Optional connection relay",
-				description = "connect.bat now enables sub-second dashboard controls and grouped multi-account command polling without changing normal direct sync.",
+				description = "Use connect.bat for faster dashboard controls and grouped account polling.",
 				icon = "radio-tower",
 			},
 			{
-				title = "Instant action activity",
-				description = "Potion use and other live actions can reach the relay log and dashboard immediately.",
+				title = "Faster action updates",
+				description = "Potion use and other live actions show up through the relay without the usual delay.",
 				icon = "zap",
 			},
 		},
@@ -104,18 +104,18 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 23, 2026",
 		notes = {
 			{
-				title = "Adaptive account automation",
-				description = "Hatch timing, potion refreshes, client recovery, and safe full-inventory cleanup now react to replicated game state.",
+				title = "Automation timing",
+				description = "Hatching, potion refreshes, recovery, and inventory cleanup follow the account's current game state.",
 				icon = "activity",
 			},
 			{
-				title = "More rewards covered",
-				description = "Daily rewards and available wheel spins now run alongside prize, index, chest, and mastery automation.",
+				title = "More reward claims",
+				description = "Daily rewards and wheel spins are handled with prizes, index rewards, chests, and mastery.",
 				icon = "gift",
 			},
 			{
-				title = "Dashboard controls expanded",
-				description = "Account roles and the new automation policies can be applied live without rejoining.",
+				title = "Live dashboard settings",
+				description = "Account roles and automation settings can be applied without rejoining.",
 				icon = "settings",
 			},
 		},
@@ -125,13 +125,13 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 23, 2026",
 		notes = {
 			{
-				title = "Smarter automation",
-				description = "Mastery, chest, and index rewards now follow replicated eligibility instead of repeatedly sending every possible request.",
+				title = "Reward checks cleaned up",
+				description = "Mastery, chest, and index claims only run when the reward is actually available.",
 				icon = "gauge",
 			},
 			{
-				title = "Hatch recovery rebuilt",
-				description = "Auto hatch now watches real hatch progress and only repositions after a confirmed stall.",
+				title = "Hatch recovery",
+				description = "Only repositions after hatching has genuinely stopped.",
 				icon = "refresh-cw",
 			},
 		},
@@ -141,13 +141,13 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 22, 2026",
 		notes = {
 			{
-				title = "Enchant team rebuilt",
-				description = "Super Legendary priorities now use the game's exact enchant IDs and equip in the saved order without repeatedly rebuilding a matching team.",
+				title = "Enchant team priorities",
+				description = "Uses the saved Super Legendary enchant order and leaves a matching team alone.",
 				icon = "sparkles",
 			},
 			{
-				title = "Lower enchant overhead",
-				description = "Pet lookup, equip synchronization, and reroll pacing now follow replicated state and the game's cooldown instead of repeatedly scanning and resending requests.",
+				title = "Fewer enchant requests",
+				description = "Pet lookups, equips, and rerolls follow replicated state and the game's cooldown.",
 				icon = "activity",
 			},
 		},
@@ -157,13 +157,13 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 22, 2026",
 		notes = {
 			{
-				title = "Safer full-inventory cleanup",
-				description = "Full pet storage now clears eligible duplicate low-rarity pets while protecting locked, equipped, Super Legendary, Secret, Infinity, Void, and Celestial pets.",
+				title = "Safer inventory cleanup",
+				description = "Clears low-rarity duplicates while protecting locked, equipped, Super Legendary, Secret, Infinity, Void, and Celestial pets.",
 				icon = "shield-check",
 			},
 			{
-				title = "More accurate activity",
-				description = "Dashboard activity now prioritizes active hatching and reports cleanup and automation states more accurately.",
+				title = "Clearer account activity",
+				description = "The dashboard gives active hatching priority and reports cleanup states more accurately.",
 				icon = "activity",
 			},
 		},
@@ -173,8 +173,8 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 22, 2026 at 8:42 PM CT",
 		notes = {
 			{
-				title = "Rare pet detection fixed",
-				description = "Dashboard inventory totals now detect Secret, Infinity, Void, and Celestial pets from both rarity values and pet flags.",
+				title = "Pet totals fixed",
+				description = "Secret, Infinity, Void, and Celestial totals now handle both rarity values and pet flags.",
 				icon = "sparkles",
 			},
 		},
@@ -185,12 +185,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Update history",
-				description = "The Main tab now lists every recorded release by version and update time.",
+				description = "The Main tab lists each recorded version and its release time.",
 				icon = "history",
 			},
 			{
-				title = "Detailed changelogs",
-				description = "Click any version to open its complete changelog in a dedicated popup.",
+				title = "Release details",
+				description = "Open any version to read its full notes.",
 				icon = "file-clock",
 			},
 		},
@@ -200,8 +200,8 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 22, 2026",
 		notes = {
 			{
-				title = "Main tab changelog",
-				description = "Added the latest release notes directly to the Main tab.",
+				title = "Release notes on Main",
+				description = "The latest changes are available from the Main tab.",
 				icon = "list",
 			},
 		},
@@ -212,32 +212,32 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Update popup",
-				description = "Added a one-time Rayfield changelog popup for every new script version.",
+				description = "Shows the release notes once when a new script version loads.",
 				icon = "message-square-more",
 			},
 			{
 				title = "Rayfield Gen2",
-				description = "Replaced the previous interface and added native tabs, controls, stats, and changelog popups.",
+				description = "Moved the in-game menu to Rayfield Gen2 with native tabs, controls, stats, and popups.",
 				icon = "layout-dashboard",
 			},
 			{
-				title = "Live stats added",
-				description = "Added hatch rate, Luck, Hatch Speed, FPS, uptime, server players, and live hatching state.",
+				title = "Live stats",
+				description = "Tracks hatch rate, luck, hatch speed, FPS, uptime, server players, and hatching state.",
 				icon = "chart-no-axes-combined",
 			},
 			{
-				title = "Hatching fixed",
-				description = "Saved No Hatch Animation settings now apply after joining and remain active across script reloads.",
+				title = "Hatch animation setting",
+				description = "The saved setting applies after joining and stays active after script reloads.",
 				icon = "egg",
 			},
 			{
-				title = "Dropdowns fixed",
-				description = "Dynamic egg, shop, fragment, box, enchant, and team options now refresh correctly with current game data.",
+				title = "Dynamic dropdowns",
+				description = "Egg, shop, fragment, box, enchant, and team options refresh from current game data.",
 				icon = "list-filter",
 			},
 			{
 				title = "Performance controls",
-				description = "Added automatic minimum graphics, an FPS cap, and improved render-distance handling.",
+				description = "Includes minimum graphics, an FPS cap, and cleaner render-distance handling.",
 				icon = "gauge",
 			},
 		},
@@ -1963,6 +1963,7 @@ activeStates.BGSI_Lite_IsQuestTaskDeferred = function(questData, taskIndex)
 end
 
 activeStates.BGSI_Lite_RecordQuestProgress = function(watchState, questData, taskIndex, progress)
+	activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 	activeStates.BGSI_Lite_QuestNoProgressTimeout = math.clamp(
 		tonumber(Config.questStallTimeoutSeconds) or 60,
 		30,
@@ -3681,6 +3682,14 @@ local function isPriorityAutomationActive()
 		or activeStates.BGSI_Lite_GlobalIncentiveActive
 		or activeStates.BGSI_Lite_ChallengePassActive
 end
+activeStates.BGSI_Lite_ShouldMaintainHatching = function()
+	return Config.autoHatch == true
+		or (
+			Config.autoEnchant == true
+			and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
+			and not isPriorityAutomationActive()
+		)
+end
 local function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
 		activeStates.BGSI_Lite_GemGenieActive = false
@@ -3736,10 +3745,10 @@ local function resumeNormalAutomation()
 end
 task.spawn(function()
 	while isCurrentRun() do
-		task.wait(5)
+		task.wait(1)
 		clearDisabledPriorityStates()
 		local lastQuestWork = tonumber(activeStates.BGSI_Lite_LastQuestAutomationAt) or 0
-		local priorityStale = isPriorityAutomationActive() and tick() - lastQuestWork > 45
+		local priorityStale = isPriorityAutomationActive() and tick() - lastQuestWork > 15
 		if priorityStale then
 			activeStates.BGSI_Lite_GemGenieActive = false
 			activeStates.BGSI_Lite_SeasonActive = false
@@ -5024,8 +5033,9 @@ task.spawn(function()
 		0.25
 	)
 	while isCurrentRun() do
+		local shouldMaintainHatching = activeStates.BGSI_Lite_ShouldMaintainHatching()
 		task.wait(
-			Config.autoHatch
+			shouldMaintainHatching
 					and (
 						Config.adaptiveHatch == true
 								and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.1, 0.06, 0.25)
@@ -5033,7 +5043,10 @@ task.spawn(function()
 					)
 				or 0.85
 		)
-		if Config.autoHatch ~= true then
+		shouldMaintainHatching = activeStates.BGSI_Lite_ShouldMaintainHatching()
+		activeStates.BGSI_Lite_IdleHatchFallbackActive =
+			shouldMaintainHatching and Config.autoHatch ~= true
+		if not shouldMaintainHatching then
 			lastAutoHatchTeleportAt = 0
 			autoHatchStartedAt = 0
 			lastHatchProgressAt = 0
@@ -5100,8 +5113,8 @@ task.spawn(function()
 				controllerIsHatching = hatchEffectModule:IsHatching() == true
 			end)
 		end
-		local stallTimeout = controllerIsHatching and 20 or 12
-		if tick() - lastHatchProgressAt >= stallTimeout and tick() - lastHatchRecoveryAt >= 10 then
+		local stallTimeout = controllerIsHatching and 12 or 8
+		if tick() - lastHatchProgressAt >= stallTimeout and tick() - lastHatchRecoveryAt >= 5 then
 			activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
 			lastHatchRecoveryAt = tick()
 			lastHatchProgressAt = tick()
@@ -9078,6 +9091,9 @@ do
 						if isHatching then
 							return "Hatching " .. tostring(currentEggName), "hatch"
 						end
+						if activeStates.BGSI_Lite_IdleHatchFallbackActive then
+							return "Starting " .. tostring(Config.selectedEgg or "the selected egg"), "hatch"
+						end
 						if Config.autoEnchant then
 							return "Monitoring the enchant team", "enchant"
 						end
@@ -9530,7 +9546,7 @@ do
 												local updatedAmount = amountBefore
 												local failedAttempts = 0
 												local usePotionsIndividually = false
-												local commandDeadline = tick() + math.clamp(12 + quantity * 0.15, 15, 120)
+												local commandDeadline = tick() + math.clamp(20 + quantity * 0.55, 20, 180)
 												local powerup = type(giftData) == "table" and giftData[itemName] or nil
 												while updatedAmount > targetAmount and tick() < commandDeadline and failedAttempts < 5 do
 													local remaining = updatedAmount - targetAmount
@@ -9544,7 +9560,7 @@ do
 																	itemLevel,
 																	1
 																)
-																task.wait(0.15)
+																task.wait(0.45)
 															end
 														else
 															activeStates.BGSI_Lite_FireGameRemote(
