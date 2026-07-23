@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.23.05",
+		releasedAt = "July 23, 2026",
+		notes = {
+			{
+				title = "Dashboard item use fixed",
+				description = "Potion commands now retry server-rejected bulk amounts as fast individual uses and verify the replicated amount consumed.",
+				icon = "flask-conical",
+			},
+		},
+	},
 	{
 		version = "2026.07.23.04",
 		releasedAt = "July 23, 2026",
@@ -9513,12 +9524,21 @@ do
 												local targetAmount = amountBefore - quantity
 												local updatedAmount = amountBefore
 												local failedAttempts = 0
-												local commandDeadline = tick() + math.clamp(8 + quantity * 0.08, 12, 90)
+												local usePotionsIndividually = false
+												local commandDeadline = tick() + math.clamp(12 + quantity * 0.15, 15, 120)
 												local powerup = type(giftData) == "table" and giftData[itemName] or nil
 												while updatedAmount > targetAmount and tick() < commandDeadline and failedAttempts < 5 do
 													local remaining = updatedAmount - targetAmount
 													if itemType == "Potion" then
-														remoteEvent:FireServer("UsePotion", itemName, itemLevel, remaining)
+														local useAmount = math.min(remaining, 25)
+														if usePotionsIndividually then
+															for _ = 1, useAmount do
+																remoteEvent:FireServer("UsePotion", itemName, itemLevel, 1)
+																task.wait(0.02)
+															end
+														else
+															remoteEvent:FireServer("UsePotion", itemName, itemLevel, useAmount)
+														end
 													elseif itemType == "Rune" then
 														remoteEvent:FireServer("UseRune", itemName, itemTier, remaining)
 													elseif itemType == "Powerup" and itemName == "Golden Orb" then
@@ -9548,7 +9568,14 @@ do
 															updatedAmount = math.max(0, math.floor(tonumber(currentAmount) or previousAmount))
 														end
 													until updatedAmount < previousAmount or tick() >= replicationDeadline
-													failedAttempts = updatedAmount < previousAmount and 0 or failedAttempts + 1
+													if updatedAmount < previousAmount then
+														failedAttempts = 0
+													elseif itemType == "Potion" and not usePotionsIndividually then
+														usePotionsIndividually = true
+														failedAttempts = 0
+													else
+														failedAttempts = failedAttempts + 1
+													end
 												end
 												if updatedAmount > targetAmount then
 													error(
