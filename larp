@@ -9897,7 +9897,7 @@ do
 											commandSucceeded, commandError = pcall(function()
 												local reloadNonce = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 												local scriptSource = game:HttpGet(
-													"https://raw.githubusercontent.com/ayelathan/larp/refs/heads/main/larp?reload="
+													"https://raw.githubusercontent.com/nf4z/larp/refs/heads/main/larp?reload="
 														.. reloadNonce,
 													true
 												)
