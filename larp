@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -62,12 +62,12 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.07.23.05",
+		version = "2026.07.23.06",
 		releasedAt = "July 23, 2026",
 		notes = {
 			{
-				title = "Dashboard item use fixed",
-				description = "Potion commands now retry server-rejected bulk amounts as fast individual uses and verify the replicated amount consumed.",
+				title = "Potion use stabilized",
+				description = "Dashboard and automatic potion use now follow the game's network wrapper and pace individual retries to avoid remote throttling.",
 				icon = "flask-conical",
 			},
 		},
@@ -1049,6 +1049,12 @@ local networkRemote =
 	ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote")
 local remoteEvent = networkRemote:WaitForChild("RemoteEvent")
 local remoteFunction = networkRemote:WaitForChild("RemoteFunction")
+activeStates.BGSI_Lite_FireGameRemote = function(actionName, ...)
+	if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+		return carnivalRemoteModule:FireServer(actionName, ...)
+	end
+	return remoteEvent:FireServer(actionName, ...)
+end
 activeStates.BGSI_Lite_GetPetInventoryUsage = function(playerData)
 	if type(activeStates.BGSI_Lite_PetStorageStatsUtil) ~= "table" then
 		pcall(function()
@@ -6634,8 +6640,7 @@ do
 				then
 					activeStates.BGSI_Lite_LastAutoPotionUseAt = tick()
 					local useSucceeded = pcall(
-						remoteEvent.FireServer,
-						remoteEvent,
+						activeStates.BGSI_Lite_FireGameRemote,
 						"UsePotion",
 						Config.potionType,
 						Config.potionLevel,
@@ -9533,11 +9538,21 @@ do
 														local useAmount = math.min(remaining, 25)
 														if usePotionsIndividually then
 															for _ = 1, useAmount do
-																remoteEvent:FireServer("UsePotion", itemName, itemLevel, 1)
-																task.wait(0.02)
+																activeStates.BGSI_Lite_FireGameRemote(
+																	"UsePotion",
+																	itemName,
+																	itemLevel,
+																	1
+																)
+																task.wait(0.15)
 															end
 														else
-															remoteEvent:FireServer("UsePotion", itemName, itemLevel, useAmount)
+															activeStates.BGSI_Lite_FireGameRemote(
+																"UsePotion",
+																itemName,
+																itemLevel,
+																useAmount
+															)
 														end
 													elseif itemType == "Rune" then
 														remoteEvent:FireServer("UseRune", itemName, itemTier, remaining)
@@ -9573,6 +9588,7 @@ do
 													elseif itemType == "Potion" and not usePotionsIndividually then
 														usePotionsIndividually = true
 														failedAttempts = 0
+														task.wait(0.5)
 													else
 														failedAttempts = failedAttempts + 1
 													end
