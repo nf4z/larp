@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.05",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Low-FPS hatch bursts",
+				description = "Valid hatch windows now send a same-frame request burst scaled to the configured FPS.",
+				icon = "gauge",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.04",
 		releasedAt = "July 24, 2026",
@@ -1615,6 +1626,10 @@ local function getMaxHatchAmount()
 	end
 	return cachedMaxHatch or 1
 end
+local function getHatchRequestBurstSize()
+	local configuredFps = math.max(1, tonumber(Config.setfps) or 60)
+	return math.clamp(math.ceil(60 / configuredFps), 1, 12)
+end
 local fallbackUtilityE
 local function safeGetChildren(targetObject)
 	return fallbackUtilityE and fallbackUtilityE(targetObject) or {}
@@ -2057,7 +2072,10 @@ local function fireHatchEgg(scriptStateQC)
 	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
 	local hatchRequestSucceeded = pcall(function()
-		remoteEvent:FireServer("HatchEgg", scriptStateQC, getMaxHatchAmount())
+		local hatchAmount = getMaxHatchAmount()
+		for _ = 1, getHatchRequestBurstSize() do
+			remoteEvent:FireServer("HatchEgg", scriptStateQC, hatchAmount)
+		end
 	end)
 	if hatchRequestSucceeded then
 		activeStates.BGSI_Lite_LastHatchRequestAt = requestTime
