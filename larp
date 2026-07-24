@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.07",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Automatic event potions",
+				description = "Detects the egg being hatched and maintains the matching event potion at the highest owned level.",
+				icon = "flask-conical",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.06",
 		releasedAt = "July 24, 2026",
@@ -415,6 +426,7 @@ local defaultConfig = {
 	potionUseAmount = 10,
 	potionAuto = false,
 	potionMaintainSeconds = 30,
+	autoEventPotions = false,
 	autoEnchant = false,
 	autoPowerOrbEquipped = false,
 	equippedTargetEnchant = "secret-hunter",
@@ -6921,6 +6933,172 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateYT:AddToggle("AutoEventPotions", {
+		Title = "Auto Event Potions",
+		Description = "Uses the matching event potion for the egg currently being hatched.",
+		Default = Config.autoEventPotions,
+		Callback = function(enabled)
+			Config.autoEventPotions = enabled
+			saveConfig()
+		end,
+	})
+	activeStates.BGSI_Lite_EventPotionSources = {
+		{
+			potionName = "Halloween Elixir",
+			constantName = "HalloweenEggs",
+			eventTokens = { "halloween" },
+		},
+		{
+			potionName = "Festive Elixir",
+			constantName = "ChristmasEggs",
+			eventTokens = { "christmas", "festive" },
+		},
+		{
+			potionName = "2026 Elixir",
+			constantName = "NewYearsEgg",
+			eventTokens = { "nyc", "2026" },
+		},
+		{
+			potionName = "600M Elixir",
+			constantName = "Egg600M",
+			eventTokens = { "600m" },
+		},
+		{
+			potionName = "Circus Elixir",
+			constantName = "CircusEggs",
+			eventTokens = { "circus" },
+		},
+		{
+			potionName = "Hell Elixir",
+			eggNames = { "Hellish Egg" },
+			eventTokens = { "hellish", "hell" },
+		},
+		{
+			potionName = "Heaven Elixir",
+			eggNames = { "Azure Egg" },
+			eventTokens = { "heaven" },
+		},
+		{
+			potionName = "Valentine's Elixir",
+			eggNames = { "Valentine's Egg" },
+			eventTokens = { "valentines", "valentine" },
+		},
+		{
+			potionName = "Heartbreak Elixir",
+			eggNames = { "Heartbreak Egg" },
+			eventTokens = { "heartbreak" },
+		},
+		{
+			potionName = "Lunar New Years Lantern",
+			eggNames = { "Lunar New Years Egg" },
+			eventTokens = { "lunarnewyears", "lunarnewyear" },
+		},
+		{
+			potionName = "Flowers",
+			constantName = "SpringEggs",
+			eventTokens = { "spring" },
+		},
+		{
+			potionName = "St Patricks Elixir",
+			constantName = "StPatsEggs",
+			eventTokens = { "stpatricks", "stpats" },
+		},
+		{
+			potionName = "Easter Elixir",
+			constantName = "EasterEventEggs",
+			eventTokens = { "easter" },
+		},
+		{
+			potionName = "Anniversary Elixir",
+			constantName = "AnnivEgg",
+			eventTokens = { "anniversary", "anniv" },
+		},
+		{
+			potionName = "Wonderland Elixir",
+			eggNames = { "Wonderland Egg" },
+			eventTokens = { "wonderland" },
+		},
+		{
+			potionName = "Summer Elixir",
+			constantName = "SummerEgg",
+			eventTokens = { "summer" },
+		},
+		{
+			potionName = "Fire Elixir",
+			constantName = "FirePotionEggs",
+			eventTokens = { "fire" },
+		},
+		{
+			potionName = "Ice Elixir",
+			constantName = "IcePotionEggs",
+			eventTokens = { "ice" },
+		},
+		{
+			potionName = "Obsidian Elixir",
+			constantName = "ObsidianEgg",
+			eventTokens = { "obsidian" },
+		},
+		{
+			potionName = "Carnival Elixir",
+			constantName = "CarnivalEggs",
+			eventTokens = { "ultracarnival", "carnival" },
+		},
+		{
+			potionName = "Patriotic Elixir",
+			constantName = "July4thEgg",
+			eventTokens = { "july4th", "patriotic" },
+		},
+	}
+	activeStates.BGSI_Lite_GetEventPotionForEgg = function(eggName)
+		local eggInfo = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
+		local eventName = type(eggInfo) == "table" and eggInfo.Event or nil
+		if type(eventName) ~= "string" or eventName == "" then
+			return nil
+		end
+		for _, potionSource in ipairs(activeStates.BGSI_Lite_EventPotionSources) do
+			local eventEggs = type(sharedConstants) == "table"
+					and potionSource.constantName
+					and sharedConstants[potionSource.constantName]
+				or nil
+			if
+				(type(potionSource.eggNames) == "table" and table.find(potionSource.eggNames, eggName))
+				or (type(eventEggs) == "string" and eventEggs == eggName)
+				or (type(eventEggs) == "table" and table.find(eventEggs, eggName))
+			then
+				local potionInfo = type(potionData) == "table" and potionData[potionSource.potionName] or nil
+				if type(potionInfo) == "table" and potionInfo.IsEvent == true then
+					return potionSource.potionName
+				end
+			end
+		end
+		local normalizedEventName = string.lower(eventName):gsub("[^%w]", "")
+		for _, potionSource in ipairs(activeStates.BGSI_Lite_EventPotionSources) do
+			for _, eventToken in ipairs(potionSource.eventTokens) do
+				if string.find(normalizedEventName, eventToken, 1, true) then
+					local potionInfo = type(potionData) == "table" and potionData[potionSource.potionName] or nil
+					if type(potionInfo) == "table" and potionInfo.IsEvent == true then
+						return potionSource.potionName
+					end
+				end
+			end
+		end
+		return nil
+	end
+	activeStates.BGSI_Lite_GetHighestOwnedPotionLevel = function(playerData, potionName)
+		local potionLevels = getPotionLevels(potionName)
+		for levelIndex = #potionLevels, 1, -1 do
+			local potionLevel = tonumber(potionLevels[levelIndex]) or 1
+			local amountOk, ownedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, {
+				Type = "Potion",
+				Name = potionName,
+				Level = potionLevel,
+			})
+			if amountOk and (tonumber(ownedAmount) or 0) > 0 then
+				return potionLevel
+			end
+		end
+		return nil
+	end
 	activeStates.BGSI_Lite_GetPotionRemainingSeconds = function(playerData, potionType, potionLevel)
 		local activePotions = type(playerData) == "table" and playerData.ActivePotions or nil
 		if type(activePotions) ~= "table" then
@@ -7023,7 +7201,61 @@ do
 	end
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.potionAuto and 1 or 0.85)
+			task.wait((Config.potionAuto or Config.autoEventPotions) and 1 or 0.85)
+			if Config.autoEventPotions then
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				local eggName = tostring(activeStates.BGSI_Lite_LastHatchRequestedEgg or Config.selectedEgg or "")
+				local eventPotionName = activeStates.BGSI_Lite_GetEventPotionForEgg(eggName)
+				local eventPotionLevel = eventPotionName
+						and activeStates.BGSI_Lite_GetHighestOwnedPotionLevel(playerData, eventPotionName)
+					or nil
+				activeStates.BGSI_Lite_CurrentEventEgg = eggName
+				activeStates.BGSI_Lite_CurrentEventPotion = eventPotionName
+				if eventPotionName and eventPotionLevel then
+					local eventPotionInfo = potionData[eventPotionName]
+					local eventPotionBuff = eventPotionInfo.Buff and eventPotionInfo.Buff.Name or eventPotionName
+					local remainingSeconds = activeStates.BGSI_Lite_GetPotionRemainingSeconds(
+						playerData,
+						eventPotionBuff,
+						eventPotionLevel
+					)
+					local maintainSeconds = math.max(5, tonumber(Config.potionMaintainSeconds) or 30)
+					local potionAmount = math.max(1, math.floor(tonumber(Config.potionUseAmount) or 1))
+					local potionDuration = eventPotionInfo.Buff
+							and type(eventPotionInfo.Buff.Expiry) == "table"
+							and tonumber(eventPotionInfo.Buff.Expiry[eventPotionLevel])
+						or 120
+					if
+						remainingSeconds <= maintainSeconds
+						and tick() >= (tonumber(activeStates.BGSI_Lite_NextAutoEventPotionUseAt) or 0)
+					then
+						local usedAmount =
+							activeStates.BGSI_Lite_UsePotionAmount(eventPotionName, eventPotionLevel, potionAmount)
+						activeStates.BGSI_Lite_NextAutoEventPotionUseAt = tick()
+							+ (
+								usedAmount > 0
+										and math.max(5, potionDuration * usedAmount - maintainSeconds)
+									or 5
+							)
+						if
+							usedAmount > 0
+							and type(activeStates.BGSI_Lite_LogDashboardAction) == "function"
+						then
+							activeStates.BGSI_Lite_LogDashboardAction(
+								"Using "
+									.. tostring(usedAmount)
+									.. "x "
+									.. eventPotionName
+									.. " "
+									.. tostring(eventPotionLevel)
+									.. " for "
+									.. eggName,
+								"collect"
+							)
+						end
+					end
+				end
+			end
 			if Config.potionAuto then
 				local playerData = profileStore:IsReady() and profileStore:Get() or nil
 				local remainingSeconds =
@@ -8648,6 +8880,7 @@ do
 			"potionUseAmount",
 			"potionMaintainSeconds",
 			"potionAuto",
+			"autoEventPotions",
 
 			-- General game automation
 			"accountRole",
