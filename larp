@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.10"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,54 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.10",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Automatic bubble teams",
+				description = "Builds a shiny enchant-compatible bubble team and prioritizes Bubble Machine Super Legendaries.",
+				icon = "sparkles",
+			},
+			{
+				title = "Competition inventory automation",
+				description = "Enables low-rarity egg deletion and buys competition fragments before other shop stock.",
+				icon = "shopping-bag",
+			},
+		},
+	},
+	{
+		version = "2026.07.24.09",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Bubble Competition automation",
+				description = "Bubbles and sells anywhere while hatching, creates a team, rerolls non-bubble tasks, and claims earned rewards.",
+				icon = "sparkles",
+			},
+			{
+				title = "Live team stats",
+				description = "The dashboard now shows competition score, rank, reward progress, team total, and every member contribution.",
+				icon = "chart",
+			},
+		},
+	},
+	{
+		version = "2026.07.24.08",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Smart shrine supplies",
+				description = "Dreamer Shrine now rations shards, buys available stock, and uses free shop rerolls when empty.",
+				icon = "brain",
+			},
+			{
+				title = "Capability-safe quests",
+				description = "Hatch quests no longer depend on restricted virtual keyboard calls.",
+				icon = "shield-check",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.07",
 		releasedAt = "July 24, 2026",
@@ -450,7 +498,9 @@ local defaultConfig = {
 	autoUseFragments = false,
 	autoInventoryCleanup = true,
 	inventoryCleanupMinCopies = 10,
+	autoDeleteLowRarityEggPets = true,
 	autoBuyFragments = true,
+	autoBuyCompetitiveShop = true,
 	selectedFragments = {},
 	dashboardSyncEnabled = true,
 	dashboardSyncAutoEnabled = false,
@@ -467,6 +517,9 @@ local defaultConfig = {
 	shopInterval = 1,
 	autoBubble = false,
 	autoSell = false,
+	autoBubbleCompetition = true,
+	autoBubbleTeam = true,
+	competitiveRewardChoice = 2,
 	selectedMysteryBox = "Mystery Box",
 	autoOpenMystery = false,
 	autoOpenMysteryDelay = 0.2,
@@ -1542,6 +1595,67 @@ task.spawn(function()
 			and tick() - (tonumber(activeStates.BGSI_Lite_LastPetInventoryCleanup) or 0) >= 20
 		then
 			pcall(activeStates.BGSI_Lite_CleanupFullPetInventory)
+		end
+	end
+end)
+activeStates.BGSI_Lite_ApplyLowRarityEggAutoDelete = function()
+	if Config.autoDeleteLowRarityEggPets ~= true then
+		return false
+	end
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local eggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "")
+	if eggName == "" or eggName == "None" then
+		eggName = tostring(Config.selectedEgg or "")
+	end
+	local eggInfo = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
+	local eggPool = type(eggInfo) == "table" and (eggInfo.Pool or eggInfo.Pets) or nil
+	if type(playerData) ~= "table" or type(eggPool) ~= "table" then
+		return false
+	end
+	local changed = false
+	local seenPetNames = {}
+	for petKey, petEntry in pairs(eggPool) do
+		local poolItem = type(petEntry) == "table" and petEntry.Item or nil
+		local petName = type(poolItem) == "table"
+				and poolItem.Type == "Pet"
+				and poolItem.Name
+			or type(petEntry) == "table" and (petEntry.Pet or petEntry.Name)
+			or (type(petEntry) == "string" and petEntry)
+			or (type(petKey) == "string" and petKey)
+		if type(petName) == "string" and petName ~= "" and not seenPetNames[petName] then
+			seenPetNames[petName] = true
+			local petInfo = type(petRarityData) == "table" and petRarityData[petName] or nil
+			local rarity = activeStates.BGSI_Lite_ResolvePetRarity({ Name = petName }, petInfo)
+			if
+				(rarity == "Common" or rarity == "Rare" or rarity == "Epic")
+				and (type(playerData.AutoDelete) ~= "table" or playerData.AutoDelete[petName] == nil)
+			then
+				pcall(remoteEvent.FireServer, remoteEvent, "ToggleAutoDelete", petName)
+				changed = true
+				task.wait(0.08)
+			end
+		end
+	end
+	activeStates.BGSI_Lite_LastAutoDeleteEggName = eggName
+	activeStates.BGSI_Lite_LastAutoDeleteEggAt = tick()
+	return changed
+end
+task.spawn(function()
+	while isCurrentRun() do
+		task.wait(Config.autoDeleteLowRarityEggPets and 5 or 0.85)
+		local currentAutoDeleteEgg = tostring(activeStates.BGSI_Lite_CurrentEggName or "")
+		if currentAutoDeleteEgg == "" or currentAutoDeleteEgg == "None" then
+			currentAutoDeleteEgg = tostring(Config.selectedEgg or "")
+		end
+		if
+			Config.autoDeleteLowRarityEggPets
+			and (
+				tostring(activeStates.BGSI_Lite_LastAutoDeleteEggName or "")
+					~= currentAutoDeleteEgg
+				or tick() - (tonumber(activeStates.BGSI_Lite_LastAutoDeleteEggAt) or 0) >= 30
+			)
+		then
+			pcall(activeStates.BGSI_Lite_ApplyLowRarityEggAutoDelete)
 		end
 	end
 end)
@@ -2681,8 +2795,6 @@ local function hatchEggForDuration(scriptStateTY, scriptStateMI)
 			scriptStateAEP = tick()
 		end
 		fireHatchEgg(scriptStateTY)
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
 		task.wait(0.1)
 	end
 end
@@ -2867,27 +2979,71 @@ local function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, sc
 			scriptStateUA = tick()
 		end
 		fireHatchEgg(scriptStateYV)
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
 		task.wait(0.1)
 	end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStateI)
 end
 activeStates.BGSI_Lite_SellBubble = function()
-	pcall(function()
-		remoteEvent:FireServer("SellBubble")
-		remoteEvent:FireServer("SellBubble", true)
-		remoteEvent:FireServer("SellBubble", false)
-	end)
-	pcall(function()
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-	end)
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local bubbleAmount = playerData and type(playerData.Bubble) == "table"
+		and math.max(0, tonumber(playerData.Bubble.Amount) or 0)
+		or 0
+	if bubbleAmount <= 0 then
+		return false
+	end
+	local sellSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "SellBubble")
+	if sellSucceeded then
+		activeStates.BGSI_Lite_LastBubbleSellAt = tick()
+	end
+	return sellSucceeded
+end
+activeStates.BGSI_Lite_GetBubbleState = function()
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if type(playerData) ~= "table" or type(playerData.Bubble) ~= "table" then
+		return nil
+	end
+	if type(activeStates.BGSI_Lite_BubbleStatsUtil) ~= "table" then
+		pcall(function()
+			activeStates.BGSI_Lite_BubbleStatsUtil =
+				require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
+		end)
+	end
+	local bubblePower = 0
+	local bubbleStorage = math.huge
+	if type(activeStates.BGSI_Lite_BubbleStatsUtil) == "table" then
+		pcall(function()
+			bubblePower = math.max(0, tonumber(activeStates.BGSI_Lite_BubbleStatsUtil:GetBubblePower(playerData)) or 0)
+			bubbleStorage =
+				math.max(0, tonumber(activeStates.BGSI_Lite_BubbleStatsUtil:GetBubbleStorage(playerData)) or 0)
+		end)
+	end
+	return {
+		Amount = math.max(0, tonumber(playerData.Bubble.Amount) or 0),
+		Power = bubblePower,
+		Storage = bubbleStorage,
+		Infinite = type(playerData.Passes) == "table" and playerData.Passes["Infinity Gum"] == true,
+	}
+end
+activeStates.BGSI_Lite_BlowBubble = function()
+	local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
+	if not bubbleState then
+		return false
+	end
+	if
+		not bubbleState.Infinite
+		and bubbleState.Storage > 0
+		and bubbleState.Amount + math.max(1, bubbleState.Power) >= bubbleState.Storage
+	then
+		activeStates.BGSI_Lite_SellBubble()
+		return false
+	end
+	local blowSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "BlowBubble")
+	if blowSucceeded then
+		activeStates.BGSI_Lite_LastBubbleBlowAt = tick()
+	end
+	return blowSucceeded
 end
 local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
-	teleportToCFrame(CFrame.new(78, 9, -110))
-	task.wait(0.4)
-	local teleportStartTime = tick()
 	local lastSellTime = 0
 	local questProgressWatch
 	local scriptStateStalled
@@ -2920,24 +3076,175 @@ local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, 
 			break
 		end
 		if tick() - (tonumber(questProgressWatch.ChangedAt) or tick()) >= 3 and tick() - lastSellTime >= 0.75 then
-			teleportToCFrame(CFrame.new(78, 9, -110))
 			activeStates.BGSI_Lite_SellBubble()
 			lastSellTime = tick()
-		end
-		if tick() - teleportStartTime >= 2 then
-			teleportToCFrame(CFrame.new(78, 9, -110))
-			teleportStartTime = tick()
 		end
 		if tick() - lastSellTime >= 2 then
 			activeStates.BGSI_Lite_SellBubble()
 			lastSellTime = tick()
 		end
-		pcall(function()
-			remoteEvent:FireServer("BlowBubble")
-		end)
-		task.wait(0.08)
+		activeStates.BGSI_Lite_BlowBubble()
+		task.wait(0.5)
 	end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStatePW)
+end
+activeStates.BGSI_Lite_GetCompetitiveShared = function()
+	if type(activeStates.BGSI_Lite_CompetitiveShared) ~= "table" then
+		pcall(function()
+			activeStates.BGSI_Lite_CompetitiveShared =
+				require(ReplicatedStorage.Shared.Data.CompetitiveShared)
+		end)
+	end
+	return activeStates.BGSI_Lite_CompetitiveShared
+end
+activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local competitiveShared = activeStates.BGSI_Lite_GetCompetitiveShared()
+	if type(playerData) ~= "table" or type(competitiveShared) ~= "table" then
+		return nil
+	end
+	local season
+	pcall(function()
+		season = competitiveShared:GetSeason()
+	end)
+	if not season then
+		return { Active = false }
+	end
+	local competitive = type(playerData.Competitive) == "table" and playerData.Competitive or {}
+	local clan = type(competitive.Clan) == "table" and competitive.Clan or nil
+	local members = {}
+	local teamScore = 0
+	if clan and type(clan.Members) == "table" then
+		for _, member in ipairs(clan.Members) do
+			if type(member) == "table" then
+				local memberScore = member.UserId == LocalPlayer.UserId
+						and math.max(0, tonumber(competitive.Score) or 0)
+					or math.max(0, tonumber(member.Score) or 0)
+				teamScore = teamScore + memberScore
+				table.insert(members, {
+					UserId = tostring(member.UserId or ""),
+					Username = tostring(member.Username or ""),
+					DisplayName = tostring(member.DisplayName or member.Username or ""),
+					Score = memberScore,
+					Owner = clan.Members[1] == member,
+				})
+			end
+		end
+	end
+	local seasonData = type(competitiveShared.Seasons) == "table" and competitiveShared.Seasons[season] or nil
+	local teamRank = 0
+	pcall(function()
+		local leaderboard = Workspace.Worlds["The Overworld"].Leaderboards.Competitive
+		local ranks = HttpService:JSONDecode(leaderboard:GetAttribute("Ranks"))
+		for rank, entry in ipairs(ranks) do
+			if type(entry) == "table" and tostring(entry.id or "") == tostring(clan and clan.Id or "") then
+				teamRank = rank
+				break
+			end
+		end
+	end)
+	return {
+		Active = true,
+		Season = tonumber(season) or 0,
+		Score = math.max(0, tonumber(competitive.Score) or 0),
+		MaxPoints = math.max(0, tonumber(competitiveShared.MaxPoints) or 0),
+		Claimed = type(competitive.Claimed) == "table" and #competitive.Claimed or 0,
+		RewardTiers = seasonData and type(seasonData.Rewards) == "table" and #seasonData.Rewards or 0,
+		TeamName = clan and tostring(clan.Id or "") or "",
+		TeamRank = teamRank,
+		TeamScore = teamScore,
+		Members = members,
+		EndsAt = seasonData and type(seasonData.FinishTime) == "table"
+				and math.max(0, tonumber(seasonData.FinishTime.UnixTimestamp) or 0)
+			or 0,
+	}
+end
+activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local competitiveShared = activeStates.BGSI_Lite_GetCompetitiveShared()
+	if type(playerData) ~= "table" or type(competitiveShared) ~= "table" then
+		return
+	end
+	local season
+	pcall(function()
+		season = competitiveShared:GetSeason()
+	end)
+	local competitive = type(playerData.Competitive) == "table" and playerData.Competitive or nil
+	local seasonData = season and type(competitiveShared.Seasons) == "table"
+			and competitiveShared.Seasons[season]
+		or nil
+	if not season or not competitive or type(seasonData) ~= "table" then
+		return
+	end
+	if not competitive.Clan and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 30 then
+		local isFinalDay = false
+		pcall(function()
+			isFinalDay = competitiveShared:IsFinalDay(season)
+		end)
+		if not isFinalDay then
+			local maximumLength = type(sharedConstants) == "table"
+					and type(sharedConstants.Clan) == "table"
+					and tonumber(sharedConstants.Clan.MaxNameLength)
+				or 20
+			local teamSuffix = " " .. tostring(LocalPlayer.UserId):sub(-6)
+			local teamName = (LocalPlayer.Name:sub(1, math.max(1, maximumLength - #teamSuffix)) .. teamSuffix)
+				:gsub("[^%w ]", "")
+				:gsub("%s+", " ")
+				:gsub("^%s+", "")
+				:gsub("%s+$", "")
+			if teamName ~= "" then
+				pcall(remoteEvent.FireServer, remoteEvent, "ClanCreate", teamName)
+				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = tick()
+			end
+		end
+	end
+	if type(seasonData.Rewards) == "table" and type(competitive.Claimed) == "table" then
+		for rewardIndex in ipairs(seasonData.Rewards) do
+			local requirement = math.huge
+			pcall(function()
+				requirement = tonumber(competitiveShared:GetRequirement(seasonData, rewardIndex)) or math.huge
+			end)
+			if
+				not table.find(competitive.Claimed, rewardIndex)
+				and math.max(0, tonumber(competitive.Score) or 0) >= requirement
+			then
+				pcall(
+					remoteEvent.FireServer,
+					remoteEvent,
+					"ClaimCompetitivePrize",
+					rewardIndex,
+					math.clamp(math.floor(tonumber(Config.competitiveRewardChoice) or 2), 1, 2)
+				)
+				task.wait(0.15)
+			end
+		end
+	end
+	if type(itemUtil) == "table" and type(competitiveShared.RerollCost) == "table" then
+		local ownedAmount = 0
+		local requiredAmount = math.huge
+		pcall(function()
+			ownedAmount = tonumber(itemUtil:GetOwnedAmount(playerData, competitiveShared.RerollCost)) or 0
+			requiredAmount = tonumber(itemUtil:GetAmount(competitiveShared.RerollCost)) or math.huge
+		end)
+		activeStates.BGSI_Lite_CompetitiveRerollAt = activeStates.BGSI_Lite_CompetitiveRerollAt or {}
+		for questSlot = 3, 4 do
+			local quest
+			pcall(function()
+				quest = questModule:FindById(playerData, tostring(competitiveShared.QuestKey or "competitive") .. "-" .. questSlot)
+			end)
+			local questTask = type(quest) == "table" and type(quest.Tasks) == "table" and quest.Tasks[1] or nil
+			if
+				type(questTask) == "table"
+				and not isBubbleBountyTask(questTask)
+				and ownedAmount >= requiredAmount
+				and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveRerollAt[questSlot]) or 0) >= 15
+			then
+				pcall(remoteEvent.FireServer, remoteEvent, "CompetitiveReroll", questSlot)
+				activeStates.BGSI_Lite_CompetitiveRerollAt[questSlot] = tick()
+				ownedAmount = ownedAmount - requiredAmount
+			end
+		end
+	end
 end
 
 do
@@ -5473,10 +5780,12 @@ task.spawn(function()
 		if Config.autoSpamR ~= true then
 			continue
 		end
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+		pcall(function()
+			VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
+			VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
+			VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+			VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+		end)
 	end
 end)
 local function getLuckEggPosition(scriptStateMK)
@@ -7668,6 +7977,7 @@ do
 		end
 		return math.max(0, math.floor(highestAmount))
 	end
+	activeStates.BGSI_Lite_GetInventoryItemAmount = getInventoryItemAmount
 	local function claimAvailablePrizes()
 		if not prizesData or not prizesUtil then
 			pcall(function()
@@ -7945,6 +8255,16 @@ do
 			saveConfig()
 		end,
 	})
+	gameTab:AddToggle("AutoDeleteLowRarityEggPets", {
+		Title = "Auto Delete Common, Rare, Epic",
+		Description = "Enables the egg auto-delete list for Common, Rare, and Epic pets on the egg being hatched.",
+		Default = Config.autoDeleteLowRarityEggPets ~= false,
+		Callback = function(isEnabled)
+			Config.autoDeleteLowRarityEggPets = isEnabled == true
+			activeStates.BGSI_Lite_LastAutoDeleteEggAt = 0
+			saveConfig()
+		end,
+	})
 	gameTab:AddToggle("HealthRecoveryEnabled", {
 		Title = "Client Recovery",
 		Default = Config.healthRecoveryEnabled,
@@ -8021,6 +8341,35 @@ do
 		Default = Config.autoSell,
 		Callback = function(scriptStateAEL)
 			Config.autoSell = scriptStateAEL
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoBubbleCompetition", {
+		Title = "Auto Bubble Competition",
+		Description = "Bubble and sell anywhere while hatching, create a team, reroll non-bubble tasks, and claim rewards.",
+		Default = Config.autoBubbleCompetition,
+		Callback = function(isEnabled)
+			Config.autoBubbleCompetition = isEnabled
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoBubbleTeam", {
+		Title = "Auto Build Bubble Team",
+		Description = "Equips Bubble Machine Super Legendaries first, then the strongest shiny pets so enchant slots remain usable.",
+		Default = Config.autoBubbleTeam ~= false,
+		Callback = function(isEnabled)
+			Config.autoBubbleTeam = isEnabled == true
+			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
+			saveConfig()
+		end,
+	})
+	gameTab:AddDropdown("CompetitiveRewardChoice", {
+		Title = "Competition Reward Choice",
+		Description = "Choose the first or second reward whenever a competition tier is ready.",
+		Values = { "1", "2" },
+		Default = tostring(Config.competitiveRewardChoice or 2),
+		Callback = function(selectedChoice)
+			Config.competitiveRewardChoice = tonumber(selectedChoice) or 2
 			saveConfig()
 		end,
 	})
@@ -8162,7 +8511,17 @@ do
 			end
 		end
 
-		local directName = shopItem.Name or shopItem.ItemName or shopItem.Id or shopItem.Product
+		local directProduct = shopItem.Product
+		if type(directProduct) == "string" then
+			return directProduct
+		elseif type(directProduct) == "table" then
+			local directProductName = getShopItemName(directProduct, depth + 1)
+			if directProductName then
+				return directProductName
+			end
+		end
+
+		local directName = shopItem.Name or shopItem.ItemName or shopItem.Id
 		if type(directName) == "string" then
 			return directName
 		elseif directName ~= nil then
@@ -8354,6 +8713,135 @@ do
 		table.sort(fragmentNames)
 		return fragmentNames
 	end
+	activeStates.BGSI_Lite_SmartShopRestock = function(itemType, itemName, itemLevel, allowFreeReroll)
+		if type(itemName) ~= "string" or itemName == "" then
+			return 0
+		end
+		if not activeStates.BGSI_Lite_ShopUtil then
+			pcall(function()
+				activeStates.BGSI_Lite_ShopUtil = require(ReplicatedStorage.Shared.Utils.ShopUtil)
+			end)
+		end
+		local shopUtil = activeStates.BGSI_Lite_ShopUtil
+		local shops = getShopData()
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		if type(shopUtil) ~= "table" or type(shops) ~= "table" or type(playerData) ~= "table" then
+			return 0
+		end
+		local function matchesProduct(product)
+			return type(product) == "table"
+				and tostring(product.Type or "") == tostring(itemType or product.Type or "")
+				and tostring(product.Name or "") == itemName
+				and (itemLevel == nil or tonumber(product.Level) == tonumber(itemLevel))
+		end
+		local function getOwnedAmount()
+			local amountOk, ownedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, {
+				Type = itemType,
+				Name = itemName,
+				Level = itemLevel,
+			})
+			return amountOk and math.max(0, math.floor(tonumber(ownedAmount) or 0)) or 0
+		end
+		local targetShopNames = {}
+		for shopName, shopData in pairs(shops) do
+			if
+				type(shopName) == "string"
+				and type(shopData) == "table"
+				and type(playerData.Shops) == "table"
+				and type(playerData.Shops[shopName]) == "table"
+			then
+				local canStockTarget = false
+				eachShopSlot(shopName, shopData, function(_, _, shopItem)
+					if getShopItemName(shopItem) == itemName then
+						canStockTarget = true
+					end
+				end)
+				if canStockTarget then
+					table.insert(targetShopNames, shopName)
+				end
+			end
+		end
+		local function buyCurrentStock()
+			local purchasedAmount = 0
+			local targetVisible = false
+			for _, shopName in ipairs(targetShopNames) do
+				playerData = profileStore:IsReady() and profileStore:Get() or playerData
+				local shopState = type(playerData.Shops) == "table" and playerData.Shops[shopName] or nil
+				local itemsOk, itemsData, itemStocks = pcall(
+					shopUtil.GetItemsData,
+					shopUtil,
+					shopName,
+					LocalPlayer,
+					playerData
+				)
+				local unlockedOk, unlockedSlots = pcall(
+					shopUtil.GetUnlockedSlots,
+					shopUtil,
+					playerData,
+					type(itemsData) == "table" and #itemsData or 0
+				)
+				if itemsOk and type(itemsData) == "table" and type(itemStocks) == "table" then
+					for slotIndex, shopItem in pairs(itemsData) do
+						local product = type(shopItem) == "table" and shopItem.Product or nil
+						local boughtAmount = type(shopState) == "table"
+								and type(shopState.Bought) == "table"
+								and tonumber(shopState.Bought[slotIndex])
+							or 0
+						local availableStock = math.max(0, (tonumber(itemStocks[slotIndex]) or 0) - boughtAmount)
+						if
+							matchesProduct(product)
+							and availableStock > 0
+							and (not unlockedOk or (tonumber(slotIndex) or math.huge) <= unlockedSlots)
+						then
+							targetVisible = true
+							local canAffordOk, canAfford = pcall(
+								itemUtil.CanAfford,
+								itemUtil,
+								playerData,
+								shopItem.Cost
+							)
+							if not canAffordOk or canAfford then
+								local amountBefore = getOwnedAmount()
+								remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, true)
+								task.wait(0.35)
+								playerData = profileStore:IsReady() and profileStore:Get() or playerData
+								purchasedAmount += math.max(0, getOwnedAmount() - amountBefore)
+							end
+						end
+					end
+				end
+			end
+			return purchasedAmount, targetVisible
+		end
+		local purchasedAmount, targetVisible = buyCurrentStock()
+		if purchasedAmount > 0 or targetVisible or allowFreeReroll ~= true then
+			return purchasedAmount
+		end
+		local maxRerollsOk, maxFreeRerolls =
+			pcall(shopUtil.GetMaxFreeRerolls, shopUtil, playerData)
+		maxFreeRerolls = maxRerollsOk and math.max(0, math.floor(tonumber(maxFreeRerolls) or 0)) or 0
+		for _, shopName in ipairs(targetShopNames) do
+			playerData = profileStore:IsReady() and profileStore:Get() or playerData
+			local usedFreeRerolls = type(playerData.ShopFreeRerolls) == "table"
+					and math.max(0, math.floor(tonumber(playerData.ShopFreeRerolls.Used) or 0))
+				or 0
+			if
+				usedFreeRerolls >= maxFreeRerolls
+				or type(shops[shopName]) ~= "table"
+				or shops[shopName].Rerollable ~= true
+			then
+				continue
+			end
+			remoteEvent:FireServer("ShopFreeReroll", shopName)
+			task.wait(0.75)
+			local rerollPurchases, rerollTargetVisible = buyCurrentStock()
+			purchasedAmount += rerollPurchases
+			if rerollPurchases > 0 or rerollTargetVisible then
+				break
+			end
+		end
+		return purchasedAmount
+	end
 
 	local function refreshShopDropdowns()
 		refreshShopData()
@@ -8429,6 +8917,15 @@ do
 		Default = Config.autoBuyFragments ~= false,
 		Callback = function(enabled)
 			Config.autoBuyFragments = enabled == true
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoBuyCompetitiveShop", {
+		Title = "Auto Buy Competition Shop",
+		Description = "Spends Bubble Coins on all available fragments first, then buys the remaining affordable stock.",
+		Default = Config.autoBuyCompetitiveShop ~= false,
+		Callback = function(enabled)
+			Config.autoBuyCompetitiveShop = enabled == true
 			saveConfig()
 		end,
 	})
@@ -8541,6 +9038,75 @@ do
 				task.wait(0.25)
 				if getInventoryItemAmount(target.item) <= amountBefore then
 					lastPurchaseBySlot[slotKey] = os.clock() + 8
+				end
+			end
+		end
+	end)
+	task.spawn(function()
+		while isCurrentRun() do
+			task.wait(Config.autoBuyCompetitiveShop and math.max(1, tonumber(Config.shopInterval) or 1) or 0.85)
+			if not Config.autoBuyCompetitiveShop then
+				continue
+			end
+			if not activeStates.BGSI_Lite_ShopUtil then
+				pcall(function()
+					activeStates.BGSI_Lite_ShopUtil = require(ReplicatedStorage.Shared.Utils.ShopUtil)
+				end)
+			end
+			local shopUtil = activeStates.BGSI_Lite_ShopUtil
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local shopState = type(playerData) == "table"
+					and type(playerData.Shops) == "table"
+					and playerData.Shops["bubblecomp-shop"]
+				or nil
+			if type(shopUtil) ~= "table" or type(shopState) ~= "table" then
+				continue
+			end
+			local itemsOk, itemsData, itemStocks =
+				pcall(shopUtil.GetItemsData, shopUtil, "bubblecomp-shop", LocalPlayer, playerData)
+			local unlockedOk, unlockedSlots = pcall(
+				shopUtil.GetUnlockedSlots,
+				shopUtil,
+				playerData,
+				type(itemsData) == "table" and #itemsData or 0
+			)
+			if not itemsOk or type(itemsData) ~= "table" or type(itemStocks) ~= "table" then
+				continue
+			end
+			local fragmentsRemaining = false
+			for pass = 1, 2 do
+				for slotIndex, shopItem in ipairs(itemsData) do
+					local product = type(shopItem) == "table" and shopItem.Product or nil
+					local productName = type(product) == "table" and tostring(product.Name or "") or ""
+					local isFragment = string.find(string.lower(productName), "fragment", 1, true) ~= nil
+					local boughtAmount = type(shopState.Bought) == "table"
+							and math.max(0, tonumber(shopState.Bought[slotIndex]) or 0)
+						or 0
+					local availableStock = math.max(0, (tonumber(itemStocks[slotIndex]) or 0) - boughtAmount)
+					if
+						availableStock > 0
+						and (not unlockedOk or slotIndex <= unlockedSlots)
+						and ((pass == 1 and isFragment) or (pass == 2 and not isFragment))
+					then
+						local canAffordOk, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, shopItem.Cost)
+						if canAffordOk and canAfford then
+							pcall(remoteEvent.FireServer, remoteEvent, "BuyShopItem", "bubblecomp-shop", slotIndex, true)
+							task.wait(0.3)
+							playerData = profileStore:IsReady() and profileStore:Get() or playerData
+							shopState = type(playerData.Shops) == "table"
+									and playerData.Shops["bubblecomp-shop"]
+								or shopState
+							boughtAmount = type(shopState.Bought) == "table"
+									and math.max(0, tonumber(shopState.Bought[slotIndex]) or 0)
+								or boughtAmount
+						end
+						if pass == 1 and boughtAmount < (tonumber(itemStocks[slotIndex]) or 0) then
+							fragmentsRemaining = true
+						end
+					end
+				end
+				if pass == 1 and fragmentsRemaining then
+					break
 				end
 			end
 		end
@@ -8893,14 +9459,19 @@ do
 			"autoClaimJuly4thRewards",
 			"autoInventoryCleanup",
 			"inventoryCleanupMinCopies",
+			"autoDeleteLowRarityEggPets",
 			"autoEquipBestPets",
 			"autoUpgradeMastery",
 			"autoPowerOrbEquipped",
 			"autoCollectCoins",
 			"autoBubble",
 			"autoSell",
+			"autoBubbleCompetition",
+			"autoBubbleTeam",
+			"competitiveRewardChoice",
 			"autoUseFragments",
 			"autoBuyFragments",
+			"autoBuyCompetitiveShop",
 			"selectedFragments",
 			"selectedShops",
 			"selectedShopItems",
@@ -9874,6 +10445,10 @@ do
 									or nil,
 								serverPlayers = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardServerPlayers, {}),
 								config = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardConfig, {}),
+								competition = activeStates.BGSI_Lite_SafeDashboardBuild(
+									activeStates.BGSI_Lite_GetCompetitiveTelemetry,
+									nil
+								),
 							}
 							if type(activeQuest) == "table" then
 								payload.activeQuest = {
@@ -10597,7 +11172,7 @@ do
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoEquipBestPets and 3 or 0.85)
-			if Config.autoEquipBestPets and not Config.autoEnchant then
+			if Config.autoEquipBestPets and not Config.autoEnchant and not Config.autoBubbleTeam then
 				pcall(function()
 					remoteEvent:FireServer("EquipBestPets")
 				end)
@@ -10666,19 +11241,42 @@ do
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.autoBubble and 0.03 or 0.85)
-			if Config.autoBubble and not isPriorityAutomationActive() then
-				pcall(function()
-					remoteEvent:FireServer("BlowBubble")
-				end)
+			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0.5 or 0.85)
+			if (Config.autoBubble or Config.autoBubbleCompetition) and not isPriorityAutomationActive() then
+				activeStates.BGSI_Lite_BlowBubble()
 			end
 		end
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.autoSell and 1 or 0.85)
-			if Config.autoSell and not isPriorityAutomationActive() then
-				activeStates.BGSI_Lite_SellBubble()
+			task.wait((Config.autoSell or Config.autoBubbleCompetition) and 0.5 or 0.85)
+			if (Config.autoSell or Config.autoBubbleCompetition) and not isPriorityAutomationActive() then
+				local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
+				if
+					bubbleState
+					and bubbleState.Amount > 0
+					and (
+						(
+							not bubbleState.Infinite
+							and bubbleState.Storage > 0
+							and bubbleState.Amount + math.max(1, bubbleState.Power) >= bubbleState.Storage
+						)
+						or (
+							bubbleState.Infinite
+							and tick() - (tonumber(activeStates.BGSI_Lite_LastBubbleSellAt) or 0) >= 2
+						)
+					)
+				then
+					activeStates.BGSI_Lite_SellBubble()
+				end
+			end
+		end
+	end)
+	task.spawn(function()
+		while isCurrentRun() do
+			task.wait(Config.autoBubbleCompetition and 2 or 0.85)
+			if Config.autoBubbleCompetition then
+				pcall(activeStates.BGSI_Lite_RunCompetitiveAutomation)
 			end
 		end
 	end)
@@ -11466,6 +12064,8 @@ local function getEnchantCurrency(scriptStateVC)
 	return nil
 end
 activeStates.BGSI_Lite_SuperEnchantPriorityKeyById = {
+	["super-bubble-plus"] = "bubble-machine-plus",
+	["super-bubble"] = "bubble-machine",
 	["super-speed-plus"] = "hatch-blessing-plus",
 	["super-luck-plus"] = "luck-boost-plus",
 	["super-speed"] = "hatch-blessing",
@@ -11483,11 +12083,23 @@ local function prepareAutoEnchantTeam()
 	local superEnchantPriorities = activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(
 		Config.superLegendaryEnchantPriorities
 	)
+	if Config.autoBubbleTeam then
+		superEnchantPriorities = {
+			"bubble-machine-plus",
+			"bubble-machine",
+		}
+	end
 	local superEnchantPriorityIndexes = {}
 	for priorityIndex, enchantKey in ipairs(superEnchantPriorities) do
 		superEnchantPriorityIndexes[tostring(enchantKey)] = priorityIndex
 	end
 	local candidates = {}
+	if type(activeStates.BGSI_Lite_BubblePetUtil) ~= "table" then
+		pcall(function()
+			activeStates.BGSI_Lite_BubblePetUtil =
+				require(ReplicatedStorage.Shared.Utils.Stats.PetUtil)
+		end)
+	end
 	for _, pet in ipairs(playerData.Pets) do
 		local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
 		local rarity = petInfo and petInfo.Rarity
@@ -11509,18 +12121,27 @@ local function prepareAutoEnchantTeam()
 				end
 			end
 		end
+		local bubbleScore = 0
+		if type(activeStates.BGSI_Lite_BubblePetUtil) == "table" then
+			pcall(function()
+				local petStats = activeStates.BGSI_Lite_BubblePetUtil:GetStats(pet, playerData)
+				bubbleScore = math.max(0, tonumber(type(petStats) == "table" and petStats.Bubbles) or 0)
+			end)
+		end
 		if
 			superEnchantPriorityIndex ~= nil
 			or (
 				not isSuperLegendary
 				and (pet.Shiny == true or pet.IsShiny == true)
-				and (rarity == "Celestial" or rarity == "Secret")
+				and (Config.autoBubbleTeam or rarity == "Celestial" or rarity == "Secret")
 			)
 		then
 			table.insert(candidates, {
 				pet = pet,
-				priority = superEnchantPriorityIndex and 1 or (rarity == "Celestial" and 2 or 3),
+				priority = superEnchantPriorityIndex and 1
+					or (Config.autoBubbleTeam and 2 or (rarity == "Celestial" and 2 or 3)),
 				enchantPriority = superEnchantPriorityIndex or math.huge,
+				bubbleScore = bubbleScore,
 				enchantScore = superEnchantPriorityIndex
 					and superEnchantMatchCount
 					or ((findPetEnchantSlot(pet, "secret-hunter") and 1 or 0)
@@ -11538,8 +12159,14 @@ local function prepareAutoEnchantTeam()
 		if leftCandidate.enchantPriority ~= rightCandidate.enchantPriority then
 			return leftCandidate.enchantPriority < rightCandidate.enchantPriority
 		end
+		if Config.autoBubbleTeam and leftCandidate.bubbleScore ~= rightCandidate.bubbleScore then
+			return leftCandidate.bubbleScore > rightCandidate.bubbleScore
+		end
 		if leftCandidate.enchantScore ~= rightCandidate.enchantScore then
 			return leftCandidate.enchantScore > rightCandidate.enchantScore
+		end
+		if not Config.autoBubbleTeam and leftCandidate.bubbleScore ~= rightCandidate.bubbleScore then
+			return leftCandidate.bubbleScore > rightCandidate.bubbleScore
 		end
 		return tostring(leftCandidate.pet.Id) < tostring(rightCandidate.pet.Id)
 	end)
@@ -11797,6 +12424,14 @@ task.spawn(function()
 			getEnchantTargetList()
 		end
 		lastAutoEnchantState = Config.autoEnchant
+	end
+end)
+task.spawn(function()
+	while isCurrentRun() do
+		task.wait(Config.autoBubbleTeam and 3 or 0.85)
+		if Config.autoBubbleTeam and not Config.autoEnchant and not isPriorityAutomationActive() then
+			pcall(prepareAutoEnchantTeam)
+		end
 	end
 end)
 do
@@ -13001,6 +13636,7 @@ do
 	scriptStateOB:AddSection("Dream Fountain")
 	scriptStateOB:AddToggle("DreamShrine", {
 		Title = "Auto Dreamer Fountain",
+		Description = "Rations Dream Shards and restocks them from available shops and free rerolls when needed.",
 		Default = Config.DreamerShrineEnabled,
 		Callback = function(scriptStateAV)
 			Config.DreamerShrineEnabled = scriptStateAV
@@ -13010,12 +13646,12 @@ do
 	scriptStateOB:AddInput("DreamShrineAmount", {
 		Title = "Amount",
 		Default = tostring(Config.DreamerShrineAmount),
-		Placeholder = "1-20",
+		Placeholder = "1-15",
 		Numeric = true,
 		Callback = function(scriptStateIW)
 			local scriptStateAE = tonumber(scriptStateIW)
 			if scriptStateAE then
-				Config.DreamerShrineAmount = math.clamp(math.floor(scriptStateAE), 1, 20)
+				Config.DreamerShrineAmount = math.clamp(math.floor(scriptStateAE), 1, 15)
 				saveConfig()
 			end
 		end,
@@ -13079,25 +13715,118 @@ do
 end
 task.spawn(function()
 	while isCurrentRun() do
-		if Config.DreamerShrineEnabled then
+		task.wait(Config.DreamerShrineEnabled and 15 or 0.85)
+		if not Config.DreamerShrineEnabled then
+			continue
+		end
+		if not activeStates.BGSI_Lite_DreamerShrineUtil then
 			pcall(function()
-				remoteFunction:InvokeServer("DonateToDreamerShrine", Config.DreamerShrineAmount or 1)
+				activeStates.BGSI_Lite_DreamerShrineUtil =
+					require(ReplicatedStorage.Shared.Utils.DreamerShrineUtil)
 			end)
 		end
-		task.wait(5)
+		local dreamerShrineUtil = activeStates.BGSI_Lite_DreamerShrineUtil
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		local dreamerShrine = type(playerData) == "table" and playerData.DreamerShrine or nil
+		if type(dreamerShrineUtil) ~= "table" or type(dreamerShrine) ~= "table" then
+			continue
+		end
+		local currentTimestamp = getCurrentTimestamp()
+		local donationInterval = tonumber(dreamerShrineUtil.DONATION_INTERVAL) or 3600
+		if currentTimestamp < (tonumber(dreamerShrine.LastDonationTime) or 0) + donationInterval then
+			continue
+		end
+		local blessingRemaining =
+			math.max(0, (tonumber(dreamerShrine.ShrineBlessingEndTime) or 0) - currentTimestamp)
+		local configuredAmount = math.clamp(math.floor(tonumber(Config.DreamerShrineAmount) or 1), 1, 15)
+		local ownedShards = type(activeStates.BGSI_Lite_GetInventoryItemAmount) == "function"
+				and activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
+			or 0
+		local minimumDurationOk, minimumDuration =
+			pcall(dreamerShrineUtil.GetBlessingDurationFromAmount, dreamerShrineUtil, 1)
+		if
+			ownedShards < configuredAmount
+			and minimumDurationOk
+			and blessingRemaining + (tonumber(minimumDuration) or 0) <= 86400
+			and tick() >= (tonumber(activeStates.BGSI_Lite_NextDreamShardRestockAt) or 0)
+			and type(activeStates.BGSI_Lite_SmartShopRestock) == "function"
+		then
+			local purchasedAmount = activeStates.BGSI_Lite_SmartShopRestock(
+				"Powerup",
+				"Dream Shard",
+				nil,
+				ownedShards <= 0
+			)
+			activeStates.BGSI_Lite_NextDreamShardRestockAt = tick() + (purchasedAmount > 0 and 15 or 60)
+			playerData = profileStore:IsReady() and profileStore:Get() or playerData
+			ownedShards = activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
+		end
+		local donationAmount = 0
+		for amount = math.min(configuredAmount, ownedShards), 1, -1 do
+			local durationOk, blessingDuration =
+				pcall(dreamerShrineUtil.GetBlessingDurationFromAmount, dreamerShrineUtil, amount)
+			if
+				durationOk
+				and blessingRemaining + math.max(0, tonumber(blessingDuration) or 0) <= 86400
+			then
+				donationAmount = amount
+				break
+			end
+		end
+		if donationAmount > 0 then
+			local donationOk, donationAccepted =
+				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToDreamerShrine", donationAmount)
+			if
+				donationOk
+				and donationAccepted == true
+				and type(activeStates.BGSI_Lite_LogDashboardAction) == "function"
+			then
+				activeStates.BGSI_Lite_LogDashboardAction(
+					"Donated "
+						.. tostring(donationAmount)
+						.. " Dream Shard"
+						.. (donationAmount == 1 and "" or "s"),
+					"collect"
+				)
+			end
+		end
 	end
 end)
 task.spawn(function()
 	while isCurrentRun() do
 		if Config.shrineAuto then
-			pcall(function()
-				remoteFunction:InvokeServer("DonateToShrine", {
-					Level = Config.shrineLevel,
-					Type = "Potion",
-					Name = Config.shrinePotion,
-					Amount = Config.shrineAmount,
-				})
-			end)
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local potionItem = {
+				Level = Config.shrineLevel,
+				Type = "Potion",
+				Name = Config.shrinePotion,
+			}
+			local amountOk, ownedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
+			ownedAmount = amountOk and math.max(0, math.floor(tonumber(ownedAmount) or 0)) or 0
+			if
+				ownedAmount <= 0
+				and tick() >= (tonumber(activeStates.BGSI_Lite_NextBubbleShrineRestockAt) or 0)
+				and type(activeStates.BGSI_Lite_SmartShopRestock) == "function"
+			then
+				local purchasedAmount = activeStates.BGSI_Lite_SmartShopRestock(
+					"Potion",
+					Config.shrinePotion,
+					Config.shrineLevel,
+					false
+				)
+				activeStates.BGSI_Lite_NextBubbleShrineRestockAt = tick()
+					+ (purchasedAmount > 0 and 15 or 60)
+				playerData = profileStore:IsReady() and profileStore:Get() or playerData
+				amountOk, ownedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
+				ownedAmount = amountOk and math.max(0, math.floor(tonumber(ownedAmount) or 0)) or 0
+			end
+			potionItem.Amount = math.min(
+				ownedAmount,
+				math.max(0, math.floor(tonumber(Config.shrineAmount) or 0))
+			)
+			if potionItem.Amount > 0 then
+				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToShrine", potionItem)
+			end
 		end
 		task.wait(5)
 	end
