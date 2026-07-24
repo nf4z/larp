@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.14"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.16"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.16",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Live hatchable egg catalog",
+				description = "Reports every currently hatchable egg with active events, complete pet pools, rarities, images, and base chances.",
+				icon = "egg",
+			},
+		},
+	},
+	{
+		version = "2026.07.24.15",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Competition quest progression",
+				description = "Waits for a confirmed team before timing bubble progress and rotates safe team names until creation succeeds.",
+				icon = "chart-no-axes-column-increasing",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.14",
 		releasedAt = "July 24, 2026",
@@ -3161,6 +3183,20 @@ local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, 
 			bountyRequirement = getBountyTaskRequirement(selectedPotionCallback)
 		end
 		local bountyProgress = getBountyTaskProgress(scriptStateABM, scriptStatePW)
+		local questId = tostring(scriptStateABM.Id or scriptStateABM.ID or "")
+		if questId:sub(1, 12) == "competitive-" then
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local competitive = type(playerData) == "table" and playerData.Competitive or nil
+			if type(competitive) ~= "table" or type(competitive.Clan) ~= "table" then
+				if type(activeStates.BGSI_Lite_RunCompetitiveAutomation) == "function" then
+					activeStates.BGSI_Lite_RunCompetitiveAutomation()
+				end
+				activeStates.BGSI_Lite_SetActiveQuest(scriptStateABM, scriptStatePW, bountyProgress, "waiting")
+				questProgressWatch = nil
+				task.wait(1)
+				continue
+			end
+		end
 		questProgressWatch, scriptStateStalled = activeStates.BGSI_Lite_RecordQuestProgress(
 			questProgressWatch,
 			scriptStateABM,
@@ -3298,7 +3334,18 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 				["8"] = "m",
 				["9"] = "n",
 			})
-			local teamName = ("Team " .. encodedUserId):sub(1, maximumLength)
+			local teamNamePrefixes = {
+				"Team",
+				"Bubble",
+				"Hatch",
+				"Comp",
+			}
+			local teamNameAttempt = math.max(
+				0,
+				math.floor(tonumber(activeStates.BGSI_Lite_CompetitiveTeamNameAttempt) or 0)
+			)
+			local teamNamePrefix = teamNamePrefixes[teamNameAttempt % #teamNamePrefixes + 1]
+			local teamName = (teamNamePrefix .. " " .. encodedUserId):sub(1, maximumLength)
 				:gsub("[^%w ]", "")
 				:gsub("%s+", " ")
 				:gsub("^%s+", "")
@@ -3306,6 +3353,7 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 			if teamName ~= "" then
 				pcall(remoteEvent.FireServer, remoteEvent, "ClanCreate", teamName)
 				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = tick()
+				activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = teamNameAttempt + 1
 			end
 		end
 	end
@@ -9770,6 +9818,111 @@ do
 			end
 			return icon
 		end
+		activeStates.BGSI_Lite_BuildDashboardEggCatalog = function()
+			if
+				type(activeStates.BGSI_Lite_DashboardEggCatalog) == "table"
+				and tick() - (tonumber(activeStates.BGSI_Lite_DashboardEggCatalogUpdatedAt) or 0) < 300
+			then
+				return activeStates.BGSI_Lite_DashboardEggCatalog
+			end
+			local eventData = {}
+			pcall(function()
+				eventData = require(ReplicatedStorage.Shared.Data.Events)
+			end)
+			local renderedEggs = {}
+			pcall(function()
+				for _, renderedEggName in ipairs(safeGetChildren(true)) do
+					renderedEggs[tostring(renderedEggName)] = true
+				end
+			end)
+			local eggCatalog = {}
+			for eggName, eggInfo in pairs(type(eggDataModule) == "table" and eggDataModule or {}) do
+				if type(eggName) == "string" and type(eggInfo) == "table" and type(eggInfo.Pool) == "table" then
+					local eventInfo = type(eventData) == "table" and eventData[eggInfo.Event] or nil
+					local eventActive = type(eventInfo) == "table" and eventInfo.Active == true
+					local boostedEgg = string.sub(string.lower(eggName), 1, 8) == "4x luck "
+					local available = renderedEggs[eggName] == true
+						or (eventActive and not boostedEgg)
+						or (
+							not eggInfo.Event
+							and not boostedEgg
+							and (eggInfo.World ~= nil or eggInfo.ProductId ~= nil)
+						)
+					if available and eggInfo.IsAdminEgg ~= true then
+						local pets = {}
+						for _, poolEntry in ipairs(eggInfo.Pool) do
+							local petItem = type(poolEntry) == "table" and poolEntry.Item or nil
+							if type(petItem) == "table" and petItem.Type == "Pet" and petItem.Name then
+								local petName = tostring(petItem.Name)
+								local petInfo = type(petRarityData) == "table" and petRarityData[petName] or nil
+								local rarity = activeStates.BGSI_Lite_ResolvePetRarity({ Name = petName }, petInfo)
+								local superPet = type(petInfo) == "table"
+									and (
+										petInfo.Super == true
+										or petInfo.IsSuper == true
+										or petInfo.SuperLegendary == true
+										or petInfo["Super Legendary"] == true
+									)
+								if superPet then
+									rarity = "Super Legendary"
+								end
+								table.insert(pets, {
+									name = petName,
+									rarity = tostring(rarity or "Unknown"),
+									chance = math.max(0, tonumber(poolEntry.Chance) or 0),
+									imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(
+										{ Name = petName },
+										petInfo
+									),
+									super = superPet == true,
+								})
+							end
+						end
+						if #pets > 0 then
+							local eggImageAssetId = string.match(tostring(eggInfo.Image or ""), "rbxassetid://(%d+)")
+								or string.match(tostring(eggInfo.Image or ""), "^(%d+)$")
+							local cost = type(eggInfo.Cost) == "table" and eggInfo.Cost or {}
+							table.insert(eggCatalog, {
+								name = eggName,
+								imageAssetId = eggImageAssetId,
+								world = tostring(eggInfo.World or ""),
+								event = eventActive,
+								eventName = type(eventInfo) == "table"
+										and tostring(eventInfo.DisplayName or eggInfo.Event or "")
+									or "",
+								eventOrder = type(eventInfo) == "table"
+										and tonumber(eventInfo.LayoutOrder)
+									or 0,
+								layoutOrder = tonumber(eggInfo.LayoutOrder) or 0,
+								boosted = boostedEgg,
+								costType = tostring(cost.Type or ""),
+								costName = tostring(cost.Currency or cost.Name or ""),
+								costAmount = math.max(0, tonumber(cost.Amount) or 0),
+								pets = pets,
+							})
+						end
+					end
+				end
+			end
+			table.sort(eggCatalog, function(left, right)
+				if left.event ~= right.event then
+					return left.event
+				end
+				if left.eventOrder ~= right.eventOrder then
+					return left.eventOrder > right.eventOrder
+				end
+				if left.boosted ~= right.boosted then
+					return not left.boosted
+				end
+				if left.layoutOrder ~= right.layoutOrder then
+					return left.layoutOrder > right.layoutOrder
+				end
+				return string.lower(left.name) < string.lower(right.name)
+			end)
+			activeStates.BGSI_Lite_DashboardEggCatalog = eggCatalog
+			activeStates.BGSI_Lite_DashboardEggCatalogUpdatedAt = tick()
+			return eggCatalog
+		end
 
 		task.spawn(function()
 			while isCurrentRun() do
@@ -9934,6 +10087,7 @@ do
 							prizes = {},
 							quests = { completedTotal = 0, completed = {}, active = {} },
 							configOptions = {},
+							eggCatalog = activeStates.BGSI_Lite_BuildDashboardEggCatalog(),
 						}
 						local cachedConfigOptions = activeStates.BGSI_Lite_DashboardConfigOptions
 						if type(cachedConfigOptions) == "table"
