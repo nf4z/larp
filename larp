@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.23.12"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.01",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Higher hatch rate",
+				description = "Hatch requests retry sooner, and the key spam option now presses both R and E.",
+				icon = "gauge",
+			},
+		},
+	},
 	{
 		version = "2026.07.23.12",
 		releasedAt = "July 23, 2026",
