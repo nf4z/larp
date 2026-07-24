@@ -2000,8 +2000,8 @@ local function fireHatchEgg(scriptStateQC)
 
 	local requestTime = tick()
 	local minimumHatchDelay = Config.adaptiveHatch == true
-			and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.04, 0.03, 0.12)
-		or 0.06
+			and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.02, 0.015, 0.04)
+		or 0.03
 	if requestTime - (tonumber(activeStates.BGSI_Lite_LastHatchAttemptAt) or 0) < minimumHatchDelay then
 		return false
 	end
@@ -5165,7 +5165,7 @@ do
 		end,
 	})
 	eggTab:AddToggle("AutoSpamR", {
-		Title = "Auto Spam R",
+		Title = "Auto Spam R + E",
 		Default = Config.autoSpamR,
 		Callback = function(scriptStateFD)
 			Config.autoSpamR = scriptStateFD
@@ -5300,9 +5300,9 @@ task.spawn(function()
 	local observedHatchCount
 	local lastSelectedEgg
 	activeStates.BGSI_Lite_AdaptiveHatchDelay = math.clamp(
-		tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.04,
-		0.03,
-		0.12
+		tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.02,
+		0.015,
+		0.04
 	)
 	while isCurrentRun() do
 		local shouldMaintainHatching = activeStates.BGSI_Lite_ShouldMaintainHatching()
@@ -5310,8 +5310,8 @@ task.spawn(function()
 			shouldMaintainHatching
 					and (
 						Config.adaptiveHatch == true
-								and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.04, 0.03, 0.12)
-							or 0.06
+								and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.02, 0.015, 0.04)
+							or 0.03
 					)
 				or 0.85
 		)
@@ -5414,6 +5414,8 @@ task.spawn(function()
 		end
 		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
 		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
+		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 	end
 end)
 local function getLuckEggPosition(scriptStateMK)
@@ -13688,18 +13690,18 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 							activeStates.BGSI_Lite_AcceptedHatchInterval =
 								previousInterval * 0.7 + hatchInterval * 0.3
 							activeStates.BGSI_Lite_AdaptiveHatchDelay = math.clamp(
-								activeStates.BGSI_Lite_AcceptedHatchInterval * 0.12,
-								0.03,
-								0.06
+								activeStates.BGSI_Lite_AcceptedHatchInterval * 0.06,
+								0.015,
+								0.04
 							)
 						end
 					end
 					activeStates.BGSI_Lite_LastHatchAcceptedAt = hatchAcceptedAt
 					activeStates.BGSI_Lite_NextHatchRequestAt = hatchAcceptedAt
 						+ math.clamp(
-							(tonumber(activeStates.BGSI_Lite_AcceptedHatchInterval) or 0.35) * 0.78,
-							0.08,
-							0.3
+							(tonumber(activeStates.BGSI_Lite_AcceptedHatchInterval) or 0.35) * 0.25,
+							0.03,
+							0.1
 						)
 				end
 				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
