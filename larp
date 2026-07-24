@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.11"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,22 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.11",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Interleaved hatch and bubble scheduler",
+				description = "Replaces oversized low-FPS hatch floods with bounded bursts and reserves a bubble request before each hatch burst.",
+				icon = "bolt",
+			},
+			{
+				title = "Persistent competition bubbling",
+				description = "Bubble and sell checks continue during quest automation instead of being suppressed by unrelated priority states.",
+				icon = "sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.10",
 		releasedAt = "July 24, 2026",
@@ -2205,9 +2221,21 @@ local function fireHatchEgg(scriptStateQC)
 	end
 	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
+	if
+		(Config.autoBubble or Config.autoBubbleCompetition)
+		and type(activeStates.BGSI_Lite_BlowBubble) == "function"
+		and requestTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) >= 0.42
+	then
+		activeStates.BGSI_Lite_BlowBubble()
+	end
 	local hatchRequestSucceeded = pcall(function()
 		local hatchAmount = getMaxHatchAmount()
-		for _ = 1, math.clamp(math.ceil(60 / math.max(1, tonumber(Config.setfps) or 60)), 1, 12) do
+		local hatchBurstSize = math.clamp(
+			math.ceil(15 / math.max(1, tonumber(Config.setfps) or 60)),
+			1,
+			3
+		)
+		for _ = 1, hatchBurstSize do
 			remoteEvent:FireServer("HatchEgg", scriptStateQC, hatchAmount)
 		end
 	end)
@@ -3025,10 +3053,22 @@ activeStates.BGSI_Lite_GetBubbleState = function()
 	}
 end
 activeStates.BGSI_Lite_BlowBubble = function()
+	local attemptTime = tick()
+	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) < 0.42 then
+		return false
+	end
+	activeStates.BGSI_Lite_LastBubbleAttemptAt = attemptTime
 	local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
 	if not bubbleState then
 		return false
 	end
+	if
+		activeStates.BGSI_Lite_LastBubbleObservedAmount ~= nil
+		and bubbleState.Amount ~= activeStates.BGSI_Lite_LastBubbleObservedAmount
+	then
+		activeStates.BGSI_Lite_LastBubbleAcceptedAt = attemptTime
+	end
+	activeStates.BGSI_Lite_LastBubbleObservedAmount = bubbleState.Amount
 	if
 		not bubbleState.Infinite
 		and bubbleState.Storage > 0
@@ -3039,7 +3079,7 @@ activeStates.BGSI_Lite_BlowBubble = function()
 	end
 	local blowSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "BlowBubble")
 	if blowSucceeded then
-		activeStates.BGSI_Lite_LastBubbleBlowAt = tick()
+		activeStates.BGSI_Lite_LastBubbleBlowAt = attemptTime
 	end
 	return blowSucceeded
 end
@@ -5688,7 +5728,11 @@ task.spawn(function()
 	)
 	while isCurrentRun() do
 		local shouldMaintainHatching = activeStates.BGSI_Lite_ShouldMaintainHatching()
-		task.wait(shouldMaintainHatching and 0 or 0.85)
+		task.wait(
+			shouldMaintainHatching
+					and math.clamp(tonumber(activeStates.BGSI_Lite_AdaptiveHatchDelay) or 0.005, 0.005, 0.015)
+				or 0.85
+		)
 		shouldMaintainHatching = activeStates.BGSI_Lite_ShouldMaintainHatching()
 		activeStates.BGSI_Lite_IdleHatchFallbackActive =
 			shouldMaintainHatching and Config.autoHatch ~= true
@@ -11241,8 +11285,8 @@ do
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0.5 or 0.85)
-			if (Config.autoBubble or Config.autoBubbleCompetition) and not isPriorityAutomationActive() then
+			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0 or 0.85)
+			if Config.autoBubble or Config.autoBubbleCompetition then
 				activeStates.BGSI_Lite_BlowBubble()
 			end
 		end
@@ -11250,7 +11294,7 @@ do
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait((Config.autoSell or Config.autoBubbleCompetition) and 0.5 or 0.85)
-			if (Config.autoSell or Config.autoBubbleCompetition) and not isPriorityAutomationActive() then
+			if Config.autoSell or Config.autoBubbleCompetition then
 				local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
 				if
 					bubbleState
