@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.13"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.14"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.14",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Filter-safe competition team names",
+				description = "Creates unique team names without usernames or long digit sequences that Roblox can filter.",
+				icon = "users",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.13",
 		releasedAt = "July 24, 2026",
@@ -3265,7 +3276,7 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 	if not season or not competitive or type(seasonData) ~= "table" then
 		return
 	end
-	if not competitive.Clan and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 30 then
+	if not competitive.Clan and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 10 then
 		local isFinalDay = false
 		pcall(function()
 			isFinalDay = competitiveShared:IsFinalDay(season)
@@ -3275,8 +3286,19 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 					and type(sharedConstants.Clan) == "table"
 					and tonumber(sharedConstants.Clan.MaxNameLength)
 				or 20
-			local teamSuffix = " " .. tostring(LocalPlayer.UserId):sub(-6)
-			local teamName = (LocalPlayer.Name:sub(1, math.max(1, maximumLength - #teamSuffix)) .. teamSuffix)
+			local encodedUserId = tostring(LocalPlayer.UserId):gsub("%d", {
+				["0"] = "b",
+				["1"] = "c",
+				["2"] = "d",
+				["3"] = "f",
+				["4"] = "g",
+				["5"] = "h",
+				["6"] = "j",
+				["7"] = "k",
+				["8"] = "m",
+				["9"] = "n",
+			})
+			local teamName = ("Team " .. encodedUserId):sub(1, maximumLength)
 				:gsub("[^%w ]", "")
 				:gsub("%s+", " ")
 				:gsub("^%s+", "")
