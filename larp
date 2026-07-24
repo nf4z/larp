@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.13"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.13",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Reliable bubbling while hatching",
+				description = "Gives bubble requests their own dispatch window and removes redundant hatch bursts that could starve them.",
+				icon = "circle-dot",
+			},
+		},
+	},
+	{
+		version = "2026.07.24.12",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Reliable intro skip",
+				description = "Advances the real Play and Low Detail intro stages through the game's button callbacks and waits for slow-loading clients.",
+				icon = "fast-forward",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.11",
 		releasedAt = "July 24, 2026",
@@ -933,6 +955,34 @@ if Config.safeMode == true then
 else
 	activeStates.BGSI_Lite_ApplyPerformanceSettings()
 end
+activeStates.BGSI_Lite_ActivateIntroButton = function(button)
+	if not button or not button:IsA("GuiButton") or not button.Visible then
+		return false
+	end
+	if type(firesignal) == "function" then
+		local fired = pcall(function()
+			firesignal(button.Activated)
+		end)
+		if fired then
+			return true
+		end
+	end
+	local activated = pcall(function()
+		button:SetAttribute("ButtonActivated", true)
+		task.wait()
+		button:SetAttribute("Pressed", true)
+		task.wait()
+		button:SetAttribute("Pressed", false)
+		task.wait()
+		button:SetAttribute("ButtonActivated", false)
+	end)
+	if activated then
+		return true
+	end
+	return pcall(function()
+		button:Activate()
+	end)
+end
 activeStates.BGSI_Lite_SkipIntro = function()
 	if Config.autoSkipIntro ~= true or Config.safeMode == true then
 		return false
@@ -945,30 +995,32 @@ activeStates.BGSI_Lite_SkipIntro = function()
 	if not intro or not intro.Enabled then
 		return false
 	end
+	local play = intro:FindFirstChild("Play")
+	local playButton = play and play:FindFirstChild("Button")
+	if play and play.Visible then
+		return activeStates.BGSI_Lite_ActivateIntroButton(playButton)
+	end
 	local graphics = intro:FindFirstChild("Graphics")
 	local content = graphics and graphics:FindFirstChild("Content")
 	local low = content and content:FindFirstChild("Low")
 	local lowAction = low and low:FindFirstChild("Action")
 	local lowButton = lowAction and lowAction:FindFirstChild("Button")
-	if graphics and graphics.Visible and lowButton and lowButton:IsA("GuiButton") and lowButton.Visible then
-		pcall(function()
-			lowButton:Activate()
-		end)
-		return true
-	end
-	local play = intro:FindFirstChild("Play")
-	local playButton = play and play:FindFirstChild("Button")
-	if play and play.Visible and playButton and playButton:IsA("GuiButton") and playButton.Visible then
-		pcall(function()
-			playButton:Activate()
-		end)
-		return true
+	if graphics and graphics.Visible then
+		return activeStates.BGSI_Lite_ActivateIntroButton(lowButton)
 	end
 	return false
 end
 task.spawn(function()
-	local introDeadline = tick() + 60
+	local introDeadline = tick() + 180
+	local introFound = false
 	repeat
+		local playerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
+		local intro = playerGui and playerGui:FindFirstChild("Intro")
+		if intro then
+			introFound = true
+		elseif introFound then
+			break
+		end
 		activeStates.BGSI_Lite_SkipIntro()
 		task.wait(0.1)
 	until tick() >= introDeadline or not isCurrentRun()
@@ -2215,29 +2267,25 @@ local function fireHatchEgg(scriptStateQC)
 	end
 
 	local requestTime = tick()
+	if
+		(Config.autoBubble or Config.autoBubbleCompetition)
+		and type(activeStates.BGSI_Lite_BlowBubble) == "function"
+		and requestTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) >= 0.5
+	then
+		activeStates.BGSI_Lite_BlowBubble()
+	end
+	if requestTime < (tonumber(activeStates.BGSI_Lite_BubbleRemoteReservedUntil) or 0) then
+		return false
+	end
 	local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
 	if getCurrentTimestamp() < nextEggOpenAt then
 		return false
 	end
 	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
-	if
-		(Config.autoBubble or Config.autoBubbleCompetition)
-		and type(activeStates.BGSI_Lite_BlowBubble) == "function"
-		and requestTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) >= 0.42
-	then
-		activeStates.BGSI_Lite_BlowBubble()
-	end
 	local hatchRequestSucceeded = pcall(function()
 		local hatchAmount = getMaxHatchAmount()
-		local hatchBurstSize = math.clamp(
-			math.ceil(15 / math.max(1, tonumber(Config.setfps) or 60)),
-			1,
-			3
-		)
-		for _ = 1, hatchBurstSize do
-			remoteEvent:FireServer("HatchEgg", scriptStateQC, hatchAmount)
-		end
+		remoteEvent:FireServer("HatchEgg", scriptStateQC, hatchAmount)
 	end)
 	if hatchRequestSucceeded then
 		activeStates.BGSI_Lite_LastHatchRequestAt = requestTime
@@ -3054,7 +3102,7 @@ activeStates.BGSI_Lite_GetBubbleState = function()
 end
 activeStates.BGSI_Lite_BlowBubble = function()
 	local attemptTime = tick()
-	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) < 0.42 then
+	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) < 0.5 then
 		return false
 	end
 	activeStates.BGSI_Lite_LastBubbleAttemptAt = attemptTime
@@ -3080,6 +3128,7 @@ activeStates.BGSI_Lite_BlowBubble = function()
 	local blowSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "BlowBubble")
 	if blowSucceeded then
 		activeStates.BGSI_Lite_LastBubbleBlowAt = attemptTime
+		activeStates.BGSI_Lite_BubbleRemoteReservedUntil = attemptTime + 0.05
 	end
 	return blowSucceeded
 end
