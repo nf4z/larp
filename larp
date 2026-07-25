@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.17"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,22 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.17",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Complete special hatch detection",
+				description = "Reads every nested hatch payload shape and reports Celestial, Infinity, Void, Secret, and Super Legendary pets.",
+				icon = "sparkles",
+			},
+			{
+				title = "No dropped duplicate hatches",
+				description = "Uses unique pet IDs and hatch counters so legitimate repeated copies are no longer hidden by webhook duplicate windows.",
+				icon = "bell-ring",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.16",
 		releasedAt = "July 24, 2026",
@@ -1444,30 +1460,60 @@ end)
 pcall(function()
 	petRarityData = require(ReplicatedStorage.Shared.Data.Pets)
 end)
+activeStates.BGSI_Lite_GetHatchPetValue = function(pet, valueKeys)
+	local visited = {}
+	local function scanValue(candidate, depth)
+		if type(candidate) ~= "table" or visited[candidate] or depth > 4 then
+			return nil
+		end
+		visited[candidate] = true
+		for _, valueKey in ipairs(valueKeys) do
+			if candidate[valueKey] ~= nil then
+				return candidate[valueKey]
+			end
+		end
+		for _, nestedKey in ipairs({ "Pet", "Data", "Info", "Item", "Reward" }) do
+			local nestedValue = candidate[nestedKey]
+			if type(nestedValue) == "table" then
+				local foundValue = scanValue(nestedValue, depth + 1)
+				if foundValue ~= nil then
+					return foundValue
+				end
+			end
+		end
+		return nil
+	end
+	return scanValue(pet, 0)
+end
+activeStates.BGSI_Lite_GetHatchPetName = function(pet)
+	local petName = activeStates.BGSI_Lite_GetHatchPetValue(pet, { "Name", "PetName" })
+	if type(petName) == "string" and petName ~= "" then
+		return petName
+	end
+	if type(pet) == "table" and type(pet.Pet) == "string" and pet.Pet ~= "" then
+		return pet.Pet
+	end
+	return "Unknown"
+end
+activeStates.BGSI_Lite_GetHatchPetFlag = function(pet, flagName)
+	return activeStates.BGSI_Lite_GetHatchPetValue(pet, { flagName, "Is" .. flagName }) == true
+end
 activeStates.BGSI_Lite_ResolvePetRarity = function(pet, petInfo)
-	local nestedPet = type(pet) == "table" and type(pet.Pet) == "table" and pet.Pet or nil
-	local nestedData = type(pet) == "table" and type(pet.Data) == "table" and pet.Data or nil
 	local raritySources = {
-		type(pet) == "table" and pet.Rarity or nil,
+		activeStates.BGSI_Lite_GetHatchPetValue(pet, { "Rarity", "rarity" }),
 		type(petInfo) == "table" and petInfo.Rarity or nil,
-		nestedPet and nestedPet.Rarity or nil,
-		nestedData and nestedData.Rarity or nil,
 	}
 	local rarityFlags = {
-		Celestial = (type(pet) == "table" and pet.Celestial == true)
-			or (type(petInfo) == "table" and petInfo.Celestial == true)
-			or (nestedPet and nestedPet.Celestial == true)
-			or (nestedData and nestedData.Celestial == true),
-		Infinity = (type(pet) == "table" and pet.Infinity == true)
-			or (type(petInfo) == "table" and petInfo.Infinity == true)
-			or (nestedPet and nestedPet.Infinity == true)
-			or (nestedData and nestedData.Infinity == true),
-		Void = (type(pet) == "table" and pet.Void == true)
-			or (type(petInfo) == "table" and petInfo.Void == true)
-			or (nestedPet and nestedPet.Void == true)
-			or (nestedData and nestedData.Void == true),
+		Celestial = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Celestial")
+			or (type(petInfo) == "table" and petInfo.Celestial == true),
+		Infinity = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Infinity")
+			or (type(petInfo) == "table" and petInfo.Infinity == true),
+		Void = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Void")
+			or (type(petInfo) == "table" and petInfo.Void == true),
+		Secret = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Secret")
+			or (type(petInfo) == "table" and petInfo.Secret == true),
 	}
-	for _, rarityName in ipairs({ "Celestial", "Infinity", "Void" }) do
+	for _, rarityName in ipairs({ "Celestial", "Infinity", "Void", "Secret" }) do
 		if rarityFlags[rarityName] then
 			return rarityName
 		end
@@ -9786,12 +9832,8 @@ do
 				return nil
 			end
 			local image
-			local shiny = pet.Shiny == true
-				or (type(pet.Pet) == "table" and pet.Pet.Shiny == true)
-				or (type(pet.Data) == "table" and pet.Data.Shiny == true)
-			local mythic = pet.Mythic == true
-				or (type(pet.Pet) == "table" and pet.Pet.Mythic == true)
-				or (type(pet.Data) == "table" and pet.Data.Mythic == true)
+			local shiny = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Shiny")
+			local mythic = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Mythic")
 			if shiny and mythic then
 				image = images[4] or images.MythicShiny or images["Shiny Mythic"] or images.ShinyMythic
 			elseif shiny then
@@ -14565,6 +14607,7 @@ local function runRebirthMachineLoop(
 		tostring(scriptStateBZ or ""),
 		petInfoText ~= "" and petInfoText or HttpService:JSONEncode(scriptStateXO or {}),
 		chanceText,
+		type(scriptStateAEL) == "table" and tostring(scriptStateAEL.footerText or "") or "",
 	}, "|")
 	if sendCache[duplicateKey] and now - sendCache[duplicateKey] < 90 then
 		return
@@ -14789,16 +14832,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 		if not isLegendaryBasePet then
 			return false
 		end
-		if type(webhookPetEntry) == "table" then
-			if webhookPetEntry.Super == true then
-				return true
-			end
-			local nestedPet = webhookPetEntry.Pet
-			if type(nestedPet) == "table" and nestedPet.Super == true then
-				return true
-			end
-		end
-		return false
+		return activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "Super")
 	end
 	local function shouldSendPetWebhookEntry(webhookPetEntry, petName, petRarity, isShiny, isMythic, isXL)
 		local now = tick()
@@ -14807,29 +14841,12 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				recentPetWebhookKeys[webhookKey] = nil
 			end
 		end
-		local petObject = type(webhookPetEntry) == "table" and webhookPetEntry.Pet or nil
-		local petId = type(webhookPetEntry) == "table"
-				and (webhookPetEntry.Id or webhookPetEntry.ID or webhookPetEntry.Guid or webhookPetEntry.GUID or webhookPetEntry.UUID or webhookPetEntry.uuid)
-			or nil
-		if petId == nil and type(petObject) == "table" then
-			petId = petObject.Id or petObject.ID or petObject.Guid or petObject.GUID or petObject.UUID or petObject.uuid
+		local petId = activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry)
+		if petId == nil or tostring(petId) == "" then
+			return true
 		end
-		local webhookKey
-		local duplicateWindow = 90
-		if petId ~= nil and tostring(petId) ~= "" then
-			webhookKey = "id|" .. tostring(petId)
-			duplicateWindow = 120
-		else
-			webhookKey = table.concat({
-				"pet",
-				tostring(petName or ""),
-				tostring(petRarity or ""),
-				tostring(isShiny == true),
-				tostring(isMythic == true),
-				tostring(isXL == true),
-			}, "|")
-		end
-		if recentPetWebhookKeys[webhookKey] and now - recentPetWebhookKeys[webhookKey] < duplicateWindow then
+		local webhookKey = "id|" .. tostring(petId)
+		if recentPetWebhookKeys[webhookKey] and now - recentPetWebhookKeys[webhookKey] < 120 then
 			return false
 		end
 		recentPetWebhookKeys[webhookKey] = now
@@ -14882,9 +14899,18 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				or scriptStateKW == "ExclusiveHatch"
 			then
 				if type(scriptStateNY) == "table" then
-					scriptStatePO = scriptStateNY.Pets or (scriptStateNY.Name and {
-						scriptStateNY,
-					}) or nil
+					scriptStatePO = scriptStateNY.Pets
+					if type(scriptStatePO) ~= "table" and #scriptStateNY > 0 then
+						scriptStatePO = scriptStateNY
+					end
+					if
+						type(scriptStatePO) ~= "table"
+						and activeStates.BGSI_Lite_GetHatchPetName(scriptStateNY) ~= "Unknown"
+					then
+						scriptStatePO = {
+							scriptStateNY,
+						}
+					end
 				end
 			elseif scriptStateKW == "ItemsReceived" then
 				if type(scriptStateNY) == "table" then
@@ -14906,8 +14932,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				scriptStateKW == "HatchEgg"
 				or scriptStateKW == "HatchPowerupEgg"
 				or scriptStateKW == "ExclusiveHatch"
-			then
-				local hatchAcceptedAt = tick()
+				then
+					local hatchAcceptedAt = tick()
 				if scriptStateKW == "HatchEgg" then
 					local previousHatchAcceptedAt = tonumber(activeStates.BGSI_Lite_LastHatchAcceptedAt)
 					if previousHatchAcceptedAt and previousHatchAcceptedAt > 0 then
@@ -14934,25 +14960,14 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					task.defer(activeStates.BGSI_Lite_BlowBubble)
 				end
 				for _, dashboardHatchPet in ipairs(scriptStatePO) do
-					local dashboardPetName = dashboardHatchPet.Name
-						or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Name)
-						or "Unknown"
+					local dashboardPetName = activeStates.BGSI_Lite_GetHatchPetName(dashboardHatchPet)
 					local dashboardPetInfo = petRarityData and petRarityData[dashboardPetName] or {}
 					local dashboardChancePercent = tonumber(checkLowCurrencyWebhook(dashboardPetName, dashboardPetInfo))
 						or 100
 					local dashboardOneInChance = dashboardChancePercent > 0 and (100 / dashboardChancePercent) or 0
-					local dashboardShiny = dashboardHatchPet.Shiny
-						or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Shiny)
-						or (dashboardHatchPet.Data and dashboardHatchPet.Data.Shiny)
-						or false
-					local dashboardMythic = dashboardHatchPet.Mythic
-						or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Mythic)
-						or (dashboardHatchPet.Data and dashboardHatchPet.Data.Mythic)
-						or false
-					local dashboardXL = dashboardHatchPet.XL
-						or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.XL)
-						or (dashboardHatchPet.Data and dashboardHatchPet.Data.XL)
-						or false
+					local dashboardShiny = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Shiny")
+					local dashboardMythic = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Mythic")
+					local dashboardXL = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "XL")
 					if dashboardShiny then
 						dashboardOneInChance = dashboardOneInChance * 40
 					end
@@ -15054,20 +15069,22 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				if loopSlotAA > 1 then
 					task.wait(0.1)
 				end
-				local scriptStateFL = scriptStateACH.Name
-					or (scriptStateACH.Pet and scriptStateACH.Pet.Name)
-					or "Unknown"
+				local scriptStateFL = activeStates.BGSI_Lite_GetHatchPetName(scriptStateACH)
 				local scriptStateEQ = petRarityData and petRarityData[scriptStateFL] or {}
-				local scriptStatePG = tostring(scriptStateEQ.Rarity or "Unknown")
+				local scriptStatePG = activeStates.BGSI_Lite_ResolvePetRarity(scriptStateACH, scriptStateEQ)
 				local isSuperLegendaryPet = isSuperLegendaryWebhookPet(scriptStateACH, scriptStateEQ)
-				if scriptStatePG ~= "Secret" and scriptStatePG ~= "Infinity" and not isSuperLegendaryPet then
+				if
+					scriptStatePG ~= "Secret"
+					and scriptStatePG ~= "Infinity"
+					and scriptStatePG ~= "Void"
+					and scriptStatePG ~= "Celestial"
+					and not isSuperLegendaryPet
+				then
 					continue
 				end
-				local scriptStateLS = scriptStateACH.Shiny or (scriptStateACH.Pet and scriptStateACH.Pet.Shiny) or false
-				local scriptStateNI = scriptStateACH.Mythic
-					or (scriptStateACH.Pet and scriptStateACH.Pet.Mythic)
-					or false
-				local scriptStateKK = scriptStateACH.XL or (scriptStateACH.Pet and scriptStateACH.Pet.XL) or false
+				local scriptStateLS = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Shiny")
+				local scriptStateNI = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Mythic")
+				local scriptStateKK = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "XL")
 				if
 					not shouldSendPetWebhookEntry(
 						scriptStateACH,
@@ -15135,11 +15152,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local scriptStateDO = scriptStateAEC * scriptStateYS
 				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
 				local scriptStateAEB = isSuperLegendaryPet and "Super Legendary" or scriptStatePG
-				if scriptStateEQ.Celestial == true then
-					scriptStateAEB = "Celestial"
-				elseif scriptStateEQ.Infinity == true then
-					scriptStateAEB = "Infinity"
-				end
 				local scriptStateAEO = {}
 				local webhookPlayer = Players.LocalPlayer
 				local webhookPlayerName = Config.webhookHidePlayerName == true and "Player"
@@ -15174,7 +15186,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					end
 				end
 				local webhookPetTier = tonumber(
-					scriptStateACH.Tier or (scriptStateACH.Pet and scriptStateACH.Pet.Tier) or scriptStateEQ.Tier
+					activeStates.BGSI_Lite_GetHatchPetValue(scriptStateACH, { "Tier" }) or scriptStateEQ.Tier
 				)
 				if webhookPetTier then
 					table.insert(
