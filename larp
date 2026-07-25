@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.20"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.25.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -62,9 +62,14 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.07.24.20",
-		releasedAt = "July 24, 2026",
+		version = "2026.07.25.01",
+		releasedAt = "July 25, 2026",
 		notes = {
+			{
+				title = "Shiny Celestial enchant priority",
+				description = "Shiny Celestials are equipped and enchanted before shiny Secrets, with rarity flags resolved from live pet data.",
+				icon = "sparkles",
+			},
 			{
 				title = "Current team enchant repair",
 				description = "Always scans the equipped team even when automatic team building is still converging, and confirms every enchant table shape.",
@@ -12441,6 +12446,24 @@ local function getEnchantablePets()
 	local scriptStateTI = scriptStateGP.Teams[scriptStateGP.TeamEquipped]
 	return (scriptStateTI and type(scriptStateTI.Pets) == "table") and scriptStateTI.Pets or {}
 end
+local function getEnchantPetPriority(pet)
+	local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
+	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
+	local isShiny = pet.Shiny == true or pet.IsShiny == true
+	if isShiny and rarity == "Celestial" then
+		return 1
+	end
+	if isShiny and rarity == "Secret" then
+		return 2
+	end
+	if isShiny and rarity == "Infinity" then
+		return 3
+	end
+	if isShiny and rarity == "Void" then
+		return 4
+	end
+	return 5
+end
 local function getEnchantCurrency(scriptStateVC)
 	if type(profileStore.GetPetById) == "function" then
 		local petLookupOk, indexedPet = pcall(profileStore.GetPetById, profileStore, scriptStateVC)
@@ -12500,7 +12523,7 @@ local function prepareAutoEnchantTeam()
 	end
 	for _, pet in ipairs(playerData.Pets) do
 		local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
-		local rarity = petInfo and petInfo.Rarity
+		local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
 		local superEnchantPriorityIndex
 		local superEnchantMatchCount = 0
 		local isSuperLegendary = pet.Super == true
@@ -12537,7 +12560,7 @@ local function prepareAutoEnchantTeam()
 			table.insert(candidates, {
 				pet = pet,
 				priority = superEnchantPriorityIndex and 1
-					or (Config.autoBubbleTeam and 2 or (rarity == "Celestial" and 2 or 3)),
+					or (rarity == "Celestial" and 2 or rarity == "Secret" and 3 or 4),
 				enchantPriority = superEnchantPriorityIndex or math.huge,
 				bubbleScore = bubbleScore,
 				enchantScore = superEnchantPriorityIndex
@@ -12791,6 +12814,20 @@ local function getEnchantTargetList()
 				task.wait(2)
 				continue
 			end
+			local enchantPetData = {}
+			local currentPlayerData = profileStore:IsReady() and profileStore:Get() or nil
+			for _, pet in ipairs(type(currentPlayerData) == "table" and currentPlayerData.Pets or {}) do
+				enchantPetData[tostring(pet.Id or "")] = pet
+			end
+			table.sort(equippedPetIds, function(leftPetId, rightPetId)
+				local leftPet = enchantPetData[tostring(leftPetId)]
+				local rightPet = enchantPetData[tostring(rightPetId)]
+				local leftPriority = leftPet and getEnchantPetPriority(leftPet) or 5
+				local rightPriority = rightPet and getEnchantPetPriority(rightPet) or 5
+				return leftPriority ~= rightPriority
+					and leftPriority < rightPriority
+					or tostring(leftPetId) < tostring(rightPetId)
+			end)
 			local targetEnchantOne = tostring(Config.equippedTargetEnchant or "secret-hunter")
 			local targetEnchantTwo = tostring(Config.equippedTargetEnchant2 or "ultra-roller")
 			local targetEnchantLevel = tonumber(Config.equippedTargetEnchantLevel) or 0
