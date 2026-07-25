@@ -66,9 +66,14 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		releasedAt = "July 24, 2026",
 		notes = {
 			{
-				title = "Live hatchable egg catalog",
-				description = "Reports every currently hatchable egg with active events, complete pet pools, rarities, images, and base chances.",
-				icon = "egg",
+				title = "Accepted-state bubble scheduler",
+				description = "Blows during confirmed hatch cooldowns, verifies replicated bubble gains, and prevents bubble requests from reserving hatch frames.",
+				icon = "circle-dot",
+			},
+			{
+				title = "Competition bubble safeguards",
+				description = "Clears Bubble Lock automatically and avoids unnecessary Infinity Gum sells unless Auto Sell is enabled.",
+				icon = "shield-check",
 			},
 		},
 	},
@@ -2300,16 +2305,6 @@ local function fireHatchEgg(scriptStateQC)
 	end
 
 	local requestTime = tick()
-	if
-		(Config.autoBubble or Config.autoBubbleCompetition)
-		and type(activeStates.BGSI_Lite_BlowBubble) == "function"
-		and requestTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) >= 0.5
-	then
-		activeStates.BGSI_Lite_BlowBubble()
-	end
-	if requestTime < (tonumber(activeStates.BGSI_Lite_BubbleRemoteReservedUntil) or 0) then
-		return false
-	end
 	local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
 	if getCurrentTimestamp() < nextEggOpenAt then
 		return false
@@ -3135,21 +3130,40 @@ activeStates.BGSI_Lite_GetBubbleState = function()
 end
 activeStates.BGSI_Lite_BlowBubble = function()
 	local attemptTime = tick()
-	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) < 0.5 then
+	local requestInterval = math.clamp(
+		tonumber(activeStates.BGSI_Lite_BubbleRequestInterval) or 0.5,
+		0.5,
+		0.55
+	)
+	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleAttemptAt) or 0) < requestInterval then
 		return false
 	end
-	activeStates.BGSI_Lite_LastBubbleAttemptAt = attemptTime
+	local pendingRequestAt = tonumber(activeStates.BGSI_Lite_BubbleRequestPendingAt) or 0
+	if pendingRequestAt > 0 and attemptTime - pendingRequestAt < math.max(0.7, requestInterval + 0.15) then
+		return false
+	end
 	local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
 	if not bubbleState then
 		return false
 	end
-	if
-		activeStates.BGSI_Lite_LastBubbleObservedAmount ~= nil
-		and bubbleState.Amount ~= activeStates.BGSI_Lite_LastBubbleObservedAmount
+	if type(activeStates.BGSI_Lite_ShouldMaintainHatching) == "function"
+		and activeStates.BGSI_Lite_ShouldMaintainHatching()
 	then
-		activeStates.BGSI_Lite_LastBubbleAcceptedAt = attemptTime
+		local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
+		if nextEggOpenAt > 0 and getCurrentTimestamp() >= nextEggOpenAt then
+			return false
+		end
 	end
-	activeStates.BGSI_Lite_LastBubbleObservedAmount = bubbleState.Amount
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if
+		type(playerData) == "table"
+		and type(playerData.Settings) == "table"
+		and playerData.Settings["Bubble Lock"] == true
+		and attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleUnlockAt) or 0) >= 2
+	then
+		activeStates.BGSI_Lite_LastBubbleUnlockAt = attemptTime
+		pcall(remoteEvent.FireServer, remoteEvent, "SetSetting", "Bubble Lock", false)
+	end
 	if
 		not bubbleState.Infinite
 		and bubbleState.Storage > 0
@@ -3160,11 +3174,51 @@ activeStates.BGSI_Lite_BlowBubble = function()
 	end
 	local blowSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "BlowBubble")
 	if blowSucceeded then
+		activeStates.BGSI_Lite_LastBubbleAttemptAt = attemptTime
 		activeStates.BGSI_Lite_LastBubbleBlowAt = attemptTime
-		activeStates.BGSI_Lite_BubbleRemoteReservedUntil = attemptTime + 0.05
+		activeStates.BGSI_Lite_BubbleRequestPendingAt = attemptTime
 	end
 	return blowSucceeded
 end
+activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+activeStates.BGSI_Lite_BubbleRequestInterval = 0.5
+activeStates.BGSI_Lite_LastBubbleAttemptAt = 0
+activeStates.BGSI_Lite_LastBubbleObservedAmount = nil
+activeStates.BGSI_Lite_ObserveBubbleAmount = function(playerData)
+	if not isCurrentRun() or type(playerData) ~= "table" or type(playerData.Bubble) ~= "table" then
+		return
+	end
+	local bubbleAmount = math.max(0, tonumber(playerData.Bubble.Amount) or 0)
+	local previousAmount = tonumber(activeStates.BGSI_Lite_LastBubbleObservedAmount)
+	activeStates.BGSI_Lite_LastBubbleObservedAmount = bubbleAmount
+	if previousAmount == nil then
+		return
+	end
+	if bubbleAmount > previousAmount then
+		local acceptedAt = tick()
+		local previousAcceptedAt = tonumber(activeStates.BGSI_Lite_LastBubbleAcceptedAt)
+		if previousAcceptedAt and previousAcceptedAt > 0 then
+			local acceptedInterval = acceptedAt - previousAcceptedAt
+			if acceptedInterval >= 0.3 and acceptedInterval <= 2 then
+				local smoothedInterval = tonumber(activeStates.BGSI_Lite_AcceptedBubbleInterval) or acceptedInterval
+				smoothedInterval = smoothedInterval * 0.7 + acceptedInterval * 0.3
+				activeStates.BGSI_Lite_AcceptedBubbleInterval = smoothedInterval
+				activeStates.BGSI_Lite_BubbleRequestInterval = math.clamp(smoothedInterval * 0.9, 0.5, 0.55)
+			end
+		end
+		activeStates.BGSI_Lite_LastBubbleAcceptedAt = acceptedAt
+		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+	elseif bubbleAmount < previousAmount then
+		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+		activeStates.BGSI_Lite_LastBubbleSellObservedAt = tick()
+	end
+end
+pcall(function()
+	if profileStore:IsReady() then
+		activeStates.BGSI_Lite_ObserveBubbleAmount(profileStore:Get())
+	end
+	profileStore:ConnectDataChanged("Bubble", activeStates.BGSI_Lite_ObserveBubbleAmount)
+end)
 local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
 	local lastSellTime = 0
 	local questProgressWatch
@@ -9818,112 +9872,6 @@ do
 			end
 			return icon
 		end
-		activeStates.BGSI_Lite_BuildDashboardEggCatalog = function()
-			if
-				type(activeStates.BGSI_Lite_DashboardEggCatalog) == "table"
-				and tick() - (tonumber(activeStates.BGSI_Lite_DashboardEggCatalogUpdatedAt) or 0) < 300
-			then
-				return activeStates.BGSI_Lite_DashboardEggCatalog
-			end
-			local eventData = {}
-			pcall(function()
-				eventData = require(ReplicatedStorage.Shared.Data.Events)
-			end)
-			local renderedEggs = {}
-			pcall(function()
-				for _, renderedEggName in ipairs(safeGetChildren(true)) do
-					renderedEggs[tostring(renderedEggName)] = true
-				end
-			end)
-			local eggCatalog = {}
-			for eggName, eggInfo in pairs(type(eggDataModule) == "table" and eggDataModule or {}) do
-				if type(eggName) == "string" and type(eggInfo) == "table" and type(eggInfo.Pool) == "table" then
-					local eventInfo = type(eventData) == "table" and eventData[eggInfo.Event] or nil
-					local eventActive = type(eventInfo) == "table" and eventInfo.Active == true
-					local boostedEgg = string.sub(string.lower(eggName), 1, 8) == "4x luck "
-					local available = renderedEggs[eggName] == true
-						or (eventActive and not boostedEgg)
-						or (
-							not eggInfo.Event
-							and not boostedEgg
-							and (eggInfo.World ~= nil or eggInfo.ProductId ~= nil)
-						)
-					if available and eggInfo.IsAdminEgg ~= true then
-						local pets = {}
-						for _, poolEntry in ipairs(eggInfo.Pool) do
-							local petItem = type(poolEntry) == "table" and poolEntry.Item or nil
-							if type(petItem) == "table" and petItem.Type == "Pet" and petItem.Name then
-								local petName = tostring(petItem.Name)
-								local petInfo = type(petRarityData) == "table" and petRarityData[petName] or nil
-								local rarity = activeStates.BGSI_Lite_ResolvePetRarity({ Name = petName }, petInfo)
-								local superPet = type(petInfo) == "table"
-									and (
-										petInfo.Super == true
-										or petInfo.IsSuper == true
-										or petInfo.SuperLegendary == true
-										or petInfo["Super Legendary"] == true
-									)
-								if superPet then
-									rarity = "Super Legendary"
-								end
-								table.insert(pets, {
-									name = petName,
-									rarity = tostring(rarity or "Unknown"),
-									chance = math.max(0, tonumber(poolEntry.Chance) or 0),
-									imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(
-										{ Name = petName },
-										petInfo
-									),
-									super = superPet == true,
-								})
-							end
-						end
-						if #pets > 0 then
-							local eggImageAssetId = string.match(tostring(eggInfo.Image or ""), "rbxassetid://(%d+)")
-								or string.match(tostring(eggInfo.Image or ""), "^(%d+)$")
-							local cost = type(eggInfo.Cost) == "table" and eggInfo.Cost or {}
-							table.insert(eggCatalog, {
-								name = eggName,
-								imageAssetId = eggImageAssetId,
-								world = tostring(eggInfo.World or ""),
-								event = eventActive,
-								eventName = type(eventInfo) == "table"
-										and tostring(eventInfo.DisplayName or eggInfo.Event or "")
-									or "",
-								eventOrder = type(eventInfo) == "table"
-										and tonumber(eventInfo.LayoutOrder)
-									or 0,
-								layoutOrder = tonumber(eggInfo.LayoutOrder) or 0,
-								boosted = boostedEgg,
-								costType = tostring(cost.Type or ""),
-								costName = tostring(cost.Currency or cost.Name or ""),
-								costAmount = math.max(0, tonumber(cost.Amount) or 0),
-								pets = pets,
-							})
-						end
-					end
-				end
-			end
-			table.sort(eggCatalog, function(left, right)
-				if left.event ~= right.event then
-					return left.event
-				end
-				if left.eventOrder ~= right.eventOrder then
-					return left.eventOrder > right.eventOrder
-				end
-				if left.boosted ~= right.boosted then
-					return not left.boosted
-				end
-				if left.layoutOrder ~= right.layoutOrder then
-					return left.layoutOrder > right.layoutOrder
-				end
-				return string.lower(left.name) < string.lower(right.name)
-			end)
-			activeStates.BGSI_Lite_DashboardEggCatalog = eggCatalog
-			activeStates.BGSI_Lite_DashboardEggCatalogUpdatedAt = tick()
-			return eggCatalog
-		end
-
 		task.spawn(function()
 			while isCurrentRun() do
 				local dashboardWorkerOk, dashboardWorkerError = pcall(function()
@@ -10087,7 +10035,6 @@ do
 							prizes = {},
 							quests = { completedTotal = 0, completed = {}, active = {} },
 							configOptions = {},
-							eggCatalog = activeStates.BGSI_Lite_BuildDashboardEggCatalog(),
 						}
 						local cachedConfigOptions = activeStates.BGSI_Lite_DashboardConfigOptions
 						if type(cachedConfigOptions) == "table"
@@ -11532,6 +11479,7 @@ do
 						)
 						or (
 							bubbleState.Infinite
+							and Config.autoSell
 							and tick() - (tonumber(activeStates.BGSI_Lite_LastBubbleSellAt) or 0) >= 2
 						)
 					)
@@ -14979,6 +14927,12 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					activeStates.BGSI_Lite_LastHatchAcceptedAt = hatchAcceptedAt
 				end
 				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
+				if
+					(Config.autoBubble or Config.autoBubbleCompetition)
+					and type(activeStates.BGSI_Lite_BlowBubble) == "function"
+				then
+					task.defer(activeStates.BGSI_Lite_BlowBubble)
+				end
 				for _, dashboardHatchPet in ipairs(scriptStatePO) do
 					local dashboardPetName = dashboardHatchPet.Name
 						or (dashboardHatchPet.Pet and dashboardHatchPet.Pet.Name)
