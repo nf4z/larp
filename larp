@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.17"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.19"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.19",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Reliable inventory cleanup",
+				description = "Uses the accepted pet deletion call, preserves the configured copy floor, skips pets saved in any team, and confirms every deletion.",
+				icon = "trash-2",
+			},
+		},
+	},
+	{
+		version = "2026.07.24.18",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Competition team recovery",
+				description = "Rotates through filter-safe unique team names, retries quickly after rejection, and reports creation progress.",
+				icon = "users",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.17",
 		releasedAt = "July 24, 2026",
@@ -1617,15 +1639,24 @@ activeStates.BGSI_Lite_GetPetInventoryCapacity = function(playerData)
 	return capacityOk and type(petCapacity) == "number" and math.max(0, math.floor(petCapacity)) or nil
 end
 activeStates.BGSI_Lite_IsPetEquipped = function(playerData, petId)
-	local equippedTeam = type(playerData) == "table"
-		and type(playerData.Teams) == "table"
-		and playerData.Teams[playerData.TeamEquipped]
-	for _, equippedPetId in ipairs(equippedTeam and equippedTeam.Pets or {}) do
-		if tostring(equippedPetId) == tostring(petId) then
-			return true
+	for _, team in pairs(type(playerData) == "table" and type(playerData.Teams) == "table" and playerData.Teams or {}) do
+		for _, equippedPetId in pairs(type(team) == "table" and type(team.Pets) == "table" and team.Pets or {}) do
+			if tostring(equippedPetId) == tostring(petId) then
+				return true
+			end
 		end
 	end
 	return false
+end
+activeStates.BGSI_Lite_IsPetInventoryFull = function(playerData)
+	local petCapacity = activeStates.BGSI_Lite_GetPetInventoryCapacity(playerData)
+	if petCapacity and petCapacity > 0 then
+		return activeStates.BGSI_Lite_GetPetInventoryUsage(playerData) >= petCapacity
+	end
+	local inventoryFullOk, inventoryFull = pcall(function()
+		return activeStates.BGSI_Lite_PetStorageStatsUtil:IsInventoryFull(playerData)
+	end)
+	return inventoryFullOk and inventoryFull == true
 end
 activeStates.BGSI_Lite_GetDisposablePetRank = function(pet)
 	if type(pet) ~= "table" or pet.Super == true or pet.IsSuper == true or pet.SuperLegendary == true then
@@ -1663,32 +1694,33 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 		return false
 	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	activeStates.BGSI_Lite_GetPetInventoryCapacity(playerData)
-	local inventoryFullOk, inventoryFull = pcall(function()
-		return activeStates.BGSI_Lite_PetStorageStatsUtil:IsInventoryFull(playerData)
-	end)
-	if not inventoryFullOk or inventoryFull ~= true then
+	if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
 		return false
 	end
+	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
 	local candidateGroups = {}
 	for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
 		local petRank = activeStates.BGSI_Lite_GetDisposablePetRank(pet)
 		local petId = type(pet) == "table" and tostring(pet.Id or "") or ""
 		if petRank and petId ~= "" and not activeStates.BGSI_Lite_IsPetEquipped(playerData, petId) then
 			local petName = tostring(pet.Name or "")
+			local petAmount = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
 			local candidateKey = petName .. "|" .. tostring(petRank)
 			local candidateGroup = candidateGroups[candidateKey]
 			if not candidateGroup then
-				candidateGroup = { name = petName, rank = petRank, amount = 0, ids = {} }
+				candidateGroup = { name = petName, rank = petRank, amount = 0, pets = {} }
 				candidateGroups[candidateKey] = candidateGroup
 			end
-			candidateGroup.amount += math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
-			table.insert(candidateGroup.ids, petId)
+			candidateGroup.amount += petAmount
+			table.insert(candidateGroup.pets, { id = petId, amount = petAmount })
 		end
 	end
 	local candidates = {}
 	for _, candidateGroup in pairs(candidateGroups) do
-		if candidateGroup.amount >= math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10)) then
+		if candidateGroup.amount > minimumCopies then
+			table.sort(candidateGroup.pets, function(leftPet, rightPet)
+				return leftPet.amount < rightPet.amount
+			end)
 			table.insert(candidates, candidateGroup)
 		end
 	end
@@ -1701,43 +1733,70 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 		end
 		return leftCandidate.name < rightCandidate.name
 	end)
-	local selectedCandidate = candidates[1]
-	if not selectedCandidate then
+	if not candidates[1] then
 		return false
 	end
-	activeStates.BGSI_Lite_PetInventoryCleanupActive = true
-	for _, petId in ipairs(selectedCandidate.ids) do
-		while isCurrentRun() do
-			playerData = profileStore:IsReady() and profileStore:Get() or nil
-			local livePet = activeStates.BGSI_Lite_FindPetById(playerData, petId)
-			if
-				not livePet
-				or livePet.Name ~= selectedCandidate.name
-				or not activeStates.BGSI_Lite_GetDisposablePetRank(livePet)
-				or activeStates.BGSI_Lite_IsPetEquipped(playerData, petId)
-			then
-				break
-			end
-			local amountBeforeDelete = math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
-			remoteEvent:FireServer("DeletePet", petId, amountBeforeDelete, false)
-			local deleteDeadline = tick() + 3
-			local amountAfterDelete = amountBeforeDelete
-			repeat
-				task.wait(0.1)
-				playerData = profileStore:IsReady() and profileStore:Get() or nil
-				livePet = activeStates.BGSI_Lite_FindPetById(playerData, petId)
-				amountAfterDelete = livePet
-					and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
-					or 0
-			until amountAfterDelete < amountBeforeDelete or tick() >= deleteDeadline
-			if amountAfterDelete >= amountBeforeDelete then
-				break
-			end
+	activeStates.BGSI_Lite_BlockedCleanupPets = type(activeStates.BGSI_Lite_BlockedCleanupPets) == "table"
+			and activeStates.BGSI_Lite_BlockedCleanupPets
+		or {}
+	for petId, blockedAt in pairs(activeStates.BGSI_Lite_BlockedCleanupPets) do
+		if tick() - (tonumber(blockedAt) or 0) >= 60 then
+			activeStates.BGSI_Lite_BlockedCleanupPets[petId] = nil
 		end
 	end
+	activeStates.BGSI_Lite_PetInventoryCleanupActive = true
+	local deletedAmount = 0
+	local cleanupOk = pcall(function()
+		for _, selectedCandidate in ipairs(candidates) do
+			local remainingCopies = selectedCandidate.amount
+			for _, candidatePet in ipairs(selectedCandidate.pets) do
+				if not isCurrentRun() or not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+					return
+				end
+				playerData = profileStore:IsReady() and profileStore:Get() or nil
+				local livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
+				local amountBeforeDelete = livePet
+						and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+					or 0
+				if
+					livePet
+					and livePet.Name == selectedCandidate.name
+					and activeStates.BGSI_Lite_GetDisposablePetRank(livePet)
+					and not activeStates.BGSI_Lite_IsPetEquipped(playerData, candidatePet.id)
+					and remainingCopies - amountBeforeDelete >= minimumCopies
+					and activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] == nil
+				then
+					local amountAfterDelete = amountBeforeDelete
+					for _ = 1, 3 do
+						remoteEvent:FireServer("DeletePet", candidatePet.id)
+						local deleteDeadline = tick() + 4
+						repeat
+							task.wait(0.1)
+							playerData = profileStore:IsReady() and profileStore:Get() or nil
+							livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
+							amountAfterDelete = livePet
+									and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+								or 0
+						until amountAfterDelete < amountBeforeDelete or tick() >= deleteDeadline
+						if amountAfterDelete < amountBeforeDelete then
+							break
+						end
+						task.wait(0.5)
+					end
+					if amountAfterDelete < amountBeforeDelete then
+						local removedAmount = amountBeforeDelete - amountAfterDelete
+						deletedAmount += removedAmount
+						remainingCopies -= removedAmount
+					else
+						activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] = tick()
+					end
+				end
+			end
+		end
+	end)
 	activeStates.BGSI_Lite_PetInventoryCleanupActive = false
-	activeStates.BGSI_Lite_LastPetInventoryCleanup = tick()
-	return true
+	activeStates.BGSI_Lite_LastPetInventoryCleanup = cleanupOk and tick() or tick() - 15
+	return cleanupOk and deletedAmount > 0
 end
 task.spawn(function()
 	while isCurrentRun() do
@@ -3333,6 +3392,66 @@ activeStates.BGSI_Lite_GetCompetitiveShared = function()
 	end
 	return activeStates.BGSI_Lite_CompetitiveShared
 end
+activeStates.BGSI_Lite_GetCompetitiveTeamName = function(teamNameAttempt, maximumLength)
+	local firstWords = {
+		"Blue",
+		"Bright",
+		"Cozy",
+		"Golden",
+		"Happy",
+		"Lucky",
+		"Sunny",
+		"Crystal",
+	}
+	local secondWords = {
+		"Bubbles",
+		"Crew",
+		"Eggs",
+		"Friends",
+		"Pets",
+		"Stars",
+		"Team",
+		"Hatchers",
+	}
+	local safeLetters = "BCDFGHJKLMNPQRSTVWXYZ"
+	local safeDigits = "23456789"
+	local seed = (
+		(LocalPlayer.UserId % 2147483000)
+		+ (math.max(0, math.floor(tonumber(teamNameAttempt) or 0)) + 1) * 104729
+		+ (os.time() % 1000003) * 8191
+	) % 2147483647
+	local random = Random.new(seed)
+	local function getRandomCharacter(characters)
+		local characterIndex = random:NextInteger(1, #characters)
+		return string.sub(characters, characterIndex, characterIndex)
+	end
+	local suffix = getRandomCharacter(safeLetters)
+		.. getRandomCharacter(safeDigits)
+		.. getRandomCharacter(safeLetters)
+		.. getRandomCharacter(safeDigits)
+	local firstWord = firstWords[random:NextInteger(1, #firstWords)]
+	local secondWord = secondWords[random:NextInteger(1, #secondWords)]
+	maximumLength = math.max(8, math.floor(tonumber(maximumLength) or 20))
+	local teamName = firstWord .. " " .. secondWord .. " " .. suffix
+	if #teamName > maximumLength then
+		teamName = firstWord .. " " .. suffix
+	end
+	return teamName:sub(1, maximumLength)
+end
+activeStates.BGSI_Lite_GetNotificationText = function(notification)
+	if type(notification) == "string" then
+		return notification
+	end
+	if type(notification) ~= "table" then
+		return ""
+	end
+	for _, notificationKey in ipairs({ "Text", "Message", "Content", "Title" }) do
+		if type(notification[notificationKey]) == "string" and notification[notificationKey] ~= "" then
+			return notification[notificationKey]
+		end
+	end
+	return ""
+end
 activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local competitiveShared = activeStates.BGSI_Lite_GetCompetitiveShared()
@@ -3348,6 +3467,8 @@ activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
 	end
 	local competitive = type(playerData.Competitive) == "table" and playerData.Competitive or {}
 	local clan = type(competitive.Clan) == "table" and competitive.Clan or nil
+	local clanId = clan and tostring(clan.Id or "")
+		or (type(competitive.Clan) == "string" and competitive.Clan or "")
 	local members = {}
 	local teamScore = 0
 	if clan and type(clan.Members) == "table" then
@@ -3379,6 +3500,16 @@ activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
 			end
 		end
 	end)
+	local teamStatus = clanId ~= "" and "ready" or "creating"
+	if clanId == "" and Config.autoBubbleCompetition ~= true then
+		teamStatus = "disabled"
+	elseif clanId == "" then
+		pcall(function()
+			if competitiveShared:IsFinalDay(season) then
+				teamStatus = "locked"
+			end
+		end)
+	end
 	return {
 		Active = true,
 		Season = tonumber(season) or 0,
@@ -3386,7 +3517,10 @@ activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
 		MaxPoints = math.max(0, tonumber(competitiveShared.MaxPoints) or 0),
 		Claimed = type(competitive.Claimed) == "table" and #competitive.Claimed or 0,
 		RewardTiers = seasonData and type(seasonData.Rewards) == "table" and #seasonData.Rewards or 0,
-		TeamName = clan and tostring(clan.Id or "") or "",
+		TeamName = clanId,
+		TeamStatus = teamStatus,
+		TeamAttempts = math.max(0, math.floor(tonumber(activeStates.BGSI_Lite_CompetitiveTeamNameAttempt) or 0)),
+		TeamLastName = tostring(activeStates.BGSI_Lite_CompetitiveTeamLastName or ""),
 		TeamRank = teamRank,
 		TeamScore = teamScore,
 		Members = members,
@@ -3412,7 +3546,17 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 	if not season or not competitive or type(seasonData) ~= "table" then
 		return
 	end
-	if not competitive.Clan and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 10 then
+	if tonumber(activeStates.BGSI_Lite_CompetitiveTeamSeason) ~= tonumber(season) then
+		activeStates.BGSI_Lite_CompetitiveTeamSeason = season
+		activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
+		activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = 0
+		activeStates.BGSI_Lite_CompetitiveTeamLastName = ""
+	end
+	local competitiveClanId = type(competitive.Clan) == "table" and tostring(competitive.Clan.Id or "")
+		or (type(competitive.Clan) == "string" and competitive.Clan or "")
+	if competitiveClanId ~= "" then
+		activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
+	elseif tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 3 then
 		local isFinalDay = false
 		pcall(function()
 			isFinalDay = competitiveShared:IsFinalDay(season)
@@ -3422,38 +3566,18 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 					and type(sharedConstants.Clan) == "table"
 					and tonumber(sharedConstants.Clan.MaxNameLength)
 				or 20
-			local encodedUserId = tostring(LocalPlayer.UserId):gsub("%d", {
-				["0"] = "b",
-				["1"] = "c",
-				["2"] = "d",
-				["3"] = "f",
-				["4"] = "g",
-				["5"] = "h",
-				["6"] = "j",
-				["7"] = "k",
-				["8"] = "m",
-				["9"] = "n",
-			})
-			local teamNamePrefixes = {
-				"Team",
-				"Bubble",
-				"Hatch",
-				"Comp",
-			}
 			local teamNameAttempt = math.max(
 				0,
 				math.floor(tonumber(activeStates.BGSI_Lite_CompetitiveTeamNameAttempt) or 0)
 			)
-			local teamNamePrefix = teamNamePrefixes[teamNameAttempt % #teamNamePrefixes + 1]
-			local teamName = (teamNamePrefix .. " " .. encodedUserId):sub(1, maximumLength)
-				:gsub("[^%w ]", "")
-				:gsub("%s+", " ")
-				:gsub("^%s+", "")
-				:gsub("%s+$", "")
+			local teamName = activeStates.BGSI_Lite_GetCompetitiveTeamName(teamNameAttempt, maximumLength)
 			if teamName ~= "" then
-				pcall(remoteEvent.FireServer, remoteEvent, "ClanCreate", teamName)
-				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = tick()
-				activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = teamNameAttempt + 1
+				local teamRequestSent = pcall(remoteEvent.FireServer, remoteEvent, "ClanCreate", teamName)
+				if teamRequestSent then
+					activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = tick()
+					activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = teamNameAttempt + 1
+					activeStates.BGSI_Lite_CompetitiveTeamLastName = teamName
+				end
 			end
 		end
 	end
@@ -8509,6 +8633,7 @@ do
 	})
 	gameTab:AddSlider("InventoryCleanupMinCopies", {
 		Title = "Cleanup Minimum Copies",
+		Description = "Keeps at least this many copies of each disposable pet.",
 		Min = 2,
 		Max = 100,
 		Default = Config.inventoryCleanupMinCopies,
@@ -8613,6 +8738,9 @@ do
 		Default = Config.autoBubbleCompetition,
 		Callback = function(isEnabled)
 			Config.autoBubbleCompetition = isEnabled
+			if isEnabled then
+				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
+			end
 			saveConfig()
 		end,
 	})
@@ -14891,6 +15019,15 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 		function(scriptStateKW, scriptStateNY, ...)
 			if not isCurrentRun() then
 				return
+			end
+			if scriptStateKW == "Notification" then
+				local notificationText = string.lower(activeStates.BGSI_Lite_GetNotificationText(scriptStateNY))
+				if
+					string.find(notificationText, "team name was filtered", 1, true)
+					or string.find(notificationText, "try another one", 1, true)
+				then
+					activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
+				end
 			end
 			local scriptStatePO
 			if
