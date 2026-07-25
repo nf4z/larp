@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.19"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.24.20"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.24.20",
+		releasedAt = "July 24, 2026",
+		notes = {
+			{
+				title = "Current team enchant repair",
+				description = "Always scans the equipped team even when automatic team building is still converging, and confirms every enchant table shape.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.24.19",
 		releasedAt = "July 24, 2026",
@@ -12444,7 +12455,7 @@ local function getEnchantCurrency(scriptStateVC)
 		return nil
 	end
 	for loopSlotBV, scriptStateQG in ipairs(scriptStateACB.Pets) do
-		if scriptStateQG.Id == scriptStateVC then
+		if tostring(scriptStateQG.Id or "") == tostring(scriptStateVC) then
 			return scriptStateQG
 		end
 	end
@@ -12650,14 +12661,16 @@ end
 local autoEnchantThreadRunning = false
 activeStates.BGSI_Lite_GetPetEnchantSignature = function(petData)
 	local signatureParts = {}
-	for enchantSlot, enchantEntry in ipairs(type(petData) == "table" and type(petData.Enchants) == "table" and petData.Enchants or {}) do
+	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
+	for enchantSlot, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
 		table.insert(signatureParts, table.concat({
 			tostring(enchantSlot),
-			tostring(enchantEntry.Id or enchantEntry.id or ""),
-			tostring(enchantEntry.Level or enchantEntry.level or ""),
-			tostring(enchantEntry.Extra or enchantEntry.extra or ""),
+			tostring(type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry or ""),
+			tostring(type(enchantEntry) == "table" and (enchantEntry.Level or enchantEntry.level) or ""),
+			tostring(type(enchantEntry) == "table" and (enchantEntry.Extra or enchantEntry.extra) or ""),
 		}, ":"))
 	end
+	table.sort(signatureParts)
 	return table.concat(signatureParts, "|")
 end
 activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied = function(
@@ -12772,7 +12785,9 @@ local function getEnchantTargetList()
 				task.wait(1)
 				continue
 			end
-			if not prepareAutoEnchantTeam() then
+			pcall(prepareAutoEnchantTeam)
+			local equippedPetIds = getEnchantablePets()
+			if #equippedPetIds == 0 then
 				task.wait(2)
 				continue
 			end
@@ -12781,7 +12796,6 @@ local function getEnchantTargetList()
 			local targetEnchantLevel = tonumber(Config.equippedTargetEnchantLevel) or 0
 			local selectedEnchantCurrencyMode = Config.equippedEnchantCurrency
 				or "Auto (Secret = Crystals,Normal = Gems)"
-			local equippedPetIds = getEnchantablePets()
 			for _, equippedPetId in ipairs(equippedPetIds) do
 				if not Config.autoEnchant or not isCurrentRun() then
 					break
