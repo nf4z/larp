@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.06",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Interface loading recovery",
+				description = "The Rifts panel now uses the supported paragraph control so every tab finishes loading normally.",
+				icon = "panel-top",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.05",
 		releasedAt = "July 26, 2026",
@@ -5291,17 +5302,16 @@ scriptStateDB:AddToggle("AutoSkipIntro", {
 do
 	local riftsTab = riftsTab
 	riftsTab:AddSection("Active Rifts")
-	
-	local riftInfoGroup = riftsTab.Native:CreateGroup()
-	local riftDisplay = riftInfoGroup:CreateParagraph({
+
+	local riftDisplay = riftsTab:AddParagraph({
 		Title = "Current Rifts",
 		Content = "Scanning for active rifts...",
 	})
-	
-	local refreshButton = riftsTab:AddButton("Refresh Rifts", function()
+
+	riftsTab:AddButton("Refresh Rifts", function()
 		activeStates.BGSI_Lite_UpdateRiftDisplay()
 	end)
-	
+
 	activeStates.BGSI_Lite_BuildRiftSnapshot = function()
 		local renderedFolder = Workspace:FindFirstChild("Rendered")
 		local riftsFolder = renderedFolder and renderedFolder:FindFirstChild("Rifts")
@@ -5354,14 +5364,14 @@ do
 		local activeRifts = activeStates.BGSI_Lite_BuildRiftSnapshot()
 		if not activeRifts then
 			activeStates.BGSI_Lite_DashboardRifts = {}
-			riftDisplay:SetContent("No rifts folder found.")
+			riftDisplay:SetDesc("No rifts folder found.")
 			return
 		end
-		
+
 		activeStates.BGSI_Lite_DashboardRifts = activeRifts
-		
+
 		if #activeRifts == 0 then
-			riftDisplay:SetContent("No active rifts found.")
+			riftDisplay:SetDesc("No active rifts found.")
 		else
 			local content = ""
 			for i, rift in ipairs(activeRifts) do
@@ -5370,10 +5380,10 @@ do
 				content = content .. string.format("   World: %s\n", rift.world)
 				content = content .. string.format("   Time: %s\n\n", rift.timeRemaining)
 			end
-			riftDisplay:SetContent(content)
+			riftDisplay:SetDesc(content)
 		end
 	end
-	
+
 	-- Initial update
 	task.spawn(function()
 		while isCurrentRun() do
