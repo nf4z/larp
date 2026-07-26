@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.03",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Rift tracking tab",
+				description = "Added new Rifts tab to display active rifts with time remaining, type, and world. Includes teleport and hatch buttons.",
+				icon = "circle-dot",
+			},
+		},
+	},
+	{
+		version = "2026.07.26.02",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Quest bug fix",
+				description = "Fixed function definition order issue that prevented quests from working after adding skip bubbling quests feature.",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.01",
 		releasedAt = "July 26, 2026",
@@ -2835,6 +2857,15 @@ activeStates.BGSI_Lite_GetBountyTaskSearchText = function(scriptStateTask, seenT
 	return string.lower(table.concat(taskTextParts, " "))
 end
 
+local function isBubbleBountyTask(scriptStateCR)
+	local scriptStateOV = getBountyTaskType(scriptStateCR)
+	local taskSearchText = activeStates.BGSI_Lite_GetBountyTaskSearchText(scriptStateCR)
+	return scriptStateOV == "bubble"
+		or scriptStateOV == "bubbles"
+		or string.find(scriptStateOV, "bubble", 1, true) ~= nil
+		or string.find(taskSearchText, "bubble", 1, true) ~= nil
+end
+
 activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest = function(scriptStateTask)
 	if Config.skipTicketPearlQuests ~= true or not isCoinOrCollectBountyTask(scriptStateTask) then
 		return false
@@ -2907,14 +2938,6 @@ activeStates.BGSI_Lite_HasActionableUnfinishedQuestTask = function(scriptStateQu
 	return false
 end
 
-local function isBubbleBountyTask(scriptStateCR)
-	local scriptStateOV = getBountyTaskType(scriptStateCR)
-	local taskSearchText = activeStates.BGSI_Lite_GetBountyTaskSearchText(scriptStateCR)
-	return scriptStateOV == "bubble"
-		or scriptStateOV == "bubbles"
-		or string.find(scriptStateOV, "bubble", 1, true) ~= nil
-		or string.find(taskSearchText, "bubble", 1, true) ~= nil
-end
 local function isHatchBountyTask(scriptStateRF)
 	local scriptStateXZ = getBountyTaskType(scriptStateRF)
 	if scriptStateXZ == "hatchegggroup" then
@@ -5007,6 +5030,10 @@ local scriptStateGB = scriptStateOG:AddTab({
 	Title = "Rebirth",
 	Icon = "repeat",
 })
+local riftsTab = scriptStateOG:AddTab({
+	Title = "Rifts",
+	Icon = "circle-dot",
+})
 local scriptStateAFW = scriptStateOG:AddTab({
 	Title = "Other",
 	Icon = "workflow",
@@ -5241,6 +5268,160 @@ scriptStateDB:AddToggle("AutoSkipIntro", {
 		end
 	end,
 })
+-- Rifts Tab
+do
+	local riftsTab = riftsTab
+	riftsTab:AddSection("Active Rifts")
+	
+	local riftInfoGroup = riftsTab.Native:CreateGroup()
+	local riftDisplay = riftInfoGroup:CreateParagraph({
+		Title = "Current Rifts",
+		Content = "Scanning for active rifts...",
+	})
+	
+	local refreshButton = riftsTab:AddButton("Refresh Rifts", function()
+		activeStates.BGSI_Lite_UpdateRiftDisplay()
+	end)
+	
+	activeStates.BGSI_Lite_UpdateRiftDisplay = function()
+		local riftsFolder = Workspace:FindFirstChild("Rendered") and Workspace.Rendered:FindFirstChild("Rifts")
+		if not riftsFolder then
+			activeStates.BGSI_Lite_DashboardRifts = {}
+			riftDisplay:SetContent("No rifts folder found.")
+			return
+		end
+		
+		local activeRifts = {}
+		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
+			if riftModel:IsA("Model") then
+				local riftName = riftModel.Name
+				local riftType = riftModel:GetAttribute("Type") or "Unknown"
+				local despawnAt = riftModel:GetAttribute("DespawnAt")
+				local world = riftModel:GetAttribute("World") or "Unknown"
+				
+				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
+				local timeString = timeRemaining > 0 and string.format("%.1f min", timeRemaining / 60) or "Expired"
+				
+				table.insert(activeRifts, {
+					name = riftName,
+					type = riftType,
+					world = world,
+					timeRemaining = timeString,
+					timeRemainingSeconds = timeRemaining,
+				})
+			end
+		end
+		
+		activeStates.BGSI_Lite_DashboardRifts = activeRifts
+		
+		if #activeRifts == 0 then
+			riftDisplay:SetContent("No active rifts found.")
+		else
+			local content = ""
+			for i, rift in ipairs(activeRifts) do
+				content = content .. string.format("**%d. %s**\n", i, rift.name)
+				content = content .. string.format("   Type: %s\n", rift.type)
+				content = content .. string.format("   World: %s\n", rift.world)
+				content = content .. string.format("   Time: %s\n\n", rift.timeRemaining)
+			end
+			riftDisplay:SetContent(content)
+		end
+	end
+	
+	-- Initial update
+	task.spawn(function()
+		while isCurrentRun() do
+			activeStates.BGSI_Lite_UpdateRiftDisplay()
+			task.wait(5)
+		end
+	end)
+	
+	riftsTab:AddSection("Rift Actions")
+	riftsTab:AddButton("Teleport to Rift", function()
+		local riftsFolder = Workspace:FindFirstChild("Rendered") and Workspace.Rendered:FindFirstChild("Rifts")
+		if not riftsFolder then
+			Interface:Notify({
+				Title = "Error",
+				Content = "No rifts folder found.",
+				Duration = 3,
+			})
+			return
+		end
+		
+		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
+			if riftModel:IsA("Model") then
+				local despawnAt = riftModel:GetAttribute("DespawnAt")
+				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
+				
+				if timeRemaining > 0 then
+					local primaryPart = riftModel.PrimaryPart
+					if primaryPart then
+						LocalPlayer.Character:SetPrimaryPartCFrame(primaryPart.CFrame + Vector3.new(0, 5, 0))
+						Interface:Notify({
+							Title = "Teleported",
+							Content = string.format("Teleported to %s", riftModel.Name),
+							Duration = 3,
+						})
+						return
+					end
+				end
+			end
+		end
+		
+		Interface:Notify({
+			Title = "Error",
+			Content = "No active rifts found to teleport to.",
+			Duration = 3,
+		})
+	end)
+	
+	riftsTab:AddButton("Start Hatching at Rift", function()
+		local riftsFolder = Workspace:FindFirstChild("Rendered") and Workspace.Rendered:FindFirstChild("Rifts")
+		if not riftsFolder then
+			Interface:Notify({
+				Title = "Error",
+				Content = "No rifts folder found.",
+				Duration = 3,
+			})
+			return
+		end
+		
+		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
+			if riftModel:IsA("Model") then
+				local riftType = riftModel:GetAttribute("Type")
+				local despawnAt = riftModel:GetAttribute("DespawnAt")
+				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
+				
+				-- Only hatch at egg-type rifts
+				if riftType == "Egg" and timeRemaining > 0 then
+					local primaryPart = riftModel.PrimaryPart
+					if primaryPart then
+						LocalPlayer.Character:SetPrimaryPartCFrame(primaryPart.CFrame + Vector3.new(0, 5, 0))
+						
+						-- Enable auto hatch if not already enabled
+						if not Config.autoHatch then
+							Config.autoHatch = true
+							saveConfig()
+						end
+						
+						Interface:Notify({
+							Title = "Hatching Started",
+							Content = string.format("Teleported to %s and started auto-hatching", riftModel.Name),
+							Duration = 3,
+						})
+						return
+					end
+				end
+			end
+		end
+		
+		Interface:Notify({
+			Title = "Error",
+			Content = "No active egg rifts found to hatch at.",
+			Duration = 3,
+		})
+	end)
+end
 scriptStateDB:AddChangelog()
 scriptStateOG:SelectTab(1)
 Interface:Notify({
@@ -10892,6 +11073,9 @@ do
 									activeStates.BGSI_Lite_GetCompetitiveTelemetry,
 									nil
 								),
+								rifts = activeStates.BGSI_Lite_SafeDashboardBuild(function()
+									return activeStates.BGSI_Lite_DashboardRifts or {}
+								end, {}),
 							}
 							if type(activeQuest) == "table" then
 								payload.activeQuest = {
