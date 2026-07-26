@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.05",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Account startup recovery",
+				description = "The loader no longer waits for the post-menu ScreenGui before restoring config, skipping the intro, and connecting to the dashboard.",
+				icon = "play",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.04",
 		releasedAt = "July 26, 2026",
@@ -606,14 +617,6 @@ local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
 local function isCurrentRun()
 	return activeStates._1rzHubLiteRunToken == currentRunToken
-end
-do
-	local runtimePlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-	if not runtimePlayerGui:FindFirstChild("ScreenGui") then
-		print("[" .. LocalPlayer.Name .. "] Waiting for PlayerGui.ScreenGui before loading game modules...")
-	end
-	runtimePlayerGui:WaitForChild("ScreenGui")
-	print("[" .. LocalPlayer.Name .. "] PlayerGui.ScreenGui ready.")
 end
 pcall(function()
 	local openUi = CoreGui:FindFirstChild("OpenUI")
