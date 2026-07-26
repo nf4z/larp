@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.25.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.01",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Skip Bubbling Quests option",
+				description = "Added toggle to skip bubbling quests, similar to skip ticket and pearl quests.",
+				icon = "circle-dot",
+			},
+		},
+	},
 	{
 		version = "2026.07.25.01",
 		releasedAt = "July 25, 2026",
@@ -662,6 +673,7 @@ local defaultConfig = {
 	autoResetChallengePass = false,
 	autoDailyHourlyChallenge = false,
 	skipTicketPearlQuests = true,
+	skipBubblingQuests = false,
 	questStallTimeoutSeconds = 60,
 	autoGlobalIncentive = false,
 	autoClaimGlobalIncentive = false,
@@ -2835,6 +2847,13 @@ activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest = function(scriptStateTask)
 	return string.find(taskSearchText, "ticket", 1, true) ~= nil or string.find(taskSearchText, "pearl", 1, true) ~= nil
 end
 
+activeStates.BGSI_Lite_ShouldSkipBubblingQuest = function(scriptStateTask)
+	if Config.skipBubblingQuests ~= true or not isBubbleBountyTask(scriptStateTask) then
+		return false
+	end
+	return true
+end
+
 activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask = function(scriptStateQuest)
 	if type(scriptStateQuest) ~= "table" or type(scriptStateQuest.Tasks) ~= "table" then
 		return false
@@ -2852,6 +2871,23 @@ activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask = function(scriptStateQuest)
 	return false
 end
 
+activeStates.BGSI_Lite_HasSkippedBubblingTask = function(scriptStateQuest)
+	if type(scriptStateQuest) ~= "table" or type(scriptStateQuest.Tasks) ~= "table" then
+		return false
+	end
+	for _, taskIndex in ipairs(makeIndexList(scriptStateQuest.Tasks)) do
+		local questTask = scriptStateQuest.Tasks[taskIndex]
+		if
+			type(questTask) == "table"
+			and activeStates.BGSI_Lite_ShouldSkipBubblingQuest(questTask)
+			and getBountyTaskProgress(scriptStateQuest, taskIndex) < getBountyTaskRequirement(questTask)
+		then
+			return true
+		end
+	end
+	return false
+end
+
 activeStates.BGSI_Lite_HasActionableUnfinishedQuestTask = function(scriptStateQuest)
 	if type(scriptStateQuest) ~= "table" or type(scriptStateQuest.Tasks) ~= "table" then
 		return false
@@ -2861,6 +2897,7 @@ activeStates.BGSI_Lite_HasActionableUnfinishedQuestTask = function(scriptStateQu
 		if
 			type(questTask) == "table"
 			and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(questTask)
+			and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(questTask)
 			and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateQuest, taskIndex)
 			and getBountyTaskProgress(scriptStateQuest, taskIndex) < getBountyTaskRequirement(questTask)
 		then
@@ -4654,6 +4691,9 @@ activeStates.BGSI_Lite_RunQuestTask = function(getQuest, taskIndex, fallbackRequ
 		return false, "Completed"
 	end
 	if activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(questTask) then
+		return false, "Skipped"
+	end
+	if activeStates.BGSI_Lite_ShouldSkipBubblingQuest(questTask) then
 		return false, "Skipped"
 	end
 	if activeStates.BGSI_Lite_IsQuestTaskDeferred(questData, taskIndex) then
@@ -9904,6 +9944,7 @@ do
 			"autoResetChallengePass",
 			"autoDailyHourlyChallenge",
 			"skipTicketPearlQuests",
+			"skipBubblingQuests",
 			"questStallTimeoutSeconds",
 			"selectedTicketTeam",
 			"selectedTicketReturnTeam",
@@ -13037,6 +13078,15 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateUC:AddToggle("SkipBubblingQuests", {
+		Title = "Skip Bubbling Quests",
+		Description = "Ignores Bubbling tasks. Gem Genie rerolls them when possible.",
+		Default = Config.skipBubblingQuests,
+		Callback = function(isEnabled)
+			Config.skipBubblingQuests = isEnabled == true
+			saveConfig()
+		end,
+	})
 	scriptStateUC:AddInput("QuestStallTimeout", {
 		Title = "Quest No-Progress Timeout",
 		Description = "Moves to another quest task when progress has not changed for this many seconds (30-300).",
@@ -13307,6 +13357,7 @@ activeStates.HasUnfinishedChallengePassQuest = function(challengeQuestList)
 						type(taskRequirement) == "number"
 						and taskProgress < taskRequirement
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(challengeTask)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(challengeTask)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(challengeQuest, taskIndex)
 					then
 						return true
@@ -13470,7 +13521,7 @@ task.spawn(function()
 		if not activeStates.HasUnfinishedChallengePassQuest(challengeQuestList) then
 			local hasSkippedChallengeQuest = false
 			for _, challengeQuest in ipairs(challengeQuestList) do
-				if activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask(challengeQuest) then
+				if activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask(challengeQuest) or activeStates.BGSI_Lite_HasSkippedBubblingTask(challengeQuest) then
 					hasSkippedChallengeQuest = true
 					break
 				end
@@ -13512,6 +13563,7 @@ task.spawn(function()
 						type(taskRequirement) == "number"
 						and taskProgress < taskRequirement
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(challengeTask)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(challengeTask)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(challengeQuest, taskIndex)
 					then
 						local shouldContinueChallengePass = function()
@@ -13618,6 +13670,7 @@ local function getQuestTaskByType(scriptStateQM, scriptStateJZ, scriptStateS)
 			and type(scriptStateYD) == "table"
 			and type(scriptStateYD.Rewards) == "table"
 			and not activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask(scriptStateYD)
+			and not activeStates.BGSI_Lite_HasSkippedBubblingTask(scriptStateYD)
 		then
 			for loopSlotV, scriptStateLU in ipairs(scriptStateYD.Rewards) do
 				if claimCompletedQuestRewards(scriptStateLU) then
@@ -13702,7 +13755,7 @@ task.spawn(function()
 			end
 			continue
 		end
-		if activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask(scriptStateMU)
+		if (activeStates.BGSI_Lite_HasSkippedTicketOrPearlTask(scriptStateMU) or activeStates.BGSI_Lite_HasSkippedBubblingTask(scriptStateMU))
 			and not activeStates.BGSI_Lite_HasActionableUnfinishedQuestTask(scriptStateMU)
 		then
 			pcall(function()
@@ -13727,6 +13780,7 @@ task.spawn(function()
 				if
 					scriptStateJI < scriptStateGT
 					and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateWX)
+					and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateWX)
 					and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateMU, scriptStateBJ)
 				then
 					local fallbackUtilityD = function()
@@ -13849,6 +13903,7 @@ task.spawn(function()
 					local scriptStateUP = getBountyTaskProgress(scriptStateAAE, scriptStateTB)
 					if scriptStateUP < scriptStateCW
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateWO)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateWO)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateAAE, scriptStateTB)
 					then
 						scriptStateWQ = true
@@ -13891,6 +13946,7 @@ task.spawn(function()
 					if
 						scriptStateTP < scriptStateADS
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateDY)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateDY)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateZC, scriptStateAC)
 					then
 						local fallbackUtilityA = function()
@@ -14005,6 +14061,7 @@ task.spawn(function()
 					local scriptStateGF = getBountyTaskProgress(scriptStateAFT, scriptStateWC)
 					if scriptStateGF < scriptStateLR
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateJA)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateJA)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateAFT, scriptStateWC)
 					then
 						scriptStateRM = true
@@ -14047,6 +14104,7 @@ task.spawn(function()
 					if
 						scriptStateR < scriptStateSF
 						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateAFI)
+						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateAFI)
 						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateVX, scriptStateADB)
 					then
 						local fallbackUtilityC = function()
