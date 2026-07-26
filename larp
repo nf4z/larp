@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.07",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Live rift controls",
+				description = "The dashboard now reports real rift icons, 4x egg timers, active server events, and verified hatch, chest, gift, and sell actions.",
+				icon = "sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.06",
 		releasedAt = "July 26, 2026",
@@ -5332,6 +5343,13 @@ do
 						(riftInfo and (riftInfo.DisplayName or riftInfo.Egg)) or riftName
 					)
 					local world = riftModel:GetAttribute("World")
+					local eggName = riftInfo and tostring(riftInfo.Egg or "") or ""
+					local icon = riftInfo and tostring(riftInfo.Icon or "") or ""
+					if eggName ~= "" and type(eggDataModule) == "table" and type(eggDataModule[eggName]) == "table" then
+						icon = tostring(eggDataModule[eggName].Image or icon)
+					elseif riftType == "Gift" then
+						icon = "rbxassetid://110921405358636"
+					end
 					if
 						(type(world) ~= "string" or world == "")
 						and riftInfo
@@ -5341,10 +5359,32 @@ do
 					then
 						world = eggDataModule[riftInfo.Egg].World
 					end
+					local action = riftType == "Egg" and "hatch"
+						or riftType == "Chest" and "collect"
+						or riftType == "Gift" and "collect"
+						or riftType == "Sell" and "sell"
+						or "visit"
+					local bonusLuck = math.max(0, tonumber(riftModel:GetAttribute("BonusLuck")) or 0)
+					if riftType == "Egg" then
+						for _, riftDescendant in ipairs(riftModel:GetDescendants()) do
+							bonusLuck =
+								math.max(bonusLuck, tonumber(riftDescendant:GetAttribute("BonusLuck")) or 0)
+						end
+					end
 					table.insert(activeRifts, {
+						id = riftName,
 						name = displayName,
 						type = riftType,
 						world = tostring(world or "Unknown"),
+						eggName = eggName,
+						iconAssetId = tostring(icon):match("%d+") or "",
+						action = action,
+						actionLabel = action == "hatch" and "Start hatching"
+							or riftType == "Chest" and "Open chest"
+							or riftType == "Gift" and "Collect gift"
+							or action == "sell" and "Sell bubbles"
+							or "Go to rift",
+						bonusLuck = bonusLuck,
 						timeRemaining = string.format("%.1f min", timeRemaining / 60),
 						timeRemainingSeconds = math.max(0, math.floor(timeRemaining)),
 					})
@@ -5358,6 +5398,59 @@ do
 			return string.lower(leftRift.name) < string.lower(rightRift.name)
 		end)
 		return activeRifts
+	end
+
+	activeStates.BGSI_Lite_BuildGlobalEventSnapshot = function()
+		local eventIcons = {
+			Lucky = "79406479731411",
+			Hatching = "115084184606522",
+			Bubbling = "139415836850114",
+			Secret = "131974934654903",
+			Shiny = "73209196936182",
+			Mythic = "74927583442057",
+			XL = "136975814480223",
+			Infinity = "129349250488902",
+		}
+		local activeEvents = {}
+		local currentTime = getCurrentTimestamp()
+		for eventName, iconAssetId in pairs(eventIcons) do
+			local endsAt = tonumber(Workspace:GetAttribute(eventName))
+			local timeRemaining = endsAt and endsAt - currentTime or 0
+			if timeRemaining > 0 then
+				table.insert(activeEvents, {
+					name = eventName,
+					label = eventName == "Secret" and "Secret Luck"
+						or eventName == "Lucky" and "Luck"
+						or eventName == "Hatching" and "Hatch Speed"
+						or eventName == "Bubbling" and "Bubble Power"
+						or eventName .. " Luck",
+					iconAssetId = iconAssetId,
+					timeRemaining = string.format("%.1f min", timeRemaining / 60),
+					timeRemainingSeconds = math.max(0, math.floor(timeRemaining)),
+				})
+			end
+		end
+		table.sort(activeEvents, function(leftEvent, rightEvent)
+			return leftEvent.timeRemainingSeconds < rightEvent.timeRemainingSeconds
+		end)
+		return activeEvents
+	end
+
+	activeStates.BGSI_Lite_BuildFourXEggSnapshot = function()
+		for _, rift in ipairs(activeStates.BGSI_Lite_DashboardRifts or {}) do
+			if rift.type == "Egg" and tonumber(rift.bonusLuck) >= 4 then
+				return {
+					id = rift.id,
+					name = rift.eggName ~= "" and rift.eggName or rift.name,
+					world = rift.world,
+					iconAssetId = rift.iconAssetId,
+					bonusLuck = rift.bonusLuck,
+					timeRemaining = rift.timeRemaining,
+					timeRemainingSeconds = rift.timeRemainingSeconds,
+				}
+			end
+		end
+		return nil
 	end
 
 	activeStates.BGSI_Lite_UpdateRiftDisplay = function()
@@ -11137,6 +11230,14 @@ do
 								rifts = activeStates.BGSI_Lite_SafeDashboardBuild(function()
 									return activeStates.BGSI_Lite_DashboardRifts or {}
 								end, {}),
+								gameEvents = activeStates.BGSI_Lite_SafeDashboardBuild(
+									activeStates.BGSI_Lite_BuildGlobalEventSnapshot,
+									{}
+								),
+								fourXEgg = activeStates.BGSI_Lite_SafeDashboardBuild(
+									activeStates.BGSI_Lite_BuildFourXEggSnapshot,
+									nil
+								),
 							}
 							if type(activeQuest) == "table" then
 								payload.activeQuest = {
@@ -11546,6 +11647,58 @@ do
 												commandError = nil
 												activeStates.BGSI_Lite_DashboardPlayerDetailsSync = 0
 												activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
+											end
+										elseif
+											dashboardCommand.type == "rift-action"
+											and tostring(dashboardCommand.riftId or "") ~= ""
+										then
+											commandSucceeded, commandError = pcall(function()
+												local riftId = tostring(dashboardCommand.riftId)
+												local renderedFolder = Workspace:FindFirstChild("Rendered")
+												local riftsFolder = renderedFolder and renderedFolder:FindFirstChild("Rifts")
+												local riftModel = riftsFolder and riftsFolder:FindFirstChild(riftId)
+												local riftInfo = type(riftData) == "table" and riftData[riftId] or nil
+												local riftType = riftModel
+														and tostring(
+															riftModel:GetAttribute("Type")
+																or (riftInfo and riftInfo.Type)
+																or ""
+														)
+													or ""
+												local despawnAt = riftModel and tonumber(riftModel:GetAttribute("DespawnAt"))
+												if not riftModel or not despawnAt or despawnAt <= getCurrentTimestamp() then
+													error("The selected rift is no longer active")
+												end
+												if dashboardCommand.action == "hatch" and riftType == "Egg" then
+													Config.selectedRiftEgg = riftId
+													Config.autoRiftEgg = true
+													activeStates.BGSI_Lite_RiftEggActive = true
+													saveConfig()
+												else
+													local character = LocalPlayer.Character
+													if
+														not character
+														or not character.PrimaryPart
+														or not riftModel:IsA("Model")
+														or not riftModel.PrimaryPart
+													then
+														error("The rift cannot be reached right now")
+													end
+													character:SetPrimaryPartCFrame(
+														riftModel.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+													)
+													task.wait(0.25)
+													if dashboardCommand.action == "collect" and riftType == "Chest" then
+														remoteEvent:FireServer("UnlockRiftChest", riftId, false)
+													elseif dashboardCommand.action == "collect" and riftType == "Gift" then
+														remoteEvent:FireServer("ClaimRiftGift", riftId)
+													elseif dashboardCommand.action == "sell" and riftType == "Sell" then
+														activeStates.BGSI_Lite_SellBubble()
+													end
+												end
+											end)
+											if commandSucceeded then
+												commandError = nil
 											end
 										elseif
 											dashboardCommand.type == "apply-config"
