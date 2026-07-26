@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.11"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.11",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Complete rift luck reporting",
+				description = "Every active egg rift now reports its real BonusLuck multiplier to the dashboard, including the game's 1x default.",
+				icon = "sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.10",
 		releasedAt = "July 26, 2026",
@@ -5470,7 +5481,10 @@ do
 						or riftType == "Gift" and "collect"
 						or riftType == "Sell" and "sell"
 						or "visit"
-					local bonusLuck = math.max(0, tonumber(riftModel:GetAttribute("BonusLuck")) or 0)
+					local bonusLuck = math.max(
+						riftType == "Egg" and 1 or 0,
+						tonumber(riftModel:GetAttribute("BonusLuck")) or 0
+					)
 					if riftType == "Egg" then
 						for _, riftDescendant in ipairs(riftModel:GetDescendants()) do
 							bonusLuck =
