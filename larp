@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.04"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,22 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.04",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Season quest recovery",
+				description = "Season Pass automation now resolves the game's exact daily and hourly quest IDs and recovers instead of stopping when one quest snapshot is malformed.",
+				icon = "bug",
+			},
+			{
+				title = "Accurate rift scanning",
+				description = "Rift scans now use live attributes with the game's rift definitions, hide expired entries, and report readable egg and chest names.",
+				icon = "circle-dot",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.03",
 		releasedAt = "July 26, 2026",
@@ -5283,33 +5299,60 @@ do
 		activeStates.BGSI_Lite_UpdateRiftDisplay()
 	end)
 	
-	activeStates.BGSI_Lite_UpdateRiftDisplay = function()
-		local riftsFolder = Workspace:FindFirstChild("Rendered") and Workspace.Rendered:FindFirstChild("Rifts")
+	activeStates.BGSI_Lite_BuildRiftSnapshot = function()
+		local renderedFolder = Workspace:FindFirstChild("Rendered")
+		local riftsFolder = renderedFolder and renderedFolder:FindFirstChild("Rifts")
 		if not riftsFolder then
+			return nil
+		end
+		local activeRifts = {}
+		local currentTime = getCurrentTimestamp()
+		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
+			if riftModel:IsA("Model") then
+				local despawnAt = tonumber(riftModel:GetAttribute("DespawnAt"))
+				local timeRemaining = despawnAt and despawnAt - currentTime or 0
+				if timeRemaining > 0 then
+					local riftName = riftModel.Name
+					local riftInfo = type(riftData) == "table" and riftData[riftName] or nil
+					local riftType = tostring(riftModel:GetAttribute("Type") or (riftInfo and riftInfo.Type) or "Unknown")
+					local displayName = tostring(
+						(riftInfo and (riftInfo.DisplayName or riftInfo.Egg)) or riftName
+					)
+					local world = riftModel:GetAttribute("World")
+					if
+						(type(world) ~= "string" or world == "")
+						and riftInfo
+						and type(riftInfo.Egg) == "string"
+						and type(eggDataModule) == "table"
+						and type(eggDataModule[riftInfo.Egg]) == "table"
+					then
+						world = eggDataModule[riftInfo.Egg].World
+					end
+					table.insert(activeRifts, {
+						name = displayName,
+						type = riftType,
+						world = tostring(world or "Unknown"),
+						timeRemaining = string.format("%.1f min", timeRemaining / 60),
+						timeRemainingSeconds = math.max(0, math.floor(timeRemaining)),
+					})
+				end
+			end
+		end
+		table.sort(activeRifts, function(leftRift, rightRift)
+			if leftRift.timeRemainingSeconds ~= rightRift.timeRemainingSeconds then
+				return leftRift.timeRemainingSeconds < rightRift.timeRemainingSeconds
+			end
+			return string.lower(leftRift.name) < string.lower(rightRift.name)
+		end)
+		return activeRifts
+	end
+
+	activeStates.BGSI_Lite_UpdateRiftDisplay = function()
+		local activeRifts = activeStates.BGSI_Lite_BuildRiftSnapshot()
+		if not activeRifts then
 			activeStates.BGSI_Lite_DashboardRifts = {}
 			riftDisplay:SetContent("No rifts folder found.")
 			return
-		end
-		
-		local activeRifts = {}
-		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
-			if riftModel:IsA("Model") then
-				local riftName = riftModel.Name
-				local riftType = riftModel:GetAttribute("Type") or "Unknown"
-				local despawnAt = riftModel:GetAttribute("DespawnAt")
-				local world = riftModel:GetAttribute("World") or "Unknown"
-				
-				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
-				local timeString = timeRemaining > 0 and string.format("%.1f min", timeRemaining / 60) or "Expired"
-				
-				table.insert(activeRifts, {
-					name = riftName,
-					type = riftType,
-					world = world,
-					timeRemaining = timeString,
-					timeRemainingSeconds = timeRemaining,
-				})
-			end
 		end
 		
 		activeStates.BGSI_Lite_DashboardRifts = activeRifts
@@ -5350,8 +5393,8 @@ do
 		
 		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
 			if riftModel:IsA("Model") then
-				local despawnAt = riftModel:GetAttribute("DespawnAt")
-				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
+				local despawnAt = tonumber(riftModel:GetAttribute("DespawnAt"))
+				local timeRemaining = despawnAt and (despawnAt - getCurrentTimestamp()) or 0
 				
 				if timeRemaining > 0 then
 					local primaryPart = riftModel.PrimaryPart
@@ -5388,9 +5431,10 @@ do
 		
 		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
 			if riftModel:IsA("Model") then
-				local riftType = riftModel:GetAttribute("Type")
-				local despawnAt = riftModel:GetAttribute("DespawnAt")
-				local timeRemaining = despawnAt and (despawnAt - tick()) or 0
+				local riftInfo = type(riftData) == "table" and riftData[riftModel.Name] or nil
+				local riftType = riftModel:GetAttribute("Type") or (riftInfo and riftInfo.Type)
+				local despawnAt = tonumber(riftModel:GetAttribute("DespawnAt"))
+				local timeRemaining = despawnAt and (despawnAt - getCurrentTimestamp()) or 0
 				
 				-- Only hatch at egg-type rifts
 				if riftType == "Egg" and timeRemaining > 0 then
@@ -8277,7 +8321,11 @@ do
 				if not eggName then
 					for _, attributeValue in pairs(eggInstance:GetAttributes()) do
 						eggName = matchLuckEggName(attributeValue)
-						if eggName then
+					if not eggName and riftInfo and type(riftInfo.Egg) == "string" then
+						eggName = riftInfo.Egg
+					end
+					
+					if eggName then
 							break
 						end
 					end
@@ -13990,38 +14038,40 @@ local function stopGemGenieAutomation()
 	if not profileStore:IsReady() then
 		return scriptStateFE
 	end
-	local scriptStateFK = profileStore:Get()
-	if not scriptStateFK then
+	local playerData = profileStore:Get()
+	if not playerData then
 		return scriptStateFE
 	end
-	local scriptStateUU = {
-		scriptStateFK.Quests,
-		scriptStateFK.ActiveQuests,
-		scriptStateFK.DailyChallenges,
-		scriptStateFK.HourlyChallenges,
-	}
-	local scriptStateTD = {}
-	for loopSlotQ, scriptStateAEH in ipairs(scriptStateUU) do
-		if type(scriptStateAEH) == "table" then
-			for loopSlotBG, scriptStateIM in pairs(scriptStateAEH) do
-				if type(scriptStateIM) == "table" then
-					local scriptStateRO = scriptStateIM.Id or scriptStateIM.ID
+	for _, challengeType in ipairs({ "hourly", "daily" }) do
+		for challengeIndex = 1, 3 do
+			local challengeId = challengeType .. "-challenge-" .. tostring(challengeIndex)
+			local challengeQuest
+			if questModule and type(questModule.FindById) == "function" then
+				local questOk, questResult = pcall(function()
+					return questModule:FindById(playerData, challengeId)
+				end)
+				if questOk and type(questResult) == "table" then
+					challengeQuest = questResult
+				end
+			end
+			if not challengeQuest and type(playerData.Quests) == "table" then
+				for _, questData in pairs(playerData.Quests) do
 					if
-						type(scriptStateRO) == "string"
-						and (
-							scriptStateRO:match("^daily%-challenge%-%d+$")
-							or scriptStateRO:match("^hourly%-challenge%-%d+$")
-						)
+						type(questData) == "table"
+						and (questData.Id == challengeId or questData.ID == challengeId)
 					then
-						if
-							not scriptStateTD[scriptStateRO]
-							and (scriptStateIM.Completed == false or scriptStateIM.Completed == nil)
-						then
-							scriptStateTD[scriptStateRO] = true
-							table.insert(scriptStateFE, scriptStateIM)
-						end
+						challengeQuest = questData
+						break
 					end
 				end
+			end
+			if
+				type(challengeQuest) == "table"
+				and challengeQuest.Completed ~= true
+				and challengeQuest.Claimed ~= true
+				and type(challengeQuest.Tasks) == "table"
+			then
+				table.insert(scriptStateFE, challengeQuest)
 			end
 		end
 	end
@@ -14071,7 +14121,13 @@ task.spawn(function()
 			task.wait(0.5)
 			continue
 		end
-		local scriptStateSA = stopGemGenieAutomation()
+		local seasonListOk, scriptStateSA = pcall(stopGemGenieAutomation)
+		if not seasonListOk or type(scriptStateSA) ~= "table" then
+			activeStates.BGSI_Lite_SeasonActive = false
+			resumeNormalAutomation()
+			task.wait(1)
+			continue
+		end
 		if #scriptStateSA == 0 then
 			activeStates.BGSI_Lite_SeasonActive = false
 			resumeNormalAutomation()
@@ -14139,12 +14195,17 @@ task.spawn(function()
 						local fallbackUtilityG = function()
 							return runSeasonChallengeTask(scriptStateKZ)
 						end
-						activeStates.BGSI_Lite_RunQuestTask(
+						local taskOk = pcall(
+							activeStates.BGSI_Lite_RunQuestTask,
 							fallbackUtilityG,
 							scriptStateAC,
 							scriptStateADS,
 							fallbackUtilityA
 						)
+						if not taskOk then
+							activeStates.BGSI_Lite_ClearActiveQuest(scriptStateZC, scriptStateAC)
+							break
+						end
 					end
 				end
 			end
