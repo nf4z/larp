@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.08",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Safe egg and rift positioning",
+				description = "Auto Hatch now uses each egg's real Root position, and dashboard rift actions use the live Output interaction point without requiring a PrimaryPart.",
+				icon = "map-pin",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.07",
 		releasedAt = "July 26, 2026",
@@ -2046,6 +2057,50 @@ local function teleportToCFrame(targetCFrame)
 	teleportHumanoidRootPart.CFrame = targetCFrame
 	return true
 end
+activeStates.BGSI_Lite_GetInstanceTargetCFrame = function(targetInstance, preferredPartName)
+	if typeof(targetInstance) ~= "Instance" then
+		return nil
+	end
+	if type(preferredPartName) == "string" and preferredPartName ~= "" then
+		local preferredPart = targetInstance:FindFirstChild(preferredPartName, true)
+		if preferredPart and preferredPart:IsA("BasePart") then
+			return preferredPart.CFrame
+		end
+	end
+	if targetInstance:IsA("BasePart") then
+		return targetInstance.CFrame
+	end
+	local pivotSucceeded, pivotCFrame = pcall(targetInstance.GetPivot, targetInstance)
+	if pivotSucceeded and typeof(pivotCFrame) == "CFrame" then
+		return pivotCFrame
+	end
+	local basePart = targetInstance:FindFirstChildWhichIsA("BasePart", true)
+	return basePart and basePart.CFrame or nil
+end
+activeStates.BGSI_Lite_GetRiftTargetCFrame = function(riftModel)
+	if typeof(riftModel) ~= "Instance" then
+		return nil
+	end
+	local riftType = tostring(riftModel:GetAttribute("Type") or "")
+	if riftType == "Egg" then
+		local eggRoot = riftModel:FindFirstChild("Root", true)
+		if eggRoot and eggRoot:IsA("BasePart") then
+			return eggRoot.CFrame
+		end
+		local eggPlatform = riftModel:FindFirstChild("EggPlatformSpawn")
+		return activeStates.BGSI_Lite_GetInstanceTargetCFrame(eggPlatform)
+			or activeStates.BGSI_Lite_GetInstanceTargetCFrame(riftModel, "Output")
+	elseif riftType == "Chest" then
+		local chestModel = riftModel:FindFirstChild("Chest")
+		return activeStates.BGSI_Lite_GetInstanceTargetCFrame(chestModel, "Prompt")
+			or activeStates.BGSI_Lite_GetInstanceTargetCFrame(riftModel, "Output")
+	elseif riftType == "Gift" then
+		local giftModel = riftModel:FindFirstChild("Gift")
+		return activeStates.BGSI_Lite_GetInstanceTargetCFrame(giftModel, "Prompt")
+			or activeStates.BGSI_Lite_GetInstanceTargetCFrame(riftModel, "Output")
+	end
+	return activeStates.BGSI_Lite_GetInstanceTargetCFrame(riftModel, "Output")
+end
 local function getMaxHatchAmount()
 	local scriptStateVM
 	pcall(function()
@@ -2253,6 +2308,10 @@ local function getEggPosition(scriptStateMN)
 	end
 	if typeof(scriptStateMN) ~= "Instance" then
 		return nil
+	end
+	local rootCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(scriptStateMN, "Root")
+	if rootCFrame then
+		return rootCFrame.Position
 	end
 	local scriptStateADZ, scriptStateABX = pcall(function()
 		if scriptStateMN:IsA("Model") then
@@ -2492,7 +2551,13 @@ local function teleportToEggByName(scriptStateABE)
 	if not scriptStateAEM then
 		return false
 	end
-	return teleportToCFrame(CFrame.new(scriptStateAEM.X, scriptStateAEM.Y + teleportOffsetY, scriptStateAEM.Z))
+	local eggTarget = CFrame.new(scriptStateAEM.X, scriptStateAEM.Y + teleportOffsetY, scriptStateAEM.Z)
+	local character = LocalPlayer.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if rootPart and (rootPart.Position - eggTarget.Position).Magnitude <= 14 then
+		return true
+	end
+	return teleportToCFrame(eggTarget)
 end
 -- Hatch helper: fires the hatch remote with the selected egg and hatch amount.
 local function fireHatchEgg(scriptStateQC)
@@ -5503,9 +5568,8 @@ do
 				local timeRemaining = despawnAt and (despawnAt - getCurrentTimestamp()) or 0
 				
 				if timeRemaining > 0 then
-					local primaryPart = riftModel.PrimaryPart
-					if primaryPart then
-						LocalPlayer.Character:SetPrimaryPartCFrame(primaryPart.CFrame + Vector3.new(0, 5, 0))
+					local riftTarget = activeStates.BGSI_Lite_GetRiftTargetCFrame(riftModel)
+					if riftTarget and teleportToCFrame(riftTarget + Vector3.new(0, 3, 0)) then
 						Interface:Notify({
 							Title = "Teleported",
 							Content = string.format("Teleported to %s", riftModel.Name),
@@ -5544,9 +5608,8 @@ do
 				
 				-- Only hatch at egg-type rifts
 				if riftType == "Egg" and timeRemaining > 0 then
-					local primaryPart = riftModel.PrimaryPart
-					if primaryPart then
-						LocalPlayer.Character:SetPrimaryPartCFrame(primaryPart.CFrame + Vector3.new(0, 5, 0))
+					local riftTarget = activeStates.BGSI_Lite_GetRiftTargetCFrame(riftModel)
+					if riftTarget and teleportToCFrame(riftTarget + Vector3.new(0, 3, 0)) then
 						
 						-- Enable auto hatch if not already enabled
 						if not Config.autoHatch then
@@ -7299,18 +7362,7 @@ local function getPotionList(scriptStateCU)
 	return scriptStateRZ and scriptStateRZ:FindFirstChild(scriptStateCU) or nil
 end
 local function getPotionDisplayName(scriptStateABT)
-	if not scriptStateABT then
-		return nil
-	end
-	local pivotSuccess, scriptStateCK = pcall(function()
-		return scriptStateABT:GetPivot()
-	end)
-	if pivotSuccess and typeof(scriptStateCK) == "CFrame" then
-		return scriptStateCK
-	end
-	local scriptStateADC = scriptStateABT:IsA("BasePart") and scriptStateABT
-		or scriptStateABT:FindFirstChildWhichIsA("BasePart", true)
-	return scriptStateADC and scriptStateADC.CFrame or nil
+	return activeStates.BGSI_Lite_GetRiftTargetCFrame(scriptStateABT)
 end
 do
 	local function addUniqueName(nameList, scriptStateVH, scriptStateBP)
@@ -11675,18 +11727,11 @@ do
 													activeStates.BGSI_Lite_RiftEggActive = true
 													saveConfig()
 												else
-													local character = LocalPlayer.Character
-													if
-														not character
-														or not character.PrimaryPart
-														or not riftModel:IsA("Model")
-														or not riftModel.PrimaryPart
-													then
+													local riftTarget =
+														activeStates.BGSI_Lite_GetRiftTargetCFrame(riftModel)
+													if not riftTarget or not teleportToCFrame(riftTarget + Vector3.new(0, 3, 0)) then
 														error("The rift cannot be reached right now")
 													end
-													character:SetPrimaryPartCFrame(
-														riftModel.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
-													)
 													task.wait(0.25)
 													if dashboardCommand.action == "collect" and riftType == "Chest" then
 														remoteEvent:FireServer("UnlockRiftChest", riftId, false)
