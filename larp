@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.08"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.10"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.26.10",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Perfect egg plate positioning",
+				description = "Auto Hatch now places the character directly on the selected egg's Plate surface, with the existing safe position retained as a fallback.",
+				icon = "map-pin",
+			},
+		},
+	},
+	{
+		version = "2026.07.26.09",
+		releasedAt = "July 26, 2026",
+		notes = {
+			{
+				title = "Accurate 4x luck egg reporting",
+				description = "The dashboard banner now reports only the live summoned 4x Luck egg, with its real egg icon, world, and remaining time.",
+				icon = "sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.08",
 		releasedAt = "July 26, 2026",
@@ -2390,6 +2412,7 @@ local function scanRenderedEggs(scriptStateMJ)
 							local scanResult = {
 								name = eggName,
 								position = eggPosition,
+								instance = eggInstance,
 								key = makeEggLocationKey(eggName, eggPosition, loopSlotG, loopSlotDJ),
 								exact = exactPosition ~= nil,
 								loaded = loadedChunks and loadedChunks[loopSlotDJ] ~= nil or false,
@@ -2542,6 +2565,24 @@ task.defer(function()
 end)
 local teleportOffsetY = 3
 local function teleportToEggByName(scriptStateABE)
+	local selectedEggLocation = chooseBestEggLocation(scriptStateABE)
+	local selectedEggInstance = selectedEggLocation and selectedEggLocation.instance
+	local eggPlate = typeof(selectedEggInstance) == "Instance"
+			and selectedEggInstance:FindFirstChild("Plate", true)
+		or nil
+	if eggPlate and eggPlate:IsA("BasePart") and eggPlate:IsDescendantOf(Workspace) then
+		local character = LocalPlayer.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		local standingHeight = (humanoid and humanoid.HipHeight or 2)
+			+ (rootPart and rootPart.Size.Y / 2 or 1)
+		local plateTarget = eggPlate.CFrame * CFrame.new(0, eggPlate.Size.Y / 2 + standingHeight + 0.05, 0)
+		if rootPart and (rootPart.Position - plateTarget.Position).Magnitude <= 4 then
+			return true
+		end
+		return teleportToCFrame(plateTarget)
+	end
+
 	local scriptStateAEM = getSelectedEggTeleportPosition(scriptStateABE)
 	if not scriptStateAEM then
 		clearEggScanCache()
@@ -5502,20 +5543,61 @@ do
 	end
 
 	activeStates.BGSI_Lite_BuildFourXEggSnapshot = function()
-		for _, rift in ipairs(activeStates.BGSI_Lite_DashboardRifts or {}) do
-			if rift.type == "Egg" and tonumber(rift.bonusLuck) >= 4 then
-				return {
-					id = rift.id,
-					name = rift.eggName ~= "" and rift.eggName or rift.name,
-					world = rift.world,
-					iconAssetId = rift.iconAssetId,
-					bonusLuck = rift.bonusLuck,
-					timeRemaining = rift.timeRemaining,
-					timeRemainingSeconds = rift.timeRemainingSeconds,
-				}
+		local luckEggName = activeStates.BGSI_Lite_FindLuckEggName
+				and activeStates.BGSI_Lite_FindLuckEggName()
+			or nil
+		if not luckEggName then
+			return nil
+		end
+
+		local eggName = luckEggName:gsub("^4[xX]%s+[Ll][Uu][Cc][Kk]%s+", "")
+		local eggInfo = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
+		local summonedEgg = Workspace:FindFirstChild("SummonedEgg")
+		local expiresAt = 0
+		if summonedEgg then
+			local eggInstances = summonedEgg:GetDescendants()
+			table.insert(eggInstances, 1, summonedEgg)
+			for _, eggInstance in ipairs(eggInstances) do
+				for attributeName, attributeValue in pairs(eggInstance:GetAttributes()) do
+					if
+						type(attributeValue) == "number"
+						and (
+							attributeName == "DespawnAt"
+							or attributeName == "ExpiresAt"
+							or attributeName == "EndAt"
+							or attributeName == "EndTime"
+						)
+					then
+						expiresAt = math.max(expiresAt, attributeValue)
+					end
+				end
 			end
 		end
-		return nil
+
+		local currentTime = getCurrentTimestamp()
+		local timeRemaining = math.max(0, expiresAt - currentTime)
+		local world = type(eggInfo) == "table" and tostring(eggInfo.World or "") or ""
+		local iconAssetId = type(eggInfo) == "table" and tostring(eggInfo.Image or ""):match("%d+") or ""
+		if timeRemaining <= 0 then
+			for _, rift in ipairs(activeStates.BGSI_Lite_DashboardRifts or {}) do
+				if rift.type == "Egg" and rift.eggName == eggName then
+					timeRemaining = math.max(0, tonumber(rift.timeRemainingSeconds) or 0)
+					world = world ~= "" and world or rift.world
+					iconAssetId = iconAssetId ~= "" and iconAssetId or rift.iconAssetId
+					break
+				end
+			end
+		end
+
+		return {
+			id = string.lower(luckEggName),
+			name = luckEggName,
+			world = world ~= "" and world or "Unknown",
+			iconAssetId = iconAssetId,
+			bonusLuck = 4,
+			timeRemaining = timeRemaining > 0 and string.format("%.1f min", timeRemaining / 60) or "Active",
+			timeRemainingSeconds = math.max(0, math.floor(timeRemaining)),
+		}
 	end
 
 	activeStates.BGSI_Lite_UpdateRiftDisplay = function()
@@ -8479,11 +8561,7 @@ do
 				if not eggName then
 					for _, attributeValue in pairs(eggInstance:GetAttributes()) do
 						eggName = matchLuckEggName(attributeValue)
-					if not eggName and riftInfo and type(riftInfo.Egg) == "string" then
-						eggName = riftInfo.Egg
-					end
-					
-					if eggName then
+						if eggName then
 							break
 						end
 					end
