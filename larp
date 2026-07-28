@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.03",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Instant competition bubble selling",
+				description = "Competition mode now sells immediately after each accepted bubble while continuing to blow at the game's fastest accepted cadence.",
+				icon = "activity",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.02",
 		releasedAt = "July 28, 2026",
@@ -3443,6 +3454,14 @@ local function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, sc
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStateI)
 end
 activeStates.BGSI_Lite_SellBubble = function()
+	local attemptTime = tick()
+	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleSellAttemptAt) or 0) < 0.1 then
+		return false
+	end
+	local pendingSellAt = tonumber(activeStates.BGSI_Lite_BubbleSellPendingAt) or 0
+	if pendingSellAt > 0 and attemptTime - pendingSellAt < 0.35 then
+		return false
+	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local bubbleAmount = playerData and type(playerData.Bubble) == "table"
 		and math.max(0, tonumber(playerData.Bubble.Amount) or 0)
@@ -3452,7 +3471,9 @@ activeStates.BGSI_Lite_SellBubble = function()
 	end
 	local sellSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "SellBubble")
 	if sellSucceeded then
-		activeStates.BGSI_Lite_LastBubbleSellAt = tick()
+		activeStates.BGSI_Lite_LastBubbleSellAttemptAt = attemptTime
+		activeStates.BGSI_Lite_BubbleSellPendingAt = attemptTime
+		activeStates.BGSI_Lite_LastBubbleSellAt = attemptTime
 	end
 	return sellSucceeded
 end
@@ -3536,6 +3557,7 @@ activeStates.BGSI_Lite_BlowBubble = function()
 	return blowSucceeded
 end
 activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+activeStates.BGSI_Lite_BubbleSellPendingAt = 0
 activeStates.BGSI_Lite_BubbleRequestInterval = 0.5
 activeStates.BGSI_Lite_LastBubbleAttemptAt = 0
 activeStates.BGSI_Lite_LastBubbleObservedAmount = nil
@@ -3563,8 +3585,12 @@ activeStates.BGSI_Lite_ObserveBubbleAmount = function(playerData)
 		end
 		activeStates.BGSI_Lite_LastBubbleAcceptedAt = acceptedAt
 		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+		if Config.autoBubbleCompetition and type(activeStates.BGSI_Lite_SellBubble) == "function" then
+			task.defer(activeStates.BGSI_Lite_SellBubble)
+		end
 	elseif bubbleAmount < previousAmount then
 		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
+		activeStates.BGSI_Lite_BubbleSellPendingAt = 0
 		activeStates.BGSI_Lite_LastBubbleSellObservedAt = tick()
 	end
 end
@@ -12256,7 +12282,7 @@ do
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0 or 0.85)
+			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0.01 or 0.85)
 			if Config.autoBubble or Config.autoBubbleCompetition then
 				activeStates.BGSI_Lite_BlowBubble()
 			end
@@ -12264,13 +12290,15 @@ do
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoSell or Config.autoBubbleCompetition) and 0.5 or 0.85)
+			task.wait((Config.autoSell or Config.autoBubbleCompetition) and 0.05 or 0.85)
 			if Config.autoSell or Config.autoBubbleCompetition then
 				local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
 				if
 					bubbleState
 					and bubbleState.Amount > 0
 					and (
+						Config.autoBubbleCompetition
+						or
 						(
 							not bubbleState.Infinite
 							and bubbleState.Storage > 0
