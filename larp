@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.05",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Classic Island obby automation",
+				description = "Choose Easy, Medium, or Hard and automatically complete the generated course, collect its key, and open the matching chest.",
+				icon = "map-pin",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.04",
 		releasedAt = "July 28, 2026",
@@ -806,6 +817,10 @@ local defaultConfig = {
 	autoBubbleCompetition = true,
 	autoBubbleTeam = true,
 	competitiveRewardChoice = 2,
+	selectedObby = "Easy",
+	autoObby = false,
+	autoObbyChest = false,
+	obbyChestUseThreeKeys = true,
 	selectedMysteryBox = "Mystery Box",
 	autoOpenMystery = false,
 	autoOpenMysteryDelay = 0.2,
@@ -4994,6 +5009,7 @@ activeStates.BGSI_Lite_GemGenieActive = false
 activeStates.BGSI_Lite_SeasonActive = false
 activeStates.BGSI_Lite_GlobalIncentiveActive = false
 activeStates.BGSI_Lite_ChallengePassActive = false
+activeStates.BGSI_Lite_ObbyActive = false
 activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
@@ -5003,6 +5019,7 @@ local function isPriorityAutomationActive()
 		or activeStates.BGSI_Lite_SeasonActive
 		or activeStates.BGSI_Lite_GlobalIncentiveActive
 		or activeStates.BGSI_Lite_ChallengePassActive
+		or activeStates.BGSI_Lite_ObbyActive
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 	return Config.autoHatch == true
@@ -5024,6 +5041,9 @@ local function clearDisabledPriorityStates()
 	end
 	if activeStates.BGSI_Lite_ChallengePassActive and Config.autoChallengePassQuests ~= true then
 		activeStates.BGSI_Lite_ChallengePassActive = false
+	end
+	if activeStates.BGSI_Lite_ObbyActive and Config.autoObby ~= true then
+		activeStates.BGSI_Lite_ObbyActive = false
 	end
 	if activeStates.BGSI_Lite_RiftEggActive and Config.autoRiftEgg ~= true then
 		activeStates.BGSI_Lite_RiftEggActive = false
@@ -5076,6 +5096,7 @@ task.spawn(function()
 			activeStates.BGSI_Lite_SeasonActive = false
 			activeStates.BGSI_Lite_GlobalIncentiveActive = false
 			activeStates.BGSI_Lite_ChallengePassActive = false
+			activeStates.BGSI_Lite_ObbyActive = false
 		end
 		if not isPriorityAutomationActive() then
 			resumeNormalAutomation()
@@ -9373,6 +9394,166 @@ do
 			saveConfig()
 		end,
 	})
+	gameTab:AddSection("Classic Island Obbys")
+	gameTab:AddDropdown("SelectedObby", {
+		Title = "Selected Obby",
+		Description = "Choose the Classic Island course to complete.",
+		Values = { "Easy", "Medium", "Hard" },
+		Default = Config.selectedObby,
+		Multi = false,
+		Callback = function(selectedObby)
+			Config.selectedObby = selectedObby
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoObby", {
+		Title = "Auto Complete Obby",
+		Description = "Starts the selected course when its cooldown is ready and completes it through the generated finish part.",
+		Default = Config.autoObby,
+		Callback = function(isEnabled)
+			Config.autoObby = isEnabled == true
+			if not Config.autoObby then
+				activeStates.BGSI_Lite_ObbyActive = false
+				resumeNormalAutomation()
+			end
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoObbyChest", {
+		Title = "Auto Open Obby Chest",
+		Description = "Immediately uses owned keys on the chest for the active Classic Island course.",
+		Default = Config.autoObbyChest,
+		Callback = function(isEnabled)
+			Config.autoObbyChest = isEnabled == true
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("ObbyChestUseThreeKeys", {
+		Title = "Use 3 Obby Keys",
+		Description = "Uses the chest's three-key option whenever at least three matching keys are owned.",
+		Default = Config.obbyChestUseThreeKeys,
+		Callback = function(isEnabled)
+			Config.obbyChestUseThreeKeys = isEnabled == true
+			saveConfig()
+		end,
+	})
+	activeStates.BGSI_Lite_GetObbyCourse = function(difficulty)
+		local obbyFolder = Workspace:FindFirstChild("Obbys")
+		return obbyFolder and obbyFolder:FindFirstChild(tostring(difficulty or "")) or nil
+	end
+	activeStates.BGSI_Lite_GetObbyKeyAmount = function(difficulty)
+		return getInventoryItemAmount(tostring(difficulty or "") .. " Obby Key")
+	end
+	activeStates.BGSI_Lite_OpenObbyChest = function(difficulty, course)
+		if Config.autoObbyChest ~= true or type(course) ~= "userdata" and typeof(course) ~= "Instance" then
+			return false
+		end
+		local chest = course:FindFirstChild("Chest")
+		local promptPart = chest and chest:FindFirstChild("Prompt")
+		if not promptPart or not promptPart:IsA("BasePart") then
+			return false
+		end
+		local keyAmount = activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty)
+		if keyAmount <= 0 then
+			return false
+		end
+		teleportToCFrame(promptPart.CFrame + Vector3.new(0, 3, 0))
+		task.wait(0.1)
+		local useThreeKeys = Config.obbyChestUseThreeKeys == true and keyAmount >= 3
+		local claimSent = pcall(remoteEvent.FireServer, remoteEvent, "ClaimObbyChest", useThreeKeys)
+		if not claimSent then
+			return false
+		end
+		local expectedAmount = keyAmount - (useThreeKeys and 3 or 1)
+		local replicationDeadline = tick() + 2
+		repeat
+			task.wait(0.1)
+		until activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) <= expectedAmount
+			or tick() >= replicationDeadline
+		return activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) < keyAmount
+	end
+	activeStates.BGSI_Lite_RunSelectedObby = function()
+		if activeStates.BGSI_Lite_ObbyActive or Config.autoObby ~= true then
+			return false
+		end
+		local difficulty = table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby)
+				and Config.selectedObby
+			or "Easy"
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		local cooldowns = type(playerData) == "table" and playerData.ObbyCooldowns or nil
+		local availableAt = type(cooldowns) == "table" and tonumber(cooldowns[difficulty]) or nil
+		if availableAt and getCurrentTimestamp() < availableAt then
+			return false
+		end
+		activeStates.BGSI_Lite_ObbyActive = true
+		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+		pauseNormalAutomation()
+		local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
+		if not course then
+			pcall(remoteEvent.FireServer, remoteEvent, "StartObby", difficulty)
+			local courseDeadline = tick() + 6
+			repeat
+				task.wait(0.1)
+				course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
+			until course or Config.autoObby ~= true or tick() >= courseDeadline
+		end
+		local completePart = course and course:FindFirstChild("Complete")
+		if course and completePart and completePart:IsA("BasePart") and Config.autoObby == true then
+			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+			teleportToCFrame(completePart.CFrame + Vector3.new(0, 3, 0))
+			task.wait(0.12)
+			teleportToCFrame(completePart.CFrame)
+			local character = LocalPlayer.Character
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			local touchInterest = firetouchinterest or activeStates.firetouchinterest
+			if rootPart and type(touchInterest) == "function" then
+				pcall(touchInterest, rootPart, completePart, 0)
+				pcall(touchInterest, rootPart, completePart, 1)
+			end
+			pcall(remoteEvent.FireServer, remoteEvent, "CompleteObby")
+			local completionDeadline = tick() + 3
+			repeat
+				task.wait(0.1)
+				playerData = profileStore:IsReady() and profileStore:Get() or nil
+				cooldowns = type(playerData) == "table" and playerData.ObbyCooldowns or nil
+				availableAt = type(cooldowns) == "table" and tonumber(cooldowns[difficulty]) or nil
+			until availableAt and availableAt > getCurrentTimestamp()
+				or Config.autoObby ~= true
+				or tick() >= completionDeadline
+			if Config.autoObbyChest then
+				local chestDeadline = tick() + 4
+				repeat
+					if not activeStates.BGSI_Lite_OpenObbyChest(difficulty, course) then
+						task.wait(0.15)
+					end
+				until activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) <= 0
+					or Config.autoObbyChest ~= true
+					or tick() >= chestDeadline
+			end
+		end
+		activeStates.BGSI_Lite_ObbyActive = false
+		resumeNormalAutomation()
+		return availableAt and availableAt > getCurrentTimestamp() or false
+	end
+	task.spawn(function()
+		while isCurrentRun() do
+			task.wait((Config.autoObby or Config.autoObbyChest) and 0.25 or 0.85)
+			if Config.autoObby and not isPriorityAutomationActive() then
+				local runOk = pcall(activeStates.BGSI_Lite_RunSelectedObby)
+				if not runOk then
+					activeStates.BGSI_Lite_ObbyActive = false
+					resumeNormalAutomation()
+				end
+			elseif Config.autoObbyChest and not activeStates.BGSI_Lite_ObbyActive then
+				for _, difficulty in ipairs({ "Easy", "Medium", "Hard" }) do
+					local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
+					if course then
+						pcall(activeStates.BGSI_Lite_OpenObbyChest, difficulty, course)
+					end
+				end
+			end
+		end
+	end)
 	gameTab:AddToggle("AutoUseFragments", {
 		Title = "Auto Use Fragments",
 		Default = Config.autoUseFragments,
@@ -10469,6 +10650,10 @@ do
 			"autoBubbleCompetition",
 			"autoBubbleTeam",
 			"competitiveRewardChoice",
+			"selectedObby",
+			"autoObby",
+			"autoObbyChest",
+			"obbyChestUseThreeKeys",
 			"autoUseFragments",
 			"autoBuyFragments",
 			"autoBuyCompetitiveShop",
