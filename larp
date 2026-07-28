@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.26.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,22 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.01",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Verified competition planner",
+				description = "Competition rewards, bubble-team equips, and enchant rerolls now retry against replicated game state instead of assuming a remote request succeeded.",
+				icon = "sparkles",
+			},
+			{
+				title = "Strict shiny enchant teams",
+				description = "Enchant teams now use Bubble Machine pets first when requested, then shiny Celestials and shiny Secrets only; normal Celestials are never selected.",
+				icon = "team",
+			},
+		},
+	},
 	{
 		version = "2026.07.26.11",
 		releasedAt = "July 26, 2026",
@@ -3815,23 +3831,44 @@ activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
 			end
 		end
 	end
+	local function hasClaimedReward(rewardIndex)
+		for claimedKey, claimedValue in pairs(type(competitive.Claimed) == "table" and competitive.Claimed or {}) do
+			if tostring(claimedKey) == tostring(rewardIndex) and claimedValue == true then
+				return true
+			end
+			if tostring(claimedValue) == tostring(rewardIndex) then
+				return true
+			end
+		end
+		return false
+	end
 	if type(seasonData.Rewards) == "table" and type(competitive.Claimed) == "table" then
+		activeStates.BGSI_Lite_CompetitiveRewardClaimAt =
+			type(activeStates.BGSI_Lite_CompetitiveRewardClaimAt) == "table"
+				and activeStates.BGSI_Lite_CompetitiveRewardClaimAt
+				or {}
 		for rewardIndex in ipairs(seasonData.Rewards) do
 			local requirement = math.huge
 			pcall(function()
 				requirement = tonumber(competitiveShared:GetRequirement(seasonData, rewardIndex)) or math.huge
 			end)
 			if
-				not table.find(competitive.Claimed, rewardIndex)
+				not hasClaimedReward(rewardIndex)
 				and math.max(0, tonumber(competitive.Score) or 0) >= requirement
+				and tick()
+					- (tonumber(activeStates.BGSI_Lite_CompetitiveRewardClaimAt[rewardIndex]) or 0)
+					>= 2
 			then
-				pcall(
+				local claimSent = pcall(
 					remoteEvent.FireServer,
 					remoteEvent,
 					"ClaimCompetitivePrize",
 					rewardIndex,
 					math.clamp(math.floor(tonumber(Config.competitiveRewardChoice) or 2), 1, 2)
 				)
+				if claimSent then
+					activeStates.BGSI_Lite_CompetitiveRewardClaimAt[rewardIndex] = tick()
+				end
 				task.wait(0.15)
 			end
 		end
@@ -13040,6 +13077,14 @@ local function getEnchantPetPriority(pet)
 	end
 	return 5
 end
+local function isShinyEnchantPet(pet)
+	if type(pet) ~= "table" or (pet.Shiny ~= true and pet.IsShiny ~= true) then
+		return false
+	end
+	local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
+	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
+	return rarity == "Celestial" or rarity == "Secret"
+end
 local function getEnchantCurrency(scriptStateVC)
 	if type(profileStore.GetPetById) == "function" then
 		local petLookupOk, indexedPet = pcall(profileStore.GetPetById, profileStore, scriptStateVC)
@@ -13127,16 +13172,13 @@ local function prepareAutoEnchantTeam()
 		end
 		if
 			superEnchantPriorityIndex ~= nil
-			or (
-				not isSuperLegendary
-				and (pet.Shiny == true or pet.IsShiny == true)
-				and (Config.autoBubbleTeam or rarity == "Celestial" or rarity == "Secret")
-			)
+			or (not isSuperLegendary and isShinyEnchantPet(pet))
 		then
 			table.insert(candidates, {
 				pet = pet,
 				priority = superEnchantPriorityIndex and 1
 					or (rarity == "Celestial" and 2 or rarity == "Secret" and 3 or 4),
+				rarity = rarity,
 				enchantPriority = superEnchantPriorityIndex or math.huge,
 				bubbleScore = bubbleScore,
 				enchantScore = superEnchantPriorityIndex
@@ -13181,12 +13223,10 @@ local function prepareAutoEnchantTeam()
 			break
 		end
 		local petId = tostring(candidate.pet.Id or "")
-		local candidatePetInfo = type(petRarityData) == "table" and petRarityData[candidate.pet.Name] or nil
-		local candidateRarity = candidatePetInfo and candidatePetInfo.Rarity
 		local isSuperLegendary = candidate.pet.Super == true
 			or candidate.pet.IsSuper == true
-			or candidateRarity == "Super"
-			or candidateRarity == "Super Legendary"
+			or candidate.rarity == "Super"
+			or candidate.rarity == "Super Legendary"
 		if petId ~= "" and (not isSuperLegendary or selectedSuperCount < maxSupersEquipped) then
 			table.insert(selectedPetIds, petId)
 			selectedPetIdSet[petId] = true
@@ -13299,7 +13339,12 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	local rerollCooldown = math.max(0.1, tonumber(sharedConstants and sharedConstants.EnchantRerollCooldown) or 0.25)
 	while Config.autoEnchant and isCurrentRun() do
 		local petData = getEnchantCurrency(petId)
-		if not petData or petData.Super == true or petData.IsSuper == true then
+		if
+			not petData
+			or petData.Super == true
+			or petData.IsSuper == true
+			or not isShinyEnchantPet(petData)
+		then
 			return
 		end
 		if activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied(
@@ -13326,49 +13371,56 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		end
 		local resolvedEnchantCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantForCurrency)
 		local previousSignature = activeStates.BGSI_Lite_GetPetEnchantSignature(petData)
-		local requestAccepted = false
-		if resolvedEnchantCurrency == "Shadow Crystals" then
-			if not hasShadowCrystalCurrency() then
-				activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 10
-				return
-			end
-			requestAccepted = pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, rerollSlot)
-		else
-			local currencyType = resolvedEnchantCurrency == "Reroll Orbs" and "Powerup" or "Gems"
-			local requestOk, updatedPetId = pcall(
-				remoteFunction.InvokeServer,
-				remoteFunction,
-				"RerollEnchants",
-				petId,
-				currencyType,
-				rerollSlot
-			)
-			if updatedPetId == "toofast" then
-				task.wait(0.1)
-				continue
-			end
-			requestAccepted = requestOk and updatedPetId ~= nil and updatedPetId ~= false
-			if requestAccepted and type(updatedPetId) == "string" and updatedPetId ~= "" then
-				petId = updatedPetId
-			end
-		end
-		if not requestAccepted then
-			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 5
-			return
-		end
-		task.wait(rerollCooldown + 0.05)
-		local replicationDeadline = tick() + 1.5
 		local enchantUpdated = false
-		repeat
-			petData = getEnchantCurrency(petId)
-			enchantUpdated = petData ~= nil
-				and activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= previousSignature
-			if not enchantUpdated then
-				task.wait(0.05)
+		for requestAttempt = 1, 3 do
+			local requestAccepted = false
+			if resolvedEnchantCurrency == "Shadow Crystals" then
+				if not hasShadowCrystalCurrency() then
+					activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 10
+					return
+				end
+				requestAccepted = pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, rerollSlot)
+			else
+				local currencyType = resolvedEnchantCurrency == "Reroll Orbs" and "Powerup" or "Gems"
+				local requestOk, updatedPetId = pcall(
+					remoteFunction.InvokeServer,
+					remoteFunction,
+					"RerollEnchants",
+					petId,
+					currencyType,
+					rerollSlot
+				)
+				if updatedPetId == "toofast" then
+					task.wait(rerollCooldown)
+					continue
+				end
+				requestAccepted = requestOk and updatedPetId ~= nil and updatedPetId ~= false
+				if requestAccepted and type(updatedPetId) == "string" and updatedPetId ~= "" then
+					petId = updatedPetId
+				end
 			end
-		until enchantUpdated or not Config.autoEnchant or not isCurrentRun() or tick() >= replicationDeadline
+			if requestAccepted then
+				task.wait(rerollCooldown + 0.05)
+				local replicationDeadline = tick() + 2.5
+				repeat
+					petData = getEnchantCurrency(petId)
+					enchantUpdated = petData ~= nil
+						and activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= previousSignature
+					if not enchantUpdated then
+						task.wait(0.05)
+					end
+				until enchantUpdated
+					or not Config.autoEnchant
+					or not isCurrentRun()
+					or tick() >= replicationDeadline
+			end
+			if enchantUpdated or not Config.autoEnchant or not isCurrentRun() then
+				break
+			end
+			task.wait(requestAttempt * 0.5)
+		end
 		if not enchantUpdated then
-			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 3
+			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 5
 			return
 		end
 	end
@@ -13384,7 +13436,14 @@ local function getEnchantTargetList()
 				task.wait(1)
 				continue
 			end
-			pcall(prepareAutoEnchantTeam)
+			local teamReady = false
+			pcall(function()
+				teamReady = prepareAutoEnchantTeam()
+			end)
+			if not teamReady then
+				task.wait(2)
+				continue
+			end
 			local equippedPetIds = getEnchantablePets()
 			if #equippedPetIds == 0 then
 				task.wait(2)
