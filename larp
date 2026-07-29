@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.09"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.10"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.10",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Cooldown-aware obby selection",
+				description = "The automatic cycle now skips cooling-down courses and immediately starts the hardest course currently available.",
+				icon = "timer-reset",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.09",
 		releasedAt = "July 28, 2026",
@@ -9459,7 +9470,7 @@ do
 	gameTab:AddSection("Classic Island Obbys")
 	gameTab:AddToggle("AutoObbyCycle", {
 		Title = "Hard to Easy Obby Cycle",
-		Description = "Runs Hard, Medium, then Easy, opens every matching key, and moves to the next course automatically.",
+		Description = "Runs the hardest available course, skips active cooldowns, opens every matching key, and continues automatically.",
 		Default = Config.autoObbyCycle,
 		Callback = function(isEnabled)
 			Config.autoObbyCycle = isEnabled == true
@@ -9525,7 +9536,19 @@ do
 	activeStates.BGSI_Lite_GetObbyDifficulty = function()
 		if Config.autoObbyCycle == true then
 			local cycleIndex = math.clamp(tonumber(activeStates.BGSI_Lite_ObbyCycleIndex) or 1, 1, 3)
-			return ({ "Hard", "Medium", "Easy" })[cycleIndex]
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local cooldowns = type(playerData) == "table" and playerData.ObbyCooldowns or nil
+			local currentTimestamp = getCurrentTimestamp()
+			for offset = 0, 2 do
+				local availableIndex = (cycleIndex + offset - 1) % 3 + 1
+				local difficulty = ({ "Hard", "Medium", "Easy" })[availableIndex]
+				local availableAt = type(cooldowns) == "table" and tonumber(cooldowns[difficulty]) or nil
+				if not availableAt or currentTimestamp >= availableAt then
+					activeStates.BGSI_Lite_ObbyCycleIndex = availableIndex
+					return difficulty
+				end
+			end
+			return nil
 		end
 		return table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby) and Config.selectedObby or "Easy"
 	end
@@ -9638,12 +9661,21 @@ do
 		if activeStates.BGSI_Lite_ObbyActive or Config.autoObby ~= true then
 			return false
 		end
+		local isInObby = activeStates.BGSI_Lite_IsInObby()
+		if not isInObby and activeStates.BGSI_Lite_CurrentObbyDifficulty then
+			activeStates.BGSI_Lite_CurrentObbyDifficulty = nil
+			activeStates.BGSI_Lite_ObbyCompletedAt = 0
+			activeStates.BGSI_Lite_ObbyChestActive = false
+			resumeNormalAutomation()
+		end
 		local difficulty = activeStates.BGSI_Lite_CurrentObbyDifficulty
 			or activeStates.BGSI_Lite_GetObbyDifficulty()
+		if not table.find({ "Easy", "Medium", "Hard" }, difficulty) then
+			return false
+		end
 		local playerData = profileStore:IsReady() and profileStore:Get() or nil
 		local cooldowns = type(playerData) == "table" and playerData.ObbyCooldowns or nil
 		local availableAt = type(cooldowns) == "table" and tonumber(cooldowns[difficulty]) or nil
-		local isInObby = activeStates.BGSI_Lite_IsInObby()
 		if not isInObby and availableAt and getCurrentTimestamp() < availableAt then
 			return false
 		end
