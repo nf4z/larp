@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.08",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Fully automatic obby cycle",
+				description = "Automatically runs Hard, Medium, and Easy in order, drains each matching key supply, and leaves for the next course.",
+				icon = "repeat-2",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.07",
 		releasedAt = "July 28, 2026",
@@ -841,6 +852,7 @@ local defaultConfig = {
 	competitiveRewardChoice = 2,
 	selectedObby = "Easy",
 	autoObby = false,
+	autoObbyCycle = true,
 	autoObbyChest = false,
 	obbyChestUseThreeKeys = true,
 	selectedMysteryBox = "Mystery Box",
@@ -5032,6 +5044,8 @@ activeStates.BGSI_Lite_SeasonActive = false
 activeStates.BGSI_Lite_GlobalIncentiveActive = false
 activeStates.BGSI_Lite_ChallengePassActive = false
 activeStates.BGSI_Lite_ObbyActive = false
+activeStates.BGSI_Lite_ObbyCycleIndex = math.clamp(tonumber(activeStates.BGSI_Lite_ObbyCycleIndex) or 1, 1, 3)
+activeStates.BGSI_Lite_ObbyCompletedAt = tonumber(activeStates.BGSI_Lite_ObbyCompletedAt) or 0
 activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
@@ -9417,9 +9431,21 @@ do
 		end,
 	})
 	gameTab:AddSection("Classic Island Obbys")
+	gameTab:AddToggle("AutoObbyCycle", {
+		Title = "Hard to Easy Obby Cycle",
+		Description = "Runs Hard, Medium, then Easy, opens every matching key, and moves to the next course automatically.",
+		Default = Config.autoObbyCycle,
+		Callback = function(isEnabled)
+			Config.autoObbyCycle = isEnabled == true
+			if Config.autoObbyCycle then
+				activeStates.BGSI_Lite_ObbyCycleIndex = 1
+			end
+			saveConfig()
+		end,
+	})
 	gameTab:AddDropdown("SelectedObby", {
 		Title = "Selected Obby",
-		Description = "Choose the Classic Island course to complete.",
+		Description = "Choose the course used when the automatic Hard-to-Easy cycle is disabled.",
 		Values = { "Easy", "Medium", "Hard" },
 		Default = Config.selectedObby,
 		Multi = false,
@@ -9430,7 +9456,7 @@ do
 	})
 	gameTab:AddToggle("AutoObby", {
 		Title = "Auto Complete Obby",
-		Description = "Starts the selected course when its cooldown is ready and completes it through the generated finish part.",
+		Description = "Runs the full Hard-to-Easy cycle, or only the selected course when automatic cycling is disabled.",
 		Default = Config.autoObby,
 		Callback = function(isEnabled)
 			Config.autoObby = isEnabled == true
@@ -9463,6 +9489,16 @@ do
 		local obbyFolder = Workspace:FindFirstChild("Obbys")
 		return obbyFolder and obbyFolder:FindFirstChild(tostring(difficulty or "")) or nil
 	end
+	activeStates.BGSI_Lite_GetObbyDifficulty = function()
+		if Config.autoObbyCycle == true then
+			local cycleIndex = math.clamp(tonumber(activeStates.BGSI_Lite_ObbyCycleIndex) or 1, 1, 3)
+			return ({ "Hard", "Medium", "Easy" })[cycleIndex]
+		end
+		return table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby) and Config.selectedObby or "Easy"
+	end
+	activeStates.BGSI_Lite_ShouldOpenObbyChest = function()
+		return Config.autoObbyChest == true or Config.autoObby == true and Config.autoObbyCycle == true
+	end
 	activeStates.BGSI_Lite_IsInObby = function()
 		local controllerOk, obbyController = pcall(function()
 			return require(ReplicatedStorage.Client.Gui.Frames.Obbys)
@@ -9477,7 +9513,10 @@ do
 		return getInventoryItemAmount(tostring(difficulty or "") .. " Obby Key")
 	end
 	activeStates.BGSI_Lite_OpenObbyChest = function(difficulty, course)
-		if Config.autoObbyChest ~= true or type(course) ~= "userdata" and typeof(course) ~= "Instance" then
+		if
+			not activeStates.BGSI_Lite_ShouldOpenObbyChest()
+			or type(course) ~= "userdata" and typeof(course) ~= "Instance"
+		then
 			return false
 		end
 		if not activeStates.BGSI_Lite_IsInObby() then
@@ -9532,24 +9571,59 @@ do
 		end
 		return activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) < keyAmount
 	end
+	activeStates.BGSI_Lite_LeaveObby = function()
+		if not activeStates.BGSI_Lite_IsInObby() then
+			return true
+		end
+		local worlds = Workspace:FindFirstChild("Worlds")
+		local sevenSeas = worlds and worlds:FindFirstChild("Seven Seas")
+		local areas = sevenSeas and sevenSeas:FindFirstChild("Areas")
+		local classicIsland = areas and areas:FindFirstChild("Classic Island")
+		local houseSpawn = classicIsland and classicIsland:FindFirstChild("HouseSpawn")
+		if not houseSpawn then
+			return false
+		end
+		pcall(remoteEvent.FireServer, remoteEvent, "Teleport", houseSpawn:GetFullName())
+		local leaveDeadline = tick() + 5
+		repeat
+			task.wait(0.1)
+		until not activeStates.BGSI_Lite_IsInObby() or tick() >= leaveDeadline
+		if activeStates.BGSI_Lite_IsInObby() then
+			return false
+		end
+		activeStates.BGSI_Lite_CurrentObbyDifficulty = nil
+		activeStates.BGSI_Lite_ObbyCompletedAt = 0
+		if Config.autoObbyCycle == true then
+			local cycleIndex = math.clamp(tonumber(activeStates.BGSI_Lite_ObbyCycleIndex) or 1, 1, 3)
+			activeStates.BGSI_Lite_ObbyCycleIndex = cycleIndex % 3 + 1
+		end
+		return true
+	end
 	activeStates.BGSI_Lite_RunSelectedObby = function()
 		if activeStates.BGSI_Lite_ObbyActive or Config.autoObby ~= true then
 			return false
 		end
-		local difficulty = table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby)
-				and Config.selectedObby
-			or "Easy"
+		local difficulty = activeStates.BGSI_Lite_CurrentObbyDifficulty
+			or activeStates.BGSI_Lite_GetObbyDifficulty()
 		local playerData = profileStore:IsReady() and profileStore:Get() or nil
 		local cooldowns = type(playerData) == "table" and playerData.ObbyCooldowns or nil
 		local availableAt = type(cooldowns) == "table" and tonumber(cooldowns[difficulty]) or nil
-		if availableAt and getCurrentTimestamp() < availableAt then
+		local isInObby = activeStates.BGSI_Lite_IsInObby()
+		if not isInObby and availableAt and getCurrentTimestamp() < availableAt then
+			return false
+		end
+		if
+			isInObby
+			and activeStates.BGSI_Lite_CurrentObbyDifficulty == difficulty
+			and activeStates.BGSI_Lite_ObbyCompletedAt > 0
+		then
 			return false
 		end
 		activeStates.BGSI_Lite_ObbyActive = true
 		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 		pauseNormalAutomation()
 		local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
-		if not activeStates.BGSI_Lite_IsInObby() then
+		if not isInObby then
 			local worlds = Workspace:FindFirstChild("Worlds")
 			local sevenSeas = worlds and worlds:FindFirstChild("Seven Seas")
 			local areas = sevenSeas and sevenSeas:FindFirstChild("Areas")
@@ -9574,6 +9648,7 @@ do
 			resumeNormalAutomation()
 			return false
 		end
+		activeStates.BGSI_Lite_CurrentObbyDifficulty = difficulty
 		local completePart = course and course:FindFirstChild("Complete")
 		if course and completePart and completePart:IsA("BasePart") and Config.autoObby == true then
 			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
@@ -9597,14 +9672,17 @@ do
 			until availableAt and availableAt > getCurrentTimestamp()
 				or Config.autoObby ~= true
 				or tick() >= completionDeadline
-			if Config.autoObbyChest then
+			if availableAt and availableAt > getCurrentTimestamp() then
+				activeStates.BGSI_Lite_ObbyCompletedAt = tick()
+			end
+			if activeStates.BGSI_Lite_ShouldOpenObbyChest() then
 				local chestDeadline = tick() + 4
 				repeat
 					if not activeStates.BGSI_Lite_OpenObbyChest(difficulty, course) then
 						task.wait(0.15)
 					end
 				until activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) <= 0
-					or Config.autoObbyChest ~= true
+					or not activeStates.BGSI_Lite_ShouldOpenObbyChest()
 					or tick() >= chestDeadline
 			end
 		end
@@ -9614,7 +9692,7 @@ do
 	end
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoObby or Config.autoObbyChest) and 0.25 or 0.85)
+			task.wait((Config.autoObby or activeStates.BGSI_Lite_ShouldOpenObbyChest()) and 0.25 or 0.85)
 			if Config.autoObby and not isPriorityAutomationActive() then
 				local runOk = pcall(activeStates.BGSI_Lite_RunSelectedObby)
 				if not runOk then
@@ -9623,16 +9701,23 @@ do
 				end
 			end
 			if
-				Config.autoObbyChest
+				activeStates.BGSI_Lite_ShouldOpenObbyChest()
 				and not activeStates.BGSI_Lite_ObbyActive
 				and activeStates.BGSI_Lite_IsInObby()
 			then
-				local difficulty = table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby)
-						and Config.selectedObby
-					or "Easy"
+				local difficulty = activeStates.BGSI_Lite_CurrentObbyDifficulty
+					or activeStates.BGSI_Lite_GetObbyDifficulty()
 				local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
-				if course then
+				local keyAmount = activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty)
+				if course and keyAmount > 0 then
 					pcall(activeStates.BGSI_Lite_OpenObbyChest, difficulty, course)
+				elseif
+					Config.autoObby == true
+					and Config.autoObbyCycle == true
+					and activeStates.BGSI_Lite_ObbyCompletedAt > 0
+					and tick() - activeStates.BGSI_Lite_ObbyCompletedAt >= 2
+				then
+					pcall(activeStates.BGSI_Lite_LeaveObby)
 				end
 			end
 		end
@@ -10735,6 +10820,7 @@ do
 			"competitiveRewardChoice",
 			"selectedObby",
 			"autoObby",
+			"autoObbyCycle",
 			"autoObbyChest",
 			"obbyChestUseThreeKeys",
 			"autoUseFragments",
