@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.06",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Reliable obby chest opening",
+				description = "Obby chests now use the game's real loot viewer interaction and verify that keys were consumed before continuing.",
+				icon = "key-round",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.05",
 		releasedAt = "July 28, 2026",
@@ -9458,18 +9469,43 @@ do
 			return false
 		end
 		teleportToCFrame(promptPart.CFrame + Vector3.new(0, 3, 0))
-		task.wait(0.1)
-		local useThreeKeys = Config.obbyChestUseThreeKeys == true and keyAmount >= 3
-		local claimSent = pcall(remoteEvent.FireServer, remoteEvent, "ClaimObbyChest", useThreeKeys)
-		if not claimSent then
-			return false
+		local character = LocalPlayer.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		local proximityDeadline = tick() + 1
+		while rootPart and (rootPart.Position - promptPart.Position).Magnitude > 15 and tick() < proximityDeadline do
+			teleportToCFrame(promptPart.CFrame + Vector3.new(0, 3, 0))
+			task.wait(0.1)
+			character = LocalPlayer.Character
+			rootPart = character and character:FindFirstChild("HumanoidRootPart")
 		end
-		local expectedAmount = keyAmount - (useThreeKeys and 3 or 1)
-		local replicationDeadline = tick() + 2
+		task.wait(0.3)
+		local useThreeKeys = Config.obbyChestUseThreeKeys == true and keyAmount >= 3
+		local claimAmount = useThreeKeys and 3 or 1
+		local viewerActivated = false
+		pcall(function()
+			local lootPoolViewer = require(ReplicatedStorage.Client.Gui.LootPoolViewer)
+			if lootPoolViewer and lootPoolViewer.Activated and type(lootPoolViewer.Activated.Fire) == "function" then
+				lootPoolViewer.Activated:Fire(claimAmount)
+				viewerActivated = true
+			end
+		end)
+		if not viewerActivated then
+			pcall(remoteEvent.FireServer, remoteEvent, "ClaimObbyChest", useThreeKeys)
+		end
+		local expectedAmount = keyAmount - claimAmount
+		local replicationDeadline = tick() + 1.5
 		repeat
 			task.wait(0.1)
 		until activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) <= expectedAmount
 			or tick() >= replicationDeadline
+		if activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) >= keyAmount and viewerActivated then
+			pcall(remoteEvent.FireServer, remoteEvent, "ClaimObbyChest", useThreeKeys)
+			replicationDeadline = tick() + 1.5
+			repeat
+				task.wait(0.1)
+			until activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) <= expectedAmount
+				or tick() >= replicationDeadline
+		end
 		return activeStates.BGSI_Lite_GetObbyKeyAmount(difficulty) < keyAmount
 	end
 	activeStates.BGSI_Lite_RunSelectedObby = function()
