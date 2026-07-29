@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.28.07",
+		releasedAt = "July 28, 2026",
+		notes = {
+			{
+				title = "Server-registered obby runs",
+				description = "Obby automation now starts from the Classic Island activation and waits for the game's active-run state before completing or opening chests.",
+				icon = "flag",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.06",
 		releasedAt = "July 28, 2026",
@@ -9452,11 +9463,24 @@ do
 		local obbyFolder = Workspace:FindFirstChild("Obbys")
 		return obbyFolder and obbyFolder:FindFirstChild(tostring(difficulty or "")) or nil
 	end
+	activeStates.BGSI_Lite_IsInObby = function()
+		local controllerOk, obbyController = pcall(function()
+			return require(ReplicatedStorage.Client.Gui.Frames.Obbys)
+		end)
+		if not controllerOk or type(obbyController) ~= "table" or type(obbyController.IsInObby) ~= "function" then
+			return false
+		end
+		local stateOk, isInObby = pcall(obbyController.IsInObby, obbyController)
+		return stateOk and isInObby == true
+	end
 	activeStates.BGSI_Lite_GetObbyKeyAmount = function(difficulty)
 		return getInventoryItemAmount(tostring(difficulty or "") .. " Obby Key")
 	end
 	activeStates.BGSI_Lite_OpenObbyChest = function(difficulty, course)
 		if Config.autoObbyChest ~= true or type(course) ~= "userdata" and typeof(course) ~= "Instance" then
+			return false
+		end
+		if not activeStates.BGSI_Lite_IsInObby() then
 			return false
 		end
 		local chest = course:FindFirstChild("Chest")
@@ -9525,13 +9549,30 @@ do
 		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 		pauseNormalAutomation()
 		local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
-		if not course then
+		if not activeStates.BGSI_Lite_IsInObby() then
+			local worlds = Workspace:FindFirstChild("Worlds")
+			local sevenSeas = worlds and worlds:FindFirstChild("Seven Seas")
+			local areas = sevenSeas and sevenSeas:FindFirstChild("Areas")
+			local classicIsland = areas and areas:FindFirstChild("Classic Island")
+			local activations = classicIsland and classicIsland:FindFirstChild("Obbys")
+			local activationFolder = activations and activations:FindFirstChild(difficulty)
+			local activationRoot = activationFolder and activationFolder:FindFirstChild("Root", true)
+			if activationRoot and activationRoot:IsA("BasePart") then
+				teleportToCFrame(activationRoot.CFrame + Vector3.new(0, 3, 0))
+				task.wait(0.35)
+			end
 			pcall(remoteEvent.FireServer, remoteEvent, "StartObby", difficulty)
-			local courseDeadline = tick() + 6
+			local startDeadline = tick() + 6
 			repeat
 				task.wait(0.1)
-				course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
-			until course or Config.autoObby ~= true or tick() >= courseDeadline
+			until activeStates.BGSI_Lite_IsInObby()
+				or Config.autoObby ~= true
+				or tick() >= startDeadline
+		end
+		if not activeStates.BGSI_Lite_IsInObby() then
+			activeStates.BGSI_Lite_ObbyActive = false
+			resumeNormalAutomation()
+			return false
 		end
 		local completePart = course and course:FindFirstChild("Complete")
 		if course and completePart and completePart:IsA("BasePart") and Config.autoObby == true then
@@ -9580,12 +9621,18 @@ do
 					activeStates.BGSI_Lite_ObbyActive = false
 					resumeNormalAutomation()
 				end
-			elseif Config.autoObbyChest and not activeStates.BGSI_Lite_ObbyActive then
-				for _, difficulty in ipairs({ "Easy", "Medium", "Hard" }) do
-					local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
-					if course then
-						pcall(activeStates.BGSI_Lite_OpenObbyChest, difficulty, course)
-					end
+			end
+			if
+				Config.autoObbyChest
+				and not activeStates.BGSI_Lite_ObbyActive
+				and activeStates.BGSI_Lite_IsInObby()
+			then
+				local difficulty = table.find({ "Easy", "Medium", "Hard" }, Config.selectedObby)
+						and Config.selectedObby
+					or "Easy"
+				local course = activeStates.BGSI_Lite_GetObbyCourse(difficulty)
+				if course then
+					pcall(activeStates.BGSI_Lite_OpenObbyChest, difficulty, course)
 				end
 			end
 		end
