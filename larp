@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.28.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.31.01",
+		releasedAt = "July 31, 2026",
+		notes = {
+			{
+				title = "Automatic Event Board and Infinite Track",
+				description = "Adds priority-based Boost Crystal event purchases and automatically starts the Season Infinite Track after standard completion.",
+				icon = "infinity",
+			},
+		},
+	},
 	{
 		version = "2026.07.28.10",
 		releasedAt = "July 28, 2026",
@@ -893,6 +904,23 @@ local defaultConfig = {
 	questStallTimeoutSeconds = 60,
 	autoGlobalIncentive = false,
 	autoClaimGlobalIncentive = false,
+	AutoPurchaseEvents = false,
+	PriorityEvents = {
+		"Luck Event",
+		"Shiny Event",
+		"Mythic Event",
+		"Celestial Event",
+		"Secret Event",
+		"Infinity Event",
+		"XL Event",
+		"Super Palooza",
+	},
+	MinimumCrystalReserve = 0,
+	MaximumEventPurchasesPerSession = 8,
+	EventPurchaseCooldown = 60,
+	ExtendAlreadyActiveEvents = false,
+	MaximumRejectedEventAttempts = 3,
+	AutoStartInfiniteTrack = true,
 	DreamerShrineEnabled = false,
 	DreamerShrineAmount = 1,
 	shrineAuto = false,
@@ -1850,6 +1878,505 @@ activeStates.BGSI_Lite_FireGameRemote = function(actionName, ...)
 		return carnivalRemoteModule:FireServer(actionName, ...)
 	end
 	return remoteEvent:FireServer(actionName, ...)
+end
+do
+	-- Event Board purchases and the Infinite Track transition are requests only.
+	-- The game server owns validation, deductions, timers, rewards, persistence,
+	-- and stat modifiers; these helpers never send authoritative values.
+	local eventBoard = {}
+	local eventDefinitions
+	local specialEventUtil
+	local seasonUtil
+	local eventPurchaseSuccessConnection
+	local automationHeartbeatConnection
+	local eventPurchaseState = {
+		AcceptedPurchases = 0,
+		RejectedAttempts = 0,
+		ConsecutiveRejections = 0,
+		LastAttemptAt = 0,
+		Pending = nil,
+		DisabledAfterRejections = false,
+	}
+	local infiniteTransitionState = {
+		Locked = false,
+		PendingSince = 0,
+		TransitionedSeasonID = nil,
+		Status = "WaitingForData",
+	}
+	local EVENT_SLOT_DURATION = 1800
+	local PURCHASE_RESPONSE_TIMEOUT = 10
+	local INFINITE_RESPONSE_TIMEOUT = 15
+	local schedulerAccumulator = 0
+	local lastAutoPurchaseEvents = Config.AutoPurchaseEvents == true
+	local lastAutoStartInfiniteTrack = Config.AutoStartInfiniteTrack == true
+	eventBoard.SpecialEventDuration = EVENT_SLOT_DURATION
+	eventBoard.GlobalPurchaseTime = 900
+
+	pcall(function()
+		eventDefinitions = require(ReplicatedStorage.Shared.Data.SpecialEvents)
+	end)
+	pcall(function()
+		specialEventUtil = require(ReplicatedStorage.Shared.Utils.SpecialEventUtil)
+	end)
+	pcall(function()
+		seasonUtil = require(ReplicatedStorage.Shared.Utils.Stats.SeasonUtil)
+	end)
+
+	local function logAutomation(message, level)
+		if type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
+			activeStates.BGSI_Lite_LogDashboardAction(message, level)
+		end
+	end
+
+	local function getServerTime()
+		return getCurrentTimestamp()
+	end
+
+	local function getPlayerData()
+		if not profileStore:IsReady() then
+			return nil
+		end
+		local ok, playerData = pcall(profileStore.Get, profileStore)
+		return ok and type(playerData) == "table" and playerData or nil
+	end
+
+	local function getEventDefinition(eventName)
+		if type(eventName) ~= "string" or type(eventDefinitions) ~= "table" then
+			return nil
+		end
+		local definition = eventDefinitions[eventName]
+		return type(definition) == "table" and definition or nil
+	end
+
+	local function getEventCost(eventName)
+		local definition = getEventDefinition(eventName)
+		local cost = definition and tonumber(definition.TicketCost)
+		return cost and math.max(0, math.floor(cost)) or nil
+	end
+
+	local function getBoostCrystalBalance(playerData)
+		if type(playerData) ~= "table" or type(itemUtil) ~= "table" then
+			return nil
+		end
+		local ok, amount = pcall(function()
+			return itemUtil:GetOwnedAmount(playerData, {
+				Type = "Powerup",
+				Name = "Boost Crystal",
+			})
+		end)
+		return ok and tonumber(amount) and math.max(0, math.floor(amount)) or nil
+	end
+
+	function eventBoard.GetSeed(offset)
+		local positiveOffset = math.max(1, math.floor(tonumber(offset) or 1))
+		return math.floor((getServerTime() + (positiveOffset - 1) * EVENT_SLOT_DURATION) / EVENT_SLOT_DURATION)
+	end
+
+	function eventBoard.SeedHasEvent(seed)
+		seed = tonumber(seed)
+		return seed ~= nil and math.floor(seed) % 2 == 0
+	end
+
+	function eventBoard.GetEventFromSeed(seed)
+		seed = tonumber(seed)
+		if not seed then
+			return nil
+		end
+		seed = math.floor(seed)
+		if type(specialEventUtil) == "table" and type(specialEventUtil.GetEventFromSeed) == "function" then
+			local ok, eventName = pcall(specialEventUtil.GetEventFromSeed, specialEventUtil, seed)
+			if ok and getEventDefinition(eventName) then
+				return eventName
+			end
+		end
+		return nil
+	end
+
+	function eventBoard.GetCurrentScheduledEvent()
+		return eventBoard.GetEventFromSeed(eventBoard.GetSeed())
+	end
+
+	function eventBoard.GetScheduledSlotStart(seed)
+		return math.floor(tonumber(seed) or eventBoard.GetSeed()) * EVENT_SLOT_DURATION
+	end
+
+	function eventBoard.GetScheduledSlotEnd(seed)
+		return eventBoard.GetScheduledSlotStart(seed) + EVENT_SLOT_DURATION
+	end
+
+	function eventBoard.GetPurchasedExpiration(eventName)
+		if not getEventDefinition(eventName) then
+			return nil
+		end
+		local playerData = getPlayerData()
+		local timers = playerData and playerData.SpecialEventTimers
+		return type(timers) == "table" and tonumber(timers[eventName]) or nil
+	end
+
+	function eventBoard.IsEventActive(eventName)
+		if not getEventDefinition(eventName) then
+			return false
+		end
+		local serverTime = getServerTime()
+		local scheduled = eventBoard.GetCurrentScheduledEvent()
+		if scheduled == eventName and serverTime < eventBoard.GetScheduledSlotEnd(eventBoard.GetSeed()) then
+			return true
+		end
+		return (eventBoard.GetPurchasedExpiration(eventName) or 0) > serverTime
+	end
+
+	function eventBoard.GetActiveEvents()
+		local activeEvents = {}
+		if type(eventDefinitions) ~= "table" then
+			return activeEvents
+		end
+		for eventName in pairs(eventDefinitions) do
+			if eventBoard.IsEventActive(eventName) then
+				table.insert(activeEvents, eventName)
+			end
+		end
+		table.sort(activeEvents, function(left, right)
+			local leftDefinition = eventDefinitions[left]
+			local rightDefinition = eventDefinitions[right]
+			return (tonumber(leftDefinition.LayoutOrder) or math.huge)
+				< (tonumber(rightDefinition.LayoutOrder) or math.huge)
+		end)
+		return activeEvents
+	end
+
+	function eventBoard.GetRemainingTime(eventName)
+		if not getEventDefinition(eventName) then
+			return 0
+		end
+		local serverTime = getServerTime()
+		local expiration = eventBoard.GetPurchasedExpiration(eventName) or 0
+		if eventBoard.GetCurrentScheduledEvent() == eventName then
+			expiration = math.max(expiration, eventBoard.GetScheduledSlotEnd(eventBoard.GetSeed()))
+		end
+		return math.max(0, expiration - serverTime)
+	end
+
+	function eventBoard.CanAffordEvent(player, eventName)
+		if player ~= nil and player ~= LocalPlayer then
+			return false
+		end
+		local cost = getEventCost(eventName)
+		local balance = getBoostCrystalBalance(getPlayerData())
+		return cost ~= nil and balance ~= nil and balance >= cost
+	end
+
+	local function rejectPendingPurchase(reason)
+		local pending = eventPurchaseState.Pending
+		if not pending then
+			return
+		end
+		eventPurchaseState.Pending = nil
+		eventPurchaseState.RejectedAttempts += 1
+		eventPurchaseState.ConsecutiveRejections += 1
+		if eventPurchaseState.ConsecutiveRejections >= math.max(
+			1,
+			math.floor(tonumber(Config.MaximumRejectedEventAttempts) or 3)
+		) then
+			eventPurchaseState.DisabledAfterRejections = true
+			Config.AutoPurchaseEvents = false
+			saveConfig()
+		end
+		logAutomation(
+			("Event purchase rejected for %s: %s"):format(tostring(pending.EventName), tostring(reason)),
+			"warning"
+		)
+	end
+
+	function eventBoard.PurchaseEvent(player, eventName)
+		if player ~= nil and player ~= LocalPlayer then
+			return false, "invalid-player"
+		end
+		if Config.safeMode == true then
+			return false, "safe-mode"
+		end
+		if type(eventName) ~= "string" then
+			return false, "invalid-event-name"
+		end
+		if not getEventDefinition(eventName) then
+			return false, "unknown-event"
+		end
+		if eventPurchaseState.Pending then
+			return false, "transaction-locked"
+		end
+		local now = getServerTime()
+		if now - eventPurchaseState.LastAttemptAt < 1 then
+			return false, "rate-limited"
+		end
+		if not eventBoard.CanAffordEvent(LocalPlayer, eventName) then
+			return false, "insufficient-boost-crystals"
+		end
+
+		eventPurchaseState.LastAttemptAt = now
+		eventPurchaseState.Pending = {
+			EventName = eventName,
+			SentAt = now,
+		}
+		local sent, sendError = pcall(function()
+			if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+				carnivalRemoteModule:FireServer("PurchaseEventBoard", eventName)
+			else
+				remoteEvent:FireServer("PurchaseEventBoard", eventName)
+			end
+		end)
+		if not sent then
+			rejectPendingPurchase(sendError or "request-failed")
+			return false, "request-failed"
+		end
+		logAutomation(("Requested Event Board purchase: %s"):format(eventName), "info")
+		return true
+	end
+
+	function eventBoard.ApplyEventModifiers(baseStats)
+		local modifiedStats = table.clone(type(baseStats) == "table" and baseStats or {})
+		local modifiers = {
+			["Luck Event"] = { "Luck", 1.25 },
+			["Shiny Event"] = { "ShinyChance", 1.25 },
+			["Mythic Event"] = { "MythicChance", 1.25 },
+			["Celestial Event"] = { "CelestialLuck", 1.25 },
+			["Secret Event"] = { "SecretLuck", 1.1 },
+			["Infinity Event"] = { "InfinityLuck", 1.25 },
+			["XL Event"] = { "XLChance", 1.25 },
+			["Super Palooza"] = { "SuperLegendaryChance", 2 },
+		}
+		for _, eventName in ipairs(eventBoard.GetActiveEvents()) do
+			local modifier = modifiers[eventName]
+			if modifier and type(modifiedStats[modifier[1]]) == "number" then
+				modifiedStats[modifier[1]] *= modifier[2]
+			end
+		end
+		return modifiedStats
+	end
+
+	local function getCurrentSeason()
+		if type(seasonUtil) ~= "table" or type(seasonUtil.GetCurrentSeason) ~= "function" then
+			return nil
+		end
+		local ok, currentSeason = pcall(seasonUtil.GetCurrentSeason, seasonUtil)
+		return ok and type(currentSeason) == "table" and currentSeason or nil
+	end
+
+	local function getSeasonID(currentSeason)
+		return currentSeason and (currentSeason.ID or currentSeason.Id or currentSeason.Name) or nil
+	end
+
+	local function getInfiniteEligibility()
+		local currentSeason = getCurrentSeason()
+		local playerData = getPlayerData()
+		local season = playerData and playerData.Season
+		if not currentSeason or type(currentSeason.Track) ~= "table" then
+			return false, "NoCurrentSeason"
+		end
+		if type(season) ~= "table" then
+			return false, "SeasonDataNotLoaded"
+		end
+		if season.IsInfinite == true then
+			return false, "AlreadyInfinite"
+		end
+		if (tonumber(season.Level) or 0) < #currentSeason.Track then
+			return false, "StandardTrackIncomplete"
+		end
+		return true, currentSeason
+	end
+
+	local function beginSeasonInfinite()
+		if infiniteTransitionState.Locked then
+			return false, "transition-locked"
+		end
+		local eligible, currentSeasonOrReason = getInfiniteEligibility()
+		if not eligible then
+			infiniteTransitionState.Status = currentSeasonOrReason
+			return false, currentSeasonOrReason
+		end
+		if Config.AutoStartInfiniteTrack ~= true then
+			if infiniteTransitionState.Status ~= "EligibleAutoStartDisabled" then
+				logAutomation(
+					"Season Infinite Track is eligible; automatic transition is disabled.",
+					"info"
+				)
+			end
+			infiniteTransitionState.Status = "EligibleAutoStartDisabled"
+			return false, "auto-start-disabled"
+		end
+		if Config.safeMode == true then
+			infiniteTransitionState.Status = "EligibleSafeMode"
+			return false, "safe-mode"
+		end
+
+		infiniteTransitionState.Locked = true
+		infiniteTransitionState.PendingSince = getServerTime()
+		infiniteTransitionState.Status = "TransitionRequested"
+		local sent, sendError = pcall(function()
+			if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
+				carnivalRemoteModule:FireServer("BeginSeasonInfinite")
+			else
+				remoteEvent:FireServer("BeginSeasonInfinite")
+			end
+		end)
+		if not sent then
+			infiniteTransitionState.Locked = false
+			infiniteTransitionState.Status = "TransitionRequestFailed"
+			logAutomation("Infinite Track transition request failed: " .. tostring(sendError), "warning")
+			return false, "request-failed"
+		end
+		infiniteTransitionState.TransitionedSeasonID = getSeasonID(currentSeasonOrReason)
+		logAutomation("Requested automatic Season Infinite Track transition.", "info")
+		return true
+	end
+
+	local function evaluateInfiniteTransition()
+		if not isCurrentRun() then
+			return
+		end
+		local playerData = getPlayerData()
+		local season = playerData and playerData.Season
+		if type(season) == "table" and season.IsInfinite == true then
+			infiniteTransitionState.Locked = false
+			infiniteTransitionState.PendingSince = 0
+			infiniteTransitionState.Status = "Infinite"
+			infiniteTransitionState.TransitionedSeasonID = getSeasonID(getCurrentSeason())
+			activeStates.BGSI_Lite_InfiniteTrackStatus = infiniteTransitionState.Status
+			activeStates.BGSI_Lite_TransitionedSeasonID = infiniteTransitionState.TransitionedSeasonID
+			return
+		end
+		if not infiniteTransitionState.Locked then
+			beginSeasonInfinite()
+		end
+		activeStates.BGSI_Lite_InfiniteTrackStatus = infiniteTransitionState.Status
+	end
+
+	local function runEventAutoPurchase()
+		if
+			Config.AutoPurchaseEvents ~= true
+			or Config.safeMode == true
+			or eventPurchaseState.DisabledAfterRejections
+			or eventPurchaseState.Pending
+		then
+			return
+		end
+		if eventPurchaseState.AcceptedPurchases >= math.max(
+			0,
+			math.floor(tonumber(Config.MaximumEventPurchasesPerSession) or 0)
+		) then
+			return
+		end
+		local now = getServerTime()
+		if now - eventPurchaseState.LastAttemptAt < math.max(1, tonumber(Config.EventPurchaseCooldown) or 60) then
+			return
+		end
+		local playerData = getPlayerData()
+		local balance = getBoostCrystalBalance(playerData)
+		if balance == nil then
+			return
+		end
+		local reserve = math.max(0, math.floor(tonumber(Config.MinimumCrystalReserve) or 0))
+		local priorities = type(Config.PriorityEvents) == "table" and Config.PriorityEvents or {}
+		local seen = {}
+		for _, eventName in ipairs(priorities) do
+			if type(eventName) == "string" and not seen[eventName] then
+				seen[eventName] = true
+				local cost = getEventCost(eventName)
+				local active = eventBoard.IsEventActive(eventName)
+				if
+					cost
+					and balance - cost >= reserve
+					and (not active or Config.ExtendAlreadyActiveEvents == true)
+				then
+					eventBoard.PurchaseEvent(LocalPlayer, eventName)
+					return
+				end
+			end
+		end
+	end
+
+	local function schedulerStep(deltaTime)
+		if not isCurrentRun() then
+			if automationHeartbeatConnection then
+				automationHeartbeatConnection:Disconnect()
+				automationHeartbeatConnection = nil
+			end
+			return
+		end
+		schedulerAccumulator += deltaTime
+		if schedulerAccumulator < 1 then
+			return
+		end
+		schedulerAccumulator %= 1
+		local now = getServerTime()
+		local autoPurchaseEnabled = Config.AutoPurchaseEvents == true
+		if autoPurchaseEnabled and not lastAutoPurchaseEvents then
+			eventPurchaseState.ConsecutiveRejections = 0
+			eventPurchaseState.DisabledAfterRejections = false
+		end
+		lastAutoPurchaseEvents = autoPurchaseEnabled
+		local autoStartInfiniteEnabled = Config.AutoStartInfiniteTrack == true
+		if autoStartInfiniteEnabled and not lastAutoStartInfiniteTrack then
+			task.defer(evaluateInfiniteTransition)
+		end
+		lastAutoStartInfiniteTrack = autoStartInfiniteEnabled
+		if
+			eventPurchaseState.Pending
+			and now - eventPurchaseState.Pending.SentAt >= PURCHASE_RESPONSE_TIMEOUT
+		then
+			rejectPendingPurchase("authoritative-confirmation-timeout")
+		end
+		if
+			infiniteTransitionState.Locked
+			and now - infiniteTransitionState.PendingSince >= INFINITE_RESPONSE_TIMEOUT
+		then
+			infiniteTransitionState.Locked = false
+			infiniteTransitionState.PendingSince = 0
+			infiniteTransitionState.Status = "TransitionConfirmationTimeout"
+			activeStates.BGSI_Lite_InfiniteTrackStatus = infiniteTransitionState.Status
+			logAutomation("Infinite Track transition was not confirmed by replicated Season data.", "warning")
+		end
+		runEventAutoPurchase()
+		activeStates.BGSI_Lite_EventPurchaseState = eventPurchaseState
+	end
+
+	if carnivalRemoteModule and type(carnivalRemoteModule.Event) == "function" then
+		pcall(function()
+			eventPurchaseSuccessConnection = carnivalRemoteModule.Event("EventPurchaseSuccess"):Connect(function(player, eventName)
+				if not isCurrentRun() or player ~= LocalPlayer then
+					return
+				end
+				local pending = eventPurchaseState.Pending
+				if not pending or pending.EventName ~= eventName then
+					return
+				end
+				eventPurchaseState.Pending = nil
+				eventPurchaseState.AcceptedPurchases += 1
+				eventPurchaseState.ConsecutiveRejections = 0
+				eventPurchaseState.DisabledAfterRejections = false
+				logAutomation(("Event Board purchase accepted: %s"):format(eventName), "success")
+			end)
+		end)
+	end
+
+	pcall(function()
+		profileStore:ConnectDataChanged("Season", function()
+			task.defer(evaluateInfiniteTransition)
+		end)
+	end)
+	if type(seasonUtil) == "table" and seasonUtil.Changed and type(seasonUtil.Changed.Connect) == "function" then
+		pcall(function()
+			seasonUtil.Changed:Connect(function()
+				task.defer(evaluateInfiniteTransition)
+			end)
+		end)
+	end
+	automationHeartbeatConnection = RunService.Heartbeat:Connect(schedulerStep)
+	activeStates.BGSI_Lite_EventBoard = eventBoard
+	activeStates.BGSI_Lite_EventPurchaseState = eventPurchaseState
+	activeStates.BGSI_Lite_BeginSeasonInfinite = beginSeasonInfinite
+	activeStates.BGSI_Lite_InfiniteTransitionState = infiniteTransitionState
+	activeStates.BGSI_Lite_EventPurchaseSuccessConnection = eventPurchaseSuccessConnection
+	activeStates.BGSI_Lite_EventAutomationHeartbeatConnection = automationHeartbeatConnection
+	task.defer(evaluateInfiniteTransition)
 end
 activeStates.BGSI_Lite_GetPetInventoryUsage = function(playerData)
 	if type(activeStates.BGSI_Lite_PetStorageStatsUtil) ~= "table" then
@@ -5553,8 +6080,22 @@ if type(getgenv) == "function" then
 					activeStates.BGSI_Lite_WebhookConnection = nil
 				end
 			end)
+			pcall(function()
+				if activeStates.BGSI_Lite_EventPurchaseSuccessConnection then
+					activeStates.BGSI_Lite_EventPurchaseSuccessConnection:Disconnect()
+					activeStates.BGSI_Lite_EventPurchaseSuccessConnection = nil
+				end
+			end)
+			pcall(function()
+				if activeStates.BGSI_Lite_EventAutomationHeartbeatConnection then
+					activeStates.BGSI_Lite_EventAutomationHeartbeatConnection:Disconnect()
+					activeStates.BGSI_Lite_EventAutomationHeartbeatConnection = nil
+				end
+			end)
 			activeStates.RayfieldGen2 = nil
 			activeStates.RayfieldGen2Window = nil
+			activeStates.BGSI_Lite_EventBoard = nil
+			activeStates.BGSI_Lite_BeginSeasonInfinite = nil
 			activeStates.BGSI_Lite_HideHatchInterface = nil
 			activeStates.BGSI_Lite_NoHatchAnimationPlay = nil
 			activeStates.BGSI_Lite_ApplyHatchAnimationSetting = nil
