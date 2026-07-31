@@ -12946,21 +12946,39 @@ do
 											end
 										elseif dashboardCommand.type == "reload-script" then
 											commandSucceeded, commandError = pcall(function()
-												local reloadNonce = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-												local scriptSource = game:HttpGet(
-													"https://raw.githubusercontent.com/nf4z/larp/refs/heads/main/larp?reload="
-														.. reloadNonce,
-													true
-												)
-												local downloadedVersion = scriptSource:match(
-													'BGSI_Lite_ScriptVersion%s*=%s*"([^"]+)"'
-												)
-												if not downloadedVersion then
-													error("The downloaded script has no version marker")
-												end
 												local requestedVersion = tostring(
 													dashboardCommand.version or dashboardCommand.targetVersion or ""
 												)
+												local scriptSource
+												local downloadedVersion
+												for reloadAttempt = 1, 4 do
+													local reloadNonce = table.concat({
+														tostring(os.time()),
+														tostring(math.random(100000, 999999)),
+														tostring(reloadAttempt),
+														requestedVersion,
+													}, "-")
+													scriptSource = game:HttpGet(
+														"https://raw.githubusercontent.com/nf4z/larp/main/larp?reload="
+															.. HttpService:UrlEncode(reloadNonce),
+														true
+													)
+													downloadedVersion = scriptSource:match(
+														'BGSI_Lite_ScriptVersion%s*=%s*"([^"]+)"'
+													)
+													if
+														downloadedVersion
+														and (requestedVersion == "" or downloadedVersion == requestedVersion)
+													then
+														break
+													end
+													if reloadAttempt < 4 then
+														task.wait(reloadAttempt)
+													end
+												end
+												if not downloadedVersion then
+													error("The downloaded script has no version marker")
+												end
 												if requestedVersion ~= "" and downloadedVersion ~= requestedVersion then
 													error(
 														"GitHub returned version "
