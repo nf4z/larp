@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.31.03",
+		releasedAt = "July 31, 2026",
+		notes = {
+			{
+				title = "Uninterrupted 4x Luck hatching",
+				description = "Keeps the summoned 4x Luck egg ahead of special rifts and automatically closes in-game prompts.",
+				icon = "badge-x",
+			},
+		},
+	},
 	{
 		version = "2026.07.31.02",
 		releasedAt = "July 31, 2026",
@@ -915,6 +926,7 @@ local defaultConfig = {
 	questStallTimeoutSeconds = 60,
 	autoGlobalIncentive = false,
 	autoClaimGlobalIncentive = false,
+	autoClosePopups = true,
 	AutoPurchaseEvents = false,
 	PriorityEvents = {
 		"Luck Event",
@@ -1889,6 +1901,87 @@ activeStates.BGSI_Lite_FireGameRemote = function(actionName, ...)
 		return carnivalRemoteModule:FireServer(actionName, ...)
 	end
 	return remoteEvent:FireServer(actionName, ...)
+end
+do
+	local gameGuiFrame
+	local observedScreenGui
+
+	pcall(function()
+		gameGuiFrame = require(ReplicatedStorage.Client.Gui.GuiFrame)
+	end)
+
+	local function closeGamePrompt(prompt)
+		if
+			not isCurrentRun()
+			or Config.autoClosePopups ~= true
+			or typeof(prompt) ~= "Instance"
+			or prompt.Name ~= "Prompt"
+		then
+			return
+		end
+		task.defer(function()
+			if not isCurrentRun() or Config.autoClosePopups ~= true or not prompt.Parent then
+				return
+			end
+			local externalClose = prompt:FindFirstChild("ExternalClose")
+			if externalClose and externalClose:IsA("BindableFunction") then
+				pcall(externalClose.Invoke, externalClose)
+			end
+		end)
+	end
+
+	local function observeScreenGui(screenGui)
+		if observedScreenGui == screenGui or typeof(screenGui) ~= "Instance" then
+			return
+		end
+		observedScreenGui = screenGui
+		if activeStates.BGSI_Lite_GamePromptChildConnection then
+			activeStates.BGSI_Lite_GamePromptChildConnection:Disconnect()
+		end
+		activeStates.BGSI_Lite_GamePromptChildConnection = screenGui.ChildAdded:Connect(closeGamePrompt)
+		local existingPrompt = screenGui:FindFirstChild("Prompt")
+		if existingPrompt then
+			closeGamePrompt(existingPrompt)
+		end
+	end
+
+	local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	if playerGui then
+		local screenGui = playerGui:FindFirstChild("ScreenGui")
+		if screenGui then
+			observeScreenGui(screenGui)
+		end
+		activeStates.BGSI_Lite_PlayerGuiChildConnection = playerGui.ChildAdded:Connect(function(child)
+			if child.Name == "ScreenGui" then
+				observeScreenGui(child)
+			end
+		end)
+	end
+
+	if
+		type(gameGuiFrame) == "table"
+		and gameGuiFrame.Changed
+		and type(gameGuiFrame.Changed.Connect) == "function"
+	then
+		activeStates.BGSI_Lite_GamePopupFrameConnection = gameGuiFrame.Changed:Connect(function(frameName)
+			if
+				Config.autoClosePopups == true
+				and type(frameName) == "string"
+				and string.find(string.lower(frameName), "prompt", 1, true)
+			then
+				task.defer(function()
+					if
+						isCurrentRun()
+						and Config.autoClosePopups == true
+						and type(gameGuiFrame.GetCurrentlyOpen) == "function"
+						and gameGuiFrame:GetCurrentlyOpen() == frameName
+					then
+						gameGuiFrame:Close()
+					end
+				end)
+			end
+		end)
+	end
 end
 do
 	-- Event Board purchases and the Infinite Track transition are requests only.
@@ -6103,10 +6196,24 @@ if type(getgenv) == "function" then
 					activeStates.BGSI_Lite_EventAutomationHeartbeatConnection = nil
 				end
 			end)
+			for _, connectionKey in ipairs({
+				"BGSI_Lite_GamePromptChildConnection",
+				"BGSI_Lite_GamePopupFrameConnection",
+				"BGSI_Lite_PlayerGuiChildConnection",
+			}) do
+				pcall(function()
+					local connection = activeStates[connectionKey]
+					if connection then
+						connection:Disconnect()
+						activeStates[connectionKey] = nil
+					end
+				end)
+			end
 			activeStates.RayfieldGen2 = nil
 			activeStates.RayfieldGen2Window = nil
 			activeStates.BGSI_Lite_EventBoard = nil
 			activeStates.BGSI_Lite_BeginSeasonInfinite = nil
+			activeStates.BGSI_Lite_HasLiveFourXLuckEgg = nil
 			activeStates.BGSI_Lite_HideHatchInterface = nil
 			activeStates.BGSI_Lite_NoHatchAnimationPlay = nil
 			activeStates.BGSI_Lite_ApplyHatchAnimationSetting = nil
@@ -7247,6 +7354,13 @@ do
 end
 activeStates.BGSI_Lite_LuckEggActive = false
 activeStates.BGSI_Lite_SpecialRiftActive = false
+activeStates.BGSI_Lite_HasLiveFourXLuckEgg = function()
+	if Config.autoLuckEgg ~= true then
+		return false
+	end
+	local summonedEgg = Workspace:FindFirstChild("SummonedEgg")
+	return summonedEgg ~= nil and summonedEgg:FindFirstChild("EggPlatformSpawn") ~= nil
+end
 task.spawn(function()
 	local luckEggCooldown = 0
 	local luckEggReadinessLogAt = 0
@@ -7268,13 +7382,6 @@ task.spawn(function()
 				luckEggCooldown = 0
 			end
 			task.wait(1)
-			continue
-		end
-		if activeStates.BGSI_Lite_SpecialRiftActive then
-			if activeStates.BGSI_Lite_LuckEggActive then
-				activeStates.BGSI_Lite_LuckEggActive = false
-			end
-			task.wait(0.2)
 			continue
 		end
 		local playerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
@@ -8733,6 +8840,11 @@ do
 		while isCurrentRun() do
 			task.wait(Config.autoSpecialRift and 0.1 or 0.85)
 			if Config.autoSpecialRift ~= true then
+				activeStates.BGSI_Lite_SpecialRiftActive = false
+				specialRiftTeleportAt = 0
+				continue
+			end
+			if activeStates.BGSI_Lite_HasLiveFourXLuckEgg() then
 				activeStates.BGSI_Lite_SpecialRiftActive = false
 				specialRiftTeleportAt = 0
 				continue
