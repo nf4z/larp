@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.31.05",
+		releasedAt = "July 31, 2026",
+		notes = {
+			{
+				title = "Automatic Crystal Altar",
+				description = "Uses valid owned pets with matching variants and prioritizes the guaranteed Omega Crystal Dragon recipe.",
+				icon = "gem",
+			},
+		},
+	},
 	{
 		version = "2026.07.31.04",
 		releasedAt = "July 31, 2026",
@@ -990,6 +1001,7 @@ local defaultConfig = {
 		"Normal",
 	},
 	RebirthMachineEnabled = false,
+	CrystalAltarEnabled = false,
 	AdminRebirthMachineEnabled = false,
 	AutoCarnivalRebirth = false,
 
@@ -17462,6 +17474,14 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 			saveConfig()
 		end,
 	})
+	scriptStateGB:AddToggle("CrystalAltar", {
+		Title = "Auto Crystal Altar",
+		Default = Config.CrystalAltarEnabled,
+		Callback = function(isEnabled)
+			Config.CrystalAltarEnabled = isEnabled
+			saveConfig()
+		end,
+	})
 	scriptStateGB:AddToggle("AdminRebirthMachine", {
 		Title = "Auto Admin Rebirth Machine",
 		Default = Config.AdminRebirthMachineEnabled,
@@ -17634,6 +17654,122 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 			return true
 		end
 		return getCurrentTimestamp() >= scriptStateDQ
+	end
+	activeStates.BGSI_Lite_CanUseCrystalAltar = function()
+		local dataOk, playerData = pcall(function()
+			return profileStore:Get()
+		end)
+		if not dataOk or type(playerData) ~= "table" then
+			return false
+		end
+		local nextUse = playerData.NextCrystalAltarUse
+		if type(nextUse) == "table" then
+			nextUse = nextUse.NextCrystalAltarUse or nextUse.Next or nextUse.Value
+		end
+		return nextUse == nil or getCurrentTimestamp() >= (tonumber(nextUse) or math.huge)
+	end
+	activeStates.BGSI_Lite_GetCrystalAltarPetIds = function()
+		local dataOk, playerData = pcall(function()
+			return profileStore:Get()
+		end)
+		if not dataOk or type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+			return nil
+		end
+		local altarPetRanks = {
+			["Crystal Pyramidium"] = 1,
+			["Crystal Golem"] = 2,
+			["Soul Star"] = 3,
+			["Emerald Crystal Dragon"] = 4,
+			["Ruby Crystal Dragon"] = 5,
+			["Sapphire Crystal Dragon"] = 6,
+		}
+		local specialCombination = {
+			"Emerald Crystal Dragon",
+			"Ruby Crystal Dragon",
+			"Sapphire Crystal Dragon",
+		}
+		local equippedPetIds = {}
+		for _, teamData in pairs(type(playerData.Teams) == "table" and playerData.Teams or {}) do
+			for _, petId in ipairs(type(teamData) == "table" and type(teamData.Pets) == "table" and teamData.Pets or {}) do
+				equippedPetIds[tostring(petId)] = true
+			end
+		end
+		local variantOrder = type(Config.RebirthVariants) == "table" and Config.RebirthVariants
+			or {
+				"Normal",
+			}
+		for _, targetVariant in ipairs(variantOrder) do
+			local candidates = {}
+			local candidatesByName = {}
+			for _, petData in ipairs(playerData.Pets) do
+				local petId = tostring(petData.Id or "")
+				local petVariant = petData.Shiny == true and petData.Mythic == true and "Shiny Mythic"
+					or (petData.Shiny == true and "Shiny" or (petData.Mythic == true and "Mythic" or "Normal"))
+				if
+					petId ~= ""
+					and altarPetRanks[petData.Name]
+					and petData.Locked ~= true
+					and petData.XL ~= true
+					and not equippedPetIds[petId]
+					and petVariant == targetVariant
+				then
+					table.insert(candidates, petData)
+					candidatesByName[petData.Name] = candidatesByName[petData.Name] or {}
+					table.insert(candidatesByName[petData.Name], petData)
+				end
+			end
+			local specialPetIds = {}
+			for _, petName in ipairs(specialCombination) do
+				local matchingPets = candidatesByName[petName]
+				if type(matchingPets) ~= "table" or not matchingPets[1] then
+					table.clear(specialPetIds)
+					break
+				end
+				table.insert(specialPetIds, tostring(matchingPets[1].Id))
+			end
+			if #specialPetIds == 3 then
+				return specialPetIds, true
+			end
+			table.sort(candidates, function(leftPet, rightPet)
+				local leftRank = altarPetRanks[leftPet.Name] or math.huge
+				local rightRank = altarPetRanks[rightPet.Name] or math.huge
+				if leftRank ~= rightRank then
+					return leftRank < rightRank
+				end
+				return tostring(leftPet.Id) < tostring(rightPet.Id)
+			end)
+			if #candidates >= 3 then
+				return {
+					tostring(candidates[1].Id),
+					tostring(candidates[2].Id),
+					tostring(candidates[3].Id),
+				}, false
+			end
+		end
+		return nil
+	end
+	activeStates.BGSI_Lite_RunCrystalAltar = function()
+		if
+			not activeStates.BGSI_Lite_CanUseCrystalAltar()
+			or tick() - (tonumber(activeStates.BGSI_Lite_LastCrystalAltarAttempt) or 0) < 5
+		then
+			return
+		end
+		local petIds, isSpecialCombination = activeStates.BGSI_Lite_GetCrystalAltarPetIds()
+		if type(petIds) ~= "table" or #petIds ~= 3 then
+			return
+		end
+		activeStates.BGSI_Lite_LastCrystalAltarAttempt = tick()
+		local invokeOk, result = pcall(function()
+			return remoteFunction:InvokeServer("UseRebirthMachine", "CrystalAltar", petIds)
+		end)
+		if invokeOk and result ~= nil and type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
+			activeStates.BGSI_Lite_LogDashboardAction(
+				isSpecialCombination and "Crystal Altar: created the guaranteed Omega Crystal Dragon recipe"
+					or "Crystal Altar: converted three eligible pets",
+				"success"
+			)
+		end
 	end
 	activeStates.BGSI_Lite_CanUseAdminRebirthMachine = function()
 		local scriptStateAAL, scriptStateJD = pcall(function()
@@ -17958,6 +18094,14 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 				runRebirthMachine(5, Config.RebirthPetName, "UseRebirthMachine")
 			end
 			task.wait(0.5)
+		end
+	end)
+	task.spawn(function()
+		while isCurrentRun() do
+			if Config.CrystalAltarEnabled then
+				pcall(activeStates.BGSI_Lite_RunCrystalAltar)
+			end
+			task.wait(Config.CrystalAltarEnabled and 1 or 3)
 		end
 	end)
 	task.spawn(function()
