@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.04"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.31.04",
+		releasedAt = "July 31, 2026",
+		notes = {
+			{
+				title = "Complete enchant teams",
+				description = "Counts stacked pet copies individually, repairs partial team equips, and retries missing slots before enchanting.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.07.31.03",
 		releasedAt = "July 31, 2026",
@@ -14231,6 +14242,31 @@ local function getEnchantablePets()
 	local scriptStateTI = scriptStateGP.Teams[scriptStateGP.TeamEquipped]
 	return (scriptStateTI and type(scriptStateTI.Pets) == "table") and scriptStateTI.Pets or {}
 end
+activeStates.BGSI_Lite_GetPetIdCounts = function(petIds)
+	local counts = {}
+	for _, petId in ipairs(type(petIds) == "table" and petIds or {}) do
+		local normalizedPetId = tostring(petId)
+		counts[normalizedPetId] = (counts[normalizedPetId] or 0) + 1
+	end
+	return counts
+end
+activeStates.BGSI_Lite_PetTeamCountsMatch = function(equippedPetIds, selectedPetIds, selectedPetIdCounts)
+	if #equippedPetIds ~= #selectedPetIds then
+		return false
+	end
+	local equippedPetIdCounts = activeStates.BGSI_Lite_GetPetIdCounts(equippedPetIds)
+	for petId, selectedCount in pairs(selectedPetIdCounts) do
+		if equippedPetIdCounts[petId] ~= selectedCount then
+			return false
+		end
+	end
+	for petId, equippedCount in pairs(equippedPetIdCounts) do
+		if selectedPetIdCounts[petId] ~= equippedCount then
+			return false
+		end
+	end
+	return true
+end
 local function getEnchantPetPriority(pet)
 	local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
 	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
@@ -14388,7 +14424,7 @@ local function prepareAutoEnchantTeam()
 		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
 	end)
 	local selectedPetIds = {}
-	local selectedPetIdSet = {}
+	local selectedPetIdCounts = {}
 	local selectedSuperCount = 0
 	for _, candidate in ipairs(candidates) do
 		if #selectedPetIds >= maxPetsEquipped then
@@ -14399,72 +14435,83 @@ local function prepareAutoEnchantTeam()
 			or candidate.pet.IsSuper == true
 			or candidate.rarity == "Super"
 			or candidate.rarity == "Super Legendary"
-		if petId ~= "" and (not isSuperLegendary or selectedSuperCount < maxSupersEquipped) then
-			table.insert(selectedPetIds, petId)
-			selectedPetIdSet[petId] = true
-			if isSuperLegendary then
-				selectedSuperCount += 1
+		local availableCopies = math.max(
+			1,
+			math.floor(tonumber(candidate.pet.Amount or candidate.pet.Count) or 1)
+		)
+		for _ = 1, availableCopies do
+			if #selectedPetIds >= maxPetsEquipped then
+				break
+			end
+			if petId ~= "" and (not isSuperLegendary or selectedSuperCount < maxSupersEquipped) then
+				table.insert(selectedPetIds, petId)
+				selectedPetIdCounts[petId] = (selectedPetIdCounts[petId] or 0) + 1
+				if isSuperLegendary then
+					selectedSuperCount += 1
+				end
 			end
 		end
 	end
 	local equippedPetIds = getEnchantablePets()
-	local teamMatches = #equippedPetIds == #selectedPetIds
-	if teamMatches then
-		for _, petId in ipairs(equippedPetIds) do
-			if not selectedPetIdSet[tostring(petId)] then
-				teamMatches = false
-				break
-			end
-		end
-	end
+	local teamMatches =
+		activeStates.BGSI_Lite_PetTeamCountsMatch(equippedPetIds, selectedPetIds, selectedPetIdCounts)
 	if teamMatches then
 		return true
 	end
-	if tick() - (tonumber(activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt) or 0) < 6 then
+	if tick() - (tonumber(activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt) or 0) < 2 then
 		return false
 	end
 	activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = tick()
-	local equippedPetIdSet = {}
-	for _, petId in ipairs(equippedPetIds) do
-		local normalizedPetId = tostring(petId)
-		equippedPetIdSet[normalizedPetId] = true
-		if not selectedPetIdSet[normalizedPetId] then
-			remoteEvent:FireServer("UnequipPet", petId)
-			task.wait(0.06)
+
+	local function sendTeamCorrections(currentPetIds)
+		local currentCounts = activeStates.BGSI_Lite_GetPetIdCounts(currentPetIds)
+		local extraCounts = {}
+		for petId, currentCount in pairs(currentCounts) do
+			local extraCount = currentCount - (selectedPetIdCounts[petId] or 0)
+			if extraCount > 0 then
+				extraCounts[petId] = extraCount
+			end
 		end
-	end
-	task.wait(0.15)
-	for _, petId in ipairs(selectedPetIds) do
-		if not equippedPetIdSet[petId] then
-			remoteEvent:FireServer("EquipPet", petId)
-			task.wait(0.06)
+		for _, petId in ipairs(currentPetIds) do
+			local normalizedPetId = tostring(petId)
+			if (extraCounts[normalizedPetId] or 0) > 0 then
+				remoteEvent:FireServer("UnequipPet", normalizedPetId)
+				extraCounts[normalizedPetId] -= 1
+				task.wait(0.08)
+			end
 		end
-	end
-	local equipDeadline = tick() + 3
-	local equipRetryCount = 0
-	local nextEquipRetry = tick() + 0.75
-	repeat
 		task.wait(0.15)
-		equippedPetIds = getEnchantablePets()
-		equippedPetIdSet = {}
-		for _, petId in ipairs(equippedPetIds) do
-			equippedPetIdSet[tostring(petId)] = true
+		currentPetIds = getEnchantablePets()
+		currentCounts = activeStates.BGSI_Lite_GetPetIdCounts(currentPetIds)
+		local missingCounts = {}
+		for petId, selectedCount in pairs(selectedPetIdCounts) do
+			local missingCount = selectedCount - (currentCounts[petId] or 0)
+			if missingCount > 0 then
+				missingCounts[petId] = missingCount
+			end
 		end
-		teamMatches = #equippedPetIds == #selectedPetIds
-		local missingPetIds = {}
 		for _, petId in ipairs(selectedPetIds) do
-			if not equippedPetIdSet[petId] then
-				teamMatches = false
-				table.insert(missingPetIds, petId)
+			if (missingCounts[petId] or 0) > 0 then
+				remoteEvent:FireServer("EquipPet", petId)
+				missingCounts[petId] -= 1
+				task.wait(0.08)
 			end
 		end
-		if not teamMatches and tick() >= nextEquipRetry and equipRetryCount < 2 then
+	end
+
+	sendTeamCorrections(equippedPetIds)
+	local equipDeadline = tick() + 6
+	local equipRetryCount = 0
+	local nextEquipRetry = tick() + 0.5
+	repeat
+		task.wait(0.2)
+		equippedPetIds = getEnchantablePets()
+		teamMatches =
+			activeStates.BGSI_Lite_PetTeamCountsMatch(equippedPetIds, selectedPetIds, selectedPetIdCounts)
+		if not teamMatches and tick() >= nextEquipRetry and equipRetryCount < 6 then
 			equipRetryCount += 1
-			nextEquipRetry = tick() + 0.75
-			for _, petId in ipairs(missingPetIds) do
-				remoteEvent:FireServer("EquipPet", petId)
-				task.wait(0.06)
-			end
+			nextEquipRetry = tick() + 0.5
+			sendTeamCorrections(equippedPetIds)
 		end
 	until teamMatches or tick() >= equipDeadline
 	return teamMatches
