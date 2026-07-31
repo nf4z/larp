@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.07.31.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -61,6 +61,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.07.31.02",
+		releasedAt = "July 31, 2026",
+		notes = {
+			{
+				title = "Reliable dashboard updates",
+				description = "Resolves GitHub updates through immutable commit versions and retries briefly stale downloads.",
+				icon = "refresh-cw",
+			},
+		},
+	},
 	{
 		version = "2026.07.31.01",
 		releasedAt = "July 31, 2026",
