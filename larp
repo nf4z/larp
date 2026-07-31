@@ -12958,8 +12958,24 @@ do
 														tostring(reloadAttempt),
 														requestedVersion,
 													}, "-")
+													local sourceReference = "main"
+													pcall(function()
+														local commitMetadata = HttpService:JSONDecode(game:HttpGet(
+															"https://api.github.com/repos/nf4z/larp/commits/main?reload="
+																.. HttpService:UrlEncode(reloadNonce),
+															true
+														))
+														local commitSha = type(commitMetadata) == "table"
+																and tostring(commitMetadata.sha or "")
+															or ""
+														if commitSha:match("^[%da-fA-F]+$") then
+															sourceReference = commitSha
+														end
+													end)
 													scriptSource = game:HttpGet(
-														"https://raw.githubusercontent.com/nf4z/larp/main/larp?reload="
+														"https://raw.githubusercontent.com/nf4z/larp/"
+															.. sourceReference
+															.. "/larp?reload="
 															.. HttpService:UrlEncode(reloadNonce),
 														true
 													)
