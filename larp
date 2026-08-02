@@ -878,7 +878,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 activeStates.BGSI_Lite_ReleaseNotes = activeStates.BGSI_Lite_ReleaseHistory[1].notes
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
-local function isCurrentRun()
+function isCurrentRun()
 	return activeStates._1rzHubLiteRunToken == currentRunToken
 end
 pcall(function()
@@ -1058,7 +1058,7 @@ activeStates.BGSI_Lite_SafeModePreservedKeys = {
 local legacyConfigFile = "1rzHubConfig.json"
 local Config
 -- Loads the saved config and falls back safely if the file is missing/broken.
-local function loadConfig()
+function loadConfig()
 	local scriptStateBB = {}
 	if isfile and isfile(configFile) then
 		local scriptStateIS, scriptStateRR = pcall(function()
@@ -1128,7 +1128,7 @@ activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities = function(prior
 	return normalizedPriorities
 end
 -- Saves the current config when a setting changes.
-local function saveConfig()
+function saveConfig()
 	if not writefile then
 		return
 	end
@@ -1150,7 +1150,7 @@ local function saveConfig()
 end
 
 local webhookHatchTrackerFile = "1rzHubLiteWebhookHatchTracker.json"
-local function loadWebhookHatchTracker()
+function loadWebhookHatchTracker()
 	local tracker = {}
 	if isfile and isfile(webhookHatchTrackerFile) then
 		local ok, savedTracker = pcall(function()
@@ -1170,7 +1170,7 @@ local function loadWebhookHatchTracker()
 	return tracker
 end
 
-local function saveWebhookHatchTracker()
+function saveWebhookHatchTracker()
 	if not writefile then
 		return
 	end
@@ -1200,12 +1200,12 @@ local function saveWebhookHatchTracker()
 end
 
 -- Helper function to safely require modules
-local function safeRequireTable(moduleLoaderFunction)
+function safeRequireTable(moduleLoaderFunction)
 	local success, module = pcall(moduleLoaderFunction)
 	return success and type(module) == "table" and module or nil
 end
 
-local function getChunkerModule()
+function getChunkerModule()
 	local ChunkerModule = safeRequireTable(function()
 		local shared = ReplicatedStorage:WaitForChild("Shared", 5)
 		local utils = shared:WaitForChild("Utils", 5)
@@ -1234,7 +1234,7 @@ local function getChunkerModule()
 end
 
 -- Function to refresh chunks around the player
-local function refreshChunkerAroundPlayer()
+function refreshChunkerAroundPlayer()
 	local ChunkerModule = getChunkerModule()
 
 	if not ChunkerModule or type(ChunkerModule.Update) ~= "function" then
@@ -1488,7 +1488,7 @@ end)
 
 -- Current clients do not expose Workspace.StreamingTargetRadius. The game
 -- controls rendered objects through each Chunker's RenderDistance instead.
-local function installChunkerRenderDistanceHook()
+function installChunkerRenderDistanceHook()
 	local ChunkerModule = getChunkerModule()
 	if not ChunkerModule or type(ChunkerModule.Update) ~= "function" then
 		return false
@@ -1941,7 +1941,7 @@ pcall(function()
 end)
 
 -- Safe time helper. Some game builds expose Time.now(), others only need os.time().
-local function getCurrentTimestamp()
+function getCurrentTimestamp()
 	if type(timeModule) == "table" and type(timeModule.now) == "function" then
 		local ok, result = pcall(timeModule.now)
 		if ok and type(result) == "number" then
@@ -2878,7 +2878,7 @@ task.spawn(function()
 	end
 end)
 -- Teleport helper: moves the character root to a CFrame safely.
-local function teleportToCFrame(targetCFrame)
+function teleportToCFrame(targetCFrame)
 	if typeof(targetCFrame) ~= "CFrame" or not LocalPlayer then
 		return false
 	end
@@ -2935,7 +2935,7 @@ activeStates.BGSI_Lite_GetRiftTargetCFrame = function(riftModel)
 	end
 	return activeStates.BGSI_Lite_GetInstanceTargetCFrame(riftModel, "Output")
 end
-local function getMaxHatchAmount()
+function getMaxHatchAmount()
 	local scriptStateVM
 	pcall(function()
 		if profileStore:IsReady() then
@@ -2956,7 +2956,7 @@ local function getMaxHatchAmount()
 	return activeStates.BGSI_Lite_CachedMaxHatch or 1
 end
 local fallbackUtilityE
-local function safeGetChildren(targetObject)
+function safeGetChildren(targetObject)
 	return fallbackUtilityE and fallbackUtilityE(targetObject) or {}
 end
 local sharedEnv = activeStates
@@ -2979,10 +2979,10 @@ local autoPatchEnabled = true
 local defaultTeleportHeight = 5
 local infinityEggHeight = 10
 local cachedEggLookup, cachedEggList, cacheTime = nil, nil, 0
-local function clearEggScanCache()
+function clearEggScanCache()
 	cachedEggLookup, cachedEggList, cacheTime = nil, nil, 0
 end
-local function findChunkerModule()
+function findChunkerModule()
 	local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
 	local scriptStateAAO = sharedFolder and sharedFolder:FindFirstChild("Framework")
 	local scriptStateABJ = scriptStateAAO and scriptStateAAO:FindFirstChild("Classes")
@@ -3002,7 +3002,7 @@ local function findChunkerModule()
 	end
 	return nil
 end
-local function registerEggChunker(scriptStateFJ)
+function registerEggChunker(scriptStateFJ)
 	if type(scriptStateFJ) ~= "table" then
 		return
 	end
@@ -3014,14 +3014,14 @@ local function registerEggChunker(scriptStateFJ)
 	table.insert(eggChunkerTracker.Chunkers, scriptStateFJ)
 	clearEggScanCache()
 end
-local function isEggChunkerObject(scriptStateFO)
+function isEggChunkerObject(scriptStateFO)
 	return type(scriptStateFO) == "table"
 		and type(rawget(scriptStateFO, "_chunks")) == "table"
 		and type(rawget(scriptStateFO, "_loaded")) == "table"
 		and rawget(scriptStateFO, "_chunkSize") ~= nil
 		and rawget(scriptStateFO, "RenderDistance") ~= nil
 end
-local function patchEggChunkerModule()
+function patchEggChunkerModule()
 	local scriptStateED = findChunkerModule()
 	local scriptStateLO, chunkerInstance = false, nil
 	if scriptStateED then
@@ -3062,7 +3062,7 @@ local function patchEggChunkerModule()
 	return #eggChunkerTracker.Chunkers > 0 or (scriptStateLO and type(chunkerInstance) == "table")
 end
 local scriptStateTU
-local function getEggDataLookup()
+function getEggDataLookup()
 	if scriptStateTU then
 		return scriptStateTU
 	end
@@ -3092,7 +3092,7 @@ local function getEggDataLookup()
 	scriptStateTU = scriptStateWU
 	return scriptStateWU
 end
-local function getEggDisplayName(scriptStateII)
+function getEggDisplayName(scriptStateII)
 	if typeof(scriptStateII) == "Instance" then
 		return scriptStateII.Name
 	end
@@ -3107,7 +3107,7 @@ local function getEggDisplayName(scriptStateII)
 	end
 	return nil
 end
-local function isValidEggInstance(scriptStateZO)
+function isValidEggInstance(scriptStateZO)
 	local scriptStateCF = getEggDisplayName(scriptStateZO)
 	if type(scriptStateCF) ~= "string" or scriptStateCF == "" then
 		return false
@@ -3126,7 +3126,7 @@ local function isValidEggInstance(scriptStateZO)
 	end
 	return string.find(string.lower(scriptStateCF), "egg", 1, true) ~= nil
 end
-local function toVector3(inputValue)
+function toVector3(inputValue)
 	if typeof(inputValue) == "Vector3" then
 		return inputValue
 	end
@@ -3135,7 +3135,7 @@ local function toVector3(inputValue)
 	end
 	return nil
 end
-local function getEggPosition(scriptStateMN)
+function getEggPosition(scriptStateMN)
 	local cachedPosition = toVector3(eggChunkerTracker.Positions[scriptStateMN])
 	if cachedPosition then
 		return cachedPosition
@@ -3159,7 +3159,7 @@ local function getEggPosition(scriptStateMN)
 	end
 	return nil
 end
-local function getChunkWorldBounds(scriptStateDI, scriptStateOT)
+function getChunkWorldBounds(scriptStateDI, scriptStateOT)
 	local scriptStateGW = rawget(scriptStateDI, "_chunkSize") or 1
 	local scriptStateABB, scriptStateQY, scriptStateHI = scriptStateGW, scriptStateGW, scriptStateGW
 	if typeof(scriptStateGW) == "Vector3" then
@@ -3171,14 +3171,14 @@ local function getChunkWorldBounds(scriptStateDI, scriptStateOT)
 		((scriptStateOT.Z or 0) - 0.5) * scriptStateHI
 	)
 end
-local function scoreEggScanResult(scriptStateVU)
+function scoreEggScanResult(scriptStateVU)
 	return (scriptStateVU.exact and 1000 or 0) + (scriptStateVU.loaded and 100 or 0)
 end
-local function roundToThreeDecimals(scriptStateLJ)
+function roundToThreeDecimals(scriptStateLJ)
 	scriptStateLJ = tonumber(scriptStateLJ) or 0
 	return math.floor(scriptStateLJ * 1000 + (scriptStateLJ >= 0 and 0.5 or -0.5)) / 1000
 end
-local function makeEggLocationKey(scriptStatePJ, scriptStateCC, scriptStateVG, scriptStateNF)
+function makeEggLocationKey(scriptStatePJ, scriptStateCC, scriptStateVG, scriptStateNF)
 	local scriptStateABF = scriptStateNF and scriptStateNF.X or 0
 	local scriptStateFC = scriptStateNF and scriptStateNF.Y or 0
 	local scriptStateZR = scriptStateNF and scriptStateNF.Z or 0
@@ -3193,7 +3193,7 @@ local function makeEggLocationKey(scriptStatePJ, scriptStateCC, scriptStateVG, s
 		tostring(roundToThreeDecimals(scriptStateCC and scriptStateCC.Z or 0)),
 	}, "|")
 end
-local function sortEggScanResults(scriptStatePZ)
+function sortEggScanResults(scriptStatePZ)
 	table.sort(scriptStatePZ, function(scriptStateADX, scriptStateJN)
 		local scriptStateOZ, scriptStateAAU = scoreEggScanResult(scriptStateADX), scoreEggScanResult(scriptStateJN)
 		if scriptStateOZ ~= scriptStateAAU then
@@ -3204,7 +3204,7 @@ local function sortEggScanResults(scriptStatePZ)
 	return scriptStatePZ
 end
 -- Egg scanner: reads rendered eggs/chunk data so the UI can show real egg locations.
-local function scanRenderedEggs(scriptStateMJ)
+function scanRenderedEggs(scriptStateMJ)
 	if not scriptStateMJ and cachedEggLookup and tick() - cacheTime < 2 then
 		return cachedEggLookup, cachedEggList
 	end
@@ -3265,7 +3265,7 @@ fallbackUtilityE = function(scriptStateAB)
 	end)
 	return loopSlotBB
 end
-local function getEggLocationsByName(eggName, forceRescan)
+function getEggLocationsByName(eggName, forceRescan)
 	if type(eggName) ~= "string" or eggName == "" then
 		return {}
 	end
@@ -3278,7 +3278,7 @@ local function getEggLocationsByName(eggName, forceRescan)
 	end
 	return sortEggScanResults(scriptStateFN)
 end
-local function getEggLocationByKey(loopSlotAV, scriptStatePE, scriptStateES)
+function getEggLocationByKey(loopSlotAV, scriptStatePE, scriptStateES)
 	if type(scriptStatePE) ~= "string" or scriptStatePE == "" then
 		return nil
 	end
@@ -3289,7 +3289,7 @@ local function getEggLocationByKey(loopSlotAV, scriptStatePE, scriptStateES)
 	end
 	return nil
 end
-local function chooseBestEggLocation(scriptStateAAH)
+function chooseBestEggLocation(scriptStateAAH)
 	local scriptStateAET = type(Config.selectedEggLocationPriorities) == "table"
 			and Config.selectedEggLocationPriorities
 		or {}
@@ -3311,7 +3311,7 @@ local function chooseBestEggLocation(scriptStateAAH)
 	end
 	return scriptStateJB[1]
 end
-local function makeEggTeleportPosition(scriptStateNG)
+function makeEggTeleportPosition(scriptStateNG)
 	if type(scriptStateNG) ~= "table" or typeof(scriptStateNG.position) ~= "Vector3" then
 		return nil
 	end
@@ -3322,7 +3322,7 @@ local function makeEggTeleportPosition(scriptStateNG)
 		Z = scriptStateNG.position.Z,
 	}
 end
-local function countScannedEggs()
+function countScannedEggs()
 	local scriptStateYU, scriptStateHF = scanRenderedEggs(true)
 	local scriptStateSG = 0
 	for scriptStateCT in pairs(scriptStateYU) do
@@ -3331,7 +3331,7 @@ local function countScannedEggs()
 	return scriptStateSG, #scriptStateHF
 end
 local scanNotificationInProgress = false
-local function refreshEggScanNotification(scriptStateNT)
+function refreshEggScanNotification(scriptStateNT)
 	if scanNotificationInProgress then
 		return
 	end
@@ -3356,7 +3356,7 @@ local function refreshEggScanNotification(scriptStateNT)
 		end
 	end
 end
-local function getSelectedEggTeleportPosition(scriptStateADY)
+function getSelectedEggTeleportPosition(scriptStateADY)
 	if type(scriptStateADY) ~= "string" or scriptStateADY == "" then
 		return nil
 	end
@@ -3376,7 +3376,7 @@ task.defer(function()
 	end
 end)
 local teleportOffsetY = 3
-local function teleportToEggByName(scriptStateABE)
+function teleportToEggByName(scriptStateABE)
 	local selectedEggLocation = chooseBestEggLocation(scriptStateABE)
 	local selectedEggInstance = selectedEggLocation and selectedEggLocation.instance
 	local eggPlate = typeof(selectedEggInstance) == "Instance"
@@ -3413,7 +3413,7 @@ local function teleportToEggByName(scriptStateABE)
 	return teleportToCFrame(eggTarget)
 end
 -- Hatch helper: fires the hatch remote with the selected egg and hatch amount.
-local function fireHatchEgg(scriptStateQC)
+function fireHatchEgg(scriptStateQC)
 	if not isCurrentRun() or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
 	end
@@ -3435,7 +3435,7 @@ local function fireHatchEgg(scriptStateQC)
 	end
 	return hatchRequestSucceeded
 end
-local function getBountyTaskRequirement(scriptStateVB)
+function getBountyTaskRequirement(scriptStateVB)
 	if not scriptStateVB then
 		return 1
 	end
@@ -3461,7 +3461,7 @@ local function getBountyTaskRequirement(scriptStateVB)
 	end
 	return 1
 end
-local function getBountyTaskProgress(scriptStateL, loopSlotC)
+function getBountyTaskProgress(scriptStateL, loopSlotC)
 	if not scriptStateL or not loopSlotC then
 		return 0
 	end
@@ -3652,7 +3652,7 @@ activeStates.BGSI_Lite_RecordQuestProgress = function(watchState, questData, tas
 	)
 	return watchState, true
 end
-local function makeIndexList(scriptStateMG)
+function makeIndexList(scriptStateMG)
 	if type(scriptStateMG) ~= "table" then
 		return {}
 	end
@@ -3673,7 +3673,7 @@ local function makeIndexList(scriptStateMG)
 	table.sort(scriptStateA)
 	return scriptStateA
 end
-local function normalizeBountyTask(scriptStateXW)
+function normalizeBountyTask(scriptStateXW)
 	if type(scriptStateXW) ~= "table" then
 		return scriptStateXW
 	end
@@ -3686,7 +3686,7 @@ local function normalizeBountyTask(scriptStateXW)
 	end
 	return scriptStateXW
 end
-local function isCoinOrCollectBountyTask(shopItemEntry)
+function isCoinOrCollectBountyTask(shopItemEntry)
 	shopItemEntry = normalizeBountyTask(shopItemEntry)
 	if type(shopItemEntry) ~= "table" then
 		return false
@@ -3726,7 +3726,7 @@ local function isCoinOrCollectBountyTask(shopItemEntry)
 	end
 	return false
 end
-local function getBountyCurrencyName(scriptStateADE)
+function getBountyCurrencyName(scriptStateADE)
 	scriptStateADE = normalizeBountyTask(scriptStateADE)
 	if type(scriptStateADE) ~= "table" then
 		return nil
@@ -3759,7 +3759,7 @@ local function getBountyCurrencyName(scriptStateADE)
 	end
 	return nil
 end
-local function getBountyTaskType(scriptStateADT)
+function getBountyTaskType(scriptStateADT)
 	scriptStateADT = normalizeBountyTask(scriptStateADT)
 	if type(scriptStateADT) ~= "table" then
 		return ""
@@ -3816,7 +3816,7 @@ activeStates.BGSI_Lite_GetBountyTaskSearchText = function(scriptStateTask, seenT
 	return string.lower(table.concat(taskTextParts, " "))
 end
 
-local function isBubbleBountyTask(scriptStateCR)
+function isBubbleBountyTask(scriptStateCR)
 	local scriptStateOV = getBountyTaskType(scriptStateCR)
 	local taskSearchText = activeStates.BGSI_Lite_GetBountyTaskSearchText(scriptStateCR)
 	return scriptStateOV == "bubble"
@@ -3897,7 +3897,7 @@ activeStates.BGSI_Lite_HasActionableUnfinishedQuestTask = function(scriptStateQu
 	return false
 end
 
-local function isHatchBountyTask(scriptStateRF)
+function isHatchBountyTask(scriptStateRF)
 	local scriptStateXZ = getBountyTaskType(scriptStateRF)
 	if scriptStateXZ == "hatchegggroup" then
 		return false
@@ -3921,7 +3921,7 @@ activeStates.BGSI_Lite_IsSpecificEggName = function(eggName)
 	end
 	return true
 end
-local function getBountyEggName(scriptStateBO)
+function getBountyEggName(scriptStateBO)
 	local scriptStateLL = normalizeBountyTask(scriptStateBO) or scriptStateBO
 	if type(scriptStateLL) == "table" then
 		local scriptStateDG = scriptStateLL.Egg or scriptStateLL.egg or scriptStateLL.EggName
@@ -3944,7 +3944,7 @@ local function getBountyEggName(scriptStateBO)
 	return activeStates.BGSI_Lite_IsSpecificEggName(Config.selectedEgg) and Config.selectedEgg or "Common Egg"
 end
 local gemShopSlots = nil
-local function getGemShopSlots()
+function getGemShopSlots()
 	if type(gemShopSlots) == "table" then
 		return gemShopSlots
 	end
@@ -4001,7 +4001,7 @@ local function getGemShopSlots()
 	gemShopSlots = loopSlotI
 	return loopSlotI
 end
-local function getCurrentCoins()
+function getCurrentCoins()
 	local scriptStateRY = 0
 	pcall(function()
 		if profileStore:IsReady() then
@@ -4011,7 +4011,7 @@ local function getCurrentCoins()
 	end)
 	return scriptStateRY
 end
-local function getCurrentGems()
+function getCurrentGems()
 	local scriptStateBN = 0
 	pcall(function()
 		if profileStore:IsReady() then
@@ -4025,7 +4025,7 @@ local function getCurrentGems()
 	return scriptStateBN
 end
 local gemReserveThreshold = 4999000000000
-local function hatchEggForDuration(scriptStateTY, scriptStateMI)
+function hatchEggForDuration(scriptStateTY, scriptStateMI)
 	local scriptStateAFN = tick() + (scriptStateMI or 5)
 	pcall(function()
 		teleportToEggByName(scriptStateTY)
@@ -4042,7 +4042,7 @@ local function hatchEggForDuration(scriptStateTY, scriptStateMI)
 		task.wait(0.1)
 	end
 end
-local function spendGemsDownToReserve(scriptStateACD, scriptStateEM)
+function spendGemsDownToReserve(scriptStateACD, scriptStateEM)
 	local scriptStateQN = getGemShopSlots()
 	if #scriptStateQN == 0 then
 		return 0
@@ -4079,10 +4079,10 @@ local function spendGemsDownToReserve(scriptStateACD, scriptStateEM)
 end
 local scriptStateAAN = CFrame.new(11, 15973, 45)
 local scriptStateZG = CFrame.new(2286, 3158, 850)
-local function teleportToCurrencyArea(scriptStateIG)
+function teleportToCurrencyArea(scriptStateIG)
 	return teleportToCFrame(scriptStateIG == "gems" and scriptStateZG or scriptStateAAN)
 end
-local function spamClaimGiantChest(scriptStateAAP)
+function spamClaimGiantChest(scriptStateAAP)
 	local scriptStateAEI = tick() + (scriptStateAAP or 5)
 	while tick() < scriptStateAEI do
 		local playerData = profileStore:IsReady() and profileStore:Get() or nil
@@ -4099,7 +4099,7 @@ local function spamClaimGiantChest(scriptStateAAP)
 end
 local scriptStateHD = 200
 local scriptStateCE
-local function installPickupRangeHook()
+function installPickupRangeHook()
 	if not scriptStateCE then
 		pcall(function()
 			scriptStateCE = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
@@ -4146,7 +4146,7 @@ task.spawn(function()
 		pcall(installPickupRangeHook)
 	end
 end)
-local function useGoldenOrbs(scriptStateKH, scriptStateAAT)
+function useGoldenOrbs(scriptStateKH, scriptStateAAT)
 	scriptStateKH = scriptStateKH or 4
 	scriptStateAAT = scriptStateAAT or 0.4
 	for loopSlotBH = 1, scriptStateKH do
@@ -4156,7 +4156,7 @@ local function useGoldenOrbs(scriptStateKH, scriptStateAAT)
 		task.wait(scriptStateAAT)
 	end
 end
-local function runCurrencyOrbPrep(scriptStateEV, scriptStateDJ)
+function runCurrencyOrbPrep(scriptStateEV, scriptStateDJ)
 	teleportToCurrencyArea(scriptStateEV)
 	task.wait(0.15)
 	if scriptStateEV == "gems" then
@@ -4178,7 +4178,7 @@ local function runCurrencyOrbPrep(scriptStateEV, scriptStateDJ)
 	task.spawn(useGoldenOrbs, 4, 1)
 	spamClaimGiantChest(5)
 end
-local function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
+function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
 	local scriptStateUA = 0
 	local questProgressWatch
 	local scriptStateStalled
@@ -4374,7 +4374,7 @@ pcall(function()
 	end
 	profileStore:ConnectDataChanged("Bubble", activeStates.BGSI_Lite_ObserveBubbleAmount)
 end)
-local function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
+function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
 	local lastSellTime = 0
 	local questProgressWatch
 	local scriptStateStalled
@@ -5616,7 +5616,7 @@ do
 	activeStates.BGSI_Lite_RunPearlMysteryBoxTask = runPearlMysteryBoxTask
 end
 
-local function runCollectCurrencyBountyTask(scriptStateSM, scriptStateOX, scriptStateMZ, scriptStateSS, scriptStateF)
+function runCollectCurrencyBountyTask(scriptStateSM, scriptStateOX, scriptStateMZ, scriptStateSS, scriptStateF)
 	if type(scriptStateF) == "string" and string.find(string.lower(scriptStateF), "ticket", 1, true) then
 		activeStates.BGSI_Lite_RunTicketPickupTask(scriptStateSM, scriptStateOX, scriptStateMZ, scriptStateSS)
 		return
@@ -5765,7 +5765,7 @@ activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 activeStates.BGSI_Lite_NormalAutomationPaused = false
-local function isPriorityAutomationActive()
+function isPriorityAutomationActive()
 	return activeStates.BGSI_Lite_GemGenieActive
 		or activeStates.BGSI_Lite_SeasonActive
 		or activeStates.BGSI_Lite_GlobalIncentiveActive
@@ -5781,7 +5781,7 @@ activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 			and not isPriorityAutomationActive()
 		)
 end
-local function clearDisabledPriorityStates()
+function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
 		activeStates.BGSI_Lite_GemGenieActive = false
 	end
@@ -5821,7 +5821,7 @@ local function clearDisabledPriorityStates()
 end
 local scriptStateGV, scriptStateSR = nil, nil
 local pauseInProgress = false
-local function pauseNormalAutomation()
+function pauseNormalAutomation()
 	if pauseInProgress then
 		return
 	end
@@ -5832,7 +5832,7 @@ local function pauseNormalAutomation()
 	Config.autoBounty = false
 	activeStates.BGSI_Lite_NormalAutomationPaused = true
 end
-local function resumeNormalAutomation()
+function resumeNormalAutomation()
 	if not pauseInProgress then
 		activeStates.BGSI_Lite_NormalAutomationPaused = false
 		return
@@ -7618,7 +7618,7 @@ task.spawn(function()
 		end)
 	end
 end)
-local function getLuckEggPosition(scriptStateMK)
+function getLuckEggPosition(scriptStateMK)
 	if type(scriptStateMK) ~= "table" then
 		return nil
 	end
@@ -8042,7 +8042,7 @@ task.spawn(function()
 	end
 end)
 local scriptStateAAR = false
-local function stopLuckEggAutomation()
+function stopLuckEggAutomation()
 	local secretBountyEgg = activeStates.BGSI_Lite_GetSecretBountyEgg(0)
 	if type(secretBountyEgg) == "string" and secretBountyEgg ~= "" then
 		return secretBountyEgg
@@ -8412,7 +8412,7 @@ do
 	})
 end
 local scriptStateZK = {}
-local function findPresentRainCollectables(scriptStateAFM)
+function findPresentRainCollectables(scriptStateAFM)
 	if not Config.autoCollectPresentRain then
 		return
 	end
@@ -8446,13 +8446,13 @@ task.spawn(function()
 		end)
 	end)
 end)
-local function getSelectedChestName()
+function getSelectedChestName()
 	local loopSlotBX, scriptStateBS = pcall(function()
 		return profileStore:IsReady() and profileStore:Get() or nil
 	end)
 	return loopSlotBX and type(scriptStateBS) == "table" and scriptStateBS or nil
 end
-local function fireRemoteEventRepeatedly(scriptStateQA, scriptStateKI)
+function fireRemoteEventRepeatedly(scriptStateQA, scriptStateKI)
 	if not scriptStateQA then
 		return
 	end
@@ -8462,11 +8462,11 @@ local function fireRemoteEventRepeatedly(scriptStateQA, scriptStateKI)
 		scriptStateQA:Refresh(scriptStateKI, false)
 	end
 end
-local function getPotionList(scriptStateCU)
+function getPotionList(scriptStateCU)
 	local scriptStateRZ = Workspace:FindFirstChild("Rendered")
 	return scriptStateRZ and scriptStateRZ:FindFirstChild(scriptStateCU) or nil
 end
-local function getPotionDisplayName(scriptStateABT)
+function getPotionDisplayName(scriptStateABT)
 	return activeStates.BGSI_Lite_GetRiftTargetCFrame(scriptStateABT)
 end
 do
@@ -13841,13 +13841,13 @@ do
 		end,
 	})
 end
-local function normalizeEnchantName(scriptStateTX)
+function normalizeEnchantName(scriptStateTX)
 	if type(scriptStateTX) ~= "string" then
 		return ""
 	end
 	return string.lower(scriptStateTX):gsub("[%s_%-]", "")
 end
-local function getPetEnchantList(scriptStateHJ)
+function getPetEnchantList(scriptStateHJ)
 	local scriptStateRI = {}
 	local function addEnchantValue(scriptStateYE)
 		if type(scriptStateYE) == "string" and scriptStateYE ~= "" then
@@ -13890,7 +13890,7 @@ local function getPetEnchantList(scriptStateHJ)
 	addEnchantValue(scriptStateHJ.Blessing)
 	return scriptStateRI
 end
-local function findPetEnchantSlot(scriptStateKS, scriptStateAY)
+function findPetEnchantSlot(scriptStateKS, scriptStateAY)
 	if not scriptStateAY or scriptStateAY == "" or scriptStateAY == "(None - single target)" then
 		return nil
 	end
@@ -13913,7 +13913,7 @@ local function findPetEnchantSlot(scriptStateKS, scriptStateAY)
 	end
 	return nil
 end
-local function getEnchantData(scriptStateABA)
+function getEnchantData(scriptStateABA)
 	if not scriptStateABA or scriptStateABA == "" or type(enchantData) ~= "table" then
 		return nil
 	end
@@ -13943,7 +13943,7 @@ local specialWebhookEnchantNames = {
 	hatchblessing = "Hatch Blessing",
 	luckboost = "Luck Boost",
 }
-local function getWebhookEnchantDisplayName(enchantName)
+function getWebhookEnchantDisplayName(enchantName)
 	local enchantLevel = nil
 	if type(enchantName) == "table" then
 		enchantLevel = enchantName.Level or enchantName.level
@@ -13981,7 +13981,7 @@ local function getWebhookEnchantDisplayName(enchantName)
 		return firstLetter:upper() .. rest:lower()
 	end)
 end
-local function getSuperLegendaryWebhookEnchantList(petData)
+function getSuperLegendaryWebhookEnchantList(petData)
 	local enchantNames = {}
 	local seenEnchants = {}
 	if type(petData) ~= "table" then
@@ -14196,7 +14196,7 @@ activeStates.BGSI_Lite_GetResolvedWebhookPetId = function(
 	end
 	return nil
 end
-local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, isMythic, isXL)
+function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, isMythic, isXL)
 	local enchantNames, seenEnchantNames = {}, {}
 	local function addEnchantSource(source)
 		local enchantList = getSuperLegendaryWebhookEnchantList(source)
@@ -14243,14 +14243,14 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isS
 	end
 	return table.concat(enchantLines, "\n"), enchantNames
 end
-local function isSpecialEnchant(scriptStateADR)
+function isSpecialEnchant(scriptStateADR)
 	local scriptStateABZ = getEnchantData(scriptStateADR)
 	if type(scriptStateABZ) ~= "table" then
 		return false
 	end
 	return scriptStateABZ.Special == true or scriptStateABZ.Secret == true
 end
-local function getEnchantMaxLevel(scriptStateSH)
+function getEnchantMaxLevel(scriptStateSH)
 	local scriptStateAAD = getEnchantData(scriptStateSH)
 	if type(scriptStateAAD) ~= "table" then
 		return nil
@@ -14266,14 +14266,14 @@ local function getEnchantMaxLevel(scriptStateSH)
 	end
 	return nil
 end
-local function isSingleLevelEnchant(scriptStateAAS)
+function isSingleLevelEnchant(scriptStateAAS)
 	if isSpecialEnchant(scriptStateAAS) then
 		return true
 	end
 	local scriptStateAFO = getEnchantMaxLevel(scriptStateAAS)
 	return type(scriptStateAFO) == "number" and scriptStateAFO == 1
 end
-local function hasShadowCrystalCurrency()
+function hasShadowCrystalCurrency()
 	local potionUseSuccess, scriptStateNR = pcall(function()
 		return profileStore:Get()
 	end)
@@ -14300,7 +14300,7 @@ local function hasShadowCrystalCurrency()
 	end
 	return false
 end
-local function resolveEnchantCurrency(enchantCurrencyParam, scriptStateE)
+function resolveEnchantCurrency(enchantCurrencyParam, scriptStateE)
 	local scriptStateEF = isSpecialEnchant(scriptStateE)
 	if scriptStateEF and not hasShadowCrystalCurrency() then
 		if enchantCurrencyParam == "Auto (Secret = Crystals,Normal = Reroll Orbs)" then
@@ -14316,7 +14316,7 @@ local function resolveEnchantCurrency(enchantCurrencyParam, scriptStateE)
 	end
 	return enchantCurrencyParam
 end
-local function getPetEnchantInfo(scriptStateZM, scriptStateAEV, scriptStateVS)
+function getPetEnchantInfo(scriptStateZM, scriptStateAEV, scriptStateVS)
 	if not scriptStateAEV or scriptStateAEV == "" or scriptStateAEV == "(None - single target)" then
 		return nil
 	end
@@ -14385,7 +14385,7 @@ do
 end
 
 -- Auto enchant rule: normal users need a shiny/2-slot pet; whitelisted users bypass this.
-local function canPetUseDualEnchantMode(scriptStateACP)
+function canPetUseDualEnchantMode(scriptStateACP)
 	if not scriptStateACP then
 		return false
 	end
@@ -14400,7 +14400,7 @@ local function canPetUseDualEnchantMode(scriptStateACP)
 	end
 	return scriptStateACP.Shiny == true or scriptStateACP.IsShiny == true
 end
-local function getEnchantablePets()
+function getEnchantablePets()
 	local scriptStateACE, scriptStateGP = pcall(function()
 		return profileStore:Get()
 	end)
@@ -14438,7 +14438,7 @@ activeStates.BGSI_Lite_PetTeamCountsMatch = function(equippedPetIds, selectedPet
 	end
 	return true
 end
-local function getEnchantPetPriority(pet)
+function getEnchantPetPriority(pet)
 	local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
 	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
 	local isShiny = pet.Shiny == true or pet.IsShiny == true
@@ -14464,7 +14464,7 @@ activeStates.BGSI_Lite_IsShinyEnchantPet = function(pet)
 	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
 	return rarity == "Celestial" or rarity == "Secret"
 end
-local function getEnchantCurrency(scriptStateVC)
+function getEnchantCurrency(scriptStateVC)
 	if type(profileStore.GetPetById) == "function" then
 		local petLookupOk, indexedPet = pcall(profileStore.GetPetById, profileStore, scriptStateVC)
 		if petLookupOk and type(indexedPet) == "table" then
@@ -14492,11 +14492,11 @@ activeStates.BGSI_Lite_SuperEnchantPriorityKeyById = {
 	["super-speed"] = "hatch-blessing",
 	["super-luck"] = "luck-boost",
 }
-local function getSuperLegendaryEnchantPriorityKey(enchantEntry)
+function getSuperLegendaryEnchantPriorityKey(enchantEntry)
 	local enchantId = type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry
 	return activeStates.BGSI_Lite_SuperEnchantPriorityKeyById[tostring(enchantId or "")]
 end
-local function getMaxEnchantTeamLimits(playerData)
+function getMaxEnchantTeamLimits(playerData)
 	local maxPetsEquipped = 13
 	local maxSupersEquipped = tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3
 	pcall(function()
@@ -14505,7 +14505,7 @@ local function getMaxEnchantTeamLimits(playerData)
 	end)
 	return maxPetsEquipped, maxSupersEquipped
 end
-local function appendPetCopiesToTeamSelection(
+function appendPetCopiesToTeamSelection(
 	pet,
 	selectedPetIds,
 	selectedPetIdCounts,
@@ -14534,7 +14534,7 @@ local function appendPetCopiesToTeamSelection(
 	end
 	return selectedSuperCount
 end
-local function buildAutoEnchantTeamSelection(playerData)
+function buildAutoEnchantTeamSelection(playerData)
 	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
 		return nil, nil
 	end
@@ -14663,7 +14663,7 @@ activeStates.BGSI_Lite_IsFullEnchantTeamEquipped = function(playerData, equipped
 	equippedPetIds = type(equippedPetIds) == "table" and equippedPetIds or getEnchantablePets()
 	return activeStates.BGSI_Lite_PetTeamCountsMatch(equippedPetIds, selectedPetIds, selectedPetIdCounts)
 end
-local function prepareAutoEnchantTeam()
+function prepareAutoEnchantTeam()
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	if type(playerData) ~= "table" then
 		return false
@@ -14760,14 +14760,14 @@ local function prepareAutoEnchantTeam()
 end
 local autoEnchantThreadRunning = false
 local ENCHANT_REROLL_COOLDOWN = 0.25
-local function getShadowCrystalCount()
+function getShadowCrystalCount()
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	if type(playerData) ~= "table" then
 		return 0
 	end
 	return math.max(0, tonumber(playerData.Powerups and playerData.Powerups["Shadow Crystal"]) or 0)
 end
-local function buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
+function buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
 	local targetLookup = {}
 	local function addTargetEnchant(enchantName)
 		if type(enchantName) == "string" and enchantName ~= "" and enchantName ~= "(None - single target)" then
@@ -14781,7 +14781,7 @@ local function buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
 		and targetEnchantTwo ~= "(None - single target)"
 	return targetLookup, hasSecondEnchantTarget
 end
-local function getPetEnchantSlotId(petData, enchantSlot)
+function getPetEnchantSlotId(petData, enchantSlot)
 	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
 	local enchantEntry = enchantList[enchantSlot] or enchantList[tostring(enchantSlot)]
 	if type(enchantEntry) == "table" then
@@ -14890,7 +14890,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	end
 	return false
 end
-local function getEnchantTargetList()
+function getEnchantTargetList()
 	if autoEnchantThreadRunning then
 		return
 	end
@@ -15683,7 +15683,7 @@ task.spawn(function()
 		task.wait(1)
 	end
 end)
-local function getGemGenieQuestData()
+function getGemGenieQuestData()
 	if not profileStore:IsReady() then
 		return nil
 	end
@@ -15720,7 +15720,7 @@ local function getGemGenieQuestData()
 	end
 	return nil
 end
-local function getQuestTaskByType(scriptStateQM, scriptStateJZ, scriptStateS)
+function getQuestTaskByType(scriptStateQM, scriptStateJZ, scriptStateS)
 	local scriptStateBI, scriptStatePY = pcall(function()
 		return require(ReplicatedStorage.Shared.Data.Quests.GenieQuest)
 	end)
@@ -15763,7 +15763,7 @@ local function getQuestTaskByType(scriptStateQM, scriptStateJZ, scriptStateS)
 	end
 	return nil
 end
-local function runGemGenieTask(loopSlotAE, scriptStateWA)
+function runGemGenieTask(loopSlotAE, scriptStateWA)
 	local loopSlotAT, scriptStateLY = pcall(function()
 		return require(ReplicatedStorage.Shared.Data.Quests.GenieQuest)
 	end)
@@ -15883,7 +15883,7 @@ task.spawn(function()
 		task.wait(0.5)
 	end
 end)
-local function stopGemGenieAutomation()
+function stopGemGenieAutomation()
 	local scriptStateFE = {}
 	if not profileStore:IsReady() then
 		return scriptStateFE
@@ -15927,7 +15927,7 @@ local function stopGemGenieAutomation()
 	end
 	return scriptStateFE
 end
-local function runSeasonChallengeTask(scriptStateSN)
+function runSeasonChallengeTask(scriptStateSN)
 	if not profileStore:IsReady() then
 		return nil
 	end
@@ -16063,7 +16063,7 @@ task.spawn(function()
 		task.wait(0.5)
 	end
 end)
-local function getSeasonQuestList()
+function getSeasonQuestList()
 	local scriptStateAAV = {}
 	if not profileStore:IsReady() then
 		return scriptStateAAV
@@ -16096,7 +16096,7 @@ local function getSeasonQuestList()
 	end
 	return scriptStateAAV
 end
-local function runGlobalIncentiveTask(scriptStateGG)
+function runGlobalIncentiveTask(scriptStateGG)
 	if not profileStore:IsReady() then
 		return nil
 	end
@@ -16422,7 +16422,7 @@ task.spawn(function()
 		task.wait(5)
 	end
 end)
-local function getShrinePotionName(scriptStateAFV)
+function getShrinePotionName(scriptStateAFV)
 	if not scriptStateAFV or scriptStateAFV == "" then
 		return nil
 	end
@@ -16452,7 +16452,7 @@ local function getShrinePotionName(scriptStateAFV)
 	end
 	return scriptStateNB
 end
-local function getShrineLevelValue(loopSlotO)
+function getShrineLevelValue(loopSlotO)
 	local scriptStateACS = {}
 	if not loopSlotO or loopSlotO == "" then
 		return scriptStateACS
@@ -16465,7 +16465,7 @@ local function getShrineLevelValue(loopSlotO)
 	end
 	return scriptStateACS
 end
-local function getShrineAmountValue(scriptStateYW)
+function getShrineAmountValue(scriptStateYW)
 	scriptStateYW = tonumber(scriptStateYW) or 0
 	local scriptStateABQ = {
 		"",
@@ -16482,7 +16482,7 @@ local function getShrineAmountValue(scriptStateYW)
 	end
 	return string.format("%.1f%s", scriptStateYW, scriptStateABQ[scriptStateEZ])
 end
-local function runShrineDonation(scriptStateTR)
+function runShrineDonation(scriptStateTR)
 	scriptStateTR = tonumber(scriptStateTR) or 0
 	local scriptStateCS = tostring(math.floor(scriptStateTR))
 	while true do
@@ -16512,7 +16512,7 @@ end)
 pcall(function()
 	worldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
 end)
-local function getWebhookAvatarUrl(scriptStateWL)
+function getWebhookAvatarUrl(scriptStateWL)
 	if type(scriptStateWL) ~= "number" or scriptStateWL ~= scriptStateWL then
 		return "—"
 	end
@@ -16526,7 +16526,7 @@ activeStates.BGSI_Lite_GetWebhookPetStatValue = function(webhookStatValue)
 	formattedStatValue = formattedStatValue:gsub("0+$", ""):gsub("%.$", "")
 	return "x" .. formattedStatValue
 end
-local function getWebhookRequestFunction()
+function getWebhookRequestFunction()
 	local scriptStateUY = {
 		Coins = 0,
 		Gems = 0,
@@ -16583,7 +16583,7 @@ local function getWebhookRequestFunction()
 	end)
 	return scriptStateUY
 end
-local function getDiscordTimestamp()
+function getDiscordTimestamp()
 	local scriptStateXG = {
 		BubblesBlown = 0,
 		EggsHatched = 0,
@@ -16600,7 +16600,7 @@ local function getDiscordTimestamp()
 	end
 	return scriptStateXG
 end
-local function getWebhookPingText()
+function getWebhookPingText()
 	return getDiscordTimestamp().EggsHatched
 end
 activeStates.BGSI_Lite_PetChanceData = activeStates.BGSI_Lite_PetChanceData or {}
@@ -16674,7 +16674,7 @@ do
 		end
 	end
 end
-local function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
+function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
 	if type(scriptStateAFQ) == "string" and activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ] then
 		return activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ]
 	end
@@ -16683,7 +16683,7 @@ local function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
 	end
 	return 100
 end
-local function getPetVariantName(scriptStateSU, webhookPetEntry)
+function getPetVariantName(scriptStateSU, webhookPetEntry)
 	if not remoteFunction or type(scriptStateSU) ~= "string" or scriptStateSU == "" then
 		return nil
 	end
@@ -16766,7 +16766,7 @@ local function getPetVariantName(scriptStateSU, webhookPetEntry)
 	end
 	return latestExistingCount
 end
-local function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH, scriptStateVT)
+function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH, scriptStateVT)
 	if type(scriptStateHC) ~= "string" or scriptStateHC == "" then
 		return scriptStateHC
 	end
@@ -16785,7 +16785,7 @@ local function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH,
 	end
 	return table.concat(scriptStateBT, " ") .. " " .. scriptStateHC
 end
-local function sendPetWebhook(scriptStateUL, scriptStateADL, scriptStateXY)
+function sendPetWebhook(scriptStateUL, scriptStateADL, scriptStateXY)
 	local scriptStateYI = scriptStateUL and scriptStateUL.Images
 	if type(scriptStateYI) ~= "table" then
 		return nil
@@ -16852,7 +16852,7 @@ local function sendPetWebhook(scriptStateUL, scriptStateADL, scriptStateXY)
 	end
 	return nil
 end
-local function getRebirthMachineCost(scriptStateKB)
+function getRebirthMachineCost(scriptStateKB)
 	scriptStateKB = tostring(scriptStateKB or "")
 	scriptStateKB = scriptStateKB:match("^%s*(.-)%s*$") or ""
 	scriptStateKB = scriptStateKB:gsub("<@!?(%d+)>", "%1")
@@ -16862,7 +16862,7 @@ local function getRebirthMachineCost(scriptStateKB)
 	end
 	return scriptStateKB
 end
-local function runRebirthFuse(scriptStateQZ, scriptStateACW)
+function runRebirthFuse(scriptStateQZ, scriptStateACW)
 	local scriptStateLH = request
 		or http_request
 		or (type(syn) == "table" and rawget(syn, "request"))
@@ -16902,7 +16902,7 @@ local function runRebirthFuse(scriptStateQZ, scriptStateACW)
 	end
 	return false
 end
-local function runRebirthMachineLoop(
+function runRebirthMachineLoop(
 	scriptStateEI,
 	scriptStateOR,
 	scriptStateXO,
