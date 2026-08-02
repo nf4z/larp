@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.15"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.16"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_EnchantLog = function(message)
 	print("[Auto Enchant] " .. tostring(message))
@@ -64,6 +64,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.02.16",
+		releasedAt = "August 2, 2026",
+		notes = {
+			{
+				title = "Forced Shadow Crystal enchant path",
+				description = "Auto Enchant now bypasses currency routing, uses the direct Shadow Crystal remote path, and logs the actual remote attempt.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.08.02.15",
 		releasedAt = "August 2, 2026",
@@ -14842,13 +14853,40 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 			.. tostring(rerollSlot or "random")
 		)
 
-		pcall(
-			remoteEvent.FireServer,
-			remoteEvent,
-			"UseShadowCrystal",
-			petId,
-			rerollSlot
+		local crystalData = profileStore:Get()
+		local crystalCount = 0
+		if type(crystalData) == "table" and type(crystalData.Powerups) == "table" then
+			crystalCount = tonumber(crystalData.Powerups["Shadow Crystal"]) or 0
+		end
+
+		activeStates.BGSI_Lite_EnchantLog(
+			"[Enchant] Shadow Crystals available: " .. tostring(crystalCount)
 		)
+
+		if crystalCount <= 0 then
+			activeStates.BGSI_Lite_EnchantLog("[Enchant] Stopped: no Shadow Crystals")
+			return false
+		end
+
+		activeStates.BGSI_Lite_EnchantLog(
+			"[Enchant] FIRING UseShadowCrystal pet=" .. tostring(petId)
+			.. " slot=" .. tostring(rerollSlot or "random")
+		)
+
+		local fireOk, fireErr = pcall(function()
+			remoteEvent:FireServer(
+				"UseShadowCrystal",
+				petId,
+				rerollSlot
+			)
+		end)
+
+		if not fireOk then
+			activeStates.BGSI_Lite_EnchantLog(
+				"[Enchant] Remote failed: " .. tostring(fireErr)
+			)
+			return false
+		end
 
 		task.wait(rerollCooldown)
 	end
