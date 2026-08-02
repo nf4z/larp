@@ -62,6 +62,22 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+	version = "2026.08.02.05",
+	releasedAt = "August 2, 2026",
+	notes = {
+		{
+			title = "Roblox register limit optimization",
+			description = "Optimizes Luau local register usage by reducing top-level register pressure, allowing the full script to compile past Roblox's 200-local register limit.",
+			icon = "activity",
+		},
+		{
+			title = "Loader stability improvements",
+			description = "Reduces compile-time overhead while preserving existing automation, settings, and dashboard functionality.",
+			icon = "refresh-cw",
+		},
+	},
+},
+	{
 		version = "2026.08.02.04",
 		releasedAt = "August 2, 2026",
 		notes = {
