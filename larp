@@ -16594,60 +16594,66 @@ local function getWebhookPingText()
 end
 local petChanceData = {}
 do
-	local function sendWebhookPayload(scriptStateTZ)
-		if type(scriptStateTZ) == "number" and scriptStateTZ == scriptStateTZ then
-			return scriptStateTZ
+	local function normalizeChance(value)
+		if type(value) == "number" and value == value then
+			return value
 		end
-		if type(scriptStateTZ) == "string" then
-			return tonumber(scriptStateTZ)
+		if type(value) == "string" then
+			return tonumber(value)
 		end
 		return nil
 	end
-	local function getCurrencyAmountByName(scriptStateBU, scriptStateGC, scriptStateMC)
-		if scriptStateGC > 12 or type(scriptStateBU) ~= "table" or scriptStateMC[scriptStateBU] then
+
+	local function collectChanceData(node, depth, seen)
+		if type(node) ~= "table" or depth > 12 or seen[node] then
 			return
 		end
-		scriptStateMC[scriptStateBU] = true
-		local scriptStateADF = scriptStateBU.Pet
-		local scriptStateEE = sendWebhookPayload(scriptStateBU.Chance)
-		if type(scriptStateADF) == "string" and scriptStateADF ~= "" and scriptStateEE then
-			petChanceData[scriptStateADF] = scriptStateEE
+		seen[node] = true
+
+		local petName = node.Pet
+		local chance = normalizeChance(node.Chance)
+		if type(petName) == "string" and petName ~= "" and chance then
+			petChanceData[petName] = chance
 		end
-		if type(scriptStateBU.Pets) == "table" then
-			for loopSlotU, scriptStateKU in pairs(scriptStateBU.Pets) do
-				if type(scriptStateKU) == "table" then
-					local scriptStateQL = scriptStateKU.Pet or scriptStateKU.Name
-					local scriptStateYZ = sendWebhookPayload(scriptStateKU.Chance)
-					if type(scriptStateQL) == "string" and scriptStateQL ~= "" and scriptStateYZ then
-						petChanceData[scriptStateQL] = scriptStateYZ
+
+		if type(node.Pets) == "table" then
+			for _, petEntry in pairs(node.Pets) do
+				if type(petEntry) == "table" then
+					local entryName = petEntry.Pet or petEntry.Name
+					local entryChance = normalizeChance(petEntry.Chance)
+					if type(entryName) == "string" and entryName ~= "" and entryChance then
+						petChanceData[entryName] = entryChance
 					end
 				end
 			end
 		end
+
 		if
-			type(scriptStateBU.Name) == "string"
-			and (type(scriptStateADF) ~= "string" or scriptStateADF == "")
-			and scriptStateEE
+			type(node.Name) == "string"
+			and (type(petName) ~= "string" or petName == "")
+			and chance
 		then
-			local scriptStateACJ = scriptStateBU.Type
+			local itemType = node.Type
 			if
-				scriptStateACJ ~= "Powerup"
-				and scriptStateACJ ~= "Potion"
-				and scriptStateACJ ~= "Egg"
-				and type(scriptStateBU.Cost) ~= "table"
+				itemType ~= "Powerup"
+				and itemType ~= "Potion"
+				and itemType ~= "Egg"
+				and type(node.Cost) ~= "table"
 			then
-				if not (type(scriptStateBU.Interval) == "number" and type(scriptStateBU.Pets) == "table") then
-					petChanceData[scriptStateBU.Name] = scriptStateEE
+				if not (type(node.Interval) == "number" and type(node.Pets) == "table") then
+					petChanceData[node.Name] = chance
 				end
 			end
 		end
-		for loopSlotBJ, scriptStateNO in pairs(scriptStateBU) do
-			if type(scriptStateNO) == "table" then
-				getCurrencyAmountByName(scriptStateNO, scriptStateGC + 1, scriptStateMC)
+
+		for _, child in pairs(node) do
+			if type(child) == "table" then
+				collectChanceData(child, depth + 1, seen)
 			end
 		end
 	end
-	for loopSlotDO, scriptStatePM in ipairs({
+
+	for _, loader in ipairs({
 		function()
 			return require(ReplicatedStorage.Shared.Framework.Constants)
 		end,
@@ -16655,9 +16661,9 @@ do
 			return require(ReplicatedStorage.Shared.Constants)
 		end,
 	}) do
-		local loopSlotBE, scriptStateCQ = pcall(scriptStatePM)
-		if loopSlotBE and type(scriptStateCQ) == "table" then
-			getCurrencyAmountByName(scriptStateCQ, 0, {})
+		local ok, value = pcall(loader)
+		if ok and type(value) == "table" then
+			collectChanceData(value, 0, {})
 		end
 	end
 end
