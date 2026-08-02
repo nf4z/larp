@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.17"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_EnchantLog = function(message)
 	print("[Auto Enchant] " .. tostring(message))
@@ -64,6 +64,17 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.02.17",
+		releasedAt = "August 2, 2026",
+		notes = {
+			{
+				title = "Enchant all equipped pets",
+				description = "Auto Enchant now scans every equipped pet, removes rarity restrictions, and uses the direct Shadow Crystal reroll flow for missing target enchants.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.08.02.16",
 		releasedAt = "August 2, 2026",
@@ -14901,59 +14912,36 @@ local function getEnchantTargetList()
 	autoEnchantThreadRunning = true
 	task.spawn(function()
 		while Config.autoEnchant and isCurrentRun() do
-			if tick() < (tonumber(activeStates.BGSI_Lite_AutoEnchantBlockedUntil) or 0) then
-				task.wait(1)
-				continue
-			end
-			local teamReady = false
-			pcall(function()
-				teamReady = prepareAutoEnchantTeam()
-			end)
-			if not teamReady then
-				task.wait(2)
-				continue
-			end
 			local equippedPetIds = getEnchantablePets()
 			if #equippedPetIds == 0 then
+				activeStates.BGSI_Lite_EnchantLog("No equipped pets found")
 				task.wait(2)
 				continue
 			end
-			local enchantPetData = {}
-			local currentPlayerData = profileStore:IsReady() and profileStore:Get() or nil
-			for _, pet in ipairs(type(currentPlayerData) == "table" and currentPlayerData.Pets or {}) do
-				enchantPetData[tostring(pet.Id or "")] = pet
-			end
-			table.sort(equippedPetIds, function(leftPetId, rightPetId)
-				local leftPet = enchantPetData[tostring(leftPetId)]
-				local rightPet = enchantPetData[tostring(rightPetId)]
-				local leftPriority = leftPet and getEnchantPetPriority(leftPet) or 5
-				local rightPriority = rightPet and getEnchantPetPriority(rightPet) or 5
-				return leftPriority ~= rightPriority
-					and leftPriority < rightPriority
-					or tostring(leftPetId) < tostring(rightPetId)
-			end)
+
 			local targetEnchantOne = tostring(Config.equippedTargetEnchant or "secret-hunter")
 			local targetEnchantTwo = tostring(Config.equippedTargetEnchant2 or "ultra-roller")
 			local targetEnchantLevel = tonumber(Config.equippedTargetEnchantLevel) or 0
-			local selectedEnchantCurrencyMode = Config.equippedEnchantCurrency
-				or "Auto (Secret = Crystals,Normal = Gems)"
-			activeStates.BGSI_Lite_EnchantLog("Enchanting " .. tostring(#equippedPetIds) .. " equipped pets")
-			local enchantThreads = {}
-			for _, equippedPetId in ipairs(equippedPetIds) do
+
+			activeStates.BGSI_Lite_EnchantLog("Checking all equipped pets: " .. tostring(#equippedPetIds))
+
+			local threads = {}
+			for _, petId in ipairs(equippedPetIds) do
 				if not Config.autoEnchant or not isCurrentRun() then
 					break
 				end
-				table.insert(enchantThreads, task.spawn(function()
+				table.insert(threads, task.spawn(function()
 					activeStates.BGSI_Lite_RerollEnchantPet(
-						tostring(equippedPetId),
+						tostring(petId),
 						targetEnchantOne,
 						targetEnchantTwo,
 						targetEnchantLevel,
-						selectedEnchantCurrencyMode
+						"Shadow Crystal"
 					)
 				end))
 			end
-			for _, thread in ipairs(enchantThreads) do
+
+			for _, thread in ipairs(threads) do
 				task.wait()
 			end
 			task.wait(3)
@@ -14961,6 +14949,7 @@ local function getEnchantTargetList()
 		autoEnchantThreadRunning = false
 	end)
 end
+
 if Config.autoEnchant then
 	getEnchantTargetList()
 end
