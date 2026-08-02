@@ -50,8 +50,11 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
+activeStates.BGSI_Lite_EnchantLog = function(message)
+	print("[Auto Enchant] " .. tostring(message))
+end
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
 	activeStates.BGSI_Lite_PendingDashboardLog = {
@@ -14470,6 +14473,7 @@ local function getSuperLegendaryEnchantPriorityKey(enchantEntry)
 	return activeStates.BGSI_Lite_SuperEnchantPriorityKeyById[tostring(enchantId or "")]
 end
 local function prepareAutoEnchantTeam()
+	activeStates.BGSI_Lite_EnchantLog("Preparing enchant team...")
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
 		return false
@@ -14541,6 +14545,7 @@ local function prepareAutoEnchantTeam()
 		end
 	end
 	if #candidates == 0 then
+		activeStates.BGSI_Lite_EnchantLog("No valid enchant candidates found")
 		return false
 	end
 	table.sort(candidates, function(leftCandidate, rightCandidate)
@@ -14567,6 +14572,7 @@ local function prepareAutoEnchantTeam()
 		local statsModule = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
 		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
 	end)
+	activeStates.BGSI_Lite_EnchantLog("Selected " .. tostring(#candidates) .. " enchant candidates")
 	local selectedPetIds = {}
 	local selectedPetIdCounts = {}
 	local selectedSuperCount = 0
@@ -14600,6 +14606,7 @@ local function prepareAutoEnchantTeam()
 	local teamMatches =
 		activeStates.BGSI_Lite_PetTeamCountsMatch(equippedPetIds, selectedPetIds, selectedPetIdCounts)
 	if teamMatches then
+		activeStates.BGSI_Lite_EnchantLog("Enchant team ready: " .. tostring(#selectedPetIds) .. " pets")
 		return true
 	end
 	if tick() - (tonumber(activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt) or 0) < 2 then
@@ -14700,7 +14707,10 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	selectedEnchantCurrencyMode
 )
 	local rerollCooldown = math.max(0.1, tonumber(sharedConstants and sharedConstants.EnchantRerollCooldown) or 0.25)
+	local attemptCounter = 0
+	activeStates.BGSI_Lite_EnchantLog("Starting pet enchant: " .. tostring(petId))
 	while Config.autoEnchant and isCurrentRun() do
+		attemptCounter += 1
 		local petData = getEnchantCurrency(petId)
 		if
 			not petData
@@ -14710,6 +14720,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		then
 			return
 		end
+		activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " reroll attempt " .. tostring(attemptCounter))
 		if activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied(
 			petData,
 			targetEnchantOne,
@@ -14782,7 +14793,11 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 			end
 			task.wait(requestAttempt * 0.5)
 		end
+		if enchantUpdated then
+			activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " enchant updated")
+		end
 		if not enchantUpdated then
+			activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " enchant update timeout")
 			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 5
 			return
 		end
@@ -14831,6 +14846,7 @@ local function getEnchantTargetList()
 			local targetEnchantLevel = tonumber(Config.equippedTargetEnchantLevel) or 0
 			local selectedEnchantCurrencyMode = Config.equippedEnchantCurrency
 				or "Auto (Secret = Crystals,Normal = Gems)"
+			activeStates.BGSI_Lite_EnchantLog("Enchanting " .. tostring(#equippedPetIds) .. " equipped pets")
 			local enchantThreads = {}
 			for _, equippedPetId in ipairs(equippedPetIds) do
 				if not Config.autoEnchant or not isCurrentRun() then
