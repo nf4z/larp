@@ -65,6 +65,28 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+		version = "2026.08.02.09",
+		releasedAt = "August 2, 2026",
+		notes = {
+			{
+				title = "Strict enchant pair validation",
+				description = "Requires the exact selected enchant pair, preserves correct slots, and prevents incorrect Secret enchants from being accepted.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
+	{
+		version = "2026.08.02.08",
+		releasedAt = "August 2, 2026",
+		notes = {
+			{
+				title = "Reliable enchant reroll logic",
+				description = "Uses replicated pet enchant state, preserves correct slots, and improves target enchant completion reliability.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
+	{
 		version = "2026.08.02.05",
 		releasedAt = "August 2, 2026",
 		notes = {
@@ -14694,10 +14716,8 @@ activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied = function(
 		return hasTargetEnchantOne ~= nil
 	end
 	local hasTargetEnchantTwo = getPetEnchantInfo(petData, targetEnchantTwo, targetEnchantLevel)
-	if canPetUseDualEnchantMode(petData) then
-		return hasTargetEnchantOne ~= nil and hasTargetEnchantTwo ~= nil
-	end
-	return hasTargetEnchantOne ~= nil or hasTargetEnchantTwo ~= nil
+	-- Target pairs must match exactly. Do not accept any random second enchant.
+	return hasTargetEnchantOne ~= nil and hasTargetEnchantTwo ~= nil
 end
 activeStates.BGSI_Lite_RerollEnchantPet = function(
 	petId,
@@ -14707,102 +14727,78 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	selectedEnchantCurrencyMode
 )
 	local rerollCooldown = math.max(0.1, tonumber(sharedConstants and sharedConstants.EnchantRerollCooldown) or 0.25)
-	local attemptCounter = 0
-	activeStates.BGSI_Lite_EnchantLog("Starting pet enchant: " .. tostring(petId))
+	local attempts = 0
+	activeStates.BGSI_Lite_EnchantLog("[Enchant] Starting pet: " .. tostring(petId))
+
 	while Config.autoEnchant and isCurrentRun() do
-		attemptCounter += 1
+		attempts += 1
+
 		local petData = getEnchantCurrency(petId)
-		if
-			not petData
-			or petData.Super == true
-			or petData.IsSuper == true
-			or not activeStates.BGSI_Lite_IsShinyEnchantPet(petData)
-		then
+		if not petData then
+			activeStates.BGSI_Lite_EnchantLog("[Enchant] Waiting for pet data: " .. tostring(petId))
+			task.wait(1)
+			continue
+		end
+
+		if petData.Super == true or petData.IsSuper == true or not activeStates.BGSI_Lite_IsShinyEnchantPet(petData) then
+			activeStates.BGSI_Lite_EnchantLog("[Enchant] Skipping pet: " .. tostring(petId))
 			return
 		end
-		activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " reroll attempt " .. tostring(attemptCounter))
-		if activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied(
-			petData,
-			targetEnchantOne,
-			targetEnchantTwo,
-			targetEnchantLevel
-		) then
-			return
+
+		local enchants = petData.Enchants or {}
+		local slot1 = enchants[1] and enchants[1].Id
+		local slot2 = enchants[2] and enchants[2].Id
+
+		local slot1IsTargetOne = slot1 == targetEnchantOne
+		local slot2IsTargetOne = slot2 == targetEnchantOne
+		local slot1IsTargetTwo = targetEnchantTwo == "" or targetEnchantTwo == "(None - single target)" or slot1 == targetEnchantTwo
+		local slot2IsTargetTwo = targetEnchantTwo == "" or targetEnchantTwo == "(None - single target)" or slot2 == targetEnchantTwo
+		local hasTarget1 = slot1IsTargetOne or slot2IsTargetOne
+		local hasTarget2 = slot1IsTargetTwo or slot2IsTargetTwo
+
+		activeStates.BGSI_Lite_EnchantLog(
+			"[Enchant] " .. tostring(petId)
+			.. " attempt " .. tostring(attempts)
+			.. " slots: "
+			.. tostring(slot1)
+			.. " / "
+			.. tostring(slot2)
+		)
+
+		if hasTarget1 and hasTarget2 then
+			activeStates.BGSI_Lite_EnchantLog("[Enchant] Completed: " .. tostring(petId))
+			return true
 		end
-		local hasSecondEnchantTarget = targetEnchantTwo ~= "" and targetEnchantTwo ~= "(None - single target)"
-		local currentSlotForTargetOne = findPetEnchantSlot(petData, targetEnchantOne)
-		local currentSlotForTargetTwo = hasSecondEnchantTarget and findPetEnchantSlot(petData, targetEnchantTwo) or nil
+
 		local rerollSlot
-		local targetEnchantForCurrency = targetEnchantOne
-		if hasSecondEnchantTarget and canPetUseDualEnchantMode(petData) then
-			if currentSlotForTargetOne and not currentSlotForTargetTwo then
-				rerollSlot = currentSlotForTargetOne
-				targetEnchantForCurrency = targetEnchantTwo
-			elseif currentSlotForTargetTwo and not currentSlotForTargetOne then
-				rerollSlot = currentSlotForTargetTwo
-				targetEnchantForCurrency = targetEnchantOne
-			end
+		if hasTarget1 and not hasTarget2 then
+			-- Keep the correct first target and only reroll the missing second slot.
+			rerollSlot = slot1IsTargetOne and 2 or 1
+		elseif hasTarget2 and not hasTarget1 then
+			-- Keep the correct second target and only reroll the missing first slot.
+			rerollSlot = slot1IsTargetTwo and 2 or 1
 		end
-		local resolvedEnchantCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantForCurrency)
-		local previousSignature = activeStates.BGSI_Lite_GetPetEnchantSignature(petData)
-		local enchantUpdated = false
-		for requestAttempt = 1, 3 do
-			local requestAccepted = false
-			if resolvedEnchantCurrency == "Shadow Crystals" then
-				if not hasShadowCrystalCurrency() then
-					activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 10
-					return
-				end
-				requestAccepted = pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, rerollSlot)
-			else
-				local currencyType = resolvedEnchantCurrency == "Reroll Orbs" and "Powerup" or "Gems"
-				local requestOk, updatedPetId = pcall(
-					remoteFunction.InvokeServer,
-					remoteFunction,
-					"RerollEnchants",
-					petId,
-					currencyType,
-					rerollSlot
-				)
-				if updatedPetId == "toofast" then
-					task.wait(rerollCooldown)
-					continue
-				end
-				requestAccepted = requestOk and updatedPetId ~= nil and updatedPetId ~= false
-				if requestAccepted and type(updatedPetId) == "string" and updatedPetId ~= "" then
-					petId = updatedPetId
-				end
+
+		local resolvedCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
+
+		if resolvedCurrency == "Shadow Crystals" then
+			if not hasShadowCrystalCurrency() then
+				activeStates.BGSI_Lite_EnchantLog("[Enchant] No Shadow Crystals")
+				return false
 			end
-			if requestAccepted then
-				task.wait(rerollCooldown + 0.05)
-				local replicationDeadline = tick() + 2.5
-				repeat
-					petData = getEnchantCurrency(petId)
-					enchantUpdated = petData ~= nil
-						and activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= previousSignature
-					if not enchantUpdated then
-						task.wait(0.05)
-					end
-				until enchantUpdated
-					or not Config.autoEnchant
-					or not isCurrentRun()
-					or tick() >= replicationDeadline
-			end
-			if enchantUpdated or not Config.autoEnchant or not isCurrentRun() then
-				break
-			end
-			task.wait(requestAttempt * 0.5)
+			activeStates.BGSI_Lite_EnchantLog("[Enchant] Using Shadow Crystal")
+			pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, rerollSlot)
+		else
+			local currencyType = resolvedCurrency == "Reroll Orbs" and "Powerup" or "Gems"
+			pcall(remoteFunction.InvokeServer, remoteFunction, "RerollEnchants", petId, currencyType, rerollSlot)
 		end
-		if enchantUpdated then
-			activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " enchant updated")
-		end
-		if not enchantUpdated then
-			activeStates.BGSI_Lite_EnchantLog("Pet " .. tostring(petId) .. " enchant update timeout")
-			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 5
-			return
-		end
+
+		task.wait(rerollCooldown)
 	end
+
+	return false
 end
+
 local function getEnchantTargetList()
 	if autoEnchantThreadRunning then
 		return
