@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.12"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.13"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_EnchantLog = function(message)
 	print("[Auto Enchant] " .. tostring(message))
@@ -64,6 +64,18 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	}
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.02.13",
+		releasedAt = "August 2, 2026",
+		notes = {
+			{
+				title = "Shadow Crystal currency fix",
+				description = "Auto Enchant now prioritizes Shadow Crystals for special enchants when available and prevents incorrect currency fallback.",
+				icon = "gem",
+			},
+		},
+	},
+
 	{
 		version = "2026.08.02.12",
 		releasedAt = "August 2, 2026",
@@ -14790,6 +14802,11 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		end
 
 		local resolvedCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
+		-- Force Shadow Crystals for special enchants when available.
+		-- Prevents Auto Enchant from silently using gems/orbs.
+		if isSpecialEnchant(targetEnchantOne) and hasShadowCrystalCurrency() then
+			resolvedCurrency = "Shadow Crystals"
+		end
 		if resolvedCurrency == "Shadow Crystals" then
 			if not hasShadowCrystalCurrency() then
 				activeStates.BGSI_Lite_EnchantLog("[Enchant] No Shadow Crystals")
