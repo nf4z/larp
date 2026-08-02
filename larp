@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.13"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.14"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_EnchantLog = function(message)
 	print("[Auto Enchant] " .. tostring(message))
@@ -88,7 +88,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		},
 	},
 	{
-		version = "2026.08.02.10",
+		version = "2026.08.02.14",
 		releasedAt = "August 2, 2026",
 		notes = {
 			{
@@ -14761,15 +14761,32 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	targetEnchantLevel,
 	selectedEnchantCurrencyMode
 )
-	local rerollCooldown = 0.25
 	local attempts = 0
-	activeStates.BGSI_Lite_EnchantLog("[Enchant] Starting Shadow Crystal enchant: " .. tostring(petId))
+	local rerollCooldown = 0.25
+
+	activeStates.BGSI_Lite_EnchantLog(
+		"[Enchant] Direct Shadow Crystal mode: " .. tostring(petId)
+	)
 
 	while Config.autoEnchant and isCurrentRun() do
 		attempts += 1
-		local petData = getEnchantCurrency(petId)
+
+		local playerData = profileStore:Get()
+		local petData
+
+		if type(playerData) == "table" and type(playerData.Pets) == "table" then
+			for _, pet in ipairs(playerData.Pets) do
+				if tostring(pet.Id) == tostring(petId) then
+					petData = pet
+					break
+				end
+			end
+		end
 
 		if not petData then
+			activeStates.BGSI_Lite_EnchantLog(
+				"[Enchant] Missing pet data: " .. tostring(petId)
+			)
 			task.wait(1)
 			continue
 		end
@@ -14778,49 +14795,49 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		local slot1 = enchants[1] and enchants[1].Id
 		local slot2 = enchants[2] and enchants[2].Id
 
-		local hasOne = slot1 == targetEnchantOne or slot2 == targetEnchantOne
-		local hasTwo = targetEnchantTwo == "" or targetEnchantTwo == "(None - single target)"
-			or slot1 == targetEnchantTwo or slot2 == targetEnchantTwo
+		local hasTarget1 = slot1 and (slot1 == targetEnchantOne or slot1 == targetEnchantTwo)
+		local hasTarget2 = slot2 and (slot2 == targetEnchantOne or slot2 == targetEnchantTwo)
 
 		activeStates.BGSI_Lite_EnchantLog(
 			"[Enchant] " .. tostring(petId)
 			.. " attempt " .. tostring(attempts)
-			.. " slots: " .. tostring(slot1)
-			.. " / " .. tostring(slot2)
+			.. " slots: "
+			.. tostring(slot1)
+			.. " / "
+			.. tostring(slot2)
 		)
 
-		if hasOne and hasTwo then
-			activeStates.BGSI_Lite_EnchantLog("[Enchant] Complete: " .. tostring(petId))
+		if
+			(slot1 == targetEnchantOne and slot2 == targetEnchantTwo)
+			or
+			(slot1 == targetEnchantTwo and slot2 == targetEnchantOne)
+		then
+			activeStates.BGSI_Lite_EnchantLog(
+				"[Enchant] Complete: " .. tostring(petId)
+			)
 			return true
 		end
 
 		local rerollSlot
-		if slot1 == targetEnchantOne or slot1 == targetEnchantTwo then
+
+		if hasTarget1 then
 			rerollSlot = 2
-		elseif slot2 == targetEnchantOne or slot2 == targetEnchantTwo then
+		elseif hasTarget2 then
 			rerollSlot = 1
 		end
 
-		local resolvedCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
-		-- Force Shadow Crystals for special enchants when available.
-		-- Prevents Auto Enchant from silently using gems/orbs.
-		if isSpecialEnchant(targetEnchantOne) and hasShadowCrystalCurrency() then
-			resolvedCurrency = "Shadow Crystals"
-		end
-		if resolvedCurrency == "Shadow Crystals" then
-			if not hasShadowCrystalCurrency() then
-				activeStates.BGSI_Lite_EnchantLog("[Enchant] No Shadow Crystals")
-				return false
-			end
+		activeStates.BGSI_Lite_EnchantLog(
+			"[Enchant] Using Shadow Crystal slot: "
+			.. tostring(rerollSlot or "random")
+		)
 
-			activeStates.BGSI_Lite_EnchantLog(
-				"[Enchant] Using Shadow Crystal on slot " .. tostring(rerollSlot or "random")
-			)
-			pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, rerollSlot)
-		else
-			local currencyType = resolvedCurrency == "Reroll Orbs" and "Powerup" or "Gems"
-			pcall(remoteFunction.InvokeServer, remoteFunction, "RerollEnchants", petId, currencyType, rerollSlot)
-		end
+		pcall(
+			remoteEvent.FireServer,
+			remoteEvent,
+			"UseShadowCrystal",
+			petId,
+			rerollSlot
+		)
 
 		task.wait(rerollCooldown)
 	end
