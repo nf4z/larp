@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.02.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -62,7 +62,7 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.02.02",
+		version = "2026.08.02.03",
 		releasedAt = "August 2, 2026",
 		notes = {
 			{
@@ -16605,76 +16605,74 @@ local function getWebhookPingText()
 end
 local petChanceData = {}
 do
-	local function normalizeChance(value)
-		if type(value) == "number" and value == value then
-			return value
-		end
-		if type(value) == "string" then
-			return tonumber(value)
-		end
-		return nil
-	end
-
-	local function collectChanceData(node, depth, seen)
-		if type(node) ~= "table" or depth > 12 or seen[node] then
-			return
-		end
-		seen[node] = true
-
-		local petName = node.Pet
-		local chance = normalizeChance(node.Chance)
-		if type(petName) == "string" and petName ~= "" and chance then
-			petChanceData[petName] = chance
-		end
-
-		if type(node.Pets) == "table" then
-			for _, petEntry in pairs(node.Pets) do
-				if type(petEntry) == "table" then
-					local entryName = petEntry.Pet or petEntry.Name
-					local entryChance = normalizeChance(petEntry.Chance)
-					if type(entryName) == "string" and entryName ~= "" and entryChance then
-						petChanceData[entryName] = entryChance
-					end
-				end
-			end
-		end
-
-		if
-			type(node.Name) == "string"
-			and (type(petName) ~= "string" or petName == "")
-			and chance
-		then
-			local itemType = node.Type
-			if
-				itemType ~= "Powerup"
-				and itemType ~= "Potion"
-				and itemType ~= "Egg"
-				and type(node.Cost) ~= "table"
-			then
-				if not (type(node.Interval) == "number" and type(node.Pets) == "table") then
-					petChanceData[node.Name] = chance
-				end
-			end
-		end
-
-		for _, child in pairs(node) do
-			if type(child) == "table" then
-				collectChanceData(child, depth + 1, seen)
-			end
-		end
-	end
-
-	for _, loader in ipairs({
+	local loaders = {
 		function()
 			return require(ReplicatedStorage.Shared.Framework.Constants)
 		end,
 		function()
 			return require(ReplicatedStorage.Shared.Constants)
 		end,
-	}) do
+	}
+
+	for _, loader in ipairs(loaders) do
 		local ok, value = pcall(loader)
 		if ok and type(value) == "table" then
-			collectChanceData(value, 0, {})
+			local stack = { value }
+			local seen = {}
+			while #stack > 0 do
+				local node = table.remove(stack)
+				if type(node) == "table" and not seen[node] then
+					seen[node] = true
+					local petName = node.Pet
+					local chance = nil
+					if type(node.Chance) == "number" and node.Chance == node.Chance then
+						chance = node.Chance
+					elseif type(node.Chance) == "string" then
+						chance = tonumber(node.Chance)
+					end
+					if type(petName) == "string" and petName ~= "" and chance then
+						petChanceData[petName] = chance
+					end
+					if type(node.Pets) == "table" then
+						for _, petEntry in pairs(node.Pets) do
+							if type(petEntry) == "table" then
+								local entryName = petEntry.Pet or petEntry.Name
+								local entryChance = nil
+								if type(petEntry.Chance) == "number" and petEntry.Chance == petEntry.Chance then
+									entryChance = petEntry.Chance
+								elseif type(petEntry.Chance) == "string" then
+									entryChance = tonumber(petEntry.Chance)
+								end
+								if type(entryName) == "string" and entryName ~= "" and entryChance then
+									petChanceData[entryName] = entryChance
+								end
+							end
+						end
+					end
+					if
+						type(node.Name) == "string"
+						and (type(petName) ~= "string" or petName == "")
+						and chance
+					then
+						local itemType = node.Type
+						if
+							itemType ~= "Powerup"
+							and itemType ~= "Potion"
+							and itemType ~= "Egg"
+							and type(node.Cost) ~= "table"
+						then
+							if not (type(node.Interval) == "number" and type(node.Pets) == "table") then
+								petChanceData[node.Name] = chance
+							end
+						end
+					end
+					for _, child in pairs(node) do
+						if type(child) == "table" then
+							table.insert(stack, child)
+						end
+					end
+				end
+			end
 		end
 	end
 end
