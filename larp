@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.14.02",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Special rift priority controls",
+				description = "Added priority controls to the script hub for the special rift hatch order.",
+				icon = "list-ordered",
+			},
+		},
+	},
 	{
 		version = "2026.08.14.01",
 		releasedAt = "August 14, 2026",
@@ -7459,6 +7470,62 @@ do
 			saveConfig()
 		end,
 	})
+	eggTab:AddSection("Special Rift Priority")
+	local specialRiftOptions = {
+		"corruptshadow-rift",
+		"shadow-rift",
+		"overlord-rift",
+		"doodle-rift",
+	}
+	local specialRiftOptionSet = {}
+	for _, riftId in ipairs(specialRiftOptions) do
+		specialRiftOptionSet[riftId] = true
+	end
+	local function normalizeSpecialRiftPriorities(priorities)
+		local normalized, seen = {}, {}
+		for _, riftId in ipairs(type(priorities) == "table" and priorities or {}) do
+			if specialRiftOptionSet[riftId] and not seen[riftId] then
+				seen[riftId] = true
+				table.insert(normalized, riftId)
+			end
+		end
+		for _, riftId in ipairs(specialRiftOptions) do
+			if not seen[riftId] then
+				table.insert(normalized, riftId)
+			end
+		end
+		return normalized
+	end
+	Config.specialRiftPriority = normalizeSpecialRiftPriorities(Config.specialRiftPriority)
+	local specialRiftPriorityDropdowns = {}
+	local updatingSpecialRiftPriorities = false
+	local function refreshSpecialRiftPriorityDropdowns()
+		updatingSpecialRiftPriorities = true
+		for index, dropdown in ipairs(specialRiftPriorityDropdowns) do
+			dropdown:SetValue(Config.specialRiftPriority[index])
+		end
+		updatingSpecialRiftPriorities = false
+	end
+	for index = 1, #specialRiftOptions do
+		specialRiftPriorityDropdowns[index] = eggTab:AddDropdown("SpecialRiftPriority" .. index, {
+			Title = "Priority " .. index,
+			Values = specialRiftOptions,
+			Default = Config.specialRiftPriority[index],
+			Multi = false,
+			Callback = function(selectedRiftId)
+				if updatingSpecialRiftPriorities or not specialRiftOptionSet[selectedRiftId] then
+					return
+				end
+				local currentIndex = table.find(Config.specialRiftPriority, selectedRiftId)
+				if currentIndex and currentIndex ~= index then
+					table.remove(Config.specialRiftPriority, currentIndex)
+					table.insert(Config.specialRiftPriority, index, selectedRiftId)
+					refreshSpecialRiftPriorityDropdowns()
+				end
+				saveConfig()
+			end,
+		})
+	end
 end
 activeStates.BGSI_Lite_LuckEggActive = false
 activeStates.BGSI_Lite_SpecialRiftActive = false
