@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.11"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,22 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.14.11",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Pet-name webhook header fix",
+				description = "Uses a Lua-safe pet-name parser and keeps the compact Components V2 webhook layout.",
+				icon = "webhook",
+			},
+			{
+				title = "Full-inventory cleanup",
+				description = "Reworks automatic cleanup to remove excess copies from high-quantity disposable pets until inventory space is available, while preserving the configured copy floor and protected pets.",
+				icon = "trash-2",
+			},
+		},
+	},
 	{
 		version = "2026.08.14.10",
 		releasedAt = "August 14, 2026",
@@ -2731,111 +2747,182 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 	if Config.autoInventoryCleanup ~= true or activeStates.BGSI_Lite_PetInventoryCleanupActive then
 		return false
 	end
-	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
-		return false
-	end
-	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
-	local candidateGroups = {}
-	for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
-		local petRank = activeStates.BGSI_Lite_GetDisposablePetRank(pet)
-		local petId = type(pet) == "table" and tostring(pet.Id or "") or ""
-		if petRank and petId ~= "" and not activeStates.BGSI_Lite_IsPetEquipped(playerData, petId) then
-			local petName = tostring(pet.Name or "")
-			local petAmount = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
-			local candidateKey = petName .. "|" .. tostring(petRank)
-			local candidateGroup = candidateGroups[candidateKey]
-			if not candidateGroup then
-				candidateGroup = { name = petName, rank = petRank, amount = 0, pets = {} }
-				candidateGroups[candidateKey] = candidateGroup
-			end
-			candidateGroup.amount += petAmount
-			table.insert(candidateGroup.pets, { id = petId, amount = petAmount })
-		end
-	end
-	local candidates = {}
-	for _, candidateGroup in pairs(candidateGroups) do
-		if candidateGroup.amount > minimumCopies then
-			table.sort(candidateGroup.pets, function(leftPet, rightPet)
-				return leftPet.amount < rightPet.amount
-			end)
-			table.insert(candidates, candidateGroup)
-		end
-	end
-	table.sort(candidates, function(leftCandidate, rightCandidate)
-		if leftCandidate.rank ~= rightCandidate.rank then
-			return leftCandidate.rank < rightCandidate.rank
-		end
-		if leftCandidate.amount ~= rightCandidate.amount then
-			return leftCandidate.amount > rightCandidate.amount
-		end
-		return leftCandidate.name < rightCandidate.name
-	end)
-	if not candidates[1] then
-		return false
-	end
-	activeStates.BGSI_Lite_BlockedCleanupPets = type(activeStates.BGSI_Lite_BlockedCleanupPets) == "table"
-			and activeStates.BGSI_Lite_BlockedCleanupPets
-		or {}
-	for petId, blockedAt in pairs(activeStates.BGSI_Lite_BlockedCleanupPets) do
-		if tick() - (tonumber(blockedAt) or 0) >= 60 then
-			activeStates.BGSI_Lite_BlockedCleanupPets[petId] = nil
-		end
-	end
+
 	activeStates.BGSI_Lite_PetInventoryCleanupActive = true
 	local deletedAmount = 0
-	local cleanupOk = pcall(function()
-		for _, selectedCandidate in ipairs(candidates) do
-			local remainingCopies = selectedCandidate.amount
+	local cleanupOk = true
+	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
+
+	local ok, err = pcall(function()
+		activeStates.BGSI_Lite_BlockedCleanupPets = type(activeStates.BGSI_Lite_BlockedCleanupPets) == "table"
+			and activeStates.BGSI_Lite_BlockedCleanupPets
+			or {}
+
+		-- Rebuild candidates from live inventory every pass. This matters for
+		-- stacked pets because DeletePet removes copies from the stack rather
+		-- than necessarily deleting the entire pet entry.
+		for _ = 1, 100 do
+			if not isCurrentRun() then
+				return
+			end
+
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+				return
+			end
+
+			for petId, blockedAt in pairs(activeStates.BGSI_Lite_BlockedCleanupPets) do
+				if tick() - (tonumber(blockedAt) or 0) >= 60 then
+					activeStates.BGSI_Lite_BlockedCleanupPets[petId] = nil
+				end
+			end
+
+			local candidateGroups = {}
+			for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
+				if type(pet) == "table" then
+					local petRank = activeStates.BGSI_Lite_GetDisposablePetRank(pet)
+					local petId = tostring(pet.Id or "")
+					local petAmount = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
+
+					if
+						petRank
+						and petId ~= ""
+						and not activeStates.BGSI_Lite_IsPetEquipped(playerData, petId)
+						and activeStates.BGSI_Lite_BlockedCleanupPets[petId] == nil
+					then
+						local petName = tostring(pet.Name or "")
+						local candidateKey = petName .. "|" .. tostring(petRank)
+						local group = candidateGroups[candidateKey]
+
+						if not group then
+							group = {
+								name = petName,
+								rank = petRank,
+								amount = 0,
+								pets = {},
+							}
+							candidateGroups[candidateKey] = group
+						end
+
+						group.amount += petAmount
+						table.insert(group.pets, {
+							id = petId,
+							amount = petAmount,
+						})
+					end
+				end
+			end
+
+			local candidates = {}
+			for _, group in pairs(candidateGroups) do
+				if group.amount > minimumCopies then
+					table.sort(group.pets, function(leftPet, rightPet)
+						return leftPet.amount > rightPet.amount
+					end)
+					table.insert(candidates, group)
+				end
+			end
+
+			table.sort(candidates, function(leftCandidate, rightCandidate)
+				-- Prefer the largest disposable stacks first so one full
+				-- inventory can free space quickly.
+				if leftCandidate.amount ~= rightCandidate.amount then
+					return leftCandidate.amount > rightCandidate.amount
+				end
+				if leftCandidate.rank ~= rightCandidate.rank then
+					return leftCandidate.rank < rightCandidate.rank
+				end
+				return leftCandidate.name < rightCandidate.name
+			end)
+
+			local selectedCandidate = candidates[1]
+			if not selectedCandidate then
+				return
+			end
+
+			local deletedThisPass = false
+
 			for _, candidatePet in ipairs(selectedCandidate.pets) do
-				if not isCurrentRun() or not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+				playerData = profileStore:IsReady() and profileStore:Get() or nil
+				if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
 					return
 				end
-				playerData = profileStore:IsReady() and profileStore:Get() or nil
+
 				local livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
 				local amountBeforeDelete = livePet
-						and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+					and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
 					or 0
+
 				if
 					livePet
-					and livePet.Name == selectedCandidate.name
+					and tostring(livePet.Name or "") == selectedCandidate.name
 					and activeStates.BGSI_Lite_GetDisposablePetRank(livePet)
 					and not activeStates.BGSI_Lite_IsPetEquipped(playerData, candidatePet.id)
-					and remainingCopies - amountBeforeDelete >= minimumCopies
-					and activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] == nil
+					and amountBeforeDelete > minimumCopies
 				then
+					-- Delete one copy at a time and verify the replicated
+					-- stack changed before trying again.
 					local amountAfterDelete = amountBeforeDelete
+
 					for _ = 1, 3 do
 						remoteEvent:FireServer("DeletePet", candidatePet.id)
+
 						local deleteDeadline = tick() + 4
 						repeat
 							task.wait(0.1)
 							playerData = profileStore:IsReady() and profileStore:Get() or nil
 							livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
 							amountAfterDelete = livePet
-									and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+								and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
 								or 0
 						until amountAfterDelete < amountBeforeDelete or tick() >= deleteDeadline
+
 						if amountAfterDelete < amountBeforeDelete then
 							break
 						end
-						task.wait(0.5)
+
+						task.wait(0.35)
 					end
+
 					if amountAfterDelete < amountBeforeDelete then
-						local removedAmount = amountBeforeDelete - amountAfterDelete
-						deletedAmount += removedAmount
-						remainingCopies -= removedAmount
+						deletedAmount += amountBeforeDelete - amountAfterDelete
+						deletedThisPass = true
+						break
 					else
 						activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] = tick()
 					end
 				end
 			end
+
+			if not deletedThisPass then
+				-- None of the current largest stacks accepted DeletePet.
+				-- Try the next candidate rather than spinning on the same ID.
+				local foundOther = false
+				for _, group in ipairs(candidates) do
+					for _, pet in ipairs(group.pets) do
+						if activeStates.BGSI_Lite_BlockedCleanupPets[pet.id] == nil then
+							foundOther = true
+							break
+						end
+					end
+					if foundOther then
+						break
+					end
+				end
+				if not foundOther then
+					return
+				end
+			end
 		end
 	end)
+
+	cleanupOk = ok
 	activeStates.BGSI_Lite_PetInventoryCleanupActive = false
-	activeStates.BGSI_Lite_LastPetInventoryCleanup = cleanupOk and tick() or tick() - 15
+	activeStates.BGSI_Lite_LastPetInventoryCleanup = tick()
+
 	return cleanupOk and deletedAmount > 0
 end
+
 task.spawn(function()
 	while isCurrentRun() do
 		task.wait(5)
@@ -17042,7 +17129,7 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 		local rawTitle = tostring(sourceEmbed.title or "")
 		local petTitle = rawTitle
 
-		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+["“].-["”]%s+(.+)$')
+		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+"[^"]+"%s+(.+)$')
 		if extracted and extracted ~= "" then
 			petTitle = extracted
 		else
@@ -17054,8 +17141,8 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 
 		petTitle = petTitle:gsub("^Shiny%s+Secret%s+", "Shiny ")
 		petTitle = petTitle:gsub("^Secret%s+", "")
-		petTitle = petTitle:gsub("^["“]%s*", "")
-		petTitle = petTitle:gsub("%s*["”]$", "")
+		petTitle = petTitle:gsub('^"%s*', "")
+		petTitle = petTitle:gsub('%s*"$', "")
 		petTitle = petTitle:gsub("^%s+", ""):gsub("%s+$", "")
 
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
