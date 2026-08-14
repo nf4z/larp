@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.09"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.10"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.14.10",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Compact pet-name webhook header",
+				description = "Webhook headers now show only the pet name, retaining Shiny when applicable, with tighter V2 spacing.",
+				icon = "webhook",
+			},
+		},
+	},
 	{
 		version = "2026.08.14.09",
 		releasedAt = "August 14, 2026",
@@ -17020,25 +17031,45 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 	end
 
 	if sourceEmbed then
-		-- Keep the mention at the top.
 		local mentionContent = tostring(scriptStateACW.content or "")
 		if mentionContent ~= "" then
 			addText(mentionContent)
 		end
 
-		local title = tostring(sourceEmbed.title or "")
+		-- Show only the pet name in the header.
+		-- Example: Player hatched a "Secret" The Overlord -> The Overlord
+		-- Example: Player hatched a "Shiny Secret" The Overlord -> Shiny The Overlord
+		local rawTitle = tostring(sourceEmbed.title or "")
+		local petTitle = rawTitle
+
+		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+["“].-["”]%s+(.+)$')
+		if extracted and extracted ~= "" then
+			petTitle = extracted
+		else
+			local fallback = rawTitle:match('^Player%s+hatched%s+a%s+(.+)$')
+			if fallback and fallback ~= "" then
+				petTitle = fallback
+			end
+		end
+
+		petTitle = petTitle:gsub("^Shiny%s+Secret%s+", "Shiny ")
+		petTitle = petTitle:gsub("^Secret%s+", "")
+		petTitle = petTitle:gsub("^["“]%s*", "")
+		petTitle = petTitle:gsub("%s*["”]$", "")
+		petTitle = petTitle:gsub("^%s+", ""):gsub("%s+$", "")
+
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
 			and tostring(sourceEmbed.thumbnail.url or "")
 			or ""
 
-		-- Compact embed-style header: title + thumbnail in one Section.
-		if title ~= "" and thumbnailUrl ~= "" then
+		-- Compact V2 header: pet name + thumbnail.
+		if petTitle ~= "" and thumbnailUrl ~= "" then
 			table.insert(components, {
 				type = 9,
 				components = {
 					{
 						type = 10,
-						content = "# " .. title,
+						content = "# " .. petTitle,
 					},
 				},
 				accessory = {
@@ -17048,15 +17079,12 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 					},
 				},
 			})
-		elseif title ~= "" then
-			addText("# " .. title)
+		elseif petTitle ~= "" then
+			addText("# " .. petTitle)
 		end
 
-		-- Keep the complete original embed body in ONE Text Display.
-		-- This preserves every field, emoji, markdown, blank line,
-		-- existence count, server ID, etc. without excessive spacing.
+		-- Keep all original field content in one compact text block.
 		local bodyParts = {}
-
 		if type(sourceEmbed.fields) == "table" then
 			for _, field in ipairs(sourceEmbed.fields) do
 				if type(field) == "table" then
@@ -17074,7 +17102,6 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			end
 		end
 
-		-- Only two section dividers: header -> body and body -> footer.
 		if #bodyParts > 0 then
 			addSeparator()
 			addText(table.concat(bodyParts, "\n\n"))
@@ -17097,7 +17124,6 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			addText("-# " .. footerLine)
 		end
 
-		-- Preserve a normal embed image as a V2 Media Gallery.
 		local imageUrl = type(sourceEmbed.image) == "table"
 			and tostring(sourceEmbed.image.url or "")
 			or ""
@@ -17110,7 +17136,7 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 					{
 						media = {
 							url = imageUrl,
-						},
+							},
 					},
 				},
 			})
