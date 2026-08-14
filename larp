@@ -6195,6 +6195,8 @@ do
 		local debugTags = debugGui and debugGui:FindFirstChild("Tags")
 		local luckValue
 		local hatchSpeedValue
+		local secretLuckDisplay
+		local infinityLuckDisplay
 		for _, debugTag in ipairs(debugTags and debugTags:GetChildren() or {}) do
 			local debugLabel = debugTag:FindFirstChild("Label")
 			if debugLabel and (debugLabel:IsA("TextLabel") or debugLabel:IsA("TextButton")) then
@@ -6202,6 +6204,10 @@ do
 				local identifier = string.lower(tostring(debugTag.Name) .. " " .. debugText)
 				if identifier:find("hatch", 1, true) and identifier:find("speed", 1, true) then
 					hatchSpeedValue = parseDebugNumber(debugText) or hatchSpeedValue
+				elseif identifier:find("secret", 1, true) and identifier:find("luck", 1, true) then
+					secretLuckDisplay = debugText:match("[xX]%s*[%d][%d,]*%.?%d*") or secretLuckDisplay
+				elseif identifier:find("infinity", 1, true) and identifier:find("luck", 1, true) then
+					infinityLuckDisplay = debugText:match("[xX]%s*[%d][%d,]*%.?%d*") or infinityLuckDisplay
 				elseif
 					identifier:find("luck", 1, true)
 					and not identifier:find("secret", 1, true)
@@ -6212,7 +6218,11 @@ do
 				end
 			end
 		end
-		return luckValue, hatchSpeedValue
+		return luckValue, hatchSpeedValue, secretLuckDisplay, infinityLuckDisplay
+	end
+	activeStates.BGSI_Lite_GetDebugLuckDisplays = function()
+		local _, _, secretLuckDisplay, infinityLuckDisplay = getDebugStatValues()
+		return secretLuckDisplay, infinityLuckDisplay
 	end
 
 	task.spawn(function()
@@ -16584,6 +16594,7 @@ activeStates.BGSI_Lite_GetWebhookPetStatValue = function(webhookStatValue)
 	return "x" .. formattedStatValue
 end
 function getWebhookRequestFunction()
+	local debugSecretLuck, debugInfinityLuck
 	local scriptStateUY = {
 		Coins = 0,
 		Gems = 0,
@@ -16593,6 +16604,17 @@ function getWebhookRequestFunction()
 		SecretLuckDisplay = "—",
 		InfinityLuckDisplay = "—",
 	}
+	if type(activeStates.BGSI_Lite_GetDebugLuckDisplays) == "function" then
+		pcall(function()
+			debugSecretLuck, debugInfinityLuck = activeStates.BGSI_Lite_GetDebugLuckDisplays()
+		end)
+	end
+	if debugSecretLuck then
+		scriptStateUY.SecretLuckDisplay = debugSecretLuck
+	end
+	if debugInfinityLuck then
+		scriptStateUY.InfinityLuckDisplay = debugInfinityLuck
+	end
 	pcall(function()
 		if not profileStore:IsReady() then
 			return
@@ -16620,7 +16642,7 @@ function getWebhookRequestFunction()
 				end
 			end)
 			pcall(function()
-				if type(statsUtil.GetSecretLuck) == "function" then
+				if not debugSecretLuck and type(statsUtil.GetSecretLuck) == "function" then
 					local scriptStateAAZ = statsUtil:GetSecretLuck(scriptStateIL, nil)
 					if type(scriptStateAAZ) == "number" then
 						scriptStateUY.SecretLuckDisplay = getWebhookAvatarUrl(scriptStateAAZ)
@@ -16628,7 +16650,7 @@ function getWebhookRequestFunction()
 				end
 			end)
 			pcall(function()
-				if type(statsUtil.GetInfinityLuck) == "function" then
+				if not debugInfinityLuck and type(statsUtil.GetInfinityLuck) == "function" then
 					local scriptStateACI = (scriptStateAAM == "Christmas World") and "Aurora Egg" or nil
 					local scriptStateVQ = statsUtil:GetInfinityLuck(scriptStateIL, scriptStateACI)
 					if type(scriptStateVQ) == "number" then
@@ -16919,6 +16941,134 @@ function getRebirthMachineCost(scriptStateKB)
 	end
 	return scriptStateKB
 end
+function normalizeDiscordWebhookV2Url(scriptStateQZ)
+	scriptStateQZ = tostring(scriptStateQZ or ""):match("^%s*(.-)%s*$") or ""
+	if scriptStateQZ == "" then
+		return scriptStateQZ
+	end
+	if not scriptStateQZ:find("with_components=", 1, true) then
+		scriptStateQZ = scriptStateQZ .. (scriptStateQZ:find("?", 1, true) and "&" or "?") .. "with_components=true"
+	end
+	if not scriptStateQZ:find("wait=", 1, true) then
+		scriptStateQZ = scriptStateQZ .. "&wait=true"
+	end
+	return scriptStateQZ
+end
+
+function buildDiscordV2WebhookPayload(scriptStateACW)
+	local sourceEmbed = type(scriptStateACW) == "table" and type(scriptStateACW.embeds) == "table"
+		and scriptStateACW.embeds[1] or nil
+	local components = {}
+	local function addText(content)
+		content = tostring(content or "")
+		if content ~= "" then
+			table.insert(components, {
+				type = 10,
+				content = content,
+			})
+		end
+	end
+	local function addSeparator()
+		table.insert(components, {
+			type = 14,
+			divider = true,
+			spacing = 1,
+		})
+	end
+
+	if sourceEmbed then
+		local mentionContent = scriptStateACW and tostring(scriptStateACW.content or "") or ""
+		if mentionContent ~= "" then
+			addText(mentionContent)
+		end
+		local title = tostring(sourceEmbed.title or "")
+		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table" and sourceEmbed.thumbnail.url or nil
+		if title ~= "" and thumbnailUrl and tostring(thumbnailUrl) ~= "" then
+			table.insert(components, {
+				type = 9,
+				components = {
+					{
+						type = 10,
+						content = "# " .. title,
+					},
+				},
+				accessory = {
+					type = 11,
+					media = {
+						url = tostring(thumbnailUrl),
+					},
+				},
+			})
+		elseif title ~= "" then
+			addText("# " .. title)
+		end
+
+		if type(sourceEmbed.fields) == "table" and #sourceEmbed.fields > 0 then
+			local fieldLines = {}
+			for _, field in ipairs(sourceEmbed.fields) do
+				if type(field) == "table" then
+					local fieldName = tostring(field.name or "")
+					local fieldValue = tostring(field.value or "")
+					if fieldName ~= "" and fieldValue ~= "" then
+						table.insert(fieldLines, "**" .. fieldName .. "**\n" .. fieldValue)
+					elseif fieldValue ~= "" then
+						table.insert(fieldLines, fieldValue)
+					elseif fieldName ~= "" then
+						table.insert(fieldLines, "**" .. fieldName .. "**")
+					end
+				end
+			end
+			if #fieldLines > 0 then
+				addText(table.concat(fieldLines, "\n\n"))
+			end
+		end
+
+		local imageUrl = type(sourceEmbed.image) == "table" and sourceEmbed.image.url or nil
+		if imageUrl and tostring(imageUrl) ~= "" then
+			addSeparator()
+			table.insert(components, {
+				type = 12,
+				items = {
+					{
+						media = {
+							url = tostring(imageUrl),
+						},
+					},
+				},
+			})
+		end
+
+		local footerText = type(sourceEmbed.footer) == "table" and sourceEmbed.footer.text or nil
+		local timestamp = sourceEmbed.timestamp
+		local footerLine = tostring(footerText or "")
+		if timestamp and tostring(timestamp) ~= "" then
+			footerLine = footerLine ~= "" and (footerLine .. " • " .. tostring(timestamp)) or tostring(timestamp)
+		end
+		if footerLine ~= "" then
+			addSeparator()
+			addText("-# " .. footerLine)
+		end
+	else
+		-- V2 does not support top-level content/embeds, so retain any plain content as Text Display.
+		addText(scriptStateACW and scriptStateACW.content or "")
+	end
+
+	local payload = {
+		flags = 32768,
+		components = {
+			{
+				type = 17,
+				accent_color = sourceEmbed and tonumber(sourceEmbed.color) or nil,
+				components = components,
+			},
+		},
+	}
+	if scriptStateACW and type(scriptStateACW.allowed_mentions) == "table" then
+		payload.allowed_mentions = scriptStateACW.allowed_mentions
+	end
+	return payload
+end
+
 function runRebirthFuse(scriptStateQZ, scriptStateACW)
 	local scriptStateLH = request
 		or http_request
@@ -16943,12 +17093,12 @@ function runRebirthFuse(scriptStateQZ, scriptStateACW)
 	end
 	local scriptStateSX, scriptStatePK = pcall(function()
 		return scriptStateLH({
-			Url = scriptStateQZ,
+			Url = normalizeDiscordWebhookV2Url(scriptStateQZ),
 			Method = "POST",
 			Headers = {
 				["Content-Type"] = "application/json",
 			},
-			Body = HttpService:JSONEncode(scriptStateACW),
+			Body = HttpService:JSONEncode(buildDiscordV2WebhookPayload(scriptStateACW)),
 		})
 	end)
 	if scriptStateSX and scriptStatePK then
