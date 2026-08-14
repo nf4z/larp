@@ -81,6 +81,16 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+    version = "2026.08.14.06",
+    releasedAt = "August 14, 2026",
+    notes = {
+        {
+            title = "Discord Components V2 webhooks",
+            description = "Webhook notifications now use Discord Components V2 containers with automatic webhook query parameters.",
+            icon = "webhook",
+        },
+    },
+	{
 		version = "2026.08.14.05",
 		releasedAt = "August 14, 2026",
 		notes = {
