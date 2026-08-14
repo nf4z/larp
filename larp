@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,13 +81,13 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.14.04",
+		version = "2026.08.14.05",
 		releasedAt = "August 14, 2026",
 		notes = {
 			{
-				title = "Reliable target enchant rerolls",
-				description = "Auto Enchant now completes only when the configured target enchants occupy the two distinct slots.",
-				icon = "wand-sparkles",
+				title = "Gated special rift priority",
+				description = "Special rift priority now resolves and teleports only while Auto Special Rift is enabled.",
+				icon = "circle-dot",
 			},
 		},
 	},
@@ -9046,6 +9046,9 @@ do
 		return string.lower(tostring(riftId or "")):gsub("[^%w]", "")
 	end
 	local function findSpecialRift()
+		if Config.autoSpecialRift ~= true then
+			return nil
+		end
 		local riftsFolder = getPotionList("Rifts")
 		local priorities = type(Config.specialRiftPriority) == "table" and Config.specialRiftPriority or {}
 		if not riftsFolder then
