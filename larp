@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.04"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,13 +81,13 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.14.03",
+		version = "2026.08.14.04",
 		releasedAt = "August 14, 2026",
 		notes = {
 			{
-				title = "Script hub priority controls",
-				description = "Added special rift priority controls to the script hub and refreshed the dashboard version marker.",
-				icon = "list-ordered",
+				title = "Reliable target enchant rerolls",
+				description = "Auto Enchant now completes only when the configured target enchants occupy the two distinct slots.",
+				icon = "wand-sparkles",
 			},
 		},
 	},
@@ -14865,21 +14865,19 @@ activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied = function(
 	targetEnchantTwo,
 	targetEnchantLevel
 )
-	local targetLookup, hasSecondEnchantTarget = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
-	local slot1Id = getPetEnchantSlotId(petData, 1)
-	local slot2Id = getPetEnchantSlotId(petData, 2)
-	local hasTargetInSlot1 = type(slot1Id) == "string"
-		and slot1Id ~= ""
-		and targetLookup[normalizeEnchantName(slot1Id)] == true
-	local hasTargetInSlot2 = type(slot2Id) == "string"
-		and slot2Id ~= ""
-		and targetLookup[normalizeEnchantName(slot2Id)] == true
+	local targetOneId = normalizeEnchantName(targetEnchantOne)
+	local targetTwoId = normalizeEnchantName(targetEnchantTwo)
+	local hasSecondEnchantTarget = targetTwoId ~= ""
+		and targetEnchantTwo ~= "(None - single target)"
+		and targetTwoId ~= targetOneId
+	local slot1Id = normalizeEnchantName(getPetEnchantSlotId(petData, 1))
+	local slot2Id = normalizeEnchantName(getPetEnchantSlotId(petData, 2))
 	if hasSecondEnchantTarget then
-		return hasTargetInSlot1
-			and hasTargetInSlot2
-			and normalizeEnchantName(slot1Id) ~= normalizeEnchantName(slot2Id)
+		-- Both configured targets must be present, in either slot, before this pet is complete.
+		return (slot1Id == targetOneId and slot2Id == targetTwoId)
+			or (slot1Id == targetTwoId and slot2Id == targetOneId)
 	end
-	return hasTargetInSlot1 or hasTargetInSlot2
+	return targetOneId ~= "" and (slot1Id == targetOneId or slot2Id == targetOneId)
 end
 activeStates.BGSI_Lite_RerollEnchantPet = function(
 	petId,
