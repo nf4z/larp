@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.14.07",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Compact Discord Components V2 webhooks",
+				description = "Compacts webhook notifications into a V2 container while preserving the title, thumbnail, all hatch information, chance, existence count, footer, timestamp, and images.",
+				icon = "layout-dashboard",
+			},
+		},
+	},
 	{
 		version = "2026.08.14.06",
 		releasedAt = "August 14, 2026",
