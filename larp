@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,13 +81,18 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.14.05",
+		version = "2026.08.14.06",
 		releasedAt = "August 14, 2026",
 		notes = {
 			{
-				title = "Gated special rift priority",
-				description = "Special rift priority now resolves and teleports only while Auto Special Rift is enabled.",
-				icon = "circle-dot",
+				title = "Discord Components V2 webhooks",
+				description = "Webhook notifications now use Discord Components V2 containers and automatically enable the with_components and wait query parameters while preserving the existing webhook URL configuration.",
+				icon = "webhook",
+			},
+			{
+				title = "Reliable dashboard version detection",
+				description = "The active script version is bumped to 2026.08.14.06 so dashboard heartbeats, reload confirmations, and the update history report the current build consistently.",
+				icon = "refresh-cw",
 			},
 		},
 	},
@@ -16956,9 +16961,13 @@ function normalizeDiscordWebhookV2Url(scriptStateQZ)
 end
 
 function buildDiscordV2WebhookPayload(scriptStateACW)
-	local sourceEmbed = type(scriptStateACW) == "table" and type(scriptStateACW.embeds) == "table"
-		and scriptStateACW.embeds[1] or nil
+	local sourceEmbed = type(scriptStateACW) == "table"
+		and type(scriptStateACW.embeds) == "table"
+		and scriptStateACW.embeds[1]
+		or nil
+
 	local components = {}
+
 	local function addText(content)
 		content = tostring(content or "")
 		if content ~= "" then
@@ -16968,6 +16977,7 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			})
 		end
 	end
+
 	local function addSeparator()
 		table.insert(components, {
 			type = 14,
@@ -16976,14 +16986,40 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 		})
 	end
 
+	local function addFieldBlock(fieldName, fieldValue)
+		fieldName = tostring(fieldName or "")
+		fieldValue = tostring(fieldValue or "")
+		if fieldName == "" and fieldValue == "" then
+			return
+		end
+
+		local content
+		if fieldName ~= "" and fieldValue ~= "" then
+			content = "**" .. fieldName .. "**\n" .. fieldValue
+		elseif fieldValue ~= "" then
+			content = fieldValue
+		else
+			content = "**" .. fieldName .. "**"
+		end
+
+		addText(content)
+	end
+
 	if sourceEmbed then
+		-- Preserve the existing user mention at the very top.
 		local mentionContent = scriptStateACW and tostring(scriptStateACW.content or "") or ""
 		if mentionContent ~= "" then
 			addText(mentionContent)
 		end
+
+		-- Title + thumbnail use a V2 Section, which is the closest
+		-- equivalent to the old embed title/thumbnail layout.
 		local title = tostring(sourceEmbed.title or "")
-		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table" and sourceEmbed.thumbnail.url or nil
-		if title ~= "" and thumbnailUrl and tostring(thumbnailUrl) ~= "" then
+		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
+			and tostring(sourceEmbed.thumbnail.url or "")
+			or ""
+
+		if title ~= "" and thumbnailUrl ~= "" then
 			table.insert(components, {
 				type = 9,
 				components = {
@@ -16995,7 +17031,7 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 				accessory = {
 					type = 11,
 					media = {
-						url = tostring(thumbnailUrl),
+						url = thumbnailUrl,
 					},
 				},
 			})
@@ -17003,53 +17039,65 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			addText("# " .. title)
 		end
 
+		-- Keep each original embed field as its own Text Display instead
+		-- of flattening the entire embed into one giant text block.
 		if type(sourceEmbed.fields) == "table" and #sourceEmbed.fields > 0 then
-			local fieldLines = {}
+			addSeparator()
+
+			local addedField = false
 			for _, field in ipairs(sourceEmbed.fields) do
 				if type(field) == "table" then
 					local fieldName = tostring(field.name or "")
 					local fieldValue = tostring(field.value or "")
-					if fieldName ~= "" and fieldValue ~= "" then
-						table.insert(fieldLines, "**" .. fieldName .. "**\n" .. fieldValue)
-					elseif fieldValue ~= "" then
-						table.insert(fieldLines, fieldValue)
-					elseif fieldName ~= "" then
-						table.insert(fieldLines, "**" .. fieldName .. "**")
+					if fieldName ~= "" or fieldValue ~= "" then
+						if addedField then
+							addSeparator()
+						end
+						addFieldBlock(fieldName, fieldValue)
+						addedField = true
 					end
 				end
 			end
-			if #fieldLines > 0 then
-				addText(table.concat(fieldLines, "\n\n"))
-			end
 		end
 
-		local imageUrl = type(sourceEmbed.image) == "table" and sourceEmbed.image.url or nil
-		if imageUrl and tostring(imageUrl) ~= "" then
+		-- Embed images become a V2 Media Gallery.
+		local imageUrl = type(sourceEmbed.image) == "table"
+			and tostring(sourceEmbed.image.url or "")
+			or ""
+
+		if imageUrl ~= "" then
 			addSeparator()
 			table.insert(components, {
 				type = 12,
 				items = {
 					{
 						media = {
-							url = tostring(imageUrl),
+							url = imageUrl,
 						},
 					},
 				},
 			})
 		end
 
-		local footerText = type(sourceEmbed.footer) == "table" and sourceEmbed.footer.text or nil
-		local timestamp = sourceEmbed.timestamp
-		local footerLine = tostring(footerText or "")
-		if timestamp and tostring(timestamp) ~= "" then
-			footerLine = footerLine ~= "" and (footerLine .. " • " .. tostring(timestamp)) or tostring(timestamp)
+		-- Footer/timestamp stay visually small at the bottom.
+		local footerText = type(sourceEmbed.footer) == "table"
+			and tostring(sourceEmbed.footer.text or "")
+			or ""
+		local timestamp = tostring(sourceEmbed.timestamp or "")
+		local footerLine = footerText
+
+		if timestamp ~= "" then
+			footerLine = footerLine ~= ""
+				and (footerLine .. " • " .. timestamp)
+				or timestamp
 		end
+
 		if footerLine ~= "" then
 			addSeparator()
 			addText("-# " .. footerLine)
 		end
 	else
-		-- V2 does not support top-level content/embeds, so retain any plain content as Text Display.
+		-- Components V2 cannot use top-level content/embeds.
 		addText(scriptStateACW and scriptStateACW.content or "")
 	end
 
@@ -17063,9 +17111,11 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			},
 		},
 	}
+
 	if scriptStateACW and type(scriptStateACW.allowed_mentions) == "table" then
 		payload.allowed_mentions = scriptStateACW.allowed_mentions
 	end
+
 	return payload
 end
 
