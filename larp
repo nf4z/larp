@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.15"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,50 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.14.15",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "V2 mention outside container",
+				description = "Places the user mention in a sibling V2 Text Display above the webhook Container while keeping the pet name as a large heading.",
+				icon = "webhook",
+			},
+		},
+	},
+	{
+		version = "2026.08.14.14",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Webhook mention and pet-name header",
+				description = "Moves the user mention to message-level content and places a large pet-name heading directly above the webhook information.",
+				icon = "webhook",
+			},
+		},
+	},
+	{
+		version = "2026.08.14.13",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Webhook layout update",
+				description = "Updated the Discord Components V2 webhook layout while preserving the current compact formatting and inventory cleanup fixes.",
+				icon = "webhook",
+			},
+		},
+	},
+	{
+		version = "2026.08.14.12",
+		releasedAt = "August 14, 2026",
+		notes = {
+			{
+				title = "Reworked V2 webhook header spacing",
+				description = "The pet title and first information block now share the thumbnail section so the header no longer leaves a large empty area.",
+				icon = "webhook",
+			},
+		},
+	},
 	{
 		version = "2026.08.14.11",
 		releasedAt = "August 14, 2026",
@@ -17118,18 +17162,18 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 	end
 
 	if sourceEmbed then
+		-- The mention is intentionally NOT put inside the V2 container.
+		-- Discord V2 requires the message-level content to remain outside
+		-- the components container.
 		local mentionContent = tostring(scriptStateACW.content or "")
-		if mentionContent ~= "" then
-			addText(mentionContent)
-		end
 
-		-- Show only the pet name in the header.
-		-- Example: Player hatched a "Secret" The Overlord -> The Overlord
-		-- Example: Player hatched a "Shiny Secret" The Overlord -> Shiny The Overlord
 		local rawTitle = tostring(sourceEmbed.title or "")
 		local petTitle = rawTitle
 
-		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+"[^"]+"%s+(.+)$')
+		-- Extract only the pet name from titles such as:
+		-- Player hatched a "Secret" The Overlord
+		-- Player hatched a "Shiny Secret" The Overlord
+		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+["].-["]%s+(.+)$')
 		if extracted and extracted ~= "" then
 			petTitle = extracted
 		else
@@ -17141,37 +17185,23 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 
 		petTitle = petTitle:gsub("^Shiny%s+Secret%s+", "Shiny ")
 		petTitle = petTitle:gsub("^Secret%s+", "")
-		petTitle = petTitle:gsub('^"%s*', "")
-		petTitle = petTitle:gsub('%s*"$', "")
+		petTitle = petTitle:gsub('^["]%s*', "")
+		petTitle = petTitle:gsub('%s*["]$', "")
 		petTitle = petTitle:gsub("^%s+", ""):gsub("%s+$", "")
 
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
 			and tostring(sourceEmbed.thumbnail.url or "")
 			or ""
 
-		-- Compact V2 header: pet name + thumbnail.
-		if petTitle ~= "" and thumbnailUrl ~= "" then
-			table.insert(components, {
-				type = 9,
-				components = {
-					{
-						type = 10,
-						content = "# " .. petTitle,
-					},
-				},
-				accessory = {
-					type = 11,
-					media = {
-						url = thumbnailUrl,
-					},
-				},
-			})
-		elseif petTitle ~= "" then
+		-- The mention is added as a sibling V2 Text Display outside
+		-- the Container below. The Container starts with the pet heading.
+		if petTitle ~= "" then
 			addText("# " .. petTitle)
 		end
 
-		-- Keep all original field content in one compact text block.
+		-- All original embed fields remain intact in one compact text block.
 		local bodyParts = {}
+
 		if type(sourceEmbed.fields) == "table" then
 			for _, field in ipairs(sourceEmbed.fields) do
 				if type(field) == "table" then
@@ -17187,6 +17217,36 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 					end
 				end
 			end
+		end
+
+		-- Put the thumbnail beside the pet heading + first content section
+		-- when possible. Otherwise the heading remains a simple Text Display.
+		if thumbnailUrl ~= "" and petTitle ~= "" then
+			-- Replace the standalone heading with a Section so the image
+			-- sits beside the heading without adding a large empty block.
+			table.remove(components, #components)
+
+			local sectionText = "# " .. petTitle
+			if #bodyParts > 0 then
+				sectionText = sectionText .. "\n\n" .. bodyParts[1]
+				table.remove(bodyParts, 1)
+			end
+
+			table.insert(components, {
+				type = 9,
+				components = {
+					{
+						type = 10,
+						content = sectionText,
+					},
+				},
+				accessory = {
+					type = 11,
+					media = {
+						url = thumbnailUrl,
+					},
+				},
+			})
 		end
 
 		if #bodyParts > 0 then
@@ -17223,31 +17283,57 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 					{
 						media = {
 							url = imageUrl,
-							},
+						},
 					},
 				},
 			})
 		end
+
+		-- Components V2 messages cannot rely on legacy top-level embed
+		-- content. Put the mention in its own Text Display component so it
+		-- renders ABOVE the Container while remaining a real V2 component.
+		local messageComponents = {}
+
+		if mentionContent ~= "" then
+			table.insert(messageComponents, {
+				type = 10,
+				content = mentionContent,
+			})
+		end
+
+		table.insert(messageComponents, {
+			type = 17,
+			accent_color = tonumber(sourceEmbed.color),
+			components = components,
+		})
+
+		local payload = {
+			flags = 32768,
+			components = messageComponents,
+		}
+
+		if type(scriptStateACW.allowed_mentions) == "table" then
+			payload.allowed_mentions = scriptStateACW.allowed_mentions
+		end
+
+		return payload
 	else
-		addText(scriptStateACW and scriptStateACW.content or "")
-	end
-
-	local payload = {
-		flags = 32768,
-		components = {
-			{
-				type = 17,
-				accent_color = sourceEmbed and tonumber(sourceEmbed.color) or nil,
-				components = components,
+		return {
+			flags = 32768,
+			content = tostring(scriptStateACW and scriptStateACW.content or ""),
+			components = {
+				{
+					type = 17,
+					components = {
+						{
+							type = 10,
+							content = tostring(scriptStateACW and scriptStateACW.content or ""),
+						},
+					},
+				},
 			},
-		},
-	}
-
-	if scriptStateACW and type(scriptStateACW.allowed_mentions) == "table" then
-		payload.allowed_mentions = scriptStateACW.allowed_mentions
+		}
 	end
-
-	return payload
 end
 
 function runRebirthFuse(scriptStateQZ, scriptStateACW)
