@@ -16978,47 +16978,20 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 		end
 	end
 
-	local function addSeparator()
-		table.insert(components, {
-			type = 14,
-			divider = true,
-			spacing = 1,
-		})
-	end
-
-	local function addFieldBlock(fieldName, fieldValue)
-		fieldName = tostring(fieldName or "")
-		fieldValue = tostring(fieldValue or "")
-		if fieldName == "" and fieldValue == "" then
-			return
-		end
-
-		local content
-		if fieldName ~= "" and fieldValue ~= "" then
-			content = "**" .. fieldName .. "**\n" .. fieldValue
-		elseif fieldValue ~= "" then
-			content = fieldValue
-		else
-			content = "**" .. fieldName .. "**"
-		end
-
-		addText(content)
-	end
-
 	if sourceEmbed then
-		-- Preserve the existing user mention at the very top.
+		-- Keep the mention outside the container content, matching the
+		-- normal Discord webhook appearance.
 		local mentionContent = scriptStateACW and tostring(scriptStateACW.content or "") or ""
 		if mentionContent ~= "" then
 			addText(mentionContent)
 		end
 
-		-- Title + thumbnail use a V2 Section, which is the closest
-		-- equivalent to the old embed title/thumbnail layout.
 		local title = tostring(sourceEmbed.title or "")
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
 			and tostring(sourceEmbed.thumbnail.url or "")
 			or ""
 
+		-- Compact header: title and thumbnail share one V2 Section.
 		if title ~= "" and thumbnailUrl ~= "" then
 			table.insert(components, {
 				type = 9,
@@ -17039,34 +17012,55 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			addText("# " .. title)
 		end
 
-		-- Keep each original embed field as its own Text Display instead
-		-- of flattening the entire embed into one giant text block.
-		if type(sourceEmbed.fields) == "table" and #sourceEmbed.fields > 0 then
-			addSeparator()
+		-- Discord's V2 Text Display supports the same markdown/newlines
+		-- as the old embed field body. Combining the fields into ONE
+		-- Text Display keeps the message compact while preserving every
+		-- field, line, emoji, bold marker, and value.
+		local bodyParts = {}
 
-			local addedField = false
+		if type(sourceEmbed.fields) == "table" then
 			for _, field in ipairs(sourceEmbed.fields) do
 				if type(field) == "table" then
 					local fieldName = tostring(field.name or "")
 					local fieldValue = tostring(field.value or "")
-					if fieldName ~= "" or fieldValue ~= "" then
-						if addedField then
-							addSeparator()
-						end
-						addFieldBlock(fieldName, fieldValue)
-						addedField = true
+
+					if fieldName ~= "" and fieldValue ~= "" then
+						table.insert(bodyParts, "**" .. fieldName .. "**\n" .. fieldValue)
+					elseif fieldValue ~= "" then
+						table.insert(bodyParts, fieldValue)
+					elseif fieldName ~= "" then
+						table.insert(bodyParts, "**" .. fieldName .. "**")
 					end
 				end
 			end
 		end
 
-		-- Embed images become a V2 Media Gallery.
+		local footerText = type(sourceEmbed.footer) == "table"
+			and tostring(sourceEmbed.footer.text or "")
+			or ""
+		local timestamp = tostring(sourceEmbed.timestamp or "")
+
+		local footerLine = footerText
+		if timestamp ~= "" then
+			footerLine = footerLine ~= ""
+				and (footerLine .. " • " .. timestamp)
+				or timestamp
+		end
+
+		if footerLine ~= "" then
+			table.insert(bodyParts, "-# " .. footerLine)
+		end
+
+		if #bodyParts > 0 then
+			addText(table.concat(bodyParts, "\n\n"))
+		end
+
+		-- Preserve an embed image as a V2 Media Gallery.
 		local imageUrl = type(sourceEmbed.image) == "table"
 			and tostring(sourceEmbed.image.url or "")
 			or ""
 
 		if imageUrl ~= "" then
-			addSeparator()
 			table.insert(components, {
 				type = 12,
 				items = {
@@ -17078,26 +17072,7 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 				},
 			})
 		end
-
-		-- Footer/timestamp stay visually small at the bottom.
-		local footerText = type(sourceEmbed.footer) == "table"
-			and tostring(sourceEmbed.footer.text or "")
-			or ""
-		local timestamp = tostring(sourceEmbed.timestamp or "")
-		local footerLine = footerText
-
-		if timestamp ~= "" then
-			footerLine = footerLine ~= ""
-				and (footerLine .. " • " .. timestamp)
-				or timestamp
-		end
-
-		if footerLine ~= "" then
-			addSeparator()
-			addText("-# " .. footerLine)
-		end
 	else
-		-- Components V2 cannot use top-level content/embeds.
 		addText(scriptStateACW and scriptStateACW.content or "")
 	end
 
