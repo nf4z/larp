@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.14.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.15.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,133 +81,24 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.14.16",
-		releasedAt = "August 14, 2026",
+		version = "2026.08.15.02",
+		releasedAt = "August 15, 2026",
 		notes = {
 			{
-				title = "Super Legendary pet-name formatting",
-				description = "Cleans up Super Legendary webhook titles so they display as Super Legendary followed by the pet name without nested quotation marks.",
-				icon = "webhook",
+				title = "Targeted rift server hopping",
+				description = "Added selectable public-server hopping for any egg rifts in the game data, with separate checked-server history and 4x Egg hop priority.",
+				icon = "shuffle",
 			},
 		},
 	},
 	{
-		version = "2026.08.14.15",
+		version = "2026.08.14.05",
 		releasedAt = "August 14, 2026",
 		notes = {
 			{
-				title = "V2 mention outside container",
-				description = "Places the user mention in a sibling V2 Text Display above the webhook Container while keeping the pet name as a large heading.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.14",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Webhook mention and pet-name header",
-				description = "Moves the user mention to message-level content and places a large pet-name heading directly above the webhook information.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.13",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Webhook layout update",
-				description = "Updated the Discord Components V2 webhook layout while preserving the current compact formatting and inventory cleanup fixes.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.12",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Reworked V2 webhook header spacing",
-				description = "The pet title and first information block now share the thumbnail section so the header no longer leaves a large empty area.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.11",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Pet-name webhook header fix",
-				description = "Uses a Lua-safe pet-name parser and keeps the compact Components V2 webhook layout.",
-				icon = "webhook",
-			},
-			{
-				title = "Full-inventory cleanup",
-				description = "Reworks automatic cleanup to remove excess copies from high-quantity disposable pets until inventory space is available, while preserving the configured copy floor and protected pets.",
-				icon = "trash-2",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.10",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Compact pet-name webhook header",
-				description = "Webhook headers now show only the pet name, retaining Shiny when applicable, with tighter V2 spacing.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.09",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Compact V2 webhook layout",
-				description = "Refined the Discord Components V2 webhook layout while preserving all webhook information and compact section separators.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.08",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Compact Discord Components V2 webhook layout",
-				description = "Keeps all webhook information while restoring compact embed-style separators around the body and footer.",
-				icon = "webhook",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.07",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Compact Discord Components V2 webhooks",
-				description = "Compacts webhook notifications into a V2 container while preserving the title, thumbnail, all hatch information, chance, existence count, footer, timestamp, and images.",
-				icon = "layout-dashboard",
-			},
-		},
-	},
-	{
-		version = "2026.08.14.06",
-		releasedAt = "August 14, 2026",
-		notes = {
-			{
-				title = "Discord Components V2 webhooks",
-				description = "Webhook notifications now use Discord Components V2 containers and automatically enable the with_components and wait query parameters while preserving the existing webhook URL configuration.",
-				icon = "webhook",
-			},
-			{
-				title = "Reliable dashboard version detection",
-				description = "The active script version is bumped to 2026.08.14.06 so dashboard heartbeats, reload confirmations, and the update history report the current build consistently.",
-				icon = "refresh-cw",
+				title = "Gated special rift priority",
+				description = "Special rift priority now resolves and teleports only while Auto Special Rift is enabled.",
+				icon = "circle-dot",
 			},
 		},
 	},
@@ -1079,6 +970,8 @@ local defaultConfig = {
 	spawnRift = false,
 	autoLuckEgg = false,
 	autoHopLuckEgg = false,
+	autoHopTargetRifts = false,
+	targetRiftIds = {},
 	autoSpecialRift = false,
 	-- Highest priority first. Reorder these rift IDs to change which special rift is hatched.
 	specialRiftPriority = {
@@ -2802,182 +2695,111 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 	if Config.autoInventoryCleanup ~= true or activeStates.BGSI_Lite_PetInventoryCleanupActive then
 		return false
 	end
-
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+		return false
+	end
+	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
+	local candidateGroups = {}
+	for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
+		local petRank = activeStates.BGSI_Lite_GetDisposablePetRank(pet)
+		local petId = type(pet) == "table" and tostring(pet.Id or "") or ""
+		if petRank and petId ~= "" and not activeStates.BGSI_Lite_IsPetEquipped(playerData, petId) then
+			local petName = tostring(pet.Name or "")
+			local petAmount = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
+			local candidateKey = petName .. "|" .. tostring(petRank)
+			local candidateGroup = candidateGroups[candidateKey]
+			if not candidateGroup then
+				candidateGroup = { name = petName, rank = petRank, amount = 0, pets = {} }
+				candidateGroups[candidateKey] = candidateGroup
+			end
+			candidateGroup.amount += petAmount
+			table.insert(candidateGroup.pets, { id = petId, amount = petAmount })
+		end
+	end
+	local candidates = {}
+	for _, candidateGroup in pairs(candidateGroups) do
+		if candidateGroup.amount > minimumCopies then
+			table.sort(candidateGroup.pets, function(leftPet, rightPet)
+				return leftPet.amount < rightPet.amount
+			end)
+			table.insert(candidates, candidateGroup)
+		end
+	end
+	table.sort(candidates, function(leftCandidate, rightCandidate)
+		if leftCandidate.rank ~= rightCandidate.rank then
+			return leftCandidate.rank < rightCandidate.rank
+		end
+		if leftCandidate.amount ~= rightCandidate.amount then
+			return leftCandidate.amount > rightCandidate.amount
+		end
+		return leftCandidate.name < rightCandidate.name
+	end)
+	if not candidates[1] then
+		return false
+	end
+	activeStates.BGSI_Lite_BlockedCleanupPets = type(activeStates.BGSI_Lite_BlockedCleanupPets) == "table"
+			and activeStates.BGSI_Lite_BlockedCleanupPets
+		or {}
+	for petId, blockedAt in pairs(activeStates.BGSI_Lite_BlockedCleanupPets) do
+		if tick() - (tonumber(blockedAt) or 0) >= 60 then
+			activeStates.BGSI_Lite_BlockedCleanupPets[petId] = nil
+		end
+	end
 	activeStates.BGSI_Lite_PetInventoryCleanupActive = true
 	local deletedAmount = 0
-	local cleanupOk = true
-	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
-
-	local ok, err = pcall(function()
-		activeStates.BGSI_Lite_BlockedCleanupPets = type(activeStates.BGSI_Lite_BlockedCleanupPets) == "table"
-			and activeStates.BGSI_Lite_BlockedCleanupPets
-			or {}
-
-		-- Rebuild candidates from live inventory every pass. This matters for
-		-- stacked pets because DeletePet removes copies from the stack rather
-		-- than necessarily deleting the entire pet entry.
-		for _ = 1, 100 do
-			if not isCurrentRun() then
-				return
-			end
-
-			local playerData = profileStore:IsReady() and profileStore:Get() or nil
-			if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
-				return
-			end
-
-			for petId, blockedAt in pairs(activeStates.BGSI_Lite_BlockedCleanupPets) do
-				if tick() - (tonumber(blockedAt) or 0) >= 60 then
-					activeStates.BGSI_Lite_BlockedCleanupPets[petId] = nil
-				end
-			end
-
-			local candidateGroups = {}
-			for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
-				if type(pet) == "table" then
-					local petRank = activeStates.BGSI_Lite_GetDisposablePetRank(pet)
-					local petId = tostring(pet.Id or "")
-					local petAmount = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
-
-					if
-						petRank
-						and petId ~= ""
-						and not activeStates.BGSI_Lite_IsPetEquipped(playerData, petId)
-						and activeStates.BGSI_Lite_BlockedCleanupPets[petId] == nil
-					then
-						local petName = tostring(pet.Name or "")
-						local candidateKey = petName .. "|" .. tostring(petRank)
-						local group = candidateGroups[candidateKey]
-
-						if not group then
-							group = {
-								name = petName,
-								rank = petRank,
-								amount = 0,
-								pets = {},
-							}
-							candidateGroups[candidateKey] = group
-						end
-
-						group.amount += petAmount
-						table.insert(group.pets, {
-							id = petId,
-							amount = petAmount,
-						})
-					end
-				end
-			end
-
-			local candidates = {}
-			for _, group in pairs(candidateGroups) do
-				if group.amount > minimumCopies then
-					table.sort(group.pets, function(leftPet, rightPet)
-						return leftPet.amount > rightPet.amount
-					end)
-					table.insert(candidates, group)
-				end
-			end
-
-			table.sort(candidates, function(leftCandidate, rightCandidate)
-				-- Prefer the largest disposable stacks first so one full
-				-- inventory can free space quickly.
-				if leftCandidate.amount ~= rightCandidate.amount then
-					return leftCandidate.amount > rightCandidate.amount
-				end
-				if leftCandidate.rank ~= rightCandidate.rank then
-					return leftCandidate.rank < rightCandidate.rank
-				end
-				return leftCandidate.name < rightCandidate.name
-			end)
-
-			local selectedCandidate = candidates[1]
-			if not selectedCandidate then
-				return
-			end
-
-			local deletedThisPass = false
-
+	local cleanupOk = pcall(function()
+		for _, selectedCandidate in ipairs(candidates) do
+			local remainingCopies = selectedCandidate.amount
 			for _, candidatePet in ipairs(selectedCandidate.pets) do
-				playerData = profileStore:IsReady() and profileStore:Get() or nil
-				if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+				if not isCurrentRun() or not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
 					return
 				end
-
+				playerData = profileStore:IsReady() and profileStore:Get() or nil
 				local livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
 				local amountBeforeDelete = livePet
-					and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+						and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
 					or 0
-
 				if
 					livePet
-					and tostring(livePet.Name or "") == selectedCandidate.name
+					and livePet.Name == selectedCandidate.name
 					and activeStates.BGSI_Lite_GetDisposablePetRank(livePet)
 					and not activeStates.BGSI_Lite_IsPetEquipped(playerData, candidatePet.id)
-					and amountBeforeDelete > minimumCopies
+					and remainingCopies - amountBeforeDelete >= minimumCopies
+					and activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] == nil
 				then
-					-- Delete one copy at a time and verify the replicated
-					-- stack changed before trying again.
 					local amountAfterDelete = amountBeforeDelete
-
 					for _ = 1, 3 do
 						remoteEvent:FireServer("DeletePet", candidatePet.id)
-
 						local deleteDeadline = tick() + 4
 						repeat
 							task.wait(0.1)
 							playerData = profileStore:IsReady() and profileStore:Get() or nil
 							livePet = activeStates.BGSI_Lite_FindPetById(playerData, candidatePet.id)
 							amountAfterDelete = livePet
-								and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
+									and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
 								or 0
 						until amountAfterDelete < amountBeforeDelete or tick() >= deleteDeadline
-
 						if amountAfterDelete < amountBeforeDelete then
 							break
 						end
-
-						task.wait(0.35)
+						task.wait(0.5)
 					end
-
 					if amountAfterDelete < amountBeforeDelete then
-						deletedAmount += amountBeforeDelete - amountAfterDelete
-						deletedThisPass = true
-						break
+						local removedAmount = amountBeforeDelete - amountAfterDelete
+						deletedAmount += removedAmount
+						remainingCopies -= removedAmount
 					else
 						activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] = tick()
 					end
 				end
 			end
-
-			if not deletedThisPass then
-				-- None of the current largest stacks accepted DeletePet.
-				-- Try the next candidate rather than spinning on the same ID.
-				local foundOther = false
-				for _, group in ipairs(candidates) do
-					for _, pet in ipairs(group.pets) do
-						if activeStates.BGSI_Lite_BlockedCleanupPets[pet.id] == nil then
-							foundOther = true
-							break
-						end
-					end
-					if foundOther then
-						break
-					end
-				end
-				if not foundOther then
-					return
-				end
-			end
 		end
 	end)
-
-	cleanupOk = ok
 	activeStates.BGSI_Lite_PetInventoryCleanupActive = false
-	activeStates.BGSI_Lite_LastPetInventoryCleanup = tick()
-
+	activeStates.BGSI_Lite_LastPetInventoryCleanup = cleanupOk and tick() or tick() - 15
 	return cleanupOk and deletedAmount > 0
 end
-
 task.spawn(function()
 	while isCurrentRun() do
 		task.wait(5)
@@ -9057,6 +8879,75 @@ do
 		table.sort(loopSlotCB)
 		return loopSlotCB
 	end
+	local function getTargetRiftHopOptions()
+		local options = {}
+		if type(riftData) == "table" then
+			for riftId, riftInfo in pairs(riftData) do
+				if type(riftId) == "string" and type(riftInfo) == "table" and riftInfo.Type == "Egg" then
+					table.insert(options, riftId)
+				end
+			end
+		end
+		table.sort(options)
+		return options
+	end
+	activeStates.BGSI_Lite_GetTargetRiftHopOptions = getTargetRiftHopOptions
+	local function getSelectedTargetRiftIds()
+		local selectedSet = {}
+		for riftKey, riftValue in pairs(type(Config.targetRiftIds) == "table" and Config.targetRiftIds or {}) do
+			if type(riftKey) == "number" and type(riftValue) == "string" then
+				selectedSet[riftValue] = true
+			elseif type(riftKey) == "string" and riftValue == true then
+				selectedSet[riftKey] = true
+			elseif type(riftValue) == "string" then
+				selectedSet[riftValue] = true
+			end
+		end
+		local selectedRifts = {}
+		for _, riftId in ipairs(getTargetRiftHopOptions()) do
+			if selectedSet[riftId] then
+				table.insert(selectedRifts, riftId)
+			end
+		end
+		return selectedRifts
+	end
+	activeStates.BGSI_Lite_GetSelectedTargetRiftIds = getSelectedTargetRiftIds
+	activeStates.BGSI_Lite_GetTargetRiftSelectionKey = function()
+		return table.concat(getSelectedTargetRiftIds(), "|")
+	end
+	local function normalizeTargetRiftId(riftId)
+		local normalizedId = string.lower(tostring(riftId or ""))
+		normalizedId = string.gsub(normalizedId, "%-all$", "")
+		normalizedId = string.gsub(normalizedId, "%-%d+$", "")
+		return normalizedId
+	end
+	activeStates.BGSI_Lite_FindTargetedHopRift = function()
+		if Config.autoHopTargetRifts ~= true then
+			return nil
+		end
+		local selectedRifts = getSelectedTargetRiftIds()
+		if #selectedRifts == 0 then
+			return nil
+		end
+		local riftsFolder = getPotionList("Rifts")
+		if not riftsFolder then
+			return nil
+		end
+		for _, selectedRiftId in ipairs(selectedRifts) do
+			local normalizedSelectedId = normalizeTargetRiftId(selectedRiftId)
+			for _, riftObject in ipairs(riftsFolder:GetChildren()) do
+				if normalizeTargetRiftId(riftObject.Name) == normalizedSelectedId then
+					local riftInfoEntry = type(riftData) == "table"
+						and (riftData[riftObject.Name] or riftData[normalizedSelectedId])
+						or nil
+					if type(riftInfoEntry) ~= "table" or riftInfoEntry.Type == "Egg" then
+						return riftObject
+					end
+				end
+			end
+		end
+		return nil
+	end
 	local function resolveAllRiftSelection(scriptStateHM)
 		if type(scriptStateHM) ~= "string" or scriptStateHM == "" then
 			return scriptStateHM
@@ -10010,6 +9901,150 @@ do
 		return serverIds, pageCount, lastError
 	end
 
+	local targetRiftServerHistoryFile = "1rzHubLiteTargetRiftServers.json"
+	local targetRiftServerHistory = {}
+	local function getTargetRiftSelectionKey()
+		if type(activeStates.BGSI_Lite_GetTargetRiftSelectionKey) == "function" then
+			return activeStates.BGSI_Lite_GetTargetRiftSelectionKey()
+		end
+		return ""
+	end
+	pcall(function()
+		if isfile and isfile(targetRiftServerHistoryFile) then
+			local savedHistory = HttpService:JSONDecode(readfile(targetRiftServerHistoryFile))
+			if
+				type(savedHistory) == "table"
+				and tostring(savedHistory.PlaceId or "") == tostring(game.PlaceId)
+				and tostring(savedHistory.TargetKey or "") == getTargetRiftSelectionKey()
+				and type(savedHistory.Servers) == "table"
+			then
+				for savedJobId, rejectedAt in pairs(savedHistory.Servers) do
+					local rejectedTimestamp = tonumber(rejectedAt)
+					if type(savedJobId) == "string" and savedJobId ~= "" and rejectedTimestamp then
+						targetRiftServerHistory[savedJobId] = rejectedTimestamp
+					end
+				end
+			end
+		end
+	end)
+	local function saveTargetRiftServerHistory()
+		if not writefile then
+			return
+		end
+		pcall(function()
+			writefile(
+				targetRiftServerHistoryFile,
+				HttpService:JSONEncode({
+					PlaceId = tostring(game.PlaceId),
+					TargetKey = getTargetRiftSelectionKey(),
+					Servers = targetRiftServerHistory,
+					UpdatedAt = os.time(),
+				})
+			)
+		end)
+	end
+	activeStates.BGSI_Lite_ResetTargetRiftServerHistory = function()
+		for jobId in pairs(targetRiftServerHistory) do
+			targetRiftServerHistory[jobId] = nil
+		end
+		saveTargetRiftServerHistory()
+	end
+	local function rejectTargetRiftServer(jobId)
+		jobId = tostring(jobId or "")
+		if jobId == "" or targetRiftServerHistory[jobId] then
+			return
+		end
+		targetRiftServerHistory[jobId] = os.time()
+		saveTargetRiftServerHistory()
+		print("[" .. LocalPlayer.Name .. "] Saved no-target-rift JobId = " .. jobId)
+	end
+	local function getUnvisitedTargetRiftServers()
+		local serverIds = {}
+		local cursor
+		local pageCount = 0
+		local lastError
+		local seenCursors = {}
+		repeat
+			pageCount += 1
+			local serverPage, pageError = fetchLuckEggServerPage(cursor)
+			if not serverPage then
+				lastError = pageError
+				break
+			end
+			for _, serverInfo in ipairs(serverPage.data or {}) do
+				local serverId = type(serverInfo) == "table" and tostring(serverInfo.id or "") or ""
+				local playing = type(serverInfo) == "table" and tonumber(serverInfo.playing) or 0
+				local maximumPlayers = type(serverInfo) == "table" and tonumber(serverInfo.maxPlayers) or 0
+				if serverId ~= "" and serverId ~= game.JobId and not targetRiftServerHistory[serverId] and playing < maximumPlayers then
+					table.insert(serverIds, serverId)
+				end
+			end
+			local nextCursor = serverPage.nextPageCursor
+			if type(nextCursor) == "string" and nextCursor ~= "" and not seenCursors[nextCursor] then
+				seenCursors[nextCursor] = true
+				cursor = nextCursor
+			else
+				cursor = nil
+			end
+		until cursor == nil or pageCount >= 100
+		return serverIds, pageCount, lastError
+	end
+
+	activeStates.BGSI_Lite_HopForTargetRift = function()
+		if
+			not isCurrentRun()
+			or Config.autoHopTargetRifts ~= true
+			or Config.autoHopLuckEgg == true
+			or activeStates.BGSI_Lite_TargetRiftHopInProgress
+		then
+			return
+		end
+		if getTargetRiftSelectionKey() == "" then
+			return
+		end
+		activeStates.BGSI_Lite_TargetRiftHopInProgress = true
+		rejectTargetRiftServer(game.JobId)
+		print("[" .. LocalPlayer.Name .. "] No selected rift found. Searching for another server...")
+		if tostring(game.PrivateServerId or "") ~= "" then
+			print("[" .. LocalPlayer.Name .. "] Current server is private. Target-rift hop only checks public servers.")
+		end
+		local serverIds, scannedPages, serverListError = getUnvisitedTargetRiftServers()
+		local rejectedCount = 0
+		for _ in pairs(targetRiftServerHistory) do
+			rejectedCount += 1
+		end
+		if #serverIds == 0 and not serverListError and rejectedCount > 0 then
+			print("[" .. LocalPlayer.Name .. "] All known public servers were checked for the selected rifts. Clearing target-rift history and rescanning.")
+			activeStates.BGSI_Lite_ResetTargetRiftServerHistory()
+			serverIds, scannedPages, serverListError = getUnvisitedTargetRiftServers()
+		end
+		task.delay(10, function()
+			if isCurrentRun() then
+				activeStates.BGSI_Lite_TargetRiftHopInProgress = false
+			end
+		end)
+		if #serverIds > 0 then
+			local serverId = serverIds[math.random(1, #serverIds)]
+			activeStates.BGSI_Lite_TargetRiftHopTarget = serverId
+			print("[" .. LocalPlayer.Name .. "] Target-rift scan pages = " .. tostring(scannedPages) .. ", unvisited servers = " .. tostring(#serverIds))
+			print("[" .. LocalPlayer.Name .. "] Target-rift hop JobId = " .. serverId)
+			local teleportOk, teleportError = pcall(function()
+				TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, LocalPlayer)
+			end)
+			if not teleportOk then
+				print("[" .. LocalPlayer.Name .. "] Target-rift hop failed = " .. tostring(teleportError))
+				activeStates.BGSI_Lite_TargetRiftHopInProgress = false
+			end
+		else
+			if serverListError then
+				print("[" .. LocalPlayer.Name .. "] Target-rift server list unavailable (" .. tostring(serverListError) .. "). Staying here and retrying.")
+			else
+				print("[" .. LocalPlayer.Name .. "] No unvisited public servers found for the selected rifts after " .. tostring(scannedPages) .. " pages.")
+			end
+			activeStates.BGSI_Lite_TargetRiftHopInProgress = false
+		end
+	end
+
 	activeStates.BGSI_Lite_HopForLuckEgg = function()
 		if not isCurrentRun() or Config.autoHopLuckEgg ~= true or activeStates.BGSI_Lite_LuckEggHopInProgress then
 			return
@@ -10926,6 +10961,53 @@ do
 			saveConfig()
 		end,
 	})
+	gameTab:AddSection("Targeted Rift Server Hop")
+	local targetRiftHopOptions = type(activeStates.BGSI_Lite_GetTargetRiftHopOptions) == "function"
+			and activeStates.BGSI_Lite_GetTargetRiftHopOptions()
+		or {}
+	gameTab:AddDropdown("TargetRiftHopIds", {
+		Title = "Target Rifts",
+		Description = "Stay when any selected egg rift is present; otherwise keep hopping public servers.",
+		Values = targetRiftHopOptions,
+		Default = Config.targetRiftIds,
+		Multi = true,
+		Search = true,
+		Callback = function(selectedRifts)
+			local selectedSet = {}
+			for riftKey, riftValue in pairs(type(selectedRifts) == "table" and selectedRifts or {}) do
+				if type(riftKey) == "number" and type(riftValue) == "string" then
+					selectedSet[riftValue] = true
+				elseif type(riftKey) == "string" and riftValue == true then
+					selectedSet[riftKey] = true
+				elseif type(riftValue) == "string" then
+					selectedSet[riftValue] = true
+				end
+			end
+			Config.targetRiftIds = {}
+			for _, riftId in ipairs(targetRiftHopOptions) do
+				if selectedSet[riftId] then
+					table.insert(Config.targetRiftIds, riftId)
+				end
+			end
+			if type(activeStates.BGSI_Lite_ResetTargetRiftServerHistory) == "function" then
+				activeStates.BGSI_Lite_ResetTargetRiftServerHistory()
+			end
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoHopTargetRifts", {
+		Title = "Server Hop for Selected Rifts",
+		Description = "The 4x Egg server hopper takes priority when both hop options are enabled.",
+		Default = Config.autoHopTargetRifts,
+		Callback = function(isEnabled)
+			Config.autoHopTargetRifts = isEnabled == true
+			if not isEnabled then
+				activeStates.BGSI_Lite_TargetRiftHopTarget = nil
+				activeStates.BGSI_Lite_TargetRiftHopInProgress = false
+			end
+			saveConfig()
+		end,
+	})
 	gameTab:AddSection("Account Dashboard")
 	gameTab:AddToggle("DashboardSyncEnabled", {
 		Title = "Connect to Account Dashboard",
@@ -11758,6 +11840,45 @@ do
 			elseif tick() - searchStartedAt >= 12 then
 				lastDetectedEggName = nil
 				activeStates.BGSI_Lite_HopForLuckEgg()
+				searchStartedAt = tick()
+			end
+		end
+	end)
+	task.spawn(function()
+		local searchStartedAt = tick()
+		local lastDetectedRiftName
+		while isCurrentRun() do
+			task.wait(Config.autoHopTargetRifts and 2 or 0.85)
+			if not Config.autoHopTargetRifts then
+				activeStates.BGSI_Lite_TargetRiftHopTarget = nil
+				activeStates.BGSI_Lite_TargetRiftHopInProgress = false
+				lastDetectedRiftName = nil
+				searchStartedAt = tick()
+				continue
+			end
+			local selectionKey = type(activeStates.BGSI_Lite_GetTargetRiftSelectionKey) == "function"
+					and activeStates.BGSI_Lite_GetTargetRiftSelectionKey()
+				or ""
+			if selectionKey == "" or Config.autoHopLuckEgg == true or activeStates.BGSI_Lite_DashboardJoinTarget then
+				lastDetectedRiftName = nil
+				searchStartedAt = tick()
+				continue
+			end
+			local targetedRift = type(activeStates.BGSI_Lite_FindTargetedHopRift) == "function"
+					and activeStates.BGSI_Lite_FindTargetedHopRift()
+				or nil
+			if targetedRift then
+				if targetedRift.Name ~= lastDetectedRiftName then
+					print("[" .. LocalPlayer.Name .. "] Found selected rift " .. targetedRift.Name .. ". Staying in this server.")
+				end
+				lastDetectedRiftName = targetedRift.Name
+				activeStates.BGSI_Lite_TargetRiftHopTarget = nil
+				searchStartedAt = tick()
+			elseif tick() - searchStartedAt >= 12 then
+				lastDetectedRiftName = nil
+				if type(activeStates.BGSI_Lite_HopForTargetRift) == "function" then
+					activeStates.BGSI_Lite_HopForTargetRift()
+				end
 				searchStartedAt = tick()
 			end
 		end
@@ -17147,13 +17268,9 @@ function normalizeDiscordWebhookV2Url(scriptStateQZ)
 end
 
 function buildDiscordV2WebhookPayload(scriptStateACW)
-	local sourceEmbed = type(scriptStateACW) == "table"
-		and type(scriptStateACW.embeds) == "table"
-		and scriptStateACW.embeds[1]
-		or nil
-
+	local sourceEmbed = type(scriptStateACW) == "table" and type(scriptStateACW.embeds) == "table"
+		and scriptStateACW.embeds[1] or nil
 	local components = {}
-
 	local function addText(content)
 		content = tostring(content or "")
 		if content ~= "" then
@@ -17163,7 +17280,6 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			})
 		end
 	end
-
 	local function addSeparator()
 		table.insert(components, {
 			type = 14,
@@ -17173,182 +17289,96 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 	end
 
 	if sourceEmbed then
-		-- The mention is intentionally NOT put inside the V2 container.
-		-- Discord V2 requires the message-level content to remain outside
-		-- the components container.
-		local mentionContent = tostring(scriptStateACW.content or "")
-
-		local rawTitle = tostring(sourceEmbed.title or "")
-		local petTitle = rawTitle
-
-		-- Extract only the pet name from titles such as:
-		-- Player hatched a "Secret" The Overlord
-		-- Player hatched a "Shiny Secret" The Overlord
-		local extracted = rawTitle:match('^Player%s+hatched%s+a%s+["].-["]%s+(.+)$')
-		if extracted and extracted ~= "" then
-			petTitle = extracted
-		else
-			local fallback = rawTitle:match('^Player%s+hatched%s+a%s+(.+)$')
-			if fallback and fallback ~= "" then
-				petTitle = fallback
-			end
+		local mentionContent = scriptStateACW and tostring(scriptStateACW.content or "") or ""
+		if mentionContent ~= "" then
+			addText(mentionContent)
 		end
-
-		-- Normalize rarity prefixes in the title.
-		-- Super "Super Legendary" Dark Rift Imp -> Super Legendary Dark Rift Imp
-		petTitle = petTitle:gsub('^Super%s+["]Super%s+Legendary["]%s+', "Super Legendary ")
-		petTitle = petTitle:gsub('^Super%s+["]([^"]+)["]%s+', "Super %1 ")
-		petTitle = petTitle:gsub("^Shiny%s+Secret%s+", "Shiny ")
-		petTitle = petTitle:gsub("^Secret%s+", "")
-		petTitle = petTitle:gsub('^["]%s*', "")
-		petTitle = petTitle:gsub('%s*["]$', "")
-		petTitle = petTitle:gsub("^%s+", ""):gsub("%s+$", "")
-
-		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table"
-			and tostring(sourceEmbed.thumbnail.url or "")
-			or ""
-
-		-- The mention is added as a sibling V2 Text Display outside
-		-- the Container below. The Container starts with the pet heading.
-		if petTitle ~= "" then
-			addText("# " .. petTitle)
-		end
-
-		-- All original embed fields remain intact in one compact text block.
-		local bodyParts = {}
-
-		if type(sourceEmbed.fields) == "table" then
-			for _, field in ipairs(sourceEmbed.fields) do
-				if type(field) == "table" then
-					local fieldName = tostring(field.name or "")
-					local fieldValue = tostring(field.value or "")
-
-					if fieldName ~= "" and fieldValue ~= "" then
-						table.insert(bodyParts, "**" .. fieldName .. "**\n" .. fieldValue)
-					elseif fieldValue ~= "" then
-						table.insert(bodyParts, fieldValue)
-					elseif fieldName ~= "" then
-						table.insert(bodyParts, "**" .. fieldName .. "**")
-					end
-				end
-			end
-		end
-
-		-- Put the thumbnail beside the pet heading + first content section
-		-- when possible. Otherwise the heading remains a simple Text Display.
-		if thumbnailUrl ~= "" and petTitle ~= "" then
-			-- Replace the standalone heading with a Section so the image
-			-- sits beside the heading without adding a large empty block.
-			table.remove(components, #components)
-
-			local sectionText = "# " .. petTitle
-			if #bodyParts > 0 then
-				sectionText = sectionText .. "\n\n" .. bodyParts[1]
-				table.remove(bodyParts, 1)
-			end
-
+		local title = tostring(sourceEmbed.title or "")
+		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table" and sourceEmbed.thumbnail.url or nil
+		if title ~= "" and thumbnailUrl and tostring(thumbnailUrl) ~= "" then
 			table.insert(components, {
 				type = 9,
 				components = {
 					{
 						type = 10,
-						content = sectionText,
+						content = "# " .. title,
 					},
 				},
 				accessory = {
 					type = 11,
 					media = {
-						url = thumbnailUrl,
+						url = tostring(thumbnailUrl),
 					},
 				},
 			})
+		elseif title ~= "" then
+			addText("# " .. title)
 		end
 
-		if #bodyParts > 0 then
-			addSeparator()
-			addText(table.concat(bodyParts, "\n\n"))
+		if type(sourceEmbed.fields) == "table" and #sourceEmbed.fields > 0 then
+			local fieldLines = {}
+			for _, field in ipairs(sourceEmbed.fields) do
+				if type(field) == "table" then
+					local fieldName = tostring(field.name or "")
+					local fieldValue = tostring(field.value or "")
+					if fieldName ~= "" and fieldValue ~= "" then
+						table.insert(fieldLines, "**" .. fieldName .. "**\n" .. fieldValue)
+					elseif fieldValue ~= "" then
+						table.insert(fieldLines, fieldValue)
+					elseif fieldName ~= "" then
+						table.insert(fieldLines, "**" .. fieldName .. "**")
+					end
+				end
+			end
+			if #fieldLines > 0 then
+				addText(table.concat(fieldLines, "\n\n"))
+			end
 		end
 
-		local footerText = type(sourceEmbed.footer) == "table"
-			and tostring(sourceEmbed.footer.text or "")
-			or ""
-		local timestamp = tostring(sourceEmbed.timestamp or "")
-		local footerLine = footerText
-
-		if timestamp ~= "" then
-			footerLine = footerLine ~= ""
-				and (footerLine .. " • " .. timestamp)
-				or timestamp
-		end
-
-		if footerLine ~= "" then
-			addSeparator()
-			addText("-# " .. footerLine)
-		end
-
-		local imageUrl = type(sourceEmbed.image) == "table"
-			and tostring(sourceEmbed.image.url or "")
-			or ""
-
-		if imageUrl ~= "" then
+		local imageUrl = type(sourceEmbed.image) == "table" and sourceEmbed.image.url or nil
+		if imageUrl and tostring(imageUrl) ~= "" then
 			addSeparator()
 			table.insert(components, {
 				type = 12,
 				items = {
 					{
 						media = {
-							url = imageUrl,
+							url = tostring(imageUrl),
 						},
 					},
 				},
 			})
 		end
 
-		-- Components V2 messages cannot rely on legacy top-level embed
-		-- content. Put the mention in its own Text Display component so it
-		-- renders ABOVE the Container while remaining a real V2 component.
-		local messageComponents = {}
-
-		if mentionContent ~= "" then
-			table.insert(messageComponents, {
-				type = 10,
-				content = mentionContent,
-			})
+		local footerText = type(sourceEmbed.footer) == "table" and sourceEmbed.footer.text or nil
+		local timestamp = sourceEmbed.timestamp
+		local footerLine = tostring(footerText or "")
+		if timestamp and tostring(timestamp) ~= "" then
+			footerLine = footerLine ~= "" and (footerLine .. " • " .. tostring(timestamp)) or tostring(timestamp)
 		end
-
-		table.insert(messageComponents, {
-			type = 17,
-			accent_color = tonumber(sourceEmbed.color),
-			components = components,
-		})
-
-		local payload = {
-			flags = 32768,
-			components = messageComponents,
-		}
-
-		if type(scriptStateACW.allowed_mentions) == "table" then
-			payload.allowed_mentions = scriptStateACW.allowed_mentions
+		if footerLine ~= "" then
+			addSeparator()
+			addText("-# " .. footerLine)
 		end
-
-		return payload
 	else
-		return {
-			flags = 32768,
-			content = tostring(scriptStateACW and scriptStateACW.content or ""),
-			components = {
-				{
-					type = 17,
-					components = {
-						{
-							type = 10,
-							content = tostring(scriptStateACW and scriptStateACW.content or ""),
-						},
-					},
-				},
-			},
-		}
+		-- V2 does not support top-level content/embeds, so retain any plain content as Text Display.
+		addText(scriptStateACW and scriptStateACW.content or "")
 	end
+
+	local payload = {
+		flags = 32768,
+		components = {
+			{
+				type = 17,
+				accent_color = sourceEmbed and tonumber(sourceEmbed.color) or nil,
+				components = components,
+			},
+		},
+	}
+	if scriptStateACW and type(scriptStateACW.allowed_mentions) == "table" then
+		payload.allowed_mentions = scriptStateACW.allowed_mentions
+	end
+	return payload
 end
 
 function runRebirthFuse(scriptStateQZ, scriptStateACW)
