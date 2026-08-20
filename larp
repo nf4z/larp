@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.15.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.19.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,32 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.08.19.05",
+		releasedAt = "August 19, 2026",
+		notes = {
+			{
+				title = "Per-account config and live webhook isolation",
+				description = "Stores settings and live webhook message IDs separately for each Roblox account, preventing accounts from overwriting each other or fighting over the same Discord message. Existing shared config is migrated on first load.",
+				icon = "users",
+			},
+			{
+				title = "Live Webhook Emoji Layout",
+				description = "Uses the requested Discord custom emojis for hatch speed, luck, server, and total; uses alarm-clock and star for uptime and best hatch; removes the Hatching status text and shows the current egg name directly with green/red status accent colors.",
+				icon = "sparkles",
+			},
+			{
+				title = "Persistent Live Webhook + Hatch Webhook Formatting",
+				description = "Persists the live webhook message ID so the same Discord message is edited across reloads, changes live status naming to DisplayName (username), and formats hatch variants as a compact # variant title above User Info.",
+				icon = "radio",
+			},
+			{
+				title = "Hatch request safeguard",
+				description = "Hatch requests now fall back to one egg if the max-hatch resolver errors, preventing a resolver failure from stopping the hatch request loop.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.08.15.02",
 		releasedAt = "August 15, 2026",
@@ -944,7 +970,9 @@ pcall(function()
 		openUi:Destroy()
 	end
 end)
-local configFile = "1rzHubLiteConfig.json"
+local configAccountId = tostring(LocalPlayer.UserId or "0"):gsub("[^%w%-_]", "_")
+local configFile = "1rzHubLiteConfig_" .. configAccountId .. ".json"
+local sharedConfigFile = "1rzHubLiteConfig.json"
 local defaultConfig = {
 	safeMode = false,
 	safeModeSavedConfig = {},
@@ -1015,7 +1043,7 @@ local defaultConfig = {
 	selectedFragments = {},
 	dashboardSyncEnabled = true,
 	dashboardSyncAutoEnabled = false,
-	dashboardEndpoint = "",
+	dashboardEndpoint = "https://phantom-7a2u9u3fz-lathans-projects-b33720b8.vercel.app",
 	dashboardIngestToken = "",
 	dashboardBestHatchName = "",
 	dashboardBestHatchChance = 0,
@@ -1078,6 +1106,11 @@ local defaultConfig = {
 	shrineAmount = 10,
 	webhookEnabled = false,
 	webhookURL = "",
+	-- Separate live-status webhook. This is intentionally independent from the hatching webhook.
+	LiveWebhookEnabled = false,
+	LiveWebhookURL = "",
+	-- Persistent Discord message IDs keyed by webhook URL so live status edits the same message after reloads.
+	LiveWebhookMessageIds = {},
 	webhookHidePlayerName = false,
 	webhookPingEnabled = false,
 	webhookPingUserId = "",
@@ -1126,21 +1159,36 @@ local Config
 -- Loads the saved config and falls back safely if the file is missing/broken.
 function loadConfig()
 	local scriptStateBB = {}
-	if isfile and isfile(configFile) then
-		local scriptStateIS, scriptStateRR = pcall(function()
-			return HttpService:JSONDecode(readfile(configFile))
+	local loadedAccountConfig = false
+	local function mergeConfigFile(fileName, allowSharedLiveIds)
+		if not (isfile and isfile(fileName)) then
+			return false
+		end
+		local decodeOk, savedConfig = pcall(function()
+			return HttpService:JSONDecode(readfile(fileName))
 		end)
-		if scriptStateIS and type(scriptStateRR) == "table" then
-			if scriptStateRR.autoSpamR == nil and type(scriptStateRR.autoSpamE) == "boolean" then
-				scriptStateRR.autoSpamR = scriptStateRR.autoSpamE
-			end
-			for loopSlotCL, scriptStateOE in pairs(defaultConfig) do
-				if scriptStateRR[loopSlotCL] ~= nil and typeof(scriptStateRR[loopSlotCL]) == typeof(scriptStateOE) then
-					defaultConfig[loopSlotCL] = scriptStateRR[loopSlotCL]
+		if not decodeOk or type(savedConfig) ~= "table" then
+			return false
+		end
+		if savedConfig.autoSpamR == nil and type(savedConfig.autoSpamE) == "boolean" then
+			savedConfig.autoSpamR = savedConfig.autoSpamE
+		end
+		for loopSlotCL, scriptStateOE in pairs(defaultConfig) do
+			if savedConfig[loopSlotCL] ~= nil and typeof(savedConfig[loopSlotCL]) == typeof(scriptStateOE) then
+				if loopSlotCL ~= "LiveWebhookMessageIds" or allowSharedLiveIds then
+					defaultConfig[loopSlotCL] = savedConfig[loopSlotCL]
 					scriptStateBB[loopSlotCL] = true
 				end
 			end
 		end
+		return true
+	end
+
+	loadedAccountConfig = mergeConfigFile(configFile, true)
+	-- First run after this update: migrate the old shared config into this account's file.
+	-- Live webhook message IDs are intentionally not migrated because they were shared across accounts.
+	if not loadedAccountConfig then
+		mergeConfigFile(sharedConfigFile, false)
 	end
 	if isfile and isfile(legacyConfigFile) then
 		local scriptStateZF, scriptStateQX = pcall(function()
@@ -1332,6 +1380,23 @@ function refreshChunkerAroundPlayer()
 end
 
 Config = loadConfig()
+-- Persist the per-account config immediately so a migrated shared config becomes isolated.
+pcall(function()
+	if writefile then
+		writefile(configFile, HttpService:JSONEncode(Config))
+	end
+end)
+
+-- Migrate the Account Dashboard off the retired larplite.xyz host.
+-- Keep the saved ingest token untouched; only the upstream URL changes.
+do
+	local configuredDashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
+	if configuredDashboardEndpoint == "" or configuredDashboardEndpoint:find("larplite%.xyz", 1, false) then
+		Config.dashboardEndpoint = "https://phantom-7a2u9u3fz-lathans-projects-b33720b8.vercel.app"
+		saveConfig()
+	end
+end
+
 Config.superLegendaryEnchantPriorities = activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(
 	Config.superLegendaryEnchantPriorities
 )
@@ -3492,7 +3557,11 @@ function fireHatchEgg(scriptStateQC)
 	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
 	local hatchRequestSucceeded = pcall(function()
-		local hatchAmount = getMaxHatchAmount()
+		local hatchAmount = 1
+		local amountOk, resolvedAmount = pcall(getMaxHatchAmount)
+		if amountOk and tonumber(resolvedAmount) and tonumber(resolvedAmount) > 0 then
+			hatchAmount = math.max(1, math.floor(tonumber(resolvedAmount)))
+		end
 		remoteEvent:FireServer("HatchEgg", scriptStateQC, hatchAmount)
 	end)
 	if hatchRequestSucceeded then
@@ -6250,6 +6319,7 @@ do
 			local now = tick()
 			local elapsed = math.max(0.001, now - fpsSampleStartedAt)
 			currentFps = math.floor(frameCount / elapsed + 0.5)
+			activeStates.BGSI_Lite_CurrentFPS = currentFps
 			frameCount = 0
 			fpsSampleStartedAt = now
 			pcall(function()
@@ -6266,9 +6336,11 @@ do
 			pcall(function()
 				local luckValue, hatchSpeedValue = getDebugStatValues()
 				if luckValue then
+					activeStates.BGSI_Lite_CurrentLuck = tonumber(luckValue) or 0
 					liveStatHandles.Luck:Set(luckValue)
 				end
 				if hatchSpeedValue then
+					activeStates.BGSI_Lite_CurrentHatchSpeed = tonumber(hatchSpeedValue) or 0
 					liveStatHandles.HatchSpeed:Set(hatchSpeedValue)
 				end
 			end)
@@ -7686,7 +7758,12 @@ task.spawn(function()
 		end
 		if tick() - lastHatchSampleAt >= 0.5 then
 			lastHatchSampleAt = tick()
-			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local playerData
+			pcall(function()
+				if profileStore and profileStore:IsReady() then
+					playerData = profileStore:Get()
+				end
+			end)
 			local hatchCount = playerData
 				and type(playerData.Stats) == "table"
 				and tonumber(playerData.Stats.Hatches)
@@ -11888,8 +11965,14 @@ do
 		local previousSampleTime = tick()
 		while isCurrentRun() do
 			task.wait(5)
-			if Config.autoHopLuckEgg or Config.autoLuckEgg or Config.dashboardSyncEnabled then
-				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			-- Keep live telemetry independent from Account Dashboard connectivity.
+			-- A dashboard outage must never stop the local hatch monitor.
+			local playerData
+			pcall(function()
+				if profileStore and profileStore:IsReady() then
+					playerData = profileStore:Get()
+				end
+			end)
 				local currentHatchCount = playerData and playerData.Stats and tonumber(playerData.Stats.Hatches) or 0
 				local currentSampleTime = tick()
 				local elapsedTime = math.max(currentSampleTime - previousSampleTime, 0.001)
@@ -11939,16 +12022,9 @@ do
 				local logPrefix = "[" .. LocalPlayer.Name .. "] "
 				print(logPrefix .. "Egg = " .. currentEggName)
 				print(logPrefix .. "isHatching = " .. tostring(isHatching))
-				print(logPrefix .. "Hatchrate = " .. formattedHatchRate .. "/m")
-				previousHatchCount = currentHatchCount
-				previousSampleTime = currentSampleTime
-			else
-				activeStates.BGSI_Lite_CurrentEggName = "None"
-				activeStates.BGSI_Lite_IsHatching = false
-				activeStates.BGSI_Lite_CurrentHatchRate = 0
-				previousHatchCount = nil
-				previousSampleTime = tick()
-			end
+			print(logPrefix .. "Hatchrate = " .. formattedHatchRate .. "/m")
+			previousHatchCount = currentHatchCount
+			previousSampleTime = currentSampleTime
 		end
 	end)
 	activeStates.BGSI_Lite_SafeDashboardBuild = function(builder, fallbackValue)
@@ -12211,6 +12287,7 @@ do
 			dashboardBestHatchName = true,
 			dashboardBestHatchChance = true,
 			lastSeenScriptVersion = true,
+			LiveWebhookMessageIds = true,
 		}
 		for _, configKey in ipairs(dashboardConfigKeys) do
 			if not dashboardPrivateConfigKeys[configKey] then
@@ -17421,6 +17498,410 @@ function runRebirthFuse(scriptStateQZ, scriptStateACW)
 	end
 	return false
 end
+-- ============================================================================
+-- LIVE WEBHOOK
+-- Completely separate from the existing hatching webhook.
+-- ============================================================================
+local LIVE_WEBHOOK_UPDATE_INTERVAL = 15
+
+activeStates.BGSI_Lite_LiveWebhook = type(activeStates.BGSI_Lite_LiveWebhook) == "table"
+		and activeStates.BGSI_Lite_LiveWebhook
+	or {}
+activeStates.BGSI_Lite_LiveWebhook.messageIds = type(activeStates.BGSI_Lite_LiveWebhook.messageIds) == "table"
+		and activeStates.BGSI_Lite_LiveWebhook.messageIds
+	or {}
+activeStates.BGSI_Lite_LiveWebhook.startedAt = tick()
+activeStates.BGSI_Lite_LiveWebhook.startingHatches = nil
+activeStates.BGSI_Lite_LiveWebhook.enabled = false
+activeStates.BGSI_Lite_LiveWebhook.loopToken = (tonumber(activeStates.BGSI_Lite_LiveWebhook.loopToken) or 0) + 1
+
+local function getLiveWebhookRequestFunction()
+	local requestFunction = request
+		or http_request
+		or (type(syn) == "table" and rawget(syn, "request"))
+		or rawget((getgenv and getgenv()) or _G, "http_request")
+
+	if type(requestFunction) ~= "function" then
+		local httpTable = rawget((getgenv and getgenv()) or _G, "http")
+		requestFunction = type(httpTable) == "table" and rawget(httpTable, "request") or nil
+	end
+
+	return requestFunction
+end
+
+local function normalizeLiveWebhookUrl(webhookUrl, waitForMessage)
+	webhookUrl = tostring(webhookUrl or ""):match("^%s*(.-)%s*$") or ""
+	if webhookUrl == "" then
+		return webhookUrl
+	end
+	if webhookUrl:find("with_components=", 1, true) then
+		webhookUrl = webhookUrl:gsub("with_components=[^&]*", "with_components=true", 1)
+	else
+		webhookUrl = webhookUrl .. (webhookUrl:find("?", 1, true) and "&" or "?") .. "with_components=true"
+	end
+	if waitForMessage then
+		if webhookUrl:find("wait=", 1, true) then
+			webhookUrl = webhookUrl:gsub("wait=[^&]*", "wait=true", 1)
+		else
+			webhookUrl = webhookUrl .. "&wait=true"
+		end
+	end
+	return webhookUrl
+end
+
+local function getLiveWebhookMessageUrl(webhookUrl, messageId)
+	webhookUrl = tostring(webhookUrl or ""):match("^%s*(.-)%s*$") or ""
+	messageId = tostring(messageId or "")
+	if webhookUrl == "" or messageId == "" then
+		return nil
+	end
+
+	local webhookId, webhookToken = webhookUrl:match("api%.discord%.com/api/webhooks/(%d+)/([^%?]+)")
+	if not webhookId or not webhookToken then
+		webhookId, webhookToken = webhookUrl:match("discord%.com/api/webhooks/(%d+)/([^%?]+)")
+	end
+	if not webhookId or not webhookToken then
+		return nil
+	end
+
+	return string.format(
+		"https://discord.com/api/webhooks/%s/%s/messages/%s?with_components=true",
+		webhookId,
+		webhookToken,
+		messageId
+	)
+end
+
+local function formatLiveWebhookNumber(value)
+	value = tonumber(value) or 0
+	if value >= 1e12 then
+		return string.format("%.2fT", value / 1e12)
+	elseif value >= 1e9 then
+		return string.format("%.2fB", value / 1e9)
+	elseif value >= 1e6 then
+		return string.format("%.2fM", value / 1e6)
+	elseif value >= 1e3 then
+		return string.format("%.2fK", value / 1e3)
+	end
+	return tostring(math.floor(value))
+end
+
+local function formatLiveWebhookUptime(seconds)
+	seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+	local hours = math.floor(seconds / 3600)
+	local minutes = math.floor((seconds % 3600) / 60)
+	local remainingSeconds = seconds % 60
+	if hours > 0 then
+		return string.format("%dh %02dm %02ds", hours, minutes, remainingSeconds)
+	elseif minutes > 0 then
+		return string.format("%dm %02ds", minutes, remainingSeconds)
+	end
+	return string.format("%ds", remainingSeconds)
+end
+
+local liveWebhookHeadshotUrl
+local liveWebhookHeadshotFetchedAt = 0
+
+local function getLiveWebhookHeadshotUrl()
+	if liveWebhookHeadshotUrl and tick() - liveWebhookHeadshotFetchedAt < 1800 then
+		return liveWebhookHeadshotUrl
+	end
+
+	-- Prefer Roblox's native thumbnail resolver. It returns a CDN image URL
+	-- that Discord can fetch directly, avoiding the old headshot endpoint.
+	local nativeOk, nativeUrl = pcall(function()
+		local contentUrl = Players:GetUserThumbnailAsync(
+			LocalPlayer.UserId,
+			Enum.ThumbnailType.HeadShot,
+			Enum.ThumbnailSize.Size420x420
+		)
+		return contentUrl
+	end)
+	if nativeOk and type(nativeUrl) == "string" and nativeUrl:match("^https?://") then
+		liveWebhookHeadshotUrl = nativeUrl
+		liveWebhookHeadshotFetchedAt = tick()
+		return liveWebhookHeadshotUrl
+	end
+
+	local userId = tostring(LocalPlayer.UserId)
+	local apiUrl = string.format(
+		"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=%s&size=420x420&format=Png&isCircular=false",
+		userId
+	)
+
+	local requestFunction = getLiveWebhookRequestFunction()
+	local responseBody
+
+	if type(requestFunction) == "function" then
+		local ok, response = pcall(function()
+			return requestFunction({
+				Url = apiUrl,
+				Method = "GET",
+				Headers = {
+					["Accept"] = "application/json",
+				},
+				Timeout = 8,
+			})
+		end)
+		if ok and type(response) == "table" then
+			responseBody = response.Body or response.body
+		end
+	end
+
+	if type(responseBody) ~= "string" or responseBody == "" then
+		local ok, body = pcall(function()
+			return HttpService:GetAsync(apiUrl)
+		end)
+		if ok then
+			responseBody = body
+		end
+	end
+
+	if type(responseBody) == "string" and responseBody ~= "" then
+		local ok, decoded = pcall(function()
+			return HttpService:JSONDecode(responseBody)
+		end)
+		if ok and type(decoded) == "table" and type(decoded.data) == "table" then
+			local entry = decoded.data[1]
+			if type(entry) == "table" and type(entry.imageUrl) == "string" and entry.imageUrl ~= "" then
+				liveWebhookHeadshotUrl = entry.imageUrl
+				liveWebhookHeadshotFetchedAt = tick()
+				return liveWebhookHeadshotUrl
+			end
+		end
+	end
+
+	-- Fallback for executors/clients that can resolve Roblox's legacy thumbnail URL.
+	return string.format(
+		"https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
+		userId
+	)
+end
+
+local function getLiveWebhookStats()
+	local playerData
+	pcall(function()
+		if profileStore and profileStore:IsReady() then
+			playerData = profileStore:Get()
+		end
+	end)
+
+	local totalHatches = 0
+	if type(playerData) == "table" and type(playerData.Stats) == "table" then
+		totalHatches = tonumber(playerData.Stats.Hatches) or 0
+	end
+
+	local liveState = activeStates.BGSI_Lite_LiveWebhook
+	if liveState.startingHatches == nil then
+		liveState.startingHatches = totalHatches
+	end
+
+	return {
+		totalHatches = totalHatches,
+		sessionHatches = math.max(0, totalHatches - (tonumber(liveState.startingHatches) or totalHatches)),
+		hatchRate = math.max(0, math.floor(tonumber(activeStates.BGSI_Lite_CurrentHatchRate) or 0)),
+		currentEgg = tostring(activeStates.BGSI_Lite_CurrentEggName or Config.selectedEgg or "None"),
+		isHatching = activeStates.BGSI_Lite_IsHatching == true,
+		luck = tonumber(activeStates.BGSI_Lite_CurrentLuck) or 0,
+		hatchSpeed = tonumber(activeStates.BGSI_Lite_CurrentHatchSpeed) or 0,
+		fps = tonumber(activeStates.BGSI_Lite_CurrentFPS) or 0,
+		serverPlayers = #Players:GetPlayers(),
+		uptime = math.max(0, tick() - (tonumber(liveState.startedAt) or tick())),
+		bestHatchName = tostring(activeStates.BGSI_Lite_DashboardBestHatchName or ""),
+		bestHatchChance = tonumber(activeStates.BGSI_Lite_DashboardBestHatchChance) or 0,
+	}
+end
+
+local function buildLiveWebhookPayload()
+	local stats = getLiveWebhookStats()
+	local displayName = tostring(LocalPlayer.DisplayName or LocalPlayer.Name)
+	local accountName = tostring(LocalPlayer.Name)
+	local username = displayName .. " (" .. accountName .. ")"
+
+	local bestHatch = "None yet"
+	if stats.bestHatchName ~= "" then
+		if stats.bestHatchChance > 0 then
+			bestHatch = string.format("%s (1 in %s)", stats.bestHatchName, formatLiveWebhookNumber(stats.bestHatchChance))
+		else
+			bestHatch = stats.bestHatchName
+		end
+	end
+
+	local content = table.concat({
+		"# " .. username,
+		"",
+		"**" .. stats.currentEgg .. "**",
+		"",
+		"<:hatch_speed:1515078597105287380> **Hatch Speed:** `" .. string.format("%.1f%%", stats.hatchSpeed) .. "`",
+		"<:luck:1462133363182796810> **Luck:** `" .. string.format("%.1f%%", stats.luck) .. "`",
+		":alarm_clock: **Uptime:** `" .. formatLiveWebhookUptime(stats.uptime) .. "`",
+		"<:server:1521545154626982072> **Server:** `" .. tostring(stats.serverPlayers) .. " players`",
+		":star: **Best hatch:** " .. bestHatch,
+		"<:hatch_speed:1515078597105287380> **Total:** `" .. formatLiveWebhookNumber(stats.totalHatches) .. "`",
+	}, "\n")
+
+	return {
+		flags = 32768,
+		components = {
+			{
+				type = 17,
+				accent_color = stats.isHatching and 0x57F287 or 0xED4245,
+				components = {
+					{
+						type = 9,
+						components = {
+							{
+								type = 10,
+								content = content,
+							},
+						},
+						accessory = {
+							type = 11,
+							media = {
+								url = getLiveWebhookHeadshotUrl(),
+							},
+							description = accountName .. " Roblox headshot",
+						},
+					},
+					{
+						type = 14,
+						divider = true,
+						spacing = 1,
+					},
+					{
+						type = 10,
+						content = string.format("-# Updated <t:%d:R>", os.time()),
+					},
+				},
+			},
+		},
+	}
+end
+
+local function postLiveWebhook(webhookUrl)
+	local requestFunction = getLiveWebhookRequestFunction()
+	if type(requestFunction) ~= "function" then
+		return nil
+	end
+
+	local ok, response = pcall(function()
+		return requestFunction({
+			Url = normalizeLiveWebhookUrl(webhookUrl, true),
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+			},
+			Body = HttpService:JSONEncode(buildLiveWebhookPayload()),
+		})
+	end)
+	if not ok or type(response) ~= "table" then
+		return nil
+	end
+
+	local statusCode = tonumber(response.StatusCode)
+	if statusCode and statusCode ~= 200 and statusCode ~= 204 then
+		return nil
+	end
+	if type(response.Body) ~= "string" or response.Body == "" then
+		return nil
+	end
+
+	local decodeOk, responseBody = pcall(function()
+		return HttpService:JSONDecode(response.Body)
+	end)
+	if not decodeOk or type(responseBody) ~= "table" or not responseBody.id then
+		return nil
+	end
+	return tostring(responseBody.id)
+end
+
+local function editLiveWebhook(webhookUrl, messageId)
+	local requestFunction = getLiveWebhookRequestFunction()
+	local messageUrl = getLiveWebhookMessageUrl(webhookUrl, messageId)
+	if type(requestFunction) ~= "function" or not messageUrl then
+		return false
+	end
+
+	local ok, response = pcall(function()
+		return requestFunction({
+			Url = messageUrl,
+			Method = "PATCH",
+			Headers = {
+				["Content-Type"] = "application/json",
+			},
+			Body = HttpService:JSONEncode(buildLiveWebhookPayload()),
+		})
+	end)
+	if not ok or type(response) ~= "table" then
+		return false
+	end
+
+	local statusCode = tonumber(response.StatusCode)
+	return statusCode == nil or statusCode == 200 or statusCode == 204
+end
+
+local function stopLiveWebhook()
+	local liveState = activeStates.BGSI_Lite_LiveWebhook
+	liveState.enabled = false
+	liveState.loopToken = (tonumber(liveState.loopToken) or 0) + 1
+end
+
+local function startLiveWebhook()
+	local liveState = activeStates.BGSI_Lite_LiveWebhook
+	liveState.enabled = true
+	liveState.startedAt = tick()
+	liveState.startingHatches = nil
+	Config.LiveWebhookMessageIds = type(Config.LiveWebhookMessageIds) == "table"
+		and Config.LiveWebhookMessageIds
+		or {}
+	liveState.messageIds = Config.LiveWebhookMessageIds
+	liveState.loopToken = (tonumber(liveState.loopToken) or 0) + 1
+	local loopToken = liveState.loopToken
+
+	task.spawn(function()
+		while isCurrentRun()
+			and liveState.enabled
+			and liveState.loopToken == loopToken
+			and Config.LiveWebhookEnabled
+			and tostring(Config.LiveWebhookURL or "") ~= ""
+		do
+			local webhookEntries = getShrineLevelValue(Config.LiveWebhookURL)
+			for _, webhookUrl in ipairs(webhookEntries) do
+				if not liveState.enabled or liveState.loopToken ~= loopToken then
+					break
+				end
+
+				webhookUrl = tostring(webhookUrl or ""):match("^%s*(.-)%s*$") or ""
+				if webhookUrl ~= "" then
+					-- Include the Roblox account ID in the key. Two accounts may use the same Discord
+					-- webhook, but each account must own and update its own live-status message.
+					local messageKey = configAccountId .. "|" .. webhookUrl
+					local messageId = liveState.messageIds[messageKey]
+					if messageId then
+						if not editLiveWebhook(webhookUrl, messageId) then
+							liveState.messageIds[messageKey] = postLiveWebhook(webhookUrl)
+							if liveState.messageIds[messageKey] then
+								saveConfig()
+							end
+						end
+					else
+						local newMessageId = postLiveWebhook(webhookUrl)
+						if newMessageId then
+							liveState.messageIds[messageKey] = newMessageId
+							saveConfig()
+						end
+					end
+				end
+				task.wait(0.2)
+			end
+			task.wait(LIVE_WEBHOOK_UPDATE_INTERVAL)
+		end
+	end)
+end
+
+activeStates.BGSI_Lite_StartLiveWebhook = startLiveWebhook
+activeStates.BGSI_Lite_StopLiveWebhook = stopLiveWebhook
+
 function runRebirthMachineLoop(
 	scriptStateEI,
 	scriptStateOR,
@@ -17474,7 +17955,8 @@ function runRebirthMachineLoop(
 		runRebirthFuse(webhookURLEntry, {
 			embeds = {
 				{
-					title = scriptStateGN,
+					title = scriptStateQV.titleText or scriptStateGN,
+					description = scriptStateQV.descriptionText,
 					color = scriptStateOR,
 					fields = scriptStateXO,
 					thumbnail = scriptStateBZ and {
@@ -17510,6 +17992,37 @@ do
 		Callback = function(scriptStateTM)
 			Config.webhookURL = scriptStateTM
 			saveConfig()
+		end,
+	})
+	scriptStateKM:AddSection("Live Webhook")
+	scriptStateKM:AddToggle("LiveWebhookEnabled", {
+		Title = "Enable Live Webhook",
+		Description = "Posts one live Component V2 status message and updates it every 15 seconds.",
+		Default = Config.LiveWebhookEnabled,
+		Callback = function(scriptStateLiveEnabled)
+			Config.LiveWebhookEnabled = scriptStateLiveEnabled == true
+			saveConfig()
+
+			if Config.LiveWebhookEnabled and tostring(Config.LiveWebhookURL or "") ~= "" then
+				activeStates.BGSI_Lite_StartLiveWebhook()
+			else
+				activeStates.BGSI_Lite_StopLiveWebhook()
+			end
+		end,
+	})
+	scriptStateKM:AddInput("LiveWebhookURL", {
+		Title = "Live Webhook URL",
+		Description = "Separate Discord webhook used only for live account status.",
+		Default = Config.LiveWebhookURL,
+		Placeholder = "Discord webhook URL",
+		Callback = function(scriptStateLiveURL)
+			activeStates.BGSI_Lite_StopLiveWebhook()
+			Config.LiveWebhookURL = tostring(scriptStateLiveURL or "")
+			saveConfig()
+
+			if Config.LiveWebhookEnabled and Config.LiveWebhookURL ~= "" then
+				activeStates.BGSI_Lite_StartLiveWebhook()
+			end
 		end,
 	})
 	scriptStateKM:AddToggle("WebhookHideName", {
@@ -17595,6 +18108,12 @@ do
 		end,
 	})
 end
+
+-- Start the separate live webhook if it was already enabled in saved config.
+if Config.LiveWebhookEnabled and tostring(Config.LiveWebhookURL or "") ~= "" then
+	activeStates.BGSI_Lite_StartLiveWebhook()
+end
+
 task.spawn(function()
 	local scriptStateDE = {
 		Coins = 0,
@@ -18129,6 +18648,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					.. '" '
 					.. scriptStateFL
 				local scriptStateGO = scriptStateXT
+				local scriptStateDescription = "# " .. webhookPetTitleName
 				runRebirthMachineLoop(
 					scriptStateXT,
 					scriptStateKY,
@@ -18162,6 +18682,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					scriptStateKK and nil or scriptStateWG,
 					scriptStateGO,
 					{
+						titleText = nil,
+						descriptionText = scriptStateDescription,
 						imageUrl = scriptStateKK and scriptStateWG or nil,
 						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(
 							webhookPetId
