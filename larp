@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.19.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.08.19.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,9 +81,14 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.08.19.06",
+		version = "2026.08.19.07",
 		releasedAt = "August 19, 2026",
 		notes = {
+			{
+				title = "Hatch Webhook Variant Header + Icon Fix",
+				description = "Renders the compact variant name above User Info while preserving the pet icon beside it for every hatch variant.",
+				icon = "image",
+			},
 			{
 				title = "Hatch Webhook Variant Heading Fix",
 				description = "Removes the old Player hatched a ... embed title and displays the compact # Variant Pet Name heading as the embed description directly above User Info.",
@@ -17376,14 +17381,19 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 			addText(mentionContent)
 		end
 		local title = tostring(sourceEmbed.title or "")
+		local description = tostring(sourceEmbed.description or "")
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table" and sourceEmbed.thumbnail.url or nil
-		if title ~= "" and thumbnailUrl and tostring(thumbnailUrl) ~= "" then
+		-- Hatch webhooks use description for the compact variant line (for example
+		-- "# Shiny Giant Pearl"). Keep the pet icon beside that line instead of
+		-- rendering it as a large embed title. Legacy callers can still provide title.
+		local heading = description ~= "" and description or (title ~= "" and ("# " .. title) or "")
+		if heading ~= "" and thumbnailUrl and tostring(thumbnailUrl) ~= "" then
 			table.insert(components, {
 				type = 9,
 				components = {
 					{
 						type = 10,
-						content = "# " .. title,
+						content = heading,
 					},
 				},
 				accessory = {
@@ -17393,8 +17403,8 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 					},
 				},
 			})
-		elseif title ~= "" then
-			addText("# " .. title)
+		elseif heading ~= "" then
+			addText(heading)
 		end
 
 		if type(sourceEmbed.fields) == "table" and #sourceEmbed.fields > 0 then
@@ -18684,12 +18694,12 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 							inline = false,
 						},
 					},
-					scriptStateKK and nil or scriptStateWG,
+					scriptStateWG,
 					scriptStateGO,
 					{
 						titleText = nil,
 						descriptionText = scriptStateDescription,
-						imageUrl = scriptStateKK and scriptStateWG or nil,
+						imageUrl = nil,
 						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(
 							webhookPetId
 						),
