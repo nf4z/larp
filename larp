@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.08.19.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.01.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,27 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.01.01",
+		releasedAt = "September 1, 2026",
+		notes = {
+			{
+				title = "Sky Altar support",
+				description = "Adds an Auto Sky Altar option, cooldown handling, eligible-pet selection, and Sky Altar execution using the game's NextSkyAltarUse state.",
+				icon = "cloud",
+			},
+			{
+				title = "Sky Altar special recipe handling",
+				description = "Supports the Rainshine x3 special combination for the Azure Shard recipe while ensuring three distinct pet instances are selected.",
+				icon = "sparkles",
+			},
+			{
+				title = "Rebirth configuration compatibility",
+				description = "Adds SkyAltarEnabled to the persisted configuration without changing the existing Rebirth Machine, Crystal Altar, or Admin Rebirth Machine defaults.",
+				icon = "settings",
+			},
+		},
+	},
 	{
 		version = "2026.08.19.07",
 		releasedAt = "August 19, 2026",
@@ -1149,6 +1170,7 @@ local defaultConfig = {
 	},
 	RebirthMachineEnabled = false,
 	CrystalAltarEnabled = false,
+	SkyAltarEnabled = false,
 	AdminRebirthMachineEnabled = false,
 	AutoCarnivalRebirth = false,
 
@@ -1415,6 +1437,7 @@ if Config.dashboardSyncAutoEnabled ~= true then
 	Config.dashboardSyncAutoEnabled = true
 	saveConfig()
 end
+Config.SkyAltarEnabled = Config.SkyAltarEnabled == true
 Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 4))
 Config.setfps = math.max(1, math.floor(tonumber(Config.setfps) or 60))
 _G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
@@ -18797,6 +18820,14 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 			saveConfig()
 		end,
 	})
+	scriptStateGB:AddToggle("SkyAltar", {
+		Title = "Auto Sky Altar",
+		Default = Config.SkyAltarEnabled,
+		Callback = function(isEnabled)
+			Config.SkyAltarEnabled = isEnabled
+			saveConfig()
+		end,
+	})
 	scriptStateGB:AddToggle("AdminRebirthMachine", {
 		Title = "Auto Admin Rebirth Machine",
 		Default = Config.AdminRebirthMachineEnabled,
@@ -18942,68 +18973,90 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 		end
 		return nextUse == nil or getCurrentTimestamp() >= (tonumber(nextUse) or math.huge)
 	end
-	activeStates.BGSI_Lite_GetCrystalAltarPetIds = function()
-		local dataOk, playerData = pcall(function()
-			return profileStore:Get()
-		end)
-		if not dataOk or type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
-			return nil
-		end
-		local altarPetRanks = {
-			["Crystal Pyramidium"] = 1,
-			["Crystal Golem"] = 2,
-			["Soul Star"] = 3,
-			["Emerald Crystal Dragon"] = 4,
-			["Ruby Crystal Dragon"] = 5,
-			["Sapphire Crystal Dragon"] = 6,
-		}
-		local specialCombination = {
-			"Emerald Crystal Dragon",
-			"Ruby Crystal Dragon",
-			"Sapphire Crystal Dragon",
-		}
+	local function getRebirthVariant(petData)
+		return petData.Shiny == true and petData.Mythic == true and "Shiny Mythic"
+			or (petData.Shiny == true and "Shiny" or (petData.Mythic == true and "Mythic" or "Normal"))
+	end
+
+	local function getEquippedPetIds(playerData)
 		local equippedPetIds = {}
 		for _, teamData in pairs(type(playerData.Teams) == "table" and playerData.Teams or {}) do
-			for _, petId in ipairs(type(teamData) == "table" and type(teamData.Pets) == "table" and teamData.Pets or {}) do
+			for _, petId in ipairs(
+				type(teamData) == "table" and type(teamData.Pets) == "table" and teamData.Pets or {}
+			) do
 				equippedPetIds[tostring(petId)] = true
 			end
 		end
+		return equippedPetIds
+	end
+
+	local function getEligibleAltarPets(playerData, allowedNames, targetVariant)
+		local candidates = {}
+		local candidatesByName = {}
+		local equippedPetIds = getEquippedPetIds(playerData)
+
+		for _, petData in ipairs(playerData.Pets) do
+			local petId = tostring(petData.Id or "")
+			local petName = tostring(petData.Name or "")
+			if
+				petId ~= ""
+				and allowedNames[petName]
+				and petData.Locked ~= true
+				and petData.XL ~= true
+				and not equippedPetIds[petId]
+				and getRebirthVariant(petData) == targetVariant
+			then
+				table.insert(candidates, petData)
+				candidatesByName[petName] = candidatesByName[petName] or {}
+				table.insert(candidatesByName[petName], petData)
+			end
+		end
+
+		return candidates, candidatesByName
+	end
+
+	local function getDistinctSpecialPetIds(candidatesByName, specialCombination)
+		local usedIds = {}
+		local specialPetIds = {}
+
+		for _, petName in ipairs(specialCombination) do
+			local matchingPets = candidatesByName[petName]
+			local selectedPet
+			if type(matchingPets) == "table" then
+				for _, petData in ipairs(matchingPets) do
+					local petId = tostring(petData.Id or "")
+					if petId ~= "" and not usedIds[petId] then
+						selectedPet = petData
+						break
+					end
+				end
+			end
+			if not selectedPet then
+				return nil
+			end
+			local petId = tostring(selectedPet.Id)
+			usedIds[petId] = true
+			table.insert(specialPetIds, petId)
+		end
+
+		return #specialPetIds == #specialCombination and specialPetIds or nil
+	end
+
+	local function getAltarPetIds(playerData, altarPetRanks, specialCombination)
 		local variantOrder = type(Config.RebirthVariants) == "table" and Config.RebirthVariants
-			or {
-				"Normal",
-			}
+			or { "Normal" }
+
 		for _, targetVariant in ipairs(variantOrder) do
-			local candidates = {}
-			local candidatesByName = {}
-			for _, petData in ipairs(playerData.Pets) do
-				local petId = tostring(petData.Id or "")
-				local petVariant = petData.Shiny == true and petData.Mythic == true and "Shiny Mythic"
-					or (petData.Shiny == true and "Shiny" or (petData.Mythic == true and "Mythic" or "Normal"))
-				if
-					petId ~= ""
-					and altarPetRanks[petData.Name]
-					and petData.Locked ~= true
-					and petData.XL ~= true
-					and not equippedPetIds[petId]
-					and petVariant == targetVariant
-				then
-					table.insert(candidates, petData)
-					candidatesByName[petData.Name] = candidatesByName[petData.Name] or {}
-					table.insert(candidatesByName[petData.Name], petData)
+			local candidates, candidatesByName =
+				getEligibleAltarPets(playerData, altarPetRanks, targetVariant)
+
+			if specialCombination then
+				local specialPetIds = getDistinctSpecialPetIds(candidatesByName, specialCombination)
+				if specialPetIds then
+					return specialPetIds, true
 				end
 			end
-			local specialPetIds = {}
-			for _, petName in ipairs(specialCombination) do
-				local matchingPets = candidatesByName[petName]
-				if type(matchingPets) ~= "table" or not matchingPets[1] then
-					table.clear(specialPetIds)
-					break
-				end
-				table.insert(specialPetIds, tostring(matchingPets[1].Id))
-			end
-			if #specialPetIds == 3 then
-				return specialPetIds, true
-			end
+
 			table.sort(candidates, function(leftPet, rightPet)
 				local leftRank = altarPetRanks[leftPet.Name] or math.huge
 				local rightRank = altarPetRanks[rightPet.Name] or math.huge
@@ -19012,6 +19065,7 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 				end
 				return tostring(leftPet.Id) < tostring(rightPet.Id)
 			end)
+
 			if #candidates >= 3 then
 				return {
 					tostring(candidates[1].Id),
@@ -19020,8 +19074,36 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 				}, false
 			end
 		end
+
 		return nil
 	end
+
+	activeStates.BGSI_Lite_GetCrystalAltarPetIds = function()
+		local dataOk, playerData = pcall(function()
+			return profileStore:Get()
+		end)
+		if not dataOk or type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+			return nil
+		end
+
+		return getAltarPetIds(
+			playerData,
+			{
+				["Crystal Pyramidium"] = 1,
+				["Crystal Golem"] = 2,
+				["Soul Star"] = 3,
+				["Emerald Crystal Dragon"] = 4,
+				["Ruby Crystal Dragon"] = 5,
+				["Sapphire Crystal Dragon"] = 6,
+			},
+			{
+				"Emerald Crystal Dragon",
+				"Ruby Crystal Dragon",
+				"Sapphire Crystal Dragon",
+			}
+		)
+	end
+
 	activeStates.BGSI_Lite_RunCrystalAltar = function()
 		if
 			not activeStates.BGSI_Lite_CanUseCrystalAltar()
@@ -19029,14 +19111,17 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 		then
 			return
 		end
+
 		local petIds, isSpecialCombination = activeStates.BGSI_Lite_GetCrystalAltarPetIds()
 		if type(petIds) ~= "table" or #petIds ~= 3 then
 			return
 		end
+
 		activeStates.BGSI_Lite_LastCrystalAltarAttempt = tick()
 		local invokeOk, result = pcall(function()
 			return remoteFunction:InvokeServer("UseRebirthMachine", "CrystalAltar", petIds)
 		end)
+
 		if invokeOk and result ~= nil and type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
 			activeStates.BGSI_Lite_LogDashboardAction(
 				isSpecialCombination and "Crystal Altar: created the guaranteed Omega Crystal Dragon recipe"
@@ -19045,6 +19130,74 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 			)
 		end
 	end
+
+	activeStates.BGSI_Lite_CanUseSkyAltar = function()
+		local dataOk, playerData = pcall(function()
+			return profileStore:Get()
+		end)
+		if not dataOk or type(playerData) ~= "table" then
+			return false
+		end
+
+		local nextUse = playerData.NextSkyAltarUse
+		if type(nextUse) == "table" then
+			nextUse = nextUse.NextSkyAltarUse or nextUse.Next or nextUse.Value
+		end
+
+		return nextUse == nil or getCurrentTimestamp() >= (tonumber(nextUse) or math.huge)
+	end
+
+	activeStates.BGSI_Lite_GetSkyAltarPetIds = function()
+		local dataOk, playerData = pcall(function()
+			return profileStore:Get()
+		end)
+		if not dataOk or type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+			return nil
+		end
+
+		return getAltarPetIds(
+			playerData,
+			{
+				["Cloud Catcher"] = 1,
+				["Sky Chime"] = 2,
+				["Empyrean Bolt"] = 3,
+				["Rainshine"] = 4,
+			},
+			{
+				"Rainshine",
+				"Rainshine",
+				"Rainshine",
+			}
+		)
+	end
+
+	activeStates.BGSI_Lite_RunSkyAltar = function()
+		if
+			not activeStates.BGSI_Lite_CanUseSkyAltar()
+			or tick() - (tonumber(activeStates.BGSI_Lite_LastSkyAltarAttempt) or 0) < 5
+		then
+			return
+		end
+
+		local petIds, isSpecialCombination = activeStates.BGSI_Lite_GetSkyAltarPetIds()
+		if type(petIds) ~= "table" or #petIds ~= 3 then
+			return
+		end
+
+		activeStates.BGSI_Lite_LastSkyAltarAttempt = tick()
+		local invokeOk, result = pcall(function()
+			return remoteFunction:InvokeServer("UseRebirthMachine", "SkyAltar", petIds)
+		end)
+
+		if invokeOk and result ~= nil and type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
+			activeStates.BGSI_Lite_LogDashboardAction(
+				isSpecialCombination and "Sky Altar: submitted the Rainshine x3 Azure Shard recipe"
+					or "Sky Altar: converted three eligible pets",
+				"success"
+			)
+		end
+	end
+
 	activeStates.BGSI_Lite_CanUseAdminRebirthMachine = function()
 		local scriptStateAAL, scriptStateJD = pcall(function()
 			return profileStore:Get()
@@ -19376,6 +19529,14 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 				pcall(activeStates.BGSI_Lite_RunCrystalAltar)
 			end
 			task.wait(Config.CrystalAltarEnabled and 1 or 3)
+		end
+	end)
+	task.spawn(function()
+		while isCurrentRun() do
+			if Config.SkyAltarEnabled then
+				pcall(activeStates.BGSI_Lite_RunSkyAltar)
+			end
+			task.wait(Config.SkyAltarEnabled and 1 or 3)
 		end
 	end)
 	task.spawn(function()
