@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.05.02",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "Auto Update",
+				description = "Periodically checks github.com/nf4z/larp for a newer release and reloads the script in place automatically, with a manual check-now button and adjustable interval under Other.",
+				icon = "refresh-cw",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.01",
 		releasedAt = "September 5, 2026",
@@ -1190,6 +1201,9 @@ local defaultConfig = {
 	renderDistance = 250,
 	chunkerRenderDistance = 4,
 	lastSeenScriptVersion = "",
+
+	autoUpdateScript = true,
+	autoUpdateIntervalSeconds = 300,
 }
 activeStates.BGSI_Lite_SafeModePreservedKeys = {
 	safeMode = true,
@@ -12319,6 +12333,10 @@ do
 			"renderDistance",
 			"chunkerRenderDistance",
 
+			-- Auto update
+			"autoUpdateScript",
+			"autoUpdateIntervalSeconds",
+
 			-- Safe dashboard preference; endpoint/token/runtime state stay local.
 			"dashboardSyncEnabled",
 		}
@@ -19683,7 +19701,149 @@ do
 		RunService:Set3dRenderingEnabled(Config.safeMode == true or not Config.disableRendering)
 	end)
 	activeStates.BGSI_Lite_ApplyPerformanceSettings()
+
+	scriptStateAFW:AddSection("Auto Update")
+	scriptStateAFW:AddToggle("AutoUpdateScript", {
+		Title = "Auto Update Script",
+		Description = "Checks github.com/nf4z/larp for a newer version and reloads automatically when one is released.",
+		Default = Config.autoUpdateScript,
+		Callback = function(isEnabled)
+			Config.autoUpdateScript = isEnabled == true
+			saveConfig()
+		end,
+	})
+	scriptStateAFW:AddSlider("AutoUpdateIntervalSeconds", {
+		Title = "Update Check Interval",
+		Description = "How often to check GitHub for a new version.",
+		Min = 60,
+		Max = 1800,
+		Default = math.clamp(math.floor(tonumber(Config.autoUpdateIntervalSeconds) or 300), 60, 1800),
+		Rounding = 0,
+		Suffix = "s",
+		Callback = function(seconds)
+			Config.autoUpdateIntervalSeconds = math.clamp(math.floor(tonumber(seconds) or 300), 60, 1800)
+			saveConfig()
+		end,
+	})
+	scriptStateAFW:AddButton({
+		Title = "Check For Update Now",
+		Callback = function()
+			task.spawn(function()
+				local updateFound = activeStates.BGSI_Lite_RunAutoUpdateCheck and activeStates.BGSI_Lite_RunAutoUpdateCheck(true)
+				if not updateFound then
+					Interface:Notify({
+						Title = "Auto Update",
+						Content = "You're already on the latest version ("
+							.. tostring(activeStates.BGSI_Lite_ScriptVersion)
+							.. ").",
+						Duration = 5,
+					})
+				end
+			end)
+		end,
+	})
 end
+
+-- ============================================================================
+-- AUTO UPDATE
+-- Periodically checks the GitHub repo (https://github.com/nf4z/larp) for a
+-- newer script version and reloads in place when one is found. Reuses the
+-- same self-reload path as the dashboard's manual "reload-script" command:
+-- the compiled chunk is deferred, and the cleanup guard at the very top of
+-- this file tears down the current UI/connections before the new copy runs.
+-- ============================================================================
+function fetchLatestScriptSourceForAutoUpdate()
+	local reloadNonce = table.concat({
+		tostring(os.time()),
+		tostring(math.random(100000, 999999)),
+	}, "-")
+	local sourceReference = "main"
+	pcall(function()
+		local commitMetadata = HttpService:JSONDecode(game:HttpGet(
+			"https://api.github.com/repos/nf4z/larp/commits/main?reload=" .. HttpService:UrlEncode(reloadNonce),
+			true
+		))
+		local commitSha = type(commitMetadata) == "table" and tostring(commitMetadata.sha or "") or ""
+		if commitSha:match("^[%da-fA-F]+$") then
+			sourceReference = commitSha
+		end
+	end)
+	local requestOk, scriptSource = pcall(function()
+		return game:HttpGet(
+			"https://raw.githubusercontent.com/nf4z/larp/"
+				.. sourceReference
+				.. "/larp?reload="
+				.. HttpService:UrlEncode(reloadNonce),
+			true
+		)
+	end)
+	if not requestOk or type(scriptSource) ~= "string" or scriptSource == "" then
+		return nil, nil
+	end
+	local downloadedVersion = scriptSource:match('BGSI_Lite_ScriptVersion%s*=%s*"([^"]+)"')
+	return scriptSource, downloadedVersion
+end
+
+-- Returns true only when a genuinely newer version was found and a reload was queued.
+activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
+	if Config.safeMode == true then
+		return false
+	end
+	if forceCheck ~= true and Config.autoUpdateScript ~= true then
+		return false
+	end
+	if activeStates.BGSI_Lite_AutoUpdateReloadQueued then
+		return false
+	end
+
+	local scriptSource, downloadedVersion = fetchLatestScriptSourceForAutoUpdate()
+	if type(scriptSource) ~= "string" or scriptSource == "" or not downloadedVersion then
+		return false
+	end
+	if downloadedVersion == tostring(activeStates.BGSI_Lite_ScriptVersion) then
+		return false
+	end
+
+	local compiledScript, compileError = loadstring(scriptSource)
+	if type(compiledScript) ~= "function" then
+		warn(
+			"[1rzHub Lite] Auto-update found version "
+				.. downloadedVersion
+				.. " but it failed to compile: "
+				.. tostring(compileError)
+		)
+		return false
+	end
+
+	activeStates.BGSI_Lite_AutoUpdateReloadQueued = true
+	print("[" .. LocalPlayer.Name .. "] Auto-update found version " .. downloadedVersion .. ". Reloading...")
+	if type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
+		activeStates.BGSI_Lite_LogDashboardAction("Auto-updating to version " .. downloadedVersion, "info")
+	end
+	pcall(function()
+		Interface:Notify({
+			Title = "1rzHub Lite",
+			Content = "Update found (" .. downloadedVersion .. "). Reloading...",
+			Duration = 5,
+		})
+	end)
+	task.defer(compiledScript)
+	return true
+end
+
+task.spawn(function()
+	task.wait(30)
+	while isCurrentRun() do
+		if Config.autoUpdateScript == true and Config.safeMode ~= true then
+			local checkOk, checkError = pcall(activeStates.BGSI_Lite_RunAutoUpdateCheck, false)
+			if not checkOk then
+				warn("[1rzHub Lite] Auto-update check failed: " .. tostring(checkError))
+			end
+		end
+		task.wait(math.clamp(math.floor(tonumber(Config.autoUpdateIntervalSeconds) or 300), 60, 1800))
+	end
+end)
+
 if tostring(Config.lastSeenScriptVersion or "") ~= tostring(activeStates.BGSI_Lite_ScriptVersion) then
 	Interface:Popup({
 		Title = "LarpLite updated",
