@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.05.03",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "No more auto-equip on load",
+				description = "Auto Build Bubble Team now defaults off instead of on, so the script no longer unequips/equips your pet team the moment it loads. Toggle it back on under Game if you want it.",
+				icon = "shield-check",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.02",
 		releasedAt = "September 5, 2026",
@@ -1110,7 +1121,7 @@ local defaultConfig = {
 	autoBubble = false,
 	autoSell = false,
 	autoBubbleCompetition = true,
-	autoBubbleTeam = true,
+	autoBubbleTeam = false,
 	competitiveRewardChoice = 2,
 	selectedObby = "Easy",
 	autoObby = false,
