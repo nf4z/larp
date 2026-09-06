@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,38 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.05.08",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Setup Team (new, off by default)",
+				description = "An explicit, opt-in team builder under Enchant: 'Setup Team Now' equips shiny Celestial pets first, then shiny Secrets - pets already carrying your Target Enchant 1/2 are picked first within each rarity, no normal (non-shiny) pets ever. An optional 'Also Equip Super Legendaries' toggle reserves up to 3 slots for a custom mix you choose (Hatch Blessing/Hatch Blessing+/Luck Boost/Luck Boost+ counts, e.g. 2 Luck Boost + 1 Hatch Blessing). A 'Keep Team Setup' toggle re-applies it automatically if you want that; otherwise it only ever runs when you press the button. This is now the only place in the script that equips or unequips anything.",
+				icon = "users",
+			},
+			{
+				title = "Webhook heading restored",
+				description = "The pet name above User Info is '# Name' again instead of plain bold - the large-gap bug that originally caused it to be removed was the heading sitting in its own component next to the thumbnail, which is now fixed by keeping it merged into the same section as the fields.",
+				icon = "image",
+			},
+		},
+	},
+	{
+		version = "2026.09.05.07",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "Enchant: instant lock, zero-race",
+				description = "Rebuilt against the game's own decompiled client code. Gems/Reroll Orb rerolls now use RerollEnchants' synchronous return value directly (it hands back the pet's exact new enchant list in the same round trip), so the next protect slot is always computed from a confirmed result - never a blind cooldown. Shadow Crystal rerolls (which get no return value at all) now wait for the pet's replicated data to actually change before rerolling again. Both changes make it structurally impossible to roll past a landed target enchant. Target matching also changed: every occupied slot must now be one of your selected target enchants (matching the official game's own check), instead of requiring one specific target in one specific slot.",
+				icon = "lock",
+			},
+			{
+				title = "Mystery Box opening actually works now",
+				description = "UseGift only spawns the physical gift drop - it never granted the reward by itself. The game requires each drop to be hit 8 times before it auto-collects (confirmed from the client's Gift class). Auto Open Box now waits for the drop to spawn, teleports to it, and hits it to completion instead of firing UseGift and walking away empty-handed.",
+				icon = "gift",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.06",
 		releasedAt = "September 5, 2026",
@@ -1127,6 +1159,14 @@ local defaultConfig = {
 	equippedTargetEnchant2 = "ultra-roller",
 	equippedTargetEnchantLevel = 0,
 	equippedEnchantCurrency = "Auto (Secret = Crystals,Normal = Gems)",
+	autoSetupTeamEnabled = false,
+	autoSetupTeamIncludeSupers = false,
+	autoSetupTeamSuperCounts = {
+		["hatch-blessing-plus"] = 0,
+		["luck-boost-plus"] = 0,
+		["hatch-blessing"] = 0,
+		["luck-boost"] = 0,
+	},
 	autoPlaytime = false,
 	autoClaimPrizes = false,
 	autoDailyRewards = true,
@@ -14299,6 +14339,76 @@ do
 			end
 		end
 	end)
+	-- Mystery Box / Gift opening.
+	--
+	-- UseGift only tells the server to spawn the physical drop(s) - it never grants the
+	-- reward by itself. The real client (ReplicatedStorage.Client.Effects.PhysicalItem and
+	-- its Gift class, confirmed from the game's own decompiled source) requires each spawned
+	-- gift to be "hit" 8 times before it auto-collects and fires ClaimGift on its own. Firing
+	-- UseGift alone - what this used to do - spawns a gift that then just sits there forever.
+	activeStates.BGSI_Lite_GetPhysicalItemModule = function()
+		if type(activeStates.BGSI_Lite_PhysicalItemModule) ~= "table" then
+			pcall(function()
+				activeStates.BGSI_Lite_PhysicalItemModule = require(ReplicatedStorage.Client.Effects.PhysicalItem)
+			end)
+		end
+		return activeStates.BGSI_Lite_PhysicalItemModule
+	end
+
+	-- Teleports to and hits every currently-loaded gift drop until each one reaches its
+	-- 8-hit collect threshold (or the deadline runs out). Returns true if at least one hit
+	-- landed. Teleporting to each drop means this never has to give up the way a real
+	-- player's client does when it walks out of range mid-open.
+	activeStates.BGSI_Lite_OpenSpawnedGifts = function(deadlineSeconds)
+		local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
+		if type(physicalItem) ~= "table" or type(physicalItem.GetActiveGifts) ~= "function" then
+			return false
+		end
+		local deadline = tick() + (tonumber(deadlineSeconds) or 15)
+		local hitAnyEver = false
+		while tick() < deadline and isCurrentRun() do
+			local activeCount = 0
+			pcall(function()
+				activeCount = physicalItem:GetActiveObjects("Gift")
+			end)
+			if activeCount <= 0 then
+				break
+			end
+			local activeGifts
+			local getOk = pcall(function()
+				activeGifts = physicalItem:GetActiveGifts()
+			end)
+			local hitThisPass = false
+			if getOk and type(activeGifts) == "table" then
+				for physicalInstance, giftWrapper in pairs(activeGifts) do
+					if
+						type(giftWrapper) == "table"
+						and (tonumber(giftWrapper.HitCount) or 0) < 8
+					then
+						local giftTarget = activeStates.BGSI_Lite_GetInstanceTargetCFrame
+							and activeStates.BGSI_Lite_GetInstanceTargetCFrame(physicalInstance)
+						if giftTarget then
+							pcall(teleportToCFrame, giftTarget + Vector3.new(0, 3, 0))
+						end
+						local hitOk = pcall(function()
+							giftWrapper:Hit()
+						end)
+						if hitOk then
+							hitThisPass = true
+							hitAnyEver = true
+						end
+						-- The Gift class itself ignores hits under 0.05s apart; pace slightly
+						-- above that so every hit actually registers instead of being dropped.
+						task.wait(0.08)
+					end
+				end
+			end
+			if not hitThisPass then
+				task.wait(0.1)
+			end
+		end
+		return hitAnyEver
+	end
 	task.spawn(function()
 		while isCurrentRun() do
 			local scriptStateIP = math.clamp(tonumber(Config.autoOpenMysteryDelay) or 0.2, 0.2, 60)
@@ -14308,14 +14418,18 @@ do
 				and type(Config.selectedMysteryBox) == "string"
 				and Config.selectedMysteryBox ~= ""
 			then
-				local boxAmount = 10
+				local maxSpawnable = math.max(
+					1,
+					math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 10)
+				)
+				local boxAmount = 0
 				pcall(function()
 					local playerData = profileStore:IsReady() and profileStore:Get() or nil
 					local amount = itemUtil:GetOwnedAmount(
 						playerData,
 						{ Type = "Powerup", Name = Config.selectedMysteryBox }
 					)
-					boxAmount = math.min(10, math.max(0, math.floor(tonumber(amount) or 0)))
+					boxAmount = math.min(maxSpawnable, math.max(0, math.floor(tonumber(amount) or 0)))
 				end)
 				if boxAmount > 0 then
 					pcall(
@@ -14324,6 +14438,22 @@ do
 						Config.selectedMysteryBox,
 						boxAmount
 					)
+					local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
+					if type(physicalItem) == "table" then
+						local spawned = false
+						local spawnDeadline = tick() + 3
+						repeat
+							task.wait(0.1)
+							local activeCount = 0
+							pcall(function()
+								activeCount = physicalItem:GetActiveObjects("Gift")
+							end)
+							spawned = activeCount > 0
+						until spawned or tick() >= spawnDeadline
+						if spawned then
+							activeStates.BGSI_Lite_OpenSpawnedGifts(15)
+						end
+					end
 				end
 			end
 		end
@@ -14469,6 +14599,252 @@ function getPetEnchantList(scriptStateHJ)
 	addEnchantValue(scriptStateHJ.Blessing)
 	return scriptStateRI
 end
+
+-- ============================================================================
+-- AUTO SETUP TEAM
+-- Explicit, opt-in only. This is the one place left in the whole script that equips or
+-- unequips pets, and it only ever runs from the "Setup Team Now" button below or the
+-- "Keep Team Setup" toggle you turn on yourself - never in the background otherwise.
+-- ============================================================================
+local SUPER_LEGENDARY_ENCHANT_KEY_BY_ID = {
+	["super-bubble-plus"] = "bubble-machine-plus",
+	["super-bubble"] = "bubble-machine",
+	["super-speed-plus"] = "hatch-blessing-plus",
+	["super-luck-plus"] = "luck-boost-plus",
+	["super-speed"] = "hatch-blessing",
+	["super-luck"] = "luck-boost",
+}
+function getAutoTeamSuperEnchantKey(enchantEntry)
+	local enchantId = type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry
+	return SUPER_LEGENDARY_ENCHANT_KEY_BY_ID[tostring(enchantId or "")]
+end
+function getAutoTeamLimits(playerData)
+	local maxPetsEquipped = 13
+	local maxSupersEquipped = tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3
+	pcall(function()
+		local statsModule = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
+		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
+	end)
+	return maxPetsEquipped, maxSupersEquipped
+end
+-- Does this pet already carry the Enchant tab's configured target enchant(s)?
+function petHasAutoTeamTargetEnchants(pet)
+	local targetOne = normalizeEnchantName(Config.equippedTargetEnchant or "secret-hunter")
+	if targetOne == "" then
+		return false
+	end
+	local targetTwo = normalizeEnchantName(Config.equippedTargetEnchant2 or "")
+	if targetTwo == normalizeEnchantName("(None - single target)") then
+		targetTwo = ""
+	end
+	local seenEnchantIds = {}
+	for _, enchantEntry in ipairs(getPetEnchantList(pet)) do
+		local enchantId = normalizeEnchantName(
+			type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry
+		)
+		if enchantId ~= "" then
+			seenEnchantIds[enchantId] = true
+		end
+	end
+	if targetTwo == "" then
+		return seenEnchantIds[targetOne] == true
+	end
+	return seenEnchantIds[targetOne] == true and seenEnchantIds[targetTwo] == true
+end
+-- Ranks shiny Celestial pets ahead of shiny Secrets, and within each rarity puts pets
+-- that already carry the configured target enchant(s) ahead of unenchanted copies, so
+-- their enchant investment isn't benched by a fresh copy of the same rarity.
+function buildAutoTeamShinyRanking(playerData)
+	local candidates = {}
+	for _, pet in ipairs(type(playerData) == "table" and playerData.Pets or {}) do
+		if activeStates.BGSI_Lite_IsShinyEnchantPet(pet) then
+			local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
+			local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
+			local rarityRank = rarity == "Celestial" and 0 or 1
+			local enchantRank = petHasAutoTeamTargetEnchants(pet) and 0 or 1
+			table.insert(candidates, {
+				pet = pet,
+				rank = rarityRank * 2 + enchantRank,
+			})
+		end
+	end
+	table.sort(candidates, function(candidateA, candidateB)
+		if candidateA.rank ~= candidateB.rank then
+			return candidateA.rank < candidateB.rank
+		end
+		return tostring(candidateA.pet.Id) < tostring(candidateB.pet.Id)
+	end)
+	return candidates
+end
+function buildAutoSetupTeamSelection(playerData)
+	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+		return nil
+	end
+	local maxPetsEquipped, maxSupersEquipped = getAutoTeamLimits(playerData)
+	local selectedPetIds = {}
+
+	if Config.autoSetupTeamIncludeSupers then
+		local superCounts = type(Config.autoSetupTeamSuperCounts) == "table" and Config.autoSetupTeamSuperCounts or {}
+		local candidatesByEnchantKey = {}
+		for _, pet in ipairs(playerData.Pets) do
+			local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
+			local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
+			local isSuperLegendary = pet.Super == true
+				or pet.IsSuper == true
+				or rarity == "Super"
+				or rarity == "Super Legendary"
+			if isSuperLegendary then
+				for _, enchantEntry in ipairs(getPetEnchantList(pet)) do
+					local enchantKey = getAutoTeamSuperEnchantKey(enchantEntry)
+					if enchantKey and (tonumber(superCounts[enchantKey]) or 0) > 0 then
+						candidatesByEnchantKey[enchantKey] = candidatesByEnchantKey[enchantKey] or {}
+						table.insert(candidatesByEnchantKey[enchantKey], pet)
+						break
+					end
+				end
+			end
+		end
+		for enchantKey, desiredCount in pairs(superCounts) do
+			desiredCount = math.min(math.max(0, math.floor(tonumber(desiredCount) or 0)), maxSupersEquipped)
+			local candidates = candidatesByEnchantKey[enchantKey] or {}
+			table.sort(candidates, function(petA, petB)
+				return tostring(petA.Id) < tostring(petB.Id)
+			end)
+			for candidateIndex = 1, math.min(desiredCount, #candidates) do
+				if #selectedPetIds >= maxPetsEquipped or #selectedPetIds >= maxSupersEquipped then
+					break
+				end
+				table.insert(selectedPetIds, tostring(candidates[candidateIndex].Id))
+			end
+		end
+	end
+
+	local selectedSet = {}
+	for _, petId in ipairs(selectedPetIds) do
+		selectedSet[petId] = true
+	end
+	for _, candidate in ipairs(buildAutoTeamShinyRanking(playerData)) do
+		if #selectedPetIds >= maxPetsEquipped then
+			break
+		end
+		local petId = tostring(candidate.pet.Id or "")
+		if petId ~= "" and not selectedSet[petId] then
+			selectedSet[petId] = true
+			table.insert(selectedPetIds, petId)
+		end
+	end
+
+	if #selectedPetIds == 0 then
+		return nil
+	end
+	return selectedPetIds
+end
+-- Equips exactly the given pet ids and unequips everything else currently on the team.
+function applyAutoSetupTeamSelection(selectedPetIds)
+	local currentPetIds = getEnchantablePets()
+	local selectedSet = {}
+	for _, petId in ipairs(selectedPetIds) do
+		selectedSet[tostring(petId)] = true
+	end
+	local currentSet = {}
+	for _, petId in ipairs(currentPetIds) do
+		currentSet[tostring(petId)] = true
+	end
+	local changed = false
+	for _, petId in ipairs(currentPetIds) do
+		if not selectedSet[tostring(petId)] then
+			remoteEvent:FireServer("UnequipPet", tostring(petId))
+			changed = true
+			task.wait(0.08)
+		end
+	end
+	for _, petId in ipairs(selectedPetIds) do
+		if not currentSet[tostring(petId)] then
+			remoteEvent:FireServer("EquipPet", tostring(petId))
+			changed = true
+			task.wait(0.08)
+		end
+	end
+	return changed
+end
+-- Returns true if a team was found and applied (or already matched), false if there were
+-- no eligible pets to build a team from at all.
+activeStates.BGSI_Lite_RunAutoSetupTeam = function()
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local selectedPetIds = buildAutoSetupTeamSelection(playerData)
+	if not selectedPetIds then
+		return false
+	end
+	applyAutoSetupTeamSelection(selectedPetIds)
+	return true
+end
+task.spawn(function()
+	while isCurrentRun() do
+		task.wait(Config.autoSetupTeamEnabled and 5 or 1)
+		if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+		end
+	end
+end)
+do
+	scriptStateTJ:AddSection("Auto Setup Team")
+	scriptStateTJ:AddButton({
+		Title = "Setup Team Now",
+		Description = "Equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity. No normal (non-shiny) pets.",
+		Callback = function()
+			task.spawn(function()
+				local ok, found = pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+				Interface:Notify({
+					Title = "Auto Setup Team",
+					Content = (ok and found) and "Team updated." or "No eligible shiny pets found.",
+					Duration = 4,
+				})
+			end)
+		end,
+	})
+	scriptStateTJ:AddToggle("AutoSetupTeamKeepUpdated", {
+		Title = "Keep Team Setup",
+		Description = "Re-applies the selection above automatically whenever your equipped team drifts from it. Off by default.",
+		Default = Config.autoSetupTeamEnabled,
+		Callback = function(isEnabled)
+			Config.autoSetupTeamEnabled = isEnabled == true
+			saveConfig()
+		end,
+	})
+	scriptStateTJ:AddToggle("AutoSetupTeamIncludeSupers", {
+		Title = "Also Equip Super Legendaries",
+		Description = "Reserves up to 3 team slots for Super Legendaries matching the enchant counts below.",
+		Default = Config.autoSetupTeamIncludeSupers,
+		Callback = function(isEnabled)
+			Config.autoSetupTeamIncludeSupers = isEnabled == true
+			saveConfig()
+		end,
+	})
+	local superEnchantCountSpecs = {
+		{ key = "hatch-blessing-plus", title = "Hatch Blessing+ Count" },
+		{ key = "luck-boost-plus", title = "Luck Boost+ Count" },
+		{ key = "hatch-blessing", title = "Hatch Blessing Count" },
+		{ key = "luck-boost", title = "Luck Boost Count" },
+	}
+	Config.autoSetupTeamSuperCounts = type(Config.autoSetupTeamSuperCounts) == "table"
+			and Config.autoSetupTeamSuperCounts
+		or {}
+	for _, spec in ipairs(superEnchantCountSpecs) do
+		scriptStateTJ:AddSlider("AutoSetupTeamSuperCount_" .. spec.key, {
+			Title = spec.title,
+			Description = "e.g. 2 Luck Boost + 1 Hatch Blessing = 3 Super Legendaries total.",
+			Min = 0,
+			Max = 3,
+			Default = math.clamp(math.floor(tonumber(Config.autoSetupTeamSuperCounts[spec.key]) or 0), 0, 3),
+			Rounding = 0,
+			Callback = function(value)
+				Config.autoSetupTeamSuperCounts[spec.key] = math.clamp(math.floor(tonumber(value) or 0), 0, 3)
+				saveConfig()
+			end,
+		})
+	end
+end
+
 function findPetEnchantSlot(scriptStateKS, scriptStateAY)
 	if not scriptStateAY or scriptStateAY == "" or scriptStateAY == "(None - single target)" then
 		return nil
@@ -15066,14 +15442,6 @@ function buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
 		and targetEnchantTwo ~= "(None - single target)"
 	return targetLookup, hasSecondEnchantTarget
 end
-function getPetEnchantSlotId(petData, enchantSlot)
-	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
-	local enchantEntry = enchantList[enchantSlot] or enchantList[tostring(enchantSlot)]
-	if type(enchantEntry) == "table" then
-		return enchantEntry.Id or enchantEntry.id or enchantEntry.ID or enchantEntry.Name
-	end
-	return enchantEntry
-end
 activeStates.BGSI_Lite_GetPetEnchantSignature = function(petData)
 	local signatureParts = {}
 	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
@@ -15088,25 +15456,53 @@ activeStates.BGSI_Lite_GetPetEnchantSignature = function(petData)
 	table.sort(signatureParts)
 	return table.concat(signatureParts, "|")
 end
-activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied = function(
-	petData,
-	targetEnchantOne,
-	targetEnchantTwo,
-	targetEnchantLevel
-)
-	local targetOneId = normalizeEnchantName(targetEnchantOne)
-	local targetTwoId = normalizeEnchantName(targetEnchantTwo)
-	local hasSecondEnchantTarget = targetTwoId ~= ""
-		and targetEnchantTwo ~= "(None - single target)"
-		and targetTwoId ~= targetOneId
-	local slot1Id = normalizeEnchantName(getPetEnchantSlotId(petData, 1))
-	local slot2Id = normalizeEnchantName(getPetEnchantSlotId(petData, 2))
-	if hasSecondEnchantTarget then
-		-- Both configured targets must be present, in either slot, before this pet is complete.
-		return (slot1Id == targetOneId and slot2Id == targetTwoId)
-			or (slot1Id == targetTwoId and slot2Id == targetOneId)
+-- Every enchant slot currently on the pet must already be one of the configured target
+-- enchants (at or above the configured level, if any) for the pet to count as done. This
+-- mirrors the official client's own reroll-until check - it reads the exact enchant list
+-- the server just returned and checks each slot against the desired set - rather than
+-- requiring one specific target per specific slot, so a pet that lands the same good
+-- enchant in both slots is finished too instead of being rerolled forever.
+function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel)
+	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
+	local sawAnyEnchant = false
+	for _, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
+		sawAnyEnchant = true
+		local enchantId = type(enchantEntry) == "table"
+				and (enchantEntry.Id or enchantEntry.id or enchantEntry.ID or enchantEntry.Name)
+			or enchantEntry
+		local enchantLevel = type(enchantEntry) == "table"
+			and tonumber(enchantEntry.Level or enchantEntry.level)
+			or nil
+		if not targetLookup[normalizeEnchantName(enchantId)] then
+			return false
+		end
+		if targetEnchantLevel > 0 and (not enchantLevel or enchantLevel < targetEnchantLevel) then
+			return false
+		end
 	end
-	return targetOneId ~= "" and (slot1Id == targetOneId or slot2Id == targetOneId)
+	return sawAnyEnchant
+end
+
+-- The first slot that already qualifies as a target. Passed back to the game as the
+-- reroll's protected slot, so a landed target enchant can never be rerolled away by the
+-- very next reroll - that's what makes the lock instant instead of "usually in time."
+function getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
+	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
+	for slot, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
+		local enchantId = type(enchantEntry) == "table"
+				and (enchantEntry.Id or enchantEntry.id or enchantEntry.ID or enchantEntry.Name)
+			or enchantEntry
+		local enchantLevel = type(enchantEntry) == "table"
+			and tonumber(enchantEntry.Level or enchantEntry.level)
+			or nil
+		if
+			targetLookup[normalizeEnchantName(enchantId)]
+			and (targetEnchantLevel <= 0 or (enchantLevel and enchantLevel >= targetEnchantLevel))
+		then
+			return slot
+		end
+	end
+	return nil
 end
 activeStates.BGSI_Lite_RerollEnchantPet = function(
 	petId,
@@ -15120,6 +15516,8 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		tonumber(sharedConstants and sharedConstants.EnchantRerollCooldown) or ENCHANT_REROLL_COOLDOWN
 	)
 	local targetLookup = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
+	targetEnchantLevel = math.max(0, tonumber(targetEnchantLevel) or 0)
+
 	while Config.autoEnchant and isCurrentRun() do
 		local petData = getEnchantCurrency(petId)
 		if not petData then
@@ -15129,38 +15527,50 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		if petData.Super == true or petData.IsSuper == true or not activeStates.BGSI_Lite_IsShinyEnchantPet(petData) then
 			return true
 		end
-		if activeStates.BGSI_Lite_IsPetEnchantTargetSatisfied(
-			petData,
-			targetEnchantOne,
-			targetEnchantTwo,
-			targetEnchantLevel
-		) then
+		if isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel) then
 			return true
 		end
-		local slot1Id = getPetEnchantSlotId(petData, 1)
-		local slot2Id = getPetEnchantSlotId(petData, 2)
-		local hasTargetInSlot1 = type(slot1Id) == "string"
-			and slot1Id ~= ""
-			and targetLookup[normalizeEnchantName(slot1Id)] == true
-		local hasTargetInSlot2 = type(slot2Id) == "string"
-			and slot2Id ~= ""
-			and targetLookup[normalizeEnchantName(slot2Id)] == true
-		local protectSlot
-		if hasTargetInSlot1 then
-			protectSlot = 1
-		elseif hasTargetInSlot2 then
-			protectSlot = 2
-		end
+
+		local protectSlot = getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
 		local resolvedEnchantCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
+
 		if resolvedEnchantCurrency == "Shadow Crystals" then
 			if getShadowCrystalCount() <= 0 then
 				activeStates.BGSI_Lite_AutoEnchantBlockedUntil = tick() + 10
 				return false
 			end
-			pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, protectSlot)
+			-- UseShadowCrystal is fire-and-forget - the game gives back no confirmation at
+			-- all, unlike RerollEnchants below. Firing another reroll before the pet's own
+			-- replicated data actually reflects this one's result is exactly what let the old
+			-- loop "roll past" a landed target: it would blindly wait a fixed cooldown, then
+			-- decide the next protect slot from data that might still be stale. Waiting here
+			-- for the enchant signature to actually change makes that impossible - the next
+			-- protect slot is only ever computed from a confirmed result.
+			local signatureBeforeReroll = activeStates.BGSI_Lite_GetPetEnchantSignature(petData)
+			local fired = pcall(remoteEvent.FireServer, remoteEvent, "UseShadowCrystal", petId, protectSlot)
+			if not fired then
+				task.wait(rerollCooldown)
+				continue
+			end
+			local confirmDeadline = tick() + math.max(3, rerollCooldown * 4)
+			repeat
+				task.wait(0.05)
+				petData = getEnchantCurrency(petId)
+			until not petData
+				or activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= signatureBeforeReroll
+				or tick() >= confirmDeadline
+			if petData and isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel) then
+				return true
+			end
 		else
 			local currencyType = resolvedEnchantCurrency == "Reroll Orbs" and "Powerup" or "Gems"
-			pcall(
+			-- RerollEnchants is a real InvokeServer call: the server hands back the pet's
+			-- exact new enchant list synchronously, in the very same round trip that performed
+			-- the reroll (confirmed against the game's own decompiled client code). Using that
+			-- return value directly - instead of a blind cooldown then a re-fetch that might
+			-- race the replication - means there is no window at all where a just-landed
+			-- target could get rolled over for this currency path.
+			local invokeOk, newPetIdOrStatus, newEnchants = pcall(
 				remoteFunction.InvokeServer,
 				remoteFunction,
 				"RerollEnchants",
@@ -15168,6 +15578,18 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 				currencyType,
 				protectSlot
 			)
+			if invokeOk and newPetIdOrStatus == "toofast" then
+				task.wait(0.1)
+				continue
+			end
+			if invokeOk and newPetIdOrStatus and newEnchants then
+				if tostring(newPetIdOrStatus) ~= tostring(petId) then
+					petId = newPetIdOrStatus
+				end
+				if isPetEnchantTargetSatisfied({ Enchants = newEnchants }, targetLookup, targetEnchantLevel) then
+					return true
+				end
+			end
 		end
 		task.wait(rerollCooldown)
 	end
@@ -17170,12 +17592,13 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 		local description = tostring(sourceEmbed.description or "")
 		local thumbnailUrl = type(sourceEmbed.thumbnail) == "table" and sourceEmbed.thumbnail.url or nil
 		-- Hatch webhooks use description for the compact variant line (for example
-		-- "Shiny Giant Pearl"). Render it as normal bold text directly above the
-		-- fields (not a "#" heading) so there is no large gap before "User Info".
-		local heading = description ~= "" and description or title
-		heading = heading:gsub("^#+%s*", "")
-		if heading ~= "" then
-			heading = "**" .. heading .. "**"
+		-- "# Shiny Giant Pearl"). The old large gap before "User Info" came from this
+		-- heading sitting in its own top-level component next to the thumbnail; it's fixed
+		-- below by merging the heading and the fields into one shared section instead, so
+		-- the "#" heading itself is safe to keep.
+		local heading = description ~= "" and description or (title ~= "" and ("# " .. title) or "")
+		if heading ~= "" and not heading:match("^#") then
+			heading = "# " .. heading
 		end
 
 		local fieldLines = {}
