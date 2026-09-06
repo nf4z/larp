@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.27"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.28"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,22 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.28",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Rifts tab is actually gone now",
+				description = "Hiding it never stuck since Rayfield kept recreating or re-showing that sidebar row. It's no longer created at all now, so there's nothing left for the library to bring back.",
+				icon = "trash-2",
+			},
+			{
+				title = "Shadow Leviathan pet always selectable as a reroll target",
+				description = "The Leviathan pet was rare enough in the reward pool that random sampling could miss it and leave it off the Target Item list. It's now always available to pick, along with the good Fragments.",
+				icon = "target",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.27",
 		releasedAt = "September 6, 2026",
@@ -6849,66 +6865,28 @@ local scriptStateYT = scriptStateOG:AddTab({
 	Title = "Potions",
 	Icon = "beaker",
 })
--- Tab is still fully built below (every toggle, its Config key, and every background
--- loop that reads those Config values keeps working exactly as before) - only the
--- sidebar row is hidden, so settings stay controllable from the web dashboard even with
--- the tab out of the local menu. Guessing at the returned tab object's field names
--- didn't actually hide the row, so instead this scans the ACTUAL rendered UI for the
--- sidebar row whose label reads exactly "Rifts" and hides that row's real Instance
--- directly - independent of whatever Rayfield Gen2's internal tab object looks like.
-local riftsTab = scriptStateOG:AddTab({
-	Title = "Rifts",
-	Icon = "circle-dot",
-})
--- The one-shot version of this (hide it once, stop) came back after a while - Rayfield
--- Gen2 evidently re-asserts Visible = true on its own sidebar rows at some point (a
--- selection change, a re-render, reopening the menu - something), which just silently
--- undoes a single external override. Runs for the rest of the session instead of
--- stopping after the first success, so it keeps re-hiding the row every time the library
--- puts it back instead of only ever fixing it once.
-task.spawn(function()
-	local everHidden = false
-	local lastWarnAt = 0
-	while isCurrentRun() do
-		task.wait(0.5)
-		local hiddenThisPass = false
-		pcall(function()
-			local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-			if not playerGui then
-				return
-			end
-			for _, descendant in ipairs(playerGui:GetDescendants()) do
-				if
-					(descendant:IsA("TextLabel") or descendant:IsA("TextButton"))
-					and descendant.Text == "Rifts"
-				then
-					local candidate = descendant
-					for _ = 1, 5 do
-						candidate = candidate.Parent
-						if not candidate then
-							break
-						end
-						if candidate:IsA("GuiButton") or candidate:IsA("Frame") or candidate:IsA("ImageButton") then
-							if candidate.Visible then
-								pcall(function()
-									candidate.Visible = false
-								end)
-							end
-							hiddenThisPass = true
-							break
-						end
-					end
-				end
-			end
-		end)
-		if hiddenThisPass then
-			everHidden = true
-		elseif not everHidden and tick() - lastWarnAt >= 10 then
-			lastWarnAt = tick()
-			warn("[1rzHub Lite] Still couldn't find the Rifts sidebar row to hide.")
+-- Trying to hide the tab's sidebar row after creating it never stuck - twice now
+-- (guessing at the native tab object's fields, then a persistent scan-and-rehide loop -
+-- Rayfield evidently keeps recreating or re-asserting that row, so anything chasing an
+-- existing Instance loses the race). The only way to guarantee it never appears is to
+-- never create it in the first place. riftsTab is a stub: every method call on it
+-- (AddToggle, AddDropdown, AddButton, AddSection, ...) is a no-op, so nothing below this
+-- line ever builds a real UI element or sidebar entry - while every Config key those
+-- calls used to write is still read by its background loop exactly as before, so
+-- automation keeps working off whatever it's set to (the web dashboard, or the saved
+-- config file, can still change those values). Every no-op call RETURNS the stub itself
+-- rather than nil, since some of these results get captured (e.g. AddText's return is
+-- later used as riftDisplay:Set(...)) - returning the stub keeps any such chained call
+-- silently harmless too, instead of erroring on a nil index.
+local riftsTabStub
+riftsTabStub = setmetatable({}, {
+	__index = function()
+		return function()
+			return riftsTabStub
 		end
-	end
-end)
+	end,
+})
+local riftsTab = riftsTabStub
 
 scriptStateOG:AddSection("Automation")
 local gameTab = scriptStateOG:AddTab({
@@ -16734,6 +16712,14 @@ do
 				end
 			end
 		end
+		-- The Ancient Shadow Leviathan pet is the whole point of this quest, but it's
+		-- rare enough in the reward pool that random sampling can miss it entirely - add
+		-- it (and the good Fragments the game's own reroll button also protects) directly
+		-- instead of leaving it to chance whether a sample happened to roll one.
+		addOption("Ancient Shadow Leviathan")
+		addOption("Purple Fragment")
+		addOption("Green Fragment")
+		addOption("Blue Fragment")
 		table.sort(options)
 		return options
 	end
