@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.23"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.24"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,22 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.24",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed bubble quests getting stuck",
+				description = "The sell kiosk it teleports to for selling was being cached and could go stale after changing worlds, silently failing selling from out of range, capping bubbles out, and stopping the quest cold. Now it re-finds the nearest kiosk every time instead of trusting an old one.",
+				icon = "bug",
+			},
+			{
+				title = "Stuck Gem Genie quests now force a reroll",
+				description = "Added a hard fallback: if the same quest sits with zero progress on anything for 4 minutes straight, it rerolls automatically instead of staying parked forever.",
+				icon = "refresh-cw",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.23",
 		releasedAt = "September 6, 2026",
@@ -5173,10 +5189,14 @@ end
 -- (Parent nil, e.g. after changing world) and picks whichever tagged Sell instance is
 -- closest, since more than one can be loaded across different worlds/islands at once.
 activeStates.BGSI_Lite_FindSellBubbleStation = function()
-	local cached = activeStates.BGSI_Lite_SellBubbleStation
-	if typeof(cached) == "Instance" and cached.Parent then
-		return cached
-	end
+	-- No caching here on purpose: a station that's still Parented but simply far away
+	-- (e.g. after changing worlds) used to get reused forever since ".Parent ~= nil" was
+	-- the only invalidation check - teleporting to a stale, wrong-world kiosk meant Sell
+	-- was silently rejected for being out of range, bubbles capped out at max storage,
+	-- and Blow then refuses to fire at all once storage is full (it sells instead) - the
+	-- whole bubble task would just stop making progress. Recomputing the nearest tagged
+	-- Sell instance fresh every call is cheap enough given Sell is already throttled to
+	-- roughly one call every 0.35s+, and it can never go stale.
 	local ok, tagged = pcall(function()
 		return CollectionService:GetTagged("Activation")
 	end)
@@ -5202,7 +5222,6 @@ activeStates.BGSI_Lite_FindSellBubbleStation = function()
 			end
 		end
 	end
-	activeStates.BGSI_Lite_SellBubbleStation = closest
 	return closest
 end
 activeStates.BGSI_Lite_SellBubble = function()
@@ -17474,6 +17493,40 @@ task.spawn(function()
 			resumeNormalAutomation()
 			task.wait(2)
 			continue
+		end
+		-- Hard safety net, independent of the per-task stall/skip logic above: if the
+		-- exact same quest sits here with its total progress never moving forward for
+		-- several minutes - whatever the reason (a task whose progress this script reads
+		-- wrong, a stall that should have rerolled but didn't land, anything) - force a
+		-- reroll instead of leaving the player parked on a dead quest indefinitely.
+		do
+			local questWatchdogId = tostring(scriptStateMU.Id or scriptStateMU.ID or scriptStateMU.Name or "")
+			local totalProgress = 0
+			for _, watchdogTaskIndex in ipairs(makeIndexList(scriptStateMU.Tasks)) do
+				totalProgress += math.max(0, getBountyTaskProgress(scriptStateMU, watchdogTaskIndex))
+			end
+			if
+				questWatchdogId ~= tostring(activeStates.BGSI_Lite_GemGenieWatchdogQuestId or "")
+				or totalProgress > (tonumber(activeStates.BGSI_Lite_GemGenieWatchdogProgress) or -1)
+			then
+				activeStates.BGSI_Lite_GemGenieWatchdogQuestId = questWatchdogId
+				activeStates.BGSI_Lite_GemGenieWatchdogProgress = totalProgress
+				activeStates.BGSI_Lite_GemGenieWatchdogSince = tick()
+			elseif tick() - (tonumber(activeStates.BGSI_Lite_GemGenieWatchdogSince) or tick()) >= 240 then
+				warn(
+					"[1rzHub Lite] Gem Genie quest made no progress at all for 4 minutes; forcing a reroll:",
+					questWatchdogId
+				)
+				pcall(function()
+					remoteEvent:FireServer("RerollGenie")
+				end)
+				activeStates.BGSI_Lite_GemGenieWatchdogQuestId = nil
+				activeStates.BGSI_Lite_GemGenieWatchdogProgress = nil
+				activeStates.BGSI_Lite_GemGenieActive = false
+				resumeNormalAutomation()
+				task.wait(2)
+				continue
+			end
 		end
 		activeStates.BGSI_Lite_GemGenieActive = true
 		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
