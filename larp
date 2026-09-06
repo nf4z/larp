@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.08"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,33 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.01",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Mystery Box: true instant collection, no teleporting",
+				description = "Re-read the game's Gift class: the 8-hit requirement lives entirely in :Hit(), which just calls the wrapper's own :Collect() once its counter reaches 8 - and :Collect() itself has no hit-count check and never checks player position, only that the drop's ~0.5s spawn-in animation has finished. Auto Open Box now calls :Collect() directly the instant each drop is ready, with no hitting and no teleporting to it.",
+				icon = "zap",
+			},
+			{
+				title = "Auto Setup Team: fixed stalling after one equip",
+				description = "The game's own client refuses to equip a pet at all once the team looks full, and firing every unequip immediately followed by every equip didn't give the server time to process the unequips first - so most equips were getting silently rejected. It now unequips one at a time, confirms each one actually left the team before continuing, then equips, with a few retry passes for anything that still doesn't land.",
+				icon = "users",
+			},
+		},
+	},
+	{
+		version = "2026.09.05.09",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Mystery Box batches raised to 50",
+				description = "Auto Open Box now spawns up to 50 gifts per batch instead of 10 (still capped to the game's own per-batch limit if that's actually lower), and gives a larger batch enough time to hit every drop to completion instead of cutting off early.",
+				icon = "gift",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.08",
 		releasedAt = "September 6, 2026",
@@ -14342,10 +14369,15 @@ do
 	-- Mystery Box / Gift opening.
 	--
 	-- UseGift only tells the server to spawn the physical drop(s) - it never grants the
-	-- reward by itself. The real client (ReplicatedStorage.Client.Effects.PhysicalItem and
-	-- its Gift class, confirmed from the game's own decompiled source) requires each spawned
-	-- gift to be "hit" 8 times before it auto-collects and fires ClaimGift on its own. Firing
-	-- UseGift alone - what this used to do - spawns a gift that then just sits there forever.
+	-- reward by itself. The visible player flow is: hit the drop 8 times, which then calls
+	-- the Gift wrapper's own :Collect() method, which is what actually fires
+	-- Remote:FireServer("ClaimGift", ...) - the real grant. Reading the Gift class itself
+	-- (confirmed from the game's own decompiled source) shows :Collect() has no hit-count
+	-- check at all; the 8-hit requirement lives entirely in :Hit(), which only calls
+	-- :Collect() once its own counter reaches 8. :Collect() only checks that the drop's
+	-- spawn-in animation has finished (Animating == false, ~0.5s after it appears) and
+	-- never checks the player's position. So calling :Collect() directly, the moment the
+	-- drop is done animating, claims it instantly with no hitting and no need to be near it.
 	activeStates.BGSI_Lite_GetPhysicalItemModule = function()
 		if type(activeStates.BGSI_Lite_PhysicalItemModule) ~= "table" then
 			pcall(function()
@@ -14355,17 +14387,16 @@ do
 		return activeStates.BGSI_Lite_PhysicalItemModule
 	end
 
-	-- Teleports to and hits every currently-loaded gift drop until each one reaches its
-	-- 8-hit collect threshold (or the deadline runs out). Returns true if at least one hit
-	-- landed. Teleporting to each drop means this never has to give up the way a real
-	-- player's client does when it walks out of range mid-open.
+	-- Instantly collects every currently-loaded gift drop as soon as it's done spawning in,
+	-- with no hitting and no teleporting. Returns true if at least one drop was collected.
 	activeStates.BGSI_Lite_OpenSpawnedGifts = function(deadlineSeconds)
 		local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
 		if type(physicalItem) ~= "table" or type(physicalItem.GetActiveGifts) ~= "function" then
 			return false
 		end
 		local deadline = tick() + (tonumber(deadlineSeconds) or 15)
-		local hitAnyEver = false
+		local collectedAnyEver = false
+		local triedGiftInstances = {}
 		while tick() < deadline and isCurrentRun() do
 			local activeCount = 0
 			pcall(function()
@@ -14378,36 +14409,26 @@ do
 			local getOk = pcall(function()
 				activeGifts = physicalItem:GetActiveGifts()
 			end)
-			local hitThisPass = false
 			if getOk and type(activeGifts) == "table" then
 				for physicalInstance, giftWrapper in pairs(activeGifts) do
 					if
 						type(giftWrapper) == "table"
-						and (tonumber(giftWrapper.HitCount) or 0) < 8
+						and giftWrapper.Animating ~= true
+						and not triedGiftInstances[physicalInstance]
 					then
-						local giftTarget = activeStates.BGSI_Lite_GetInstanceTargetCFrame
-							and activeStates.BGSI_Lite_GetInstanceTargetCFrame(physicalInstance)
-						if giftTarget then
-							pcall(teleportToCFrame, giftTarget + Vector3.new(0, 3, 0))
-						end
-						local hitOk = pcall(function()
-							giftWrapper:Hit()
+						local collectOk = pcall(function()
+							giftWrapper:Collect()
 						end)
-						if hitOk then
-							hitThisPass = true
-							hitAnyEver = true
+						if collectOk then
+							triedGiftInstances[physicalInstance] = true
+							collectedAnyEver = true
 						end
-						-- The Gift class itself ignores hits under 0.05s apart; pace slightly
-						-- above that so every hit actually registers instead of being dropped.
-						task.wait(0.08)
 					end
 				end
 			end
-			if not hitThisPass then
-				task.wait(0.1)
-			end
+			task.wait(0.1)
 		end
-		return hitAnyEver
+		return collectedAnyEver
 	end
 	task.spawn(function()
 		while isCurrentRun() do
@@ -14418,9 +14439,12 @@ do
 				and type(Config.selectedMysteryBox) == "string"
 				and Config.selectedMysteryBox ~= ""
 			then
+				-- Open 50 at a time, but never exceed the game's own per-batch spawn limit
+				-- (Constants.MaxSpawnableLimit) if that's actually lower - matching what the
+				-- real client itself clamps to before firing UseGift.
 				local maxSpawnable = math.max(
 					1,
-					math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 10)
+					math.min(50, math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 50))
 				)
 				local boxAmount = 0
 				pcall(function()
@@ -14451,7 +14475,10 @@ do
 							spawned = activeCount > 0
 						until spawned or tick() >= spawnDeadline
 						if spawned then
-							activeStates.BGSI_Lite_OpenSpawnedGifts(15)
+							-- Collection is instant per drop once its spawn-in animation
+							-- finishes (~0.5s), so a fixed window comfortably covers even a
+							-- full 50-drop batch without needing to scale with boxAmount.
+							activeStates.BGSI_Lite_OpenSpawnedGifts(10)
 						end
 					end
 				end
@@ -14740,29 +14767,80 @@ function buildAutoSetupTeamSelection(playerData)
 	return selectedPetIds
 end
 -- Equips exactly the given pet ids and unequips everything else currently on the team.
+--
+-- The game's own client blocks EquipPet outright whenever the team is already at
+-- GetMaxPetsEquipped - it never even fires the remote once the team looks full. Firing
+-- every UnequipPet and then immediately every EquipPet back to back (the old approach
+-- here) hit exactly that: the server hadn't finished processing the unequips yet, so the
+-- team still looked full to it and most of the equips got silently dropped - only
+-- whichever one landed after the first unequip actually replicated got through, which is
+-- why it looked like it "stopped after 1 pet." Unequipping first, confirming the team
+-- actually shrank, and only then equipping - with a few retry passes for anything that
+-- still didn't land - fixes that.
 function applyAutoSetupTeamSelection(selectedPetIds)
-	local currentPetIds = getEnchantablePets()
 	local selectedSet = {}
 	for _, petId in ipairs(selectedPetIds) do
 		selectedSet[tostring(petId)] = true
 	end
-	local currentSet = {}
-	for _, petId in ipairs(currentPetIds) do
-		currentSet[tostring(petId)] = true
+
+	local function teamMatchesSelection(currentPetIds)
+		if #currentPetIds ~= #selectedPetIds then
+			return false
+		end
+		local currentSet = {}
+		for _, petId in ipairs(currentPetIds) do
+			currentSet[tostring(petId)] = true
+		end
+		for petId in pairs(selectedSet) do
+			if not currentSet[petId] then
+				return false
+			end
+		end
+		return true
 	end
-	local changed = false
-	for _, petId in ipairs(currentPetIds) do
-		if not selectedSet[tostring(petId)] then
-			remoteEvent:FireServer("UnequipPet", tostring(petId))
-			changed = true
-			task.wait(0.08)
+
+	local function fireOneCorrectionPass()
+		-- Unequip everything unwanted first, and confirm the team actually shrank before
+		-- doing anything else - this is what keeps every later EquipPet from getting
+		-- rejected by the game's own max-pets check.
+		local currentPetIds = getEnchantablePets()
+		local startingCount = #currentPetIds
+		for _, petId in ipairs(currentPetIds) do
+			if not selectedSet[tostring(petId)] then
+				remoteEvent:FireServer("UnequipPet", tostring(petId))
+				local confirmDeadline = tick() + 2
+				repeat
+					task.wait(0.1)
+					currentPetIds = getEnchantablePets()
+				until #currentPetIds < startingCount or tick() >= confirmDeadline
+				startingCount = #currentPetIds
+			end
+		end
+
+		local currentSet = {}
+		for _, petId in ipairs(currentPetIds) do
+			currentSet[tostring(petId)] = true
+		end
+		for _, petId in ipairs(selectedPetIds) do
+			if not currentSet[tostring(petId)] then
+				remoteEvent:FireServer("EquipPet", tostring(petId))
+				task.wait(0.15)
+			end
 		end
 	end
-	for _, petId in ipairs(selectedPetIds) do
-		if not currentSet[tostring(petId)] then
-			remoteEvent:FireServer("EquipPet", tostring(petId))
-			changed = true
-			task.wait(0.08)
+
+	local changed = false
+	local deadline = tick() + 20
+	for _ = 1, 8 do
+		local currentPetIds = getEnchantablePets()
+		if teamMatchesSelection(currentPetIds) then
+			return changed
+		end
+		fireOneCorrectionPass()
+		changed = true
+		task.wait(0.3)
+		if tick() >= deadline then
+			break
 		end
 	end
 	return changed
