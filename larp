@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.24"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.25"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.25",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed Auto Rebirth Machine doing nothing",
+				description = "It was calling the rebirth remote without the machine-key argument the game actually requires, so the pet list landed in the wrong slot and every call silently failed. Fixed - confirmed the correct call format straight from the game's own data.",
+				icon = "wrench",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.24",
 		releasedAt = "September 6, 2026",
@@ -20109,7 +20120,20 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 		return scriptStateK
 	end
 	-- Rebirth helper: gathers matching pets and sends them to the rebirth machine.
-	local function runRebirthMachine(scriptStateMD, scriptStateYK, scriptStateNU)
+	--
+	-- Confirmed straight from the game's own RebirthMachineUtil data module: every real
+	-- machine (RebirthMachine, CrystalAltar, SkyAltar) goes through the SAME
+	-- "UseRebirthMachine" remote, invoked as
+	-- Remote:InvokeServer("UseRebirthMachine", machineKey, petIds) - the machine key
+	-- ("RebirthMachine", etc.) is a REQUIRED middle argument identifying which machine.
+	-- This call was missing it entirely (firing InvokeServer(remoteName, petIds), with no
+	-- machine key at all), so petIds landed in the wrong argument slot and the server call
+	-- was malformed every single time - which is exactly why enabling Auto Rebirth Machine
+	-- never actually did anything. machineKey is only passed for the confirmed-real
+	-- machine; the Admin Rebirth Machine isn't a real entry in that data module at all (it
+	-- only exists as a world object gated behind an admin-only check), so its call is left
+	-- exactly as it already was rather than guessing at an unverifiable fix for it.
+	local function runRebirthMachine(scriptStateMD, scriptStateYK, scriptStateNU, machineKey)
 		local scriptStateAI
 		for loopSlotDM, scriptStateAD in
 			ipairs(Config.RebirthVariants or {
@@ -20135,7 +20159,11 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 			end
 		end
 		pcall(function()
-			remoteFunction:InvokeServer(scriptStateNU, scriptStateADV)
+			if machineKey then
+				remoteFunction:InvokeServer(scriptStateNU, machineKey, scriptStateADV)
+			else
+				remoteFunction:InvokeServer(scriptStateNU, scriptStateADV)
+			end
 		end)
 	end
 	activeStates.BGSI_Lite_CanUseRebirthMachine = function()
@@ -20712,7 +20740,7 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 	task.spawn(function()
 		while isCurrentRun() do
 			if Config.RebirthMachineEnabled and activeStates.BGSI_Lite_CanUseRebirthMachine() then
-				runRebirthMachine(5, Config.RebirthPetName, "UseRebirthMachine")
+				runRebirthMachine(5, Config.RebirthPetName, "UseRebirthMachine", "RebirthMachine")
 			end
 			task.wait(0.5)
 		end
