@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.18"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.19"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.19",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Currency Teams (new)",
+				description = "New toggle under Collection Teams. Detects saved teams named things like \"Tickets\", \"Gems\", \"Coins\", \"Pearls\", \"Bubble\", or \"Hatch\" and switches to the right one automatically for whatever a quest needs - and builds one from your best-owned pets for that currency when no matching team exists.",
+				icon = "users",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.18",
 		releasedAt = "September 6, 2026",
@@ -1505,6 +1516,7 @@ local defaultConfig = {
 	selectedPearlTeam = "",
 	selectedTicketReturnTeam = "",
 	selectedPearlReturnTeam = "",
+	autoCurrencyTeams = false,
 	webhookRarities = {
 		Secret = true,
 		Legendary = false,
@@ -5044,6 +5056,7 @@ function runCurrencyOrbPrep(scriptStateEV, scriptStateDJ)
 	spamClaimGiantChest(5)
 end
 function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
+	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "hatch")
 	local scriptStateUA = 0
 	local questProgressWatch
 	local scriptStateStalled
@@ -5289,6 +5302,7 @@ pcall(function()
 	profileStore:ConnectDataChanged("Bubble", activeStates.BGSI_Lite_ObserveBubbleAmount)
 end)
 function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
+	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "bubble")
 	local lastSellTime = 0
 	local questProgressWatch
 	local scriptStateStalled
@@ -5469,6 +5483,7 @@ do
 		end
 		return false
 	end
+	activeStates.BGSI_Lite_EquipPetTeamByKey = equipPetTeam
 
 	local function equipReturnPetTeam(scriptStateReturnTeam, scriptStatePreviousTeam)
 		if type(scriptStateReturnTeam) == "string" and scriptStateReturnTeam ~= "" then
@@ -6138,7 +6153,12 @@ do
 		pcall(installPickupRangeHook)
 		teleportToWorldPortal("Minigame Paradise")
 		task.wait(0.35)
-		if type(Config.selectedTicketTeam) == "string" and Config.selectedTicketTeam ~= "" then
+		pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "tickets")
+		if
+			Config.autoCurrencyTeams ~= true
+			and type(Config.selectedTicketTeam) == "string"
+			and Config.selectedTicketTeam ~= ""
+		then
 			local scriptStateTeamEquipDeadline = tick() + 6
 			repeat
 				if equipPetTeam(Config.selectedTicketTeam) then
@@ -6214,7 +6234,12 @@ do
 		local scriptStatePreviousTeam = scriptStateTeamData and scriptStateTeamData.TeamEquipped or nil
 		teleportToWorldPortal("Seven Seas")
 		task.wait(0.35)
-		if type(Config.selectedPearlTeam) == "string" and Config.selectedPearlTeam ~= "" then
+		pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "pearls")
+		if
+			Config.autoCurrencyTeams ~= true
+			and type(Config.selectedPearlTeam) == "string"
+			and Config.selectedPearlTeam ~= ""
+		then
 			local scriptStateTeamEquipDeadline = tick() + 6
 			repeat
 				if equipPetTeam(Config.selectedPearlTeam) then
@@ -6293,6 +6318,7 @@ function runCollectCurrencyBountyTask(scriptStateSM, scriptStateOX, scriptStateM
 	end
 	teleportToCurrencyArea(scriptStateF)
 	task.wait(0.2)
+	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, scriptStateF)
 	local shopItemLoopCount = 0
 	local scriptStateSK = tick()
 	local questProgressWatch
@@ -12783,6 +12809,7 @@ do
 			"questStallTimeoutSeconds",
 			"autoShadowLeviathanQuest",
 			"autoRerollShadowLeviathanQuest",
+			"autoCurrencyTeams",
 			"selectedTicketTeam",
 			"selectedTicketReturnTeam",
 			"selectedPearlTeam",
@@ -15239,6 +15266,116 @@ task.spawn(function()
 		end
 	end
 end)
+-- ============================================================================
+-- CURRENCY TEAMS
+-- A second deliberate, opt-in equip point (same rule as Auto Setup Team above: it only
+-- ever acts because Config.autoCurrencyTeams is a toggle the user turns on themselves).
+-- Detects saved pet teams by name - a team literally named "Tickets", "Gems", "Bubble
+-- Team", etc. - and, for any category without a matching named team, builds one from
+-- owned pets ranked by that specific currency's real per-pet multiplier. Confirmed
+-- straight from the game's own client source (PetUtil:GetStats / GetCurrencyMultiplier):
+-- every pet species has a static ReplicatedStorage.Shared.Data.Pets[name].Stats table
+-- keyed by currency name ("Coins", "Tickets", "Pearls", "Gems", "Bubbles") holding that
+-- species' contribution to it - already loaded here as petRarityData, so no live
+-- computation is needed, just reading and ranking that per-species table.
+-- ============================================================================
+local CURRENCY_TEAM_KEYWORDS = {
+	{ category = "tickets", keyword = "ticket" },
+	{ category = "pearls", keyword = "pearl" },
+	{ category = "gems", keyword = "gem" },
+	{ category = "coins", keyword = "coin" },
+	{ category = "bubble", keyword = "bubble" },
+	{ category = "hatch", keyword = "hatch" },
+}
+local CURRENCY_STAT_KEY_BY_CATEGORY = {
+	tickets = "Tickets",
+	pearls = "Pearls",
+	gems = "Gems",
+	coins = "Coins",
+	bubble = "Bubbles",
+}
+-- Picks whichever saved team's name best matches each category, e.g. a team named
+-- "Gem Farm" matches "gems" via the "gem" keyword. First match wins per category.
+activeStates.BGSI_Lite_DetectCurrencyTeamKeys = function(playerData)
+	local detected = {}
+	if type(playerData) ~= "table" or type(playerData.Teams) ~= "table" then
+		return detected
+	end
+	for teamKey, team in pairs(playerData.Teams) do
+		local teamName = type(team) == "table" and tostring(team.Name or team.TeamName or teamKey)
+			or tostring(teamKey)
+		local lowerName = teamName:lower()
+		for _, entry in ipairs(CURRENCY_TEAM_KEYWORDS) do
+			if not detected[entry.category] and lowerName:find(entry.keyword, 1, true) then
+				detected[entry.category] = teamKey
+			end
+		end
+	end
+	return detected
+end
+-- "hatch" has no per-pet currency Stat - it reuses the same shiny/enchant-priority
+-- selection Auto Setup Team already builds, since that's this script's established
+-- definition of "the best general hatching team". Every other category ranks owned pets
+-- by their real per-species multiplier for that specific currency.
+activeStates.BGSI_Lite_GetBestPetIdsForCurrency = function(playerData, category, slotLimit)
+	if category == "hatch" then
+		return buildAutoSetupTeamSelection(playerData)
+	end
+	local statKey = CURRENCY_STAT_KEY_BY_CATEGORY[category]
+	if not statKey or type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+		return nil
+	end
+	local ranked = {}
+	for _, pet in ipairs(playerData.Pets) do
+		if type(pet) == "table" and pet.Id then
+			local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
+			local statValue = type(petInfo) == "table"
+				and type(petInfo.Stats) == "table"
+				and tonumber(petInfo.Stats[statKey])
+			if statValue then
+				table.insert(ranked, { id = tostring(pet.Id), value = statValue })
+			end
+		end
+	end
+	if #ranked == 0 then
+		return nil
+	end
+	table.sort(ranked, function(leftPet, rightPet)
+		return leftPet.value > rightPet.value
+	end)
+	local maxPetsEquipped = select(1, getAutoTeamLimits(playerData))
+	local limit = math.min(tonumber(slotLimit) or maxPetsEquipped, maxPetsEquipped, #ranked)
+	local selected = {}
+	for i = 1, limit do
+		table.insert(selected, ranked[i].id)
+	end
+	return selected
+end
+-- The entry point every task handler below calls at the start of a farming run. Prefers
+-- a matching named team; falls back to the best-owned-pets selection for that currency.
+-- No-op entirely unless Config.autoCurrencyTeams is on.
+activeStates.BGSI_Lite_ApplyCurrencyTeam = function(category)
+	if Config.autoCurrencyTeams ~= true or Config.safeMode == true then
+		return false
+	end
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if type(playerData) ~= "table" then
+		return false
+	end
+	local detected = activeStates.BGSI_Lite_DetectCurrencyTeamKeys(playerData)
+	local teamKey = detected[category]
+	if teamKey and type(activeStates.BGSI_Lite_EquipPetTeamByKey) == "function" then
+		if activeStates.BGSI_Lite_EquipPetTeamByKey(teamKey) then
+			return true
+		end
+	end
+	local bestPetIds = activeStates.BGSI_Lite_GetBestPetIdsForCurrency(playerData, category)
+	if not bestPetIds or #bestPetIds == 0 then
+		return false
+	end
+	applyAutoSetupTeamSelection(bestPetIds)
+	return true
+end
 do
 	scriptStateTJ:AddSection("Auto Setup Team")
 	scriptStateTJ:AddButton({
@@ -16373,6 +16510,15 @@ do
 		end,
 	})
 	scriptStateUC:AddSection("Collection Teams")
+	scriptStateUC:AddToggle("AutoCurrencyTeams", {
+		Title = "Auto Currency Teams",
+		Description = "Detects saved pet teams by name (a team named \"Tickets\", \"Gems\", \"Bubble\", \"Coins\", \"Pearls\", or \"Hatch\") and switches to the matching one for whichever of those a quest task needs. Falls back to building a team from your best-owned pets for that specific currency when no matching team exists. Overrides the manual team pickers below while on.",
+		Default = Config.autoCurrencyTeams,
+		Callback = function(isEnabled)
+			Config.autoCurrencyTeams = isEnabled == true
+			saveConfig()
+		end,
+	})
 	local ticketTeamDropdown
 	local pearlTeamDropdown
 	local ticketReturnTeamDropdown
