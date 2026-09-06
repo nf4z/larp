@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,33 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.06",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Hatch Inventory Egg (new)",
+				description = "New section under Eggs for eggs held as an item rather than spawned in the world - Elite Egg, Superhero Egg, the Series N Eggs, Prismatic Egg, seasonal event eggs, and anything else that reads Type == \"Egg\" in the game's own Powerups data. Pick one from the dropdown (built live from that data, not a hardcoded list) and Auto Hatch Inventory Egg fires HatchPowerupEgg for up to 12 at a time back to back while you own any.",
+				icon = "egg",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.05",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed rifts box crash: 'lacking capability Plugin'",
+				description = "Root cause found via the error the last fix surfaced: Console recreates its per-line labels with Instance.new whenever the line count grows, and that call was happening from the background update loop's thread rather than the one that first built the UI - which this executor blocks with a capability error. Current Rifts is now built with Text instead, which only ever rebinds one already-built label's string and never calls Instance.new after its first build, so background updates can't hit this at all.",
+				icon = "bug",
+			},
+			{
+				title = "Webhook: fixed Secret Luck reading half the real value",
+				description = "The game now shows one combined 'Secret/Infinity Luck' debug stat in some cases instead of two separate ones. The old matching only looked for 'secret'+'luck' or 'infinity'+'luck' separately, so a stale, unsynced legacy 'Secret Luck' tag (if the game still exposes one) could win over the correct combined reading - which is exactly what showed roughly half the real in-game number. The combined tag is now checked first and always wins when present.",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.04",
 		releasedAt = "September 6, 2026",
@@ -1186,6 +1213,8 @@ local defaultConfig = {
 	selectedRiftEgg = "",
 	autoRiftEgg = false,
 	autoRiftEggSpawn = false,
+	selectedInventoryEgg = "",
+	autoHatchInventoryEgg = false,
 	autoHatch = false,
 	adaptiveHatch = true,
 	healthRecoveryEnabled = true,
@@ -6600,28 +6629,37 @@ do
 		local hatchSpeedValue
 		local secretLuckDisplay
 		local infinityLuckDisplay
+		local combinedSecretInfinityLuckDisplay
 		for _, debugTag in ipairs(debugTags and debugTags:GetChildren() or {}) do
 			local debugLabel = debugTag:FindFirstChild("Label")
 			if debugLabel and (debugLabel:IsA("TextLabel") or debugLabel:IsA("TextButton")) then
 				local debugText = tostring(debugLabel.Text or ""):gsub("<.->", ""):gsub("&nbsp;", " ")
 				local identifier = string.lower(tostring(debugTag.Name) .. " " .. debugText)
+				local hasSecret = identifier:find("secret", 1, true) ~= nil
+				local hasInfinity = identifier:find("infinity", 1, true) ~= nil
+				local hasLuck = identifier:find("luck", 1, true) ~= nil
 				if identifier:find("hatch", 1, true) and identifier:find("speed", 1, true) then
 					hatchSpeedValue = parseDebugNumber(debugText) or hatchSpeedValue
-				elseif identifier:find("secret", 1, true) and identifier:find("luck", 1, true) then
+				elseif hasSecret and hasInfinity and hasLuck then
+					-- Some game versions show one combined "Secret/Infinity Luck" tag instead
+					-- of two separate ones. That combined figure is the one actually shown to
+					-- the player (it reflects whatever's currently boosting it, e.g. an active
+					-- luck event) and can run well ahead of a plain "Secret Luck" tag if that
+					-- one still exists separately but isn't kept in sync - that mismatch is
+					-- exactly what showed the webhook at roughly half the real in-game value.
+					-- The combined reading wins whenever it's present.
+					combinedSecretInfinityLuckDisplay = debugText:match("[xX]%s*[%d][%d,]*%.?%d*")
+						or combinedSecretInfinityLuckDisplay
+				elseif hasSecret and hasLuck then
 					secretLuckDisplay = debugText:match("[xX]%s*[%d][%d,]*%.?%d*") or secretLuckDisplay
-				elseif identifier:find("infinity", 1, true) and identifier:find("luck", 1, true) then
+				elseif hasInfinity and hasLuck then
 					infinityLuckDisplay = debugText:match("[xX]%s*[%d][%d,]*%.?%d*") or infinityLuckDisplay
-				elseif
-					identifier:find("luck", 1, true)
-					and not identifier:find("secret", 1, true)
-					and not identifier:find("infinity", 1, true)
-					and not identifier:find("egg", 1, true)
-				then
+				elseif hasLuck and not hasSecret and not hasInfinity and not identifier:find("egg", 1, true) then
 					luckValue = parseDebugNumber(debugText) or luckValue
 				end
 			end
 		end
-		return luckValue, hatchSpeedValue, secretLuckDisplay, infinityLuckDisplay
+		return luckValue, hatchSpeedValue, combinedSecretInfinityLuckDisplay or secretLuckDisplay, infinityLuckDisplay
 	end
 	activeStates.BGSI_Lite_GetDebugLuckDisplays = function()
 		local _, _, secretLuckDisplay, infinityLuckDisplay = getDebugStatValues()
@@ -6790,11 +6828,15 @@ do
 	local riftsTab = riftsTab
 	riftsTab:AddSection("Active Rifts")
 
-	local riftDisplay = riftsTab:AddConsole({
+	-- AddText, not AddConsole: Console recreates its per-line TextLabels via Instance.new
+	-- whenever the line count grows past what's already pooled, and that call happens from
+	-- this file's background update loop (task.spawn), not the thread that first built the
+	-- UI. Under executors that gate Instance.new by thread capability ("lacking capability
+	-- Plugin"), that crashes the very first real update. Text only ever rebinds one
+	-- already-built label's string, so it has no such runtime Instance.new dependency.
+	local riftDisplay = riftsTab:AddText({
 		Title = "Current Rifts",
 		Content = "Scanning for active rifts...",
-		Height = 220,
-		Follow = false,
 	})
 
 	riftsTab:AddButton({
@@ -9615,6 +9657,89 @@ do
 				specialRiftTeleportAt = tick()
 			end
 			fireHatchEgg(specialRiftEggName)
+		end
+	end)
+end
+do
+	-- Inventory Eggs: eggs held as an owned Powerup count (Elite Egg, Superhero Egg, the
+	-- Series N Eggs, Prismatic Egg, seasonal event eggs, etc.) rather than a physical world
+	-- spawn - hatched directly via HatchPowerupEgg with an amount, no positioning needed.
+	-- Confirmed straight from the game's own data: ReplicatedStorage.Shared.Data.Powerups
+	-- (already loaded here as giftData) - every entry with Type == "Egg" is one of these,
+	-- so the list below is read from that data instead of a hardcoded name list.
+	local function getInventoryEggNames()
+		local eggNames = {}
+		if type(giftData) == "table" then
+			for powerupName, powerupInfo in pairs(giftData) do
+				if type(powerupName) == "string" and type(powerupInfo) == "table" and powerupInfo.Type == "Egg" then
+					table.insert(eggNames, powerupName)
+				end
+			end
+		end
+		table.sort(eggNames)
+		return eggNames
+	end
+
+	local inventoryEggOptions = getInventoryEggNames()
+	if Config.selectedInventoryEgg == "" or not table.find(inventoryEggOptions, Config.selectedInventoryEgg) then
+		Config.selectedInventoryEgg = inventoryEggOptions[1] or ""
+	end
+
+	eggTab:AddSection("Inventory Eggs")
+	local inventoryEggDropdown = eggTab:AddDropdown("SelectInventoryEgg", {
+		Title = "Inventory Egg",
+		Description = "Eggs held as an item (Elite Egg, Superhero Egg, Series eggs, event eggs, etc.), hatched straight from your inventory instead of the world.",
+		Values = #inventoryEggOptions > 0 and inventoryEggOptions or { "(None found)" },
+		Default = Config.selectedInventoryEgg ~= "" and Config.selectedInventoryEgg or "(None found)",
+		Multi = false,
+		Search = true,
+		Callback = function(selectedEggCallback)
+			if selectedEggCallback and selectedEggCallback ~= "(None found)" then
+				Config.selectedInventoryEgg = selectedEggCallback
+				saveConfig()
+			end
+		end,
+	})
+	eggTab:AddButton({
+		Title = "Refresh inventory egg list",
+		Callback = function()
+			fireRemoteEventRepeatedly(inventoryEggDropdown, getInventoryEggNames())
+		end,
+	})
+	eggTab:AddToggle("AutoHatchInventoryEgg", {
+		Title = "Auto Hatch Inventory Egg",
+		Description = "Fires HatchPowerupEgg back to back while you own any. The 'No Hatch Animation' toggle above speeds this up further, since it's the same hatch effect that would otherwise gate each request.",
+		Default = Config.autoHatchInventoryEgg,
+		Callback = function(isEnabled)
+			Config.autoHatchInventoryEgg = isEnabled == true
+			saveConfig()
+		end,
+	})
+
+	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
+		local selectedEggName = tostring(Config.selectedInventoryEgg or "")
+		if selectedEggName == "" then
+			return false
+		end
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		local owned = type(playerData) == "table"
+				and type(playerData.Powerups) == "table"
+				and tonumber(playerData.Powerups[selectedEggName])
+			or 0
+		owned = math.max(0, math.floor(owned or 0))
+		if owned <= 0 then
+			return false
+		end
+		local amount = math.min(12, owned)
+		return pcall(activeStates.BGSI_Lite_FireGameRemote, "HatchPowerupEgg", selectedEggName, amount)
+	end
+
+	task.spawn(function()
+		while isCurrentRun() do
+			task.wait(Config.autoHatchInventoryEgg and 0.05 or 0.85)
+			if Config.autoHatchInventoryEgg and Config.safeMode ~= true then
+				pcall(activeStates.BGSI_Lite_RunInventoryEggHatch)
+			end
 		end
 	end)
 end
