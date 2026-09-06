@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.04"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.04",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed rifts box stuck on 'Scanning...'",
+				description = "The rift scan loop wasn't pcall-wrapped, so a single bad frame threw once, silently killed that whole background loop, and left the box on its placeholder text forever with no error shown and no further attempts. It now catches errors, keeps retrying every 5 seconds, and prints the real error into the box itself if one happens, instead of hanging silently.",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.03",
 		releasedAt = "September 6, 2026",
@@ -6789,7 +6800,13 @@ do
 	riftsTab:AddButton({
 		Title = "Refresh Rifts",
 		Callback = function()
-			activeStates.BGSI_Lite_UpdateRiftDisplay()
+			local ok, err = pcall(activeStates.BGSI_Lite_UpdateRiftDisplay)
+			if not ok then
+				warn("[1rzHub Lite] Rift display update failed: " .. tostring(err))
+				pcall(function()
+					riftDisplay:Set("Rift scan failed: " .. tostring(err))
+				end)
+			end
 		end,
 	})
 
@@ -6996,7 +7013,17 @@ do
 	-- Initial update
 	task.spawn(function()
 		while isCurrentRun() do
-			activeStates.BGSI_Lite_UpdateRiftDisplay()
+			-- Not pcall-wrapping this used to mean a single bad frame (a rift model missing
+			-- an expected attribute, a data module not loaded, etc.) would throw once, kill
+			-- this whole coroutine, and leave the box stuck on "Scanning for active
+			-- rifts..." forever with no further attempts and no visible error at all.
+			local ok, err = pcall(activeStates.BGSI_Lite_UpdateRiftDisplay)
+			if not ok then
+				warn("[1rzHub Lite] Rift display update failed: " .. tostring(err))
+				pcall(function()
+					riftDisplay:Set("Rift scan failed: " .. tostring(err) .. "\nRetrying in 5s...")
+				end)
+			end
 			task.wait(5)
 		end
 	end)
