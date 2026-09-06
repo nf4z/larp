@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,22 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.08",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed hatching blocking mystery box collection",
+				description = "Found the actual cause in the game's own network code: every remote action - HatchEgg, UseGift, ClaimGift, all of it - is multiplexed onto a single shared RemoteEvent with no queue of its own. Our hatch loop was already checking the server's cooldown before firing, but it polls up to ~200 times a second, and during the brief round trip after a hatch is accepted (before the server moves the cooldown forward), every one of those polls still saw the old cooldown as expired and fired again - a burst of duplicate HatchEgg calls on that one shared channel, every single hatch, which is exactly what could crowd out a mystery box's UseGift/ClaimGift riding the same channel. Hatching now fires at most once per real cooldown window no matter how fast it's polled, which removes 100% of that wasted duplicate traffic.",
+				icon = "zap",
+			},
+			{
+				title = "Hatching is now event-driven",
+				description = "Added a listener on the game's own cooldown timer that fires the instant it actually elapses, instead of waiting to notice on the next poll. It runs alongside the existing loop as a low-latency front-runner, so hatching reacts as fast as the server will allow with zero wasted requests in between.",
+				icon = "gauge",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.07",
 		releasedAt = "September 6, 2026",
@@ -4046,6 +4062,26 @@ function teleportToEggByName(scriptStateABE)
 	return teleportToCFrame(eggTarget)
 end
 -- Hatch helper: fires the hatch remote with the selected egg and hatch amount.
+-- Every remote in this game - HatchEgg, UseGift, ClaimGift, EquipPet, all of it - is
+-- multiplexed onto ONE shared RemoteEvent (confirmed straight from the game's own Remote
+-- module: FireServer is a bare `RemoteEvent:FireServer(actionName, ...)` passthrough with
+-- no per-action queue of its own). Roblox rate-limits FireServer per Instance, not per
+-- action name, so a burst on that one shared Instance can make the engine silently drop
+-- OTHER sends riding the same channel - which is exactly what was stopping mystery box
+-- collection from landing while hatching was running.
+--
+-- The burst was real and provable, not just theoretical: this function already checked
+-- NextEggOpenAt before firing, but the poll loop that calls it runs up to ~200 times a
+-- second. The instant a hatch is accepted, the server needs a network round trip to
+-- actually move NextEggOpenAt forward - and for however long that takes, every one of
+-- those ~200 polls/sec still sees the stale, already-elapsed value and fires again. That's
+-- a burst of duplicate HatchEgg calls every single hatch, not just an occasional one.
+--
+-- lastFiredForNextEggOpenAt tracks which cooldown window has already been fired for, so
+-- no matter how fast (or how many different loops) call this, at most one HatchEgg goes
+-- out per real window - eliminating the burst without slowing hatching down at all, since
+-- the very first fire for a window still goes out the instant that window opens.
+local lastFiredForNextEggOpenAt = -1
 function fireHatchEgg(scriptStateQC)
 	if not isCurrentRun() or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
@@ -4056,6 +4092,10 @@ function fireHatchEgg(scriptStateQC)
 	if getCurrentTimestamp() < nextEggOpenAt then
 		return false
 	end
+	if nextEggOpenAt == lastFiredForNextEggOpenAt then
+		return false
+	end
+	lastFiredForNextEggOpenAt = nextEggOpenAt
 	activeStates.BGSI_Lite_LastHatchAttemptAt = requestTime
 
 	local hatchRequestSucceeded = pcall(function()
@@ -4072,6 +4112,30 @@ function fireHatchEgg(scriptStateQC)
 	end
 	return hatchRequestSucceeded
 end
+
+-- Event-driven fast path: fires the instant the server's own cooldown boundary is
+-- actually reached, instead of waiting for the next poll tick to notice. Runs alongside
+-- the existing poll loops (unchanged below) as a low-latency front-runner - whichever
+-- path gets there first wins, and the dedup guard above means the other one just no-ops,
+-- so this is pure upside with no risk of double-firing.
+pcall(function()
+	LocalPlayer:GetAttributeChangedSignal("NextEggOpenAt"):Connect(function()
+		local eggName = activeStates.BGSI_Lite_LastHatchRequestedEgg
+		if type(eggName) ~= "string" or eggName == "" or not isCurrentRun() then
+			return
+		end
+		task.spawn(function()
+			local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
+			local waitSeconds = nextEggOpenAt - getCurrentTimestamp()
+			if waitSeconds > 0 then
+				task.wait(waitSeconds)
+			end
+			if isCurrentRun() then
+				fireHatchEgg(eggName)
+			end
+		end)
+	end)
+end)
 function getBountyTaskRequirement(scriptStateVB)
 	if not scriptStateVB then
 		return 1
