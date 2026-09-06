@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.21"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.23"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,28 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.23",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "All 8 Super Legendary enchants in Auto Setup Team",
+				description = "Was only Luck Boost and Hatch Blessing (Bubble Machine was wired up but had no slider at all). Added Bubble Machine, Burst Blessing, Shiny Blessing, Mythic Blessing, Infinity Blessing, and Duplication, all with their + versions - the complete set the game actually has.",
+				icon = "sparkles",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.22",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Actually hid the Rifts tab this time",
+				description = "The last attempt guessed at internal property names and didn't work. Now it scans the real rendered menu for the sidebar row labeled \"Rifts\" and hides that Instance directly, so it no longer depends on guessing Rayfield's internals.",
+				icon = "eye-off",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.21",
 		releasedAt = "September 6, 2026",
@@ -1443,10 +1465,22 @@ local defaultConfig = {
 	autoSetupTeamEnabled = false,
 	autoSetupTeamIncludeSupers = false,
 	autoSetupTeamSuperCounts = {
-		["hatch-blessing-plus"] = 0,
+		["luck-boost"] = 0,
 		["luck-boost-plus"] = 0,
 		["hatch-blessing"] = 0,
-		["luck-boost"] = 0,
+		["hatch-blessing-plus"] = 0,
+		["bubble-machine"] = 0,
+		["bubble-machine-plus"] = 0,
+		["burst-blessing"] = 0,
+		["burst-blessing-plus"] = 0,
+		["shiny-blessing"] = 0,
+		["shiny-blessing-plus"] = 0,
+		["mythic-blessing"] = 0,
+		["mythic-blessing-plus"] = 0,
+		["infinity-blessing"] = 0,
+		["infinity-blessing-plus"] = 0,
+		["duplication"] = 0,
+		["duplication-plus"] = 0,
 	},
 	autoPlaytime = false,
 	autoClaimPrizes = false,
@@ -6743,55 +6777,57 @@ local scriptStateYT = scriptStateOG:AddTab({
 })
 -- Tab is still fully built below (every toggle, its Config key, and every background
 -- loop that reads those Config values keeps working exactly as before) - only the
--- sidebar button is hidden, so settings stay controllable from the web dashboard even
--- with the tab out of the local menu. Rayfield Gen2's own source is minified with no
--- documented "hidden tab" property, so this is a best-effort attempt: it tries the
--- likely property names and a couple of common field names on the returned tab object,
--- and if none of that actually hid anything it logs the real object's field names to
--- the console instead of silently failing, so a follow-up fix can target the right one.
+-- sidebar row is hidden, so settings stay controllable from the web dashboard even with
+-- the tab out of the local menu. Guessing at the returned tab object's field names
+-- didn't actually hide the row (confirmed - it was still visible), so instead of
+-- guessing again this scans the ACTUAL rendered UI for the sidebar row whose label reads
+-- exactly "Rifts" and hides that row's real Instance directly - independent of whatever
+-- Rayfield Gen2's internal tab object looks like. Retries for a few seconds in case the
+-- sidebar hasn't finished rendering yet when this runs.
 local riftsTab = scriptStateOG:AddTab({
 	Title = "Rifts",
 	Icon = "circle-dot",
-	Hidden = true,
-	hidden = true,
 })
-pcall(function()
-	local nativeTabObject = riftsTab.Native
-	local hidAnything = false
-	if typeof(nativeTabObject) == "Instance" then
-		hidAnything = pcall(function()
-			nativeTabObject.Visible = false
+task.spawn(function()
+	local deadline = tick() + 10
+	local hidden = false
+	while not hidden and tick() < deadline and isCurrentRun() do
+		task.wait(0.25)
+		pcall(function()
+			local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+			if not playerGui then
+				return
+			end
+			for _, descendant in ipairs(playerGui:GetDescendants()) do
+				if hidden then
+					break
+				end
+				if
+					(descendant:IsA("TextLabel") or descendant:IsA("TextButton"))
+					and descendant.Text == "Rifts"
+				then
+					local candidate = descendant
+					for _ = 1, 5 do
+						candidate = candidate.Parent
+						if not candidate then
+							break
+						end
+						if candidate:IsA("GuiButton") or candidate:IsA("Frame") or candidate:IsA("ImageButton") then
+							local hideOk = pcall(function()
+								candidate.Visible = false
+							end)
+							if hideOk then
+								hidden = true
+							end
+							break
+						end
+					end
+				end
+			end
 		end)
-	elseif type(nativeTabObject) == "table" then
-		for key, value in pairs(nativeTabObject) do
-			if
-				typeof(value) == "Instance"
-				and (
-					tostring(key):find("Button", 1, true)
-					or tostring(key):find("Tab", 1, true)
-					or tostring(key):find("Frame", 1, true)
-				)
-			then
-				local hideOk = pcall(function()
-					value.Visible = false
-				end)
-				hidAnything = hidAnything or hideOk
-			end
-		end
 	end
-	if not hidAnything then
-		local diagnosticKeys = {}
-		if type(nativeTabObject) == "table" then
-			for key in pairs(nativeTabObject) do
-				table.insert(diagnosticKeys, tostring(key))
-			end
-		end
-		warn(
-			"[1rzHub Lite] Could not confirm how to hide the Rifts tab button - native tab type: "
-				.. typeof(nativeTabObject)
-				.. ", fields: "
-				.. table.concat(diagnosticKeys, ", ")
-		)
+	if not hidden then
+		warn("[1rzHub Lite] Still couldn't find the Rifts sidebar row to hide after scanning PlayerGui for 10s.")
 	end
 end)
 
@@ -15111,13 +15147,26 @@ end
 -- unequips pets, and it only ever runs from the "Setup Team Now" button below or the
 -- "Keep Team Setup" toggle you turn on yourself - never in the background otherwise.
 -- ============================================================================
+-- All 8 Super Legendary enchant pairs, confirmed straight from the game's own Enchants
+-- data module (every "super-X"/"super-X-plus" id it defines, matched to the real display
+-- name each one builds - e.g. "super-speed" is literally named "Hatch Blessing" there).
 local SUPER_LEGENDARY_ENCHANT_KEY_BY_ID = {
-	["super-bubble-plus"] = "bubble-machine-plus",
-	["super-bubble"] = "bubble-machine",
-	["super-speed-plus"] = "hatch-blessing-plus",
-	["super-luck-plus"] = "luck-boost-plus",
-	["super-speed"] = "hatch-blessing",
 	["super-luck"] = "luck-boost",
+	["super-luck-plus"] = "luck-boost-plus",
+	["super-burst"] = "burst-blessing",
+	["super-burst-plus"] = "burst-blessing-plus",
+	["super-shiny"] = "shiny-blessing",
+	["super-shiny-plus"] = "shiny-blessing-plus",
+	["super-speed"] = "hatch-blessing",
+	["super-speed-plus"] = "hatch-blessing-plus",
+	["super-bubble"] = "bubble-machine",
+	["super-bubble-plus"] = "bubble-machine-plus",
+	["super-mythic"] = "mythic-blessing",
+	["super-mythic-plus"] = "mythic-blessing-plus",
+	["super-infinity"] = "infinity-blessing",
+	["super-infinity-plus"] = "infinity-blessing-plus",
+	["super-duplication"] = "duplication",
+	["super-duplication-plus"] = "duplication-plus",
 }
 function getAutoTeamSuperEnchantKey(enchantEntry)
 	local enchantId = type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry
@@ -15488,11 +15537,25 @@ do
 			saveConfig()
 		end,
 	})
+	-- All 8 Super Legendary pairs the game has (see SUPER_LEGENDARY_ENCHANT_KEY_BY_ID
+	-- above for where these are confirmed from).
 	local superEnchantCountSpecs = {
-		{ key = "hatch-blessing-plus", title = "Hatch Blessing+ Count" },
+		{ key = "luck-boost", title = "Luck Boost Count" },
 		{ key = "luck-boost-plus", title = "Luck Boost+ Count" },
 		{ key = "hatch-blessing", title = "Hatch Blessing Count" },
-		{ key = "luck-boost", title = "Luck Boost Count" },
+		{ key = "hatch-blessing-plus", title = "Hatch Blessing+ Count" },
+		{ key = "bubble-machine", title = "Bubble Machine Count" },
+		{ key = "bubble-machine-plus", title = "Bubble Machine+ Count" },
+		{ key = "burst-blessing", title = "Burst Blessing Count" },
+		{ key = "burst-blessing-plus", title = "Burst Blessing+ Count" },
+		{ key = "shiny-blessing", title = "Shiny Blessing Count" },
+		{ key = "shiny-blessing-plus", title = "Shiny Blessing+ Count" },
+		{ key = "mythic-blessing", title = "Mythic Blessing Count" },
+		{ key = "mythic-blessing-plus", title = "Mythic Blessing+ Count" },
+		{ key = "infinity-blessing", title = "Infinity Blessing Count" },
+		{ key = "infinity-blessing-plus", title = "Infinity Blessing+ Count" },
+		{ key = "duplication", title = "Duplication Count" },
+		{ key = "duplication-plus", title = "Duplication+ Count" },
 	}
 	Config.autoSetupTeamSuperCounts = type(Config.autoSetupTeamSuperCounts) == "table"
 			and Config.autoSetupTeamSuperCounts
