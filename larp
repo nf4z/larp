@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.17"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.18"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.18",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Shadow Leviathan Quest (new)",
+				description = "New section under Quests for the Shadow Leviathan quest system. Auto-picks a quest the moment one's available and completes its tasks, with an option to reroll the 3 choices for a shot at the Leviathan pet or a good Fragment.",
+				icon = "moon",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.17",
 		releasedAt = "September 6, 2026",
@@ -1446,6 +1457,8 @@ local defaultConfig = {
 	skipTicketPearlQuests = true,
 	skipBubblingQuests = false,
 	questStallTimeoutSeconds = 60,
+	autoShadowLeviathanQuest = false,
+	autoRerollShadowLeviathanQuest = false,
 	autoGlobalIncentive = false,
 	autoClaimGlobalIncentive = false,
 	autoClosePopups = true,
@@ -12768,6 +12781,8 @@ do
 			"skipTicketPearlQuests",
 			"skipBubblingQuests",
 			"questStallTimeoutSeconds",
+			"autoShadowLeviathanQuest",
+			"autoRerollShadowLeviathanQuest",
 			"selectedTicketTeam",
 			"selectedTicketReturnTeam",
 			"selectedPearlTeam",
@@ -16332,6 +16347,31 @@ do
 			saveConfig()
 		end,
 	})
+	-- Shadow Leviathan Quest: a separate quest system from the regular bounties, found in
+	-- the game's own data (ReplicatedStorage.Shared.Data.Quests.ShadowLeviathanQuest,
+	-- Constants.ShadowLeviathanQuestKey = "shadow-leviathan"). It hands out 3 candidate
+	-- quests on a 1-hour cooldown (Constants.ShadowLeviathanQuestCooldown = 3600), one of
+	-- which must be picked with StartLeviathanQuest(index) before it can be worked on -
+	-- unlike regular bounties, which are already active and just need their tasks run.
+	scriptStateUC:AddSection("Shadow Leviathan Quest")
+	scriptStateUC:AddToggle("AutoShadowLeviathanQuest", {
+		Title = "Auto Shadow Leviathan Quest",
+		Description = "Picks a quest as soon as one becomes available and completes its tasks the same way regular bounties are handled.",
+		Default = Config.autoShadowLeviathanQuest,
+		Callback = function(isEnabled)
+			Config.autoShadowLeviathanQuest = isEnabled == true
+			saveConfig()
+		end,
+	})
+	scriptStateUC:AddToggle("AutoRerollShadowLeviathanQuest", {
+		Title = "Reroll For Best Reward",
+		Description = "Spends Reroll Orbs re-rolling the 3 choices if none of them offer the Ancient Shadow Leviathan pet or a good Fragment - same items the game's own reroll button avoids rerolling away from.",
+		Default = Config.autoRerollShadowLeviathanQuest,
+		Callback = function(isEnabled)
+			Config.autoRerollShadowLeviathanQuest = isEnabled == true
+			saveConfig()
+		end,
+	})
 	scriptStateUC:AddSection("Collection Teams")
 	local ticketTeamDropdown
 	local pearlTeamDropdown
@@ -16833,6 +16873,154 @@ task.spawn(function()
 			end)
 		end
 		task.wait(1)
+	end
+end)
+-- Shadow Leviathan Quest automation. This system is entirely separate from regular
+-- bounties: nothing is active until the player picks one of 3 randomly-generated
+-- candidates with StartLeviathanQuest(index), regenerated from playerData.ShadowLeviathan
+-- (Seed, and Next - the 1-hour cooldown timestamp) through the game's own quest-data
+-- module. Once picked, the resulting quest has the same Tasks/Progress shape as any other
+-- bounty, so its tasks run through the exact same BGSI_Lite_RunQuestTask dispatcher used
+-- for Challenge Pass and daily bounties above.
+activeStates.BGSI_Lite_GetShadowLeviathanQuestModule = function()
+	if activeStates.BGSI_Lite_ShadowLeviathanQuestModule == nil then
+		local ok, questFn = pcall(require, ReplicatedStorage.Shared.Data.Quests.ShadowLeviathanQuest)
+		activeStates.BGSI_Lite_ShadowLeviathanQuestModule = (ok and questFn) or false
+	end
+	local questFn = activeStates.BGSI_Lite_ShadowLeviathanQuestModule
+	return questFn ~= false and questFn or nil
+end
+activeStates.BGSI_Lite_GetActiveShadowLeviathanQuest = function()
+	if type(questModule) ~= "table" or type(sharedConstants) ~= "table" then
+		return nil
+	end
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if type(playerData) ~= "table" then
+		return nil
+	end
+	return questModule:FindById(playerData, sharedConstants.ShadowLeviathanQuestKey)
+end
+-- Mirrors the game's own reroll-button logic (confirmed from the client source): it
+-- refuses to reroll away a quest offering the Ancient Shadow Leviathan pet or a Purple,
+-- Green, or Blue Fragment. We use the same check the other way around - to decide when a
+-- freshly-generated set of 3 candidates is worth rerolling for a better one.
+activeStates.BGSI_Lite_ShadowLeviathanCandidateHasGoodReward = function(candidateQuest)
+	if type(candidateQuest) ~= "table" or type(candidateQuest.Rewards) ~= "table" then
+		return false
+	end
+	for _, reward in ipairs(candidateQuest.Rewards) do
+		if type(reward) == "table" then
+			if reward.Type == "Pet" and reward.Name == "Ancient Shadow Leviathan" then
+				return true
+			end
+			if
+				reward.Type == "Powerup"
+				and (
+					reward.Name == "Purple Fragment"
+					or reward.Name == "Green Fragment"
+					or reward.Name == "Blue Fragment"
+				)
+			then
+				return true
+			end
+		end
+	end
+	return false
+end
+activeStates.BGSI_Lite_RunShadowLeviathanAutomation = function()
+	if Config.autoShadowLeviathanQuest ~= true or Config.safeMode == true then
+		return
+	end
+	local questFn = activeStates.BGSI_Lite_GetShadowLeviathanQuestModule()
+	if type(questFn) ~= "function" then
+		return
+	end
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	if type(playerData) ~= "table" or type(playerData.ShadowLeviathan) ~= "table" then
+		return
+	end
+
+	local activeQuest = activeStates.BGSI_Lite_GetActiveShadowLeviathanQuest()
+	if type(activeQuest) == "table" then
+		for _, taskIndex in ipairs(makeIndexList(activeQuest.Tasks)) do
+			if Config.autoShadowLeviathanQuest ~= true then
+				break
+			end
+			local questTask = activeQuest.Tasks[taskIndex]
+			if type(questTask) == "table" then
+				local requirement = getBountyTaskRequirement(questTask)
+				local progress = getBountyTaskProgress(activeQuest, taskIndex)
+				if
+					type(requirement) == "number"
+					and progress < requirement
+					and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(questTask)
+					and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(questTask)
+					and not activeStates.BGSI_Lite_IsQuestTaskDeferred(activeQuest, taskIndex)
+				then
+					activeStates.BGSI_Lite_RunQuestTask(
+						activeStates.BGSI_Lite_GetActiveShadowLeviathanQuest,
+						taskIndex,
+						requirement,
+						function()
+							return Config.autoShadowLeviathanQuest == true and Config.safeMode ~= true
+						end
+					)
+				end
+			end
+		end
+		return
+	end
+
+	local nextAt = tonumber(playerData.ShadowLeviathan.Next) or 0
+	if getCurrentTimestamp() < nextAt then
+		return
+	end
+	local seed = tonumber(playerData.ShadowLeviathan.Seed) or 0
+	local candidates = {}
+	for candidateIndex = 1, 3 do
+		local ok, candidate = pcall(questFn, playerData, seed + candidateIndex - 1)
+		if ok and type(candidate) == "table" then
+			candidates[candidateIndex] = candidate
+		end
+	end
+	if not candidates[1] then
+		return
+	end
+
+	local bestIndex
+	for candidateIndex = 1, 3 do
+		if
+			candidates[candidateIndex]
+			and activeStates.BGSI_Lite_ShadowLeviathanCandidateHasGoodReward(candidates[candidateIndex])
+		then
+			bestIndex = candidateIndex
+			break
+		end
+	end
+
+	if not bestIndex and Config.autoRerollShadowLeviathanQuest == true and type(itemUtil) == "table" then
+		local rerollCost = sharedConstants.ShadowLeviathanReroll
+		local ownedAmount, requiredAmount = 0, math.huge
+		pcall(function()
+			ownedAmount = tonumber(itemUtil:GetOwnedAmount(playerData, rerollCost)) or 0
+			requiredAmount = tonumber(itemUtil:GetAmount(rerollCost)) or math.huge
+		end)
+		if
+			ownedAmount >= requiredAmount
+			and tick() - (tonumber(activeStates.BGSI_Lite_LastShadowLeviathanRerollAt) or 0) >= 2
+		then
+			activeStates.BGSI_Lite_LastShadowLeviathanRerollAt = tick()
+			pcall(activeStates.BGSI_Lite_FireGameRemote, "RerollLeviathan")
+			return
+		end
+	end
+
+	pcall(activeStates.BGSI_Lite_FireGameRemote, "StartLeviathanQuest", bestIndex or 1)
+end
+task.spawn(function()
+	while isCurrentRun() do
+		task.wait(Config.autoShadowLeviathanQuest and 2 or 0.85)
+		pcall(activeStates.BGSI_Lite_RunShadowLeviathanAutomation)
 	end
 end)
 function getGemGenieQuestData()
