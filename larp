@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.19"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.21"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,33 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.21",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Setup Team is now one switch",
+				description = "Merged the 'Setup Team Now' button and 'Keep Team Setup' toggle into a single Auto Setup Team switch - flipping it on applies immediately and keeps it applied.",
+				icon = "toggle-left",
+			},
+			{
+				title = "Fixed Auto Setup Team ignoring Safe Mode",
+				description = "The old manual button could equip pets even with Safe Mode on since it never checked. It's gone now, and the team logic itself refuses to run at all while Safe Mode is active, no matter what triggers it.",
+				icon = "shield",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.20",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Hid the Rifts tab",
+				description = "Removed the Rifts tab from the sidebar. Every toggle and its background automation keeps working off whatever it was last set to - settings still change from the web dashboard, just not from this menu.",
+				icon = "eye-off",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.19",
 		releasedAt = "September 6, 2026",
@@ -6714,10 +6741,59 @@ local scriptStateYT = scriptStateOG:AddTab({
 	Title = "Potions",
 	Icon = "beaker",
 })
+-- Tab is still fully built below (every toggle, its Config key, and every background
+-- loop that reads those Config values keeps working exactly as before) - only the
+-- sidebar button is hidden, so settings stay controllable from the web dashboard even
+-- with the tab out of the local menu. Rayfield Gen2's own source is minified with no
+-- documented "hidden tab" property, so this is a best-effort attempt: it tries the
+-- likely property names and a couple of common field names on the returned tab object,
+-- and if none of that actually hid anything it logs the real object's field names to
+-- the console instead of silently failing, so a follow-up fix can target the right one.
 local riftsTab = scriptStateOG:AddTab({
 	Title = "Rifts",
 	Icon = "circle-dot",
+	Hidden = true,
+	hidden = true,
 })
+pcall(function()
+	local nativeTabObject = riftsTab.Native
+	local hidAnything = false
+	if typeof(nativeTabObject) == "Instance" then
+		hidAnything = pcall(function()
+			nativeTabObject.Visible = false
+		end)
+	elseif type(nativeTabObject) == "table" then
+		for key, value in pairs(nativeTabObject) do
+			if
+				typeof(value) == "Instance"
+				and (
+					tostring(key):find("Button", 1, true)
+					or tostring(key):find("Tab", 1, true)
+					or tostring(key):find("Frame", 1, true)
+				)
+			then
+				local hideOk = pcall(function()
+					value.Visible = false
+				end)
+				hidAnything = hidAnything or hideOk
+			end
+		end
+	end
+	if not hidAnything then
+		local diagnosticKeys = {}
+		if type(nativeTabObject) == "table" then
+			for key in pairs(nativeTabObject) do
+				table.insert(diagnosticKeys, tostring(key))
+			end
+		end
+		warn(
+			"[1rzHub Lite] Could not confirm how to hide the Rifts tab button - native tab type: "
+				.. typeof(nativeTabObject)
+				.. ", fields: "
+				.. table.concat(diagnosticKeys, ", ")
+		)
+	end
+end)
 
 scriptStateOG:AddSection("Automation")
 local gameTab = scriptStateOG:AddTab({
@@ -15250,6 +15326,12 @@ end
 -- Returns true if a team was found and applied (or already matched), false if there were
 -- no eligible pets to build a team from at all.
 activeStates.BGSI_Lite_RunAutoSetupTeam = function()
+	-- Checked here, not just at each caller, so nothing that ever calls this - the
+	-- toggle callback, the background loop, or anything added later - can equip or
+	-- unequip a single pet while Safe Mode is on.
+	if Config.safeMode == true then
+		return false
+	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local selectedPetIds = buildAutoSetupTeamSelection(playerData)
 	if not selectedPetIds then
@@ -15378,27 +15460,23 @@ activeStates.BGSI_Lite_ApplyCurrencyTeam = function(category)
 end
 do
 	scriptStateTJ:AddSection("Auto Setup Team")
-	scriptStateTJ:AddButton({
-		Title = "Setup Team Now",
-		Description = "Equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity. No normal (non-shiny) pets.",
-		Callback = function()
-			task.spawn(function()
-				local ok, found = pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
-				Interface:Notify({
-					Title = "Auto Setup Team",
-					Content = (ok and found) and "Team updated." or "No eligible shiny pets found.",
-					Duration = 4,
-				})
-			end)
-		end,
-	})
 	scriptStateTJ:AddToggle("AutoSetupTeamKeepUpdated", {
-		Title = "Keep Team Setup",
-		Description = "Re-applies the selection above automatically whenever your equipped team drifts from it. Off by default.",
+		Title = "Auto Setup Team",
+		Description = "Equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity, no normal (non-shiny) pets - and keeps re-applying it whenever your equipped team drifts from it. Applies immediately when switched on. Blocked entirely while Safe Mode is on.",
 		Default = Config.autoSetupTeamEnabled,
 		Callback = function(isEnabled)
 			Config.autoSetupTeamEnabled = isEnabled == true
 			saveConfig()
+			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+				task.spawn(function()
+					local ok, found = pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = (ok and found) and "Team updated." or "No eligible shiny pets found.",
+						Duration = 4,
+					})
+				end)
+			end
 		end,
 	})
 	scriptStateTJ:AddToggle("AutoSetupTeamIncludeSupers", {
