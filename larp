@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.13"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.16"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,39 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.16",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Bubble blowing no longer pauses for hatching",
+				description = "Auto Bubble used to skip a blow whenever a hatch was about to land, a leftover precaution from before hatching was fixed to stop flooding shared remotes. Removed - blowing and selling now run freely alongside hatching. Confirmed straight from the game's own client that both remotes were already instant with no confirmation menu, same as this script's existing calls.",
+				icon = "sparkles",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.15",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "More reliable ticket/pearl pickup collection",
+				description = "Ticket farming now scans the game's real pickup folder directly instead of a slow, sometimes-wrong background scan, so it collects more consistently.",
+				icon = "coins",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.14",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed Inventory Cleanup never deleting anything",
+				description = "Inventory Cleanup was treating every pet as enchanted (even unenchanted ones), so it never found anything eligible to delete. Fixed - it still never touches Super Legendaries, Secrets, Celestials, Infinitys, or Voids.",
+				icon = "trash-2",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.13",
 		releasedAt = "September 6, 2026",
@@ -3365,7 +3398,7 @@ activeStates.BGSI_Lite_GetDisposablePetRank = function(pet)
 		or pet.XL == true
 		or pet.IsXL == true
 		or (tonumber(pet.XP) or 0) > 0
-		or pet.Enchants ~= nil
+		or next(type(pet.Enchants) == "table" and pet.Enchants or (type(pet.Enchantments) == "table" and pet.Enchantments or {})) ~= nil
 	then
 		return nil
 	end
@@ -5104,14 +5137,10 @@ activeStates.BGSI_Lite_BlowBubble = function()
 	if not bubbleState then
 		return false
 	end
-	if type(activeStates.BGSI_Lite_ShouldMaintainHatching) == "function"
-		and activeStates.BGSI_Lite_ShouldMaintainHatching()
-	then
-		local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
-		if nextEggOpenAt > 0 and getCurrentTimestamp() >= nextEggOpenAt then
-			return false
-		end
-	end
+	-- Used to defer entirely when a hatch was about to land, to avoid competing with
+	-- HatchEgg for the shared RemoteEvent. That's no longer necessary: fireHatchEgg now
+	-- fires at most once per real cooldown window instead of flooding it, so there's
+	-- nothing left for a BlowBubble/SellBubble call to actually collide with.
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	if
 		type(playerData) == "table"
@@ -5371,12 +5400,35 @@ do
 		return false
 	end
 
+	-- Coins/tickets/pearls/gems all spawn as Model instances parented directly under
+	-- workspace.Rendered.Pickups (confirmed straight from the game's own pickup-spawning
+	-- code: `Rendered = workspace.Rendered.Pickups`, then every spawned pickup gets
+	-- `v6.Parent = Rendered` with `v6.Name = <its collect id>`). Scanning that folder
+	-- directly is a stable, cheap, always-correct list of exactly what's currently
+	-- collectible - unlike scanning getgc(true) for any live table with an
+	-- "_activePickups" field, which is slow (walks every live table in the whole game),
+	-- rate-limited to keep that cost down, and not even reliably the right table (the
+	-- tutorial UI keeps its own unrelated table under that same field name, so a GC scan
+	-- can match the wrong one). This also confirms the official client's own remote
+	-- signature: CollectPickup:FireServer(pickupInstance.Name).
+	local function getPickupsFolder()
+		local pickupsFolder
+		pcall(function()
+			pickupsFolder = workspace.Rendered.Pickups
+		end)
+		return pickupsFolder
+	end
+
 	local function collectEveryActivePickup()
-		if type(getgc) ~= "function" or tick() - (activeStates.BGSI_Lite_LastPickupGcScanAt or 0) < 0.75 then
+		if tick() - (activeStates.BGSI_Lite_LastPickupScanAt or 0) < 0.1 then
 			return
 		end
-		activeStates.BGSI_Lite_LastPickupGcScanAt = tick()
+		activeStates.BGSI_Lite_LastPickupScanAt = tick()
 
+		local pickupsFolder = getPickupsFolder()
+		if not pickupsFolder then
+			return
+		end
 		if not ticketCollectPickupRemote then
 			local scriptStateRemote = ReplicatedStorage:FindFirstChild("CollectPickup", true)
 			if scriptStateRemote and scriptStateRemote:IsA("RemoteEvent") then
@@ -5385,20 +5437,16 @@ do
 		end
 
 		pcall(function()
-			for _, gcObject in ipairs(getgc(true)) do
-				local scriptStatePickups = type(gcObject) == "table" and rawget(gcObject, "_activePickups") or nil
-				if type(scriptStatePickups) == "table" then
-					for scriptStatePickupId, scriptStatePickup in pairs(scriptStatePickups) do
-						if scriptStatePickup and shouldFirePickup(scriptStatePickupId) then
-							pcall(function()
-								if ticketCollectPickupRemote then
-									ticketCollectPickupRemote:FireServer(scriptStatePickupId)
-								else
-									remoteEvent:FireServer("CollectPickup", scriptStatePickupId)
-								end
-							end)
+			for _, pickupInstance in ipairs(pickupsFolder:GetChildren()) do
+				local pickupId = pickupInstance.Name
+				if shouldFirePickup(pickupId) then
+					pcall(function()
+						if ticketCollectPickupRemote then
+							ticketCollectPickupRemote:FireServer(pickupId)
+						else
+							remoteEvent:FireServer("CollectPickup", pickupId)
 						end
-					end
+					end)
 				end
 			end
 		end)
