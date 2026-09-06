@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.17"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.17",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Auto Sell Bubble no longer needs to be near the kiosk",
+				description = "Selling bubbles requires being near the world Sell kiosk. It now finds the nearest one automatically and snaps there and back in the same instant to sell, instead of needing you to walk over.",
+				icon = "map-pin",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.16",
 		releasedAt = "September 6, 2026",
@@ -5068,6 +5079,45 @@ function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptSt
 	end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStateI)
 end
+-- The world "Sell" kiosk is any Instance tagged "Activation" (the game's generic
+-- proximity-interact system) whose Name is "Sell" - confirmed straight from the game's
+-- own client source, which binds that exact tag+name pair to a click handler that fires
+-- Remote:FireServer("SellBubble"). Found fresh each time the cached one goes invalid
+-- (Parent nil, e.g. after changing world) and picks whichever tagged Sell instance is
+-- closest, since more than one can be loaded across different worlds/islands at once.
+activeStates.BGSI_Lite_FindSellBubbleStation = function()
+	local cached = activeStates.BGSI_Lite_SellBubbleStation
+	if typeof(cached) == "Instance" and cached.Parent then
+		return cached
+	end
+	local ok, tagged = pcall(function()
+		return CollectionService:GetTagged("Activation")
+	end)
+	if not ok or type(tagged) ~= "table" then
+		return nil
+	end
+	local character = LocalPlayer.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local closest, closestDistance
+	for _, taggedInstance in ipairs(tagged) do
+		if taggedInstance.Name == "Sell" then
+			local targetCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(taggedInstance, "Root")
+			if targetCFrame then
+				if not rootPart then
+					closest = taggedInstance
+					break
+				end
+				local distance = (targetCFrame.Position - rootPart.Position).Magnitude
+				if not closestDistance or distance < closestDistance then
+					closest = taggedInstance
+					closestDistance = distance
+				end
+			end
+		end
+	end
+	activeStates.BGSI_Lite_SellBubbleStation = closest
+	return closest
+end
 activeStates.BGSI_Lite_SellBubble = function()
 	local attemptTime = tick()
 	if attemptTime - (tonumber(activeStates.BGSI_Lite_LastBubbleSellAttemptAt) or 0) < 0.1 then
@@ -5084,7 +5134,24 @@ activeStates.BGSI_Lite_SellBubble = function()
 	if bubbleAmount <= 0 then
 		return false
 	end
+	-- Sell requires actually being near the world Sell kiosk, unlike Blow. Snap the real
+	-- HumanoidRootPart to the kiosk, fire, then snap straight back to wherever the
+	-- player actually was - all with no task.wait between, so both moves land inside
+	-- the same frame the game renders and the trip is at most a single-frame flicker,
+	-- not a lasting teleport away from wherever the player is actually farming.
+	local character = LocalPlayer.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local originalCFrame = rootPart and rootPart.CFrame
+	local sellStation = activeStates.BGSI_Lite_FindSellBubbleStation()
+	local sellStationCFrame = sellStation
+		and activeStates.BGSI_Lite_GetInstanceTargetCFrame(sellStation, "Root")
+	if rootPart and sellStationCFrame then
+		rootPart.CFrame = sellStationCFrame
+	end
 	local sellSucceeded = pcall(remoteEvent.FireServer, remoteEvent, "SellBubble")
+	if rootPart and sellStationCFrame and originalCFrame then
+		rootPart.CFrame = originalCFrame
+	end
 	if sellSucceeded then
 		activeStates.BGSI_Lite_LastBubbleSellAttemptAt = attemptTime
 		activeStates.BGSI_Lite_BubbleSellPendingAt = attemptTime
