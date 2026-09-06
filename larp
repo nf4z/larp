@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.07",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Icons next to every dropdown option",
+				description = "Every dropdown across the menu (eggs, rifts, chests, potions, enchants, fragments, mystery boxes, pets, etc.) now shows an icon beside each option, resolved from the game's own data. The name-to-icon lookup is built once and cached - only ever scanned again if it wasn't built yet, never on every render. Applied by patching Rayfield's own row-recycling method directly, so an icon stays correctly matched to its option even while scrolling or searching a long list.",
+				icon = "image",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.06",
 		releasedAt = "September 6, 2026",
@@ -2035,13 +2046,160 @@ do
 		return normalizedOptions
 	end
 
+	-- Per-option dropdown icons.
+	--
+	-- Rayfield's Dropdown only supports one icon for the whole control (next to its
+	-- title) - individual options in the list are plain strings, no icon slot. Rather than
+	-- rebuild the option list rendering ourselves, this hooks Dropdown:_rebindOption -
+	-- a real method on the shared Dropdown class table (every dropdown is
+	-- setmetatable(self, Dropdown), so patching it once via getmetatable affects every
+	-- dropdown that exists now and every one created later) that Rayfield already calls
+	-- whenever a recycled row gets pointed at a different option name (scrolling,
+	-- searching, :Refresh()). Patching it means a row's icon updates in lockstep with
+	-- Rayfield's own row-recycling instead of drifting out of sync with it.
+	--
+	-- The name -> icon lookup itself is built once, lazily, from the game's own data
+	-- modules and cached in activeStates.BGSI_Lite_ItemIconLookup - after that first
+	-- build every row just does one table read, no re-scanning ever.
+	local function buildGlobalItemIconLookup()
+		local lookup = {}
+		local function setIcon(name, iconValue)
+			if type(name) ~= "string" or name == "" or lookup[name] then
+				return
+			end
+			local assetId = type(iconValue) == "string" and iconValue:match("(%d+)") or nil
+			if assetId then
+				lookup[name] = assetId
+			end
+		end
+		if type(eggDataModule) == "table" then
+			for eggName, eggInfo in pairs(eggDataModule) do
+				if type(eggInfo) == "table" then
+					setIcon(eggName, eggInfo.Image)
+				end
+			end
+		end
+		if type(giftData) == "table" then
+			for itemName, itemInfo in pairs(giftData) do
+				if type(itemInfo) == "table" then
+					setIcon(itemName, itemInfo.Icon)
+				end
+			end
+		end
+		if type(enchantData) == "table" then
+			for enchantName, enchantInfo in pairs(enchantData) do
+				if type(enchantInfo) == "table" then
+					setIcon(enchantName, enchantInfo.Icon)
+				end
+			end
+		end
+		local chestDataOk, chestDataModule = pcall(function()
+			return require(ReplicatedStorage.Shared.Data.Chests)
+		end)
+		if chestDataOk and type(chestDataModule) == "table" then
+			for chestName, chestInfo in pairs(chestDataModule) do
+				if type(chestInfo) == "table" then
+					setIcon(chestName, chestInfo.Icon)
+				end
+			end
+		end
+		if type(riftData) == "table" then
+			for riftName, riftInfo in pairs(riftData) do
+				if type(riftInfo) == "table" then
+					setIcon(riftName, riftInfo.Icon)
+				end
+			end
+		end
+		if type(petRarityData) == "table" then
+			for petName, petInfo in pairs(petRarityData) do
+				if type(petInfo) == "table" and type(petInfo.Images) == "table" then
+					setIcon(petName, petInfo.Images[1] or petInfo.Images.Normal)
+				end
+			end
+		end
+		return lookup
+	end
+	activeStates.BGSI_Lite_ResolveItemIconAssetId = function(name)
+		if type(name) ~= "string" or name == "" then
+			return nil
+		end
+		if not activeStates.BGSI_Lite_ItemIconLookup then
+			activeStates.BGSI_Lite_ItemIconLookup = buildGlobalItemIconLookup()
+		end
+		return activeStates.BGSI_Lite_ItemIconLookup[name]
+	end
+	-- Creates or updates one row's icon in place - never recreated once built, only its
+	-- Image/Visible flipped, so a recycled row is a cheap property write, not a new
+	-- Instance every time it's pointed at a different (or the same) option again.
+	activeStates.BGSI_Lite_ApplyDropdownRowIcon = function(rowData, optionName)
+		if type(rowData) ~= "table" or not rowData.container then
+			return
+		end
+		local iconAssetId = activeStates.BGSI_Lite_ResolveItemIconAssetId(optionName)
+		if iconAssetId then
+			if rowData.bgsiIcon then
+				pcall(function()
+					rowData.bgsiIcon.Image = "rbxassetid://" .. iconAssetId
+					rowData.bgsiIcon.Visible = true
+				end)
+			else
+				local createOk, iconLabel = pcall(function()
+					local newIconLabel = Instance.new("ImageLabel")
+					newIconLabel.Name = "BGSI_LiteOptionIcon"
+					newIconLabel.Image = "rbxassetid://" .. iconAssetId
+					newIconLabel.Size = UDim2.fromOffset(16, 16)
+					newIconLabel.BackgroundTransparency = 1
+					newIconLabel.BorderSizePixel = 0
+					newIconLabel.ZIndex = 5
+					newIconLabel.LayoutOrder = 0.5
+					newIconLabel.Parent = rowData.container
+					return newIconLabel
+				end)
+				if createOk and iconLabel then
+					rowData.bgsiIcon = iconLabel
+				end
+			end
+		elseif rowData.bgsiIcon then
+			pcall(function()
+				rowData.bgsiIcon.Visible = false
+			end)
+		end
+	end
+	-- Covers rows that don't go through _rebindOption: brand new rows a dropdown just
+	-- built for the first time (initial creation, or :Refresh growing the list).
+	activeStates.BGSI_Lite_RefreshDropdownIcons = function(nativeDropdown)
+		if type(nativeDropdown) ~= "table" or type(nativeDropdown._optionFrames) ~= "table" then
+			return
+		end
+		for _, rowData in ipairs(nativeDropdown._optionFrames) do
+			activeStates.BGSI_Lite_ApplyDropdownRowIcon(rowData, rowData.name)
+		end
+	end
+	activeStates.BGSI_Lite_PatchDropdownRebindForIcons = function(nativeDropdown)
+		local dropdownClass = getmetatable(nativeDropdown)
+		if type(dropdownClass) ~= "table" or dropdownClass._BGSI_LiteRebindPatched then
+			return
+		end
+		dropdownClass._BGSI_LiteRebindPatched = true
+		local originalRebindOption = dropdownClass._rebindOption
+		if type(originalRebindOption) ~= "function" then
+			return
+		end
+		dropdownClass._rebindOption = function(self, data, name, index)
+			originalRebindOption(self, data, name, index)
+			pcall(activeStates.BGSI_Lite_ApplyDropdownRowIcon, data, name)
+		end
+	end
+
 	local function wrapDropdown(element)
 		local wrappedElement = wrapValueElement(element)
 		function wrappedElement:SetValues(values)
 			self.Native:Refresh(normalizeDropdownOptions(values))
+			activeStates.BGSI_Lite_RefreshDropdownIcons(self.Native)
 		end
 		function wrappedElement:Refresh(values)
 			self.Native:Refresh(normalizeDropdownOptions(values))
+			activeStates.BGSI_Lite_RefreshDropdownIcons(self.Native)
 		end
 		return wrappedElement
 	end
@@ -2082,7 +2240,7 @@ do
 	end
 	function tabMethods:AddDropdown(flag, properties)
 		local dropdownOptions = normalizeDropdownOptions(properties.Values)
-		return wrapDropdown(self.Native:CreateDropdown({
+		local nativeDropdown = self.Native:CreateDropdown({
 			name = properties.Title,
 			description = properties.Description,
 			options = dropdownOptions,
@@ -2092,7 +2250,10 @@ do
 			flag = flag,
 			forgetState = true,
 			callback = properties.Callback,
-		}))
+		})
+		pcall(activeStates.BGSI_Lite_PatchDropdownRebindForIcons, nativeDropdown)
+		activeStates.BGSI_Lite_RefreshDropdownIcons(nativeDropdown)
+		return wrapDropdown(nativeDropdown)
 	end
 	function tabMethods:AddInput(flag, properties)
 		return wrapValueElement(self.Native:CreateInput({
