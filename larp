@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,28 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.03",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Re-enchant threshold",
+				description = "New 'Re-enchant Below Level (0 = off)' field under Enchant: a pet that already has both target enchants but at this level or lower is treated as unfinished and gets both slots fully re-rolled again, instead of being left alone forever. Useful for a pet enchanted a while back that's stuck on a stale, low level.",
+				icon = "refresh-cw",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.02",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Mystery Box: parallel collection, real 50-box batches",
+				description = "Collect() itself blocks for roughly half a second on its own squash/explode animation, and calling it in a plain loop let each drop's wait queue up behind the last - that's why a batch was visibly collecting one at a time. Every ready drop's Collect() now fires in its own thread so they all resolve in the same instant. Separately, the server appears to cap what a single UseGift call actually spawns (observed at 10 no matter what was requested), so reaching 50 now fires that call repeatedly, each capped to the real per-call limit, until 50 total have been requested or you run out of boxes.",
+				icon = "zap",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.01",
 		releasedAt = "September 6, 2026",
@@ -1185,6 +1207,7 @@ local defaultConfig = {
 	equippedTargetEnchant = "secret-hunter",
 	equippedTargetEnchant2 = "ultra-roller",
 	equippedTargetEnchantLevel = 0,
+	equippedReenchantThreshold = 0,
 	equippedEnchantCurrency = "Auto (Secret = Crystals,Normal = Gems)",
 	autoSetupTeamEnabled = false,
 	autoSetupTeamIncludeSupers = false,
@@ -12498,6 +12521,7 @@ do
 			"equippedTargetEnchant",
 			"equippedTargetEnchant2",
 			"equippedTargetEnchantLevel",
+			"equippedReenchantThreshold",
 			"equippedEnchantCurrency",
 			"gemGenieTargetItem",
 			"autoGemGenie",
@@ -14416,13 +14440,19 @@ do
 						and giftWrapper.Animating ~= true
 						and not triedGiftInstances[physicalInstance]
 					then
-						local collectOk = pcall(function()
-							giftWrapper:Collect()
+						triedGiftInstances[physicalInstance] = true
+						collectedAnyEver = true
+						-- Collect() blocks on its own squash/explode tweens for roughly half a
+						-- second internally (confirmed from the decompiled Gift class). Calling
+						-- it in a loop without spawning each call lets every prior drop's wait
+						-- serialize the next one, which is what made a whole batch collect
+						-- visibly one at a time. Spawning each call lets every ready drop's
+						-- ClaimGift fire in the same instant instead of queued behind the last.
+						task.spawn(function()
+							pcall(function()
+								giftWrapper:Collect()
+							end)
 						end)
-						if collectOk then
-							triedGiftInstances[physicalInstance] = true
-							collectedAnyEver = true
-						end
 					end
 				end
 			end
@@ -14439,30 +14469,45 @@ do
 				and type(Config.selectedMysteryBox) == "string"
 				and Config.selectedMysteryBox ~= ""
 			then
-				-- Open 50 at a time, but never exceed the game's own per-batch spawn limit
-				-- (Constants.MaxSpawnableLimit) if that's actually lower - matching what the
-				-- real client itself clamps to before firing UseGift.
-				local maxSpawnable = math.max(
+				-- The server appears to cap what a single UseGift call actually spawns
+				-- (observed capping at 10 regardless of the amount requested) - so reaching
+				-- a 50-box batch means firing that call several times back-to-back, each
+				-- capped to that real per-call limit, rather than asking for 50 in one shot.
+				local perCallLimit = math.max(
 					1,
-					math.min(50, math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 50))
+					math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 10)
 				)
-				local boxAmount = 0
-				pcall(function()
-					local playerData = profileStore:IsReady() and profileStore:Get() or nil
-					local amount = itemUtil:GetOwnedAmount(
-						playerData,
-						{ Type = "Powerup", Name = Config.selectedMysteryBox }
-					)
-					boxAmount = math.min(maxSpawnable, math.max(0, math.floor(tonumber(amount) or 0)))
-				end)
-				if boxAmount > 0 then
+				local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
+				local targetTotal = 50
+				local totalRequested = 0
+				while
+					totalRequested < targetTotal
+					and isCurrentRun()
+					and Config.autoOpenMystery
+				do
+					local ownedAmount = 0
+					pcall(function()
+						local playerData = profileStore:IsReady() and profileStore:Get() or nil
+						local amount = itemUtil:GetOwnedAmount(
+							playerData,
+							{ Type = "Powerup", Name = Config.selectedMysteryBox }
+						)
+						ownedAmount = math.max(0, math.floor(tonumber(amount) or 0))
+					end)
+					if ownedAmount <= 0 then
+						break
+					end
+					local batchAmount = math.min(perCallLimit, targetTotal - totalRequested, ownedAmount)
+					if batchAmount <= 0 then
+						break
+					end
 					pcall(
 						activeStates.BGSI_Lite_FireGameRemote,
 						"UseGift",
 						Config.selectedMysteryBox,
-						boxAmount
+						batchAmount
 					)
-					local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
+					totalRequested += batchAmount
 					if type(physicalItem) == "table" then
 						local spawned = false
 						local spawnDeadline = tick() + 3
@@ -14475,9 +14520,6 @@ do
 							spawned = activeCount > 0
 						until spawned or tick() >= spawnDeadline
 						if spawned then
-							-- Collection is instant per drop once its spawn-in animation
-							-- finishes (~0.5s), so a fixed window comfortably covers even a
-							-- full 50-drop batch without needing to scale with boxAmount.
 							activeStates.BGSI_Lite_OpenSpawnedGifts(10)
 						end
 					end
@@ -14561,6 +14603,17 @@ do
 		Callback = function(scriptStateRT)
 			local scriptStateABH = tonumber(scriptStateRT)
 			Config.equippedTargetEnchantLevel = (scriptStateABH and scriptStateABH >= 0) and scriptStateABH or 0
+			saveConfig()
+		end,
+	})
+	scriptStateTJ:AddInput("ReenchantThreshold", {
+		Title = "Re-enchant Below Level (0 = off)",
+		Description = "A pet that already has both targets but at this level or lower gets fully re-rolled on both slots again, instead of being left alone - useful for picking up a level increase on a pet enchanted a while ago.",
+		Default = tostring(Config.equippedReenchantThreshold or 0),
+		Numeric = true,
+		Callback = function(value)
+			local parsedValue = tonumber(value)
+			Config.equippedReenchantThreshold = (parsedValue and parsedValue >= 0) and parsedValue or 0
 			saveConfig()
 		end,
 	})
@@ -15582,6 +15635,34 @@ function getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
 	end
 	return nil
 end
+-- True if any slot already holding one of the target enchants is at or below the
+-- configured re-enchant threshold. The tooltip on a Secret/Celestial enchant shows it
+-- scaling with a "Level" that stacks over time - a pet enchanted long ago can be stuck
+-- holding a stale, low level of the right enchant. Rerolling re-stamps whatever level
+-- your account can currently roll, so treating a stale hit as "not done" and forcing a
+-- fresh reroll is how an old pet picks up any level increase since it was last enchanted.
+function petHasStaleTargetEnchant(petData, targetLookup, reenchantThreshold)
+	if reenchantThreshold <= 0 then
+		return false
+	end
+	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
+	for _, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
+		local enchantId = type(enchantEntry) == "table"
+				and (enchantEntry.Id or enchantEntry.id or enchantEntry.ID or enchantEntry.Name)
+			or enchantEntry
+		local enchantLevel = type(enchantEntry) == "table"
+			and tonumber(enchantEntry.Level or enchantEntry.level)
+			or nil
+		if
+			targetLookup[normalizeEnchantName(enchantId)]
+			and enchantLevel
+			and enchantLevel <= reenchantThreshold
+		then
+			return true
+		end
+	end
+	return false
+end
 activeStates.BGSI_Lite_RerollEnchantPet = function(
 	petId,
 	targetEnchantOne,
@@ -15595,6 +15676,17 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	)
 	local targetLookup = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
 	targetEnchantLevel = math.max(0, tonumber(targetEnchantLevel) or 0)
+	local reenchantThreshold = math.max(0, tonumber(Config.equippedReenchantThreshold) or 0)
+
+	-- A stale hit on either target counts the whole pet as unfinished, and (below) drops
+	-- the protect slot entirely so both slots reroll fresh rather than only the stale one -
+	-- matching "re-enchant that pet for both targets again" exactly as asked for.
+	local function isFullyDone(currentPetData)
+		if not isPetEnchantTargetSatisfied(currentPetData, targetLookup, targetEnchantLevel) then
+			return false
+		end
+		return not petHasStaleTargetEnchant(currentPetData, targetLookup, reenchantThreshold)
+	end
 
 	while Config.autoEnchant and isCurrentRun() do
 		local petData = getEnchantCurrency(petId)
@@ -15605,11 +15697,12 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		if petData.Super == true or petData.IsSuper == true or not activeStates.BGSI_Lite_IsShinyEnchantPet(petData) then
 			return true
 		end
-		if isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel) then
+		if isFullyDone(petData) then
 			return true
 		end
 
-		local protectSlot = getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
+		local isStale = petHasStaleTargetEnchant(petData, targetLookup, reenchantThreshold)
+		local protectSlot = isStale and nil or getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
 		local resolvedEnchantCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
 
 		if resolvedEnchantCurrency == "Shadow Crystals" then
@@ -15637,7 +15730,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 			until not petData
 				or activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= signatureBeforeReroll
 				or tick() >= confirmDeadline
-			if petData and isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel) then
+			if petData and isFullyDone(petData) then
 				return true
 			end
 		else
@@ -15664,7 +15757,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 				if tostring(newPetIdOrStatus) ~= tostring(petId) then
 					petId = newPetIdOrStatus
 				end
-				if isPetEnchantTargetSatisfied({ Enchants = newEnchants }, targetLookup, targetEnchantLevel) then
+				if isFullyDone({ Enchants = newEnchants }) then
 					return true
 				end
 			end
