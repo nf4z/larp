@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.28"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.30"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,28 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.30",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Guaranteed sell kiosk position for The Overworld",
+				description = "Pulled the real coordinates of The Overworld's Sell kiosk straight out of the game's own place file by decoding it directly, and added them as a guaranteed fallback for whenever the live tag scan comes up empty.",
+				icon = "map-pin",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.29",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Reload Script button (new)",
+				description = "Added under Auto Update, below Check For Update Now. Downloads the current script fresh and reloads immediately, even if it's the same version - a quick clean reset without waiting on a real update.",
+				icon = "refresh-cw",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.28",
 		releasedAt = "September 6, 2026",
@@ -5322,6 +5344,13 @@ activeStates.BGSI_Lite_SellBubble = function()
 	local sellStation = activeStates.BGSI_Lite_FindSellBubbleStation()
 	local sellStationCFrame = sellStation
 		and activeStates.BGSI_Lite_GetInstanceTargetCFrame(sellStation, "Root")
+	-- Guaranteed fallback if the live tag scan ever comes up empty (e.g. it hasn't
+	-- streamed in yet): the real position of workspace.Worlds["The Overworld"].Sell.Root,
+	-- confirmed by parsing the game's own place file binary data directly (decoding its
+	-- INST/PROP/PRNT chunks) rather than guessing.
+	if not sellStationCFrame then
+		sellStationCFrame = CFrame.new(77.556, 6.216, -113.065)
+	end
 	if rootPart and sellStationCFrame then
 		rootPart.CFrame = sellStationCFrame
 	end
@@ -21120,6 +21149,25 @@ do
 			end)
 		end,
 	})
+	scriptStateAFW:AddButton({
+		Title = "Reload Script",
+		Description = "Downloads the current script fresh and reloads immediately, even if it is the same version. Useful for a clean reset without waiting on a real update.",
+		Callback = function()
+			task.spawn(function()
+				if type(activeStates.BGSI_Lite_ForceReloadScript) ~= "function" then
+					return
+				end
+				local status, errorMessage = activeStates.BGSI_Lite_ForceReloadScript()
+				if status ~= "queued" then
+					Interface:Notify({
+						Title = "Reload Script",
+						Content = "Reload failed: " .. tostring(errorMessage or "unknown error"),
+						Duration = 6,
+					})
+				end
+			end)
+		end,
+	})
 end
 
 -- ============================================================================
@@ -21244,6 +21292,56 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 	end)
 	task.defer(compiledScript)
 	return "queued", downloadedVersion
+end
+
+-- Manual "just reload it" button, independent of whether there's actually a newer
+-- version - downloads the current main-branch source fresh and runs it. Shares the
+-- compile/defer/circuit-breaker plumbing with the real auto-update check above instead
+-- of duplicating it, just without the "is this actually a different version" gate that
+-- would otherwise refuse to do anything when the fetched source matches what's running.
+activeStates.BGSI_Lite_ForceReloadScript = function()
+	if Config.safeMode == true then
+		return "error", "Safe Mode is enabled"
+	end
+	if autoUpdateReloadQueued then
+		return "queued"
+	end
+
+	local scriptSource, downloadedVersion = fetchLatestScriptSourceForAutoUpdate()
+	if type(scriptSource) ~= "string" or scriptSource == "" then
+		return "error", "Could not download the script from GitHub"
+	end
+
+	if
+		downloadedVersion
+		and activeStates.BGSI_Lite_LastAutoUpdateTarget == downloadedVersion
+		and type(activeStates.BGSI_Lite_LastAutoUpdateAt) == "number"
+		and tick() - activeStates.BGSI_Lite_LastAutoUpdateAt < 10
+	then
+		return "error", "Already reloading - give it a moment"
+	end
+
+	local compiledScript, compileError = loadstring(scriptSource)
+	if type(compiledScript) ~= "function" then
+		warn("[1rzHub Lite] Manual reload failed to compile: " .. tostring(compileError))
+		return "error", "Downloaded script failed to compile"
+	end
+
+	autoUpdateReloadQueued = true
+	if downloadedVersion then
+		activeStates.BGSI_Lite_LastAutoUpdateTarget = downloadedVersion
+	end
+	activeStates.BGSI_Lite_LastAutoUpdateAt = tick()
+	print("[" .. LocalPlayer.Name .. "] Manual reload requested. Reloading...")
+	pcall(function()
+		Interface:Notify({
+			Title = "1rzHub Lite",
+			Content = "Reloading script...",
+			Duration = 4,
+		})
+	end)
+	task.defer(compiledScript)
+	return "queued"
 end
 
 task.spawn(function()
