@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,38 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.05.05",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "Rayfield Gen2 1.2.0: Sidebar layout",
+				description = "The menu now runs its tabs down a sidebar instead of across the top, and every tab is grouped under a rail heading (General, Hatching, Automation, Integrations).",
+				icon = "panel-left",
+			},
+			{
+				title = "New elements: Text, Divider, Progress, Console",
+				description = "The interface wrapper now exposes AddText, AddDivider, AddProgress, and AddConsole for the new 1.2.0 components, alongside the existing toggle/slider/dropdown/etc. helpers.",
+				icon = "layout-list",
+			},
+			{
+				title = "Element locking",
+				description = "Toggles, sliders, dropdowns, inputs, and buttons can now be Locked/Unlocked (dims the control, blocks input, and stops its callback from firing) - useful for gating a feature behind a key check.",
+				icon = "lock",
+			},
+		},
+	},
+	{
+		version = "2026.09.05.04",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "Auto Update fix: stuck 'latest version' flag",
+				description = "The one-shot reload guard was stored on the persisted state table, so it survived the self-reload and made every check after the first update permanently report 'already on latest,' even with a newer version on GitHub. It's now a fresh local reset on every load, and check failures (network/parse errors) are now reported separately instead of being shown as 'up to date.'",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.03",
 		releasedAt = "September 5, 2026",
@@ -1805,6 +1837,89 @@ do
 		function wrappedElement:SetValue(value)
 			self.Native:Set(value)
 		end
+		-- 1.2.0: locking dims a control, blocks input, and stops its callback from firing.
+		function wrappedElement:Lock(reason)
+			self.Native:Lock(reason)
+		end
+		function wrappedElement:Unlock()
+			self.Native:Unlock()
+		end
+		function wrappedElement:IsLocked()
+			return self.Native:IsLocked()
+		end
+		return wrappedElement
+	end
+
+	local function wrapTextElement(element)
+		local wrappedElement = {
+			Native = element,
+		}
+		function wrappedElement:Set(text)
+			self.Native:Set(text)
+		end
+		function wrappedElement:SetTitle(title)
+			self.Native:SetTitle(title)
+		end
+		return wrappedElement
+	end
+
+	local function wrapDividerElement(element)
+		local wrappedElement = {
+			Native = element,
+		}
+		function wrappedElement:Set(text)
+			self.Native:Set(text)
+		end
+		return wrappedElement
+	end
+
+	local function wrapProgressElement(element)
+		local wrappedElement = {
+			Native = element,
+		}
+		function wrappedElement:Set(value)
+			self.Native:Set(value)
+		end
+		function wrappedElement:Get()
+			return self.Native:Get()
+		end
+		function wrappedElement:GetPercentage()
+			return self.Native:GetPercentage()
+		end
+		function wrappedElement:SetRange(min, max)
+			self.Native:SetRange(min, max)
+		end
+		function wrappedElement:SetText(text)
+			self.Native:SetText(text)
+		end
+		function wrappedElement:SetIndeterminate(state)
+			self.Native:SetIndeterminate(state)
+		end
+		return wrappedElement
+	end
+
+	local function wrapConsoleElement(element)
+		local wrappedElement = {
+			Native = element,
+		}
+		function wrappedElement:Get()
+			return self.Native:Get()
+		end
+		function wrappedElement:Set(text)
+			self.Native:Set(text)
+		end
+		function wrappedElement:Append(line)
+			self.Native:Append(line)
+		end
+		function wrappedElement:Clear()
+			self.Native:Clear()
+		end
+		function wrappedElement:Copy()
+			return self.Native:Copy()
+		end
+		function wrappedElement:SetHeight(height)
+			self.Native:SetHeight(height)
+		end
 		return wrappedElement
 	end
 
@@ -1955,6 +2070,56 @@ do
 			numberEasing = properties.NumberEasing ~= false,
 		}))
 	end
+	-- 1.2.0: a title, a body, or both. Either half can be left out.
+	function tabMethods:AddText(properties)
+		properties = properties or {}
+		return wrapTextElement(self.Native:CreateText({
+			name = properties.Title,
+			text = properties.Content or properties.Text,
+			icon = properties.Icon,
+		}))
+	end
+	-- 1.2.0: a rule between sections. Optionally labelled, optionally line-less (a pure spacer).
+	function tabMethods:AddDivider(properties)
+		properties = properties or {}
+		return wrapDividerElement(self.Native:CreateDivider({
+			text = properties.Text,
+			line = properties.Line,
+			spacing = properties.Spacing,
+		}))
+	end
+	-- 1.2.0: a range bar, a stepped bar (pass Steps), or an indeterminate sweep (pass Indeterminate).
+	function tabMethods:AddProgress(properties)
+		properties = properties or {}
+		local range
+		if type(properties.Range) == "table" then
+			range = properties.Range
+		elseif properties.Min or properties.Max then
+			range = { properties.Min or 0, properties.Max or 100 }
+		end
+		return wrapProgressElement(self.Native:CreateProgress({
+			name = properties.Title,
+			description = properties.Description,
+			range = range,
+			steps = properties.Steps,
+			value = properties.Default,
+			text = properties.Text,
+			indeterminate = properties.Indeterminate == true,
+			format = properties.Format,
+		}))
+	end
+	-- 1.2.0: a fixed-height scrolling log block (the old "Code" element, renamed).
+	function tabMethods:AddConsole(properties)
+		properties = properties or {}
+		return wrapConsoleElement(self.Native:CreateConsole({
+			name = properties.Title,
+			description = properties.Description,
+			text = properties.Content,
+			height = properties.Height,
+			follow = properties.Follow ~= false,
+			maxLines = properties.MaxLines,
+		}))
+	end
 
 	local windowMethods = {}
 	function windowMethods:AddTab(properties)
@@ -1965,6 +2130,11 @@ do
 		local wrappedTab = setmetatable({ Native = nativeTab }, { __index = tabMethods })
 		table.insert(self.Tabs, wrappedTab)
 		return wrappedTab
+	end
+	-- 1.2.0: a heading in the sidebar rail that groups the tabs created after it.
+	-- Sidebar layout only; a no-op on the top-strip layout.
+	function windowMethods:AddSection(title)
+		return self.Native:CreateSection({ name = title })
 	end
 	function windowMethods:SelectTab(index)
 		local tab = self.Tabs[index]
@@ -1986,6 +2156,8 @@ do
 			subtitle = properties.SubTitle,
 			theme = "default",
 			showName = "LarpLite",
+			-- Rayfield Gen2 1.2.0: tabs run down a sidebar instead of across the top.
+			sidebarLayout = true,
 		})
 		activeStates.RayfieldGen2Window = rayfieldWindow
 		return setmetatable({ Native = rayfieldWindow, Tabs = {} }, { __index = windowMethods })
@@ -6197,6 +6369,9 @@ do
 		scriptStateOG:Minimize()
 	end
 end
+-- Rail sections group the tabs under them. Sidebar layout only - on the old top-strip
+-- layout these are a no-op, so this is safe either way.
+scriptStateOG:AddSection("General")
 local scriptStateDB = scriptStateOG:AddTab({
 	Title = "Main",
 	Icon = "home",
@@ -6205,6 +6380,8 @@ activeStates.BGSI_Lite_StatsTab = scriptStateOG:AddTab({
 	Title = "Stats",
 	Icon = "chart-no-axes-combined",
 })
+
+scriptStateOG:AddSection("Hatching")
 local eggTab = scriptStateOG:AddTab({
 	Title = "Eggs",
 	Icon = "egg",
@@ -6221,6 +6398,12 @@ local scriptStateYT = scriptStateOG:AddTab({
 	Title = "Potions",
 	Icon = "beaker",
 })
+local riftsTab = scriptStateOG:AddTab({
+	Title = "Rifts",
+	Icon = "circle-dot",
+})
+
+scriptStateOG:AddSection("Automation")
 local gameTab = scriptStateOG:AddTab({
 	Title = "Game",
 	Icon = "gamepad",
@@ -6237,17 +6420,15 @@ local scriptStateOB = scriptStateOG:AddTab({
 	Title = "Shrines",
 	Icon = "sparkles",
 })
-local scriptStateKM = scriptStateOG:AddTab({
-	Title = "Webhook",
-	Icon = "link",
-})
 local scriptStateGB = scriptStateOG:AddTab({
 	Title = "Rebirth",
 	Icon = "repeat",
 })
-local riftsTab = scriptStateOG:AddTab({
-	Title = "Rifts",
-	Icon = "circle-dot",
+
+scriptStateOG:AddSection("Integrations")
+local scriptStateKM = scriptStateOG:AddTab({
+	Title = "Webhook",
+	Icon = "link",
 })
 local scriptStateAFW = scriptStateOG:AddTab({
 	Title = "Other",
@@ -19740,14 +19921,25 @@ do
 		Title = "Check For Update Now",
 		Callback = function()
 			task.spawn(function()
-				local updateFound = activeStates.BGSI_Lite_RunAutoUpdateCheck and activeStates.BGSI_Lite_RunAutoUpdateCheck(true)
-				if not updateFound then
+				if type(activeStates.BGSI_Lite_RunAutoUpdateCheck) ~= "function" then
+					return
+				end
+				local status, version, errorMessage = activeStates.BGSI_Lite_RunAutoUpdateCheck(true)
+				if status == "queued" then
+					return -- The function already shows its own "Update found... Reloading" notification.
+				elseif status == "up-to-date" then
 					Interface:Notify({
 						Title = "Auto Update",
 						Content = "You're already on the latest version ("
-							.. tostring(activeStates.BGSI_Lite_ScriptVersion)
+							.. tostring(version or activeStates.BGSI_Lite_ScriptVersion)
 							.. ").",
 						Duration = 5,
+					})
+				else
+					Interface:Notify({
+						Title = "Auto Update",
+						Content = "Check failed: " .. tostring(errorMessage or "unknown error"),
+						Duration = 6,
 					})
 				end
 			end)
@@ -19795,24 +19987,35 @@ function fetchLatestScriptSourceForAutoUpdate()
 	return scriptSource, downloadedVersion
 end
 
--- Returns true only when a genuinely newer version was found and a reload was queued.
+-- This flag must NOT live on `activeStates` (that table is stashed in getgenv()
+-- and survives a self-reload). A `local` here is reinitialized fresh every time
+-- the whole script chunk runs, so it can never get stuck "true" across reloads
+-- the way a persisted flag would (which previously made every check after the
+-- first successful update permanently report "already on latest").
+local autoUpdateReloadQueued = false
+
+-- Returns three values: status ("queued" | "up-to-date" | "error"), the version
+-- string involved (when known), and an error message (only set on "error").
 activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 	if Config.safeMode == true then
-		return false
+		return "error", nil, "Safe Mode is enabled"
 	end
 	if forceCheck ~= true and Config.autoUpdateScript ~= true then
-		return false
+		return "error", nil, "Auto Update is disabled"
 	end
-	if activeStates.BGSI_Lite_AutoUpdateReloadQueued then
-		return false
+	if autoUpdateReloadQueued then
+		return "queued"
 	end
 
 	local scriptSource, downloadedVersion = fetchLatestScriptSourceForAutoUpdate()
-	if type(scriptSource) ~= "string" or scriptSource == "" or not downloadedVersion then
-		return false
+	if type(scriptSource) ~= "string" or scriptSource == "" then
+		return "error", nil, "Could not download the latest script from GitHub"
+	end
+	if not downloadedVersion then
+		return "error", nil, "The downloaded script has no version marker"
 	end
 	if downloadedVersion == tostring(activeStates.BGSI_Lite_ScriptVersion) then
-		return false
+		return "up-to-date", downloadedVersion
 	end
 
 	local compiledScript, compileError = loadstring(scriptSource)
@@ -19823,10 +20026,10 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 				.. " but it failed to compile: "
 				.. tostring(compileError)
 		)
-		return false
+		return "error", downloadedVersion, "Downloaded version " .. downloadedVersion .. " failed to compile"
 	end
 
-	activeStates.BGSI_Lite_AutoUpdateReloadQueued = true
+	autoUpdateReloadQueued = true
 	print("[" .. LocalPlayer.Name .. "] Auto-update found version " .. downloadedVersion .. ". Reloading...")
 	if type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
 		activeStates.BGSI_Lite_LogDashboardAction("Auto-updating to version " .. downloadedVersion, "info")
@@ -19839,7 +20042,7 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 		})
 	end)
 	task.defer(compiledScript)
-	return true
+	return "queued", downloadedVersion
 end
 
 task.spawn(function()
