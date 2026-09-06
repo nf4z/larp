@@ -50,7 +50,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.05.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,6 +80,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.05.06",
+		releasedAt = "September 5, 2026",
+		notes = {
+			{
+				title = "Removed all automatic pet equip/unequip",
+				description = "Auto Build Bubble Team and Auto Equip Best Pets are gone entirely, along with the team-swapping logic behind Auto Enchant. The script no longer fires EquipPet/UnequipPet on its own for any reason, including while it used to (incorrectly) keep running under Safe Mode. Auto Enchant now only enchants whatever shiny Celestial/Secret pets are already sitting in the team you equipped yourself.",
+				icon = "shield-check",
+			},
+		},
+	},
 	{
 		version = "2026.09.05.05",
 		releasedAt = "September 5, 2026",
@@ -1114,12 +1125,6 @@ local defaultConfig = {
 	autoPowerOrbEquipped = false,
 	equippedTargetEnchant = "secret-hunter",
 	equippedTargetEnchant2 = "ultra-roller",
-	superLegendaryEnchantPriorities = {
-		"hatch-blessing-plus",
-		"luck-boost-plus",
-		"hatch-blessing",
-		"luck-boost",
-	},
 	equippedTargetEnchantLevel = 0,
 	equippedEnchantCurrency = "Auto (Secret = Crystals,Normal = Gems)",
 	autoPlaytime = false,
@@ -1127,7 +1132,6 @@ local defaultConfig = {
 	autoDailyRewards = true,
 	autoWheelSpin = true,
 	autoClaimJuly4thRewards = false,
-	autoEquipBestPets = false,
 	autoUpgradeMastery = false,
 	autoCollectCoins = false,
 	autoUseFragments = false,
@@ -1153,7 +1157,6 @@ local defaultConfig = {
 	autoBubble = false,
 	autoSell = false,
 	autoBubbleCompetition = true,
-	autoBubbleTeam = false,
 	competitiveRewardChoice = 2,
 	selectedObby = "Easy",
 	autoObby = false,
@@ -1311,36 +1314,6 @@ function loadConfig()
 	end
 	return defaultConfig
 end
-activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities = function(priorities)
-	local normalizedPriorities = {}
-	local seenPriorities = {}
-	local function addPriority(priorityKey)
-		priorityKey = tostring(priorityKey)
-		if
-			(
-				priorityKey == "hatch-blessing-plus"
-				or priorityKey == "luck-boost-plus"
-				or priorityKey == "hatch-blessing"
-				or priorityKey == "luck-boost"
-			)
-			and not seenPriorities[priorityKey]
-		then
-			seenPriorities[priorityKey] = true
-			table.insert(normalizedPriorities, priorityKey)
-		end
-	end
-	if type(priorities) == "table" then
-		for _, priorityKey in ipairs(priorities) do
-			addPriority(priorityKey)
-		end
-		for priorityKey, selected in pairs(priorities) do
-			if type(priorityKey) == "string" and selected == true then
-				addPriority(priorityKey)
-			end
-		end
-	end
-	return normalizedPriorities
-end
 -- Saves the current config when a setting changes.
 function saveConfig()
 	if not writefile then
@@ -1497,9 +1470,6 @@ do
 	end
 end
 
-Config.superLegendaryEnchantPriorities = activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(
-	Config.superLegendaryEnchantPriorities
-)
 if Config.dashboardSyncAutoEnabled ~= true then
 	Config.dashboardSyncEnabled = true
 	Config.dashboardSyncAutoEnabled = true
@@ -6719,14 +6689,19 @@ do
 	local riftsTab = riftsTab
 	riftsTab:AddSection("Active Rifts")
 
-	local riftDisplay = riftsTab:AddParagraph({
+	local riftDisplay = riftsTab:AddConsole({
 		Title = "Current Rifts",
 		Content = "Scanning for active rifts...",
+		Height = 220,
+		Follow = false,
 	})
 
-	riftsTab:AddButton("Refresh Rifts", function()
-		activeStates.BGSI_Lite_UpdateRiftDisplay()
-	end)
+	riftsTab:AddButton({
+		Title = "Refresh Rifts",
+		Callback = function()
+			activeStates.BGSI_Lite_UpdateRiftDisplay()
+		end,
+	})
 
 	activeStates.BGSI_Lite_BuildRiftSnapshot = function()
 		local renderedFolder = Workspace:FindFirstChild("Rendered")
@@ -6906,23 +6881,25 @@ do
 		local activeRifts = activeStates.BGSI_Lite_BuildRiftSnapshot()
 		if not activeRifts then
 			activeStates.BGSI_Lite_DashboardRifts = {}
-			riftDisplay:SetDesc("No rifts folder found.")
+			riftDisplay:Set("No rifts folder found.")
 			return
 		end
 
 		activeStates.BGSI_Lite_DashboardRifts = activeRifts
 
 		if #activeRifts == 0 then
-			riftDisplay:SetDesc("No active rifts found.")
+			riftDisplay:Set("No active rifts found.")
 		else
-			local content = ""
+			local lines = {}
 			for i, rift in ipairs(activeRifts) do
-				content = content .. string.format("**%d. %s**\n", i, rift.name)
-				content = content .. string.format("   Type: %s\n", rift.type)
-				content = content .. string.format("   World: %s\n", rift.world)
-				content = content .. string.format("   Time: %s\n\n", rift.timeRemaining)
+				table.insert(lines, string.format("%d. %s [%s]", i, rift.name, rift.type))
+				table.insert(lines, string.format("   World: %-18s Time left: %s", rift.world, rift.timeRemaining))
+				table.insert(lines, string.format("   -> %s", rift.actionLabel))
+				if i < #activeRifts then
+					table.insert(lines, "")
+				end
 			end
-			riftDisplay:SetDesc(content)
+			riftDisplay:Set(table.concat(lines, "\n"))
 		end
 	end
 
@@ -10853,14 +10830,6 @@ do
 			end
 		end,
 	})
-	gameTab:AddToggle("AutoEquipBestPets", {
-		Title = "Auto Equip Best Pets",
-		Default = Config.autoEquipBestPets,
-		Callback = function(autoEquipBestPetsToggle)
-			Config.autoEquipBestPets = autoEquipBestPetsToggle
-			saveConfig()
-		end,
-	})
 	gameTab:AddToggle("AutoUpgradeMastery", {
 		Title = "Auto Upgrade Mastery",
 		Default = Config.autoUpgradeMastery,
@@ -10912,16 +10881,6 @@ do
 			if isEnabled then
 				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
 			end
-			saveConfig()
-		end,
-	})
-	gameTab:AddToggle("AutoBubbleTeam", {
-		Title = "Auto Build Bubble Team",
-		Description = "Equips Bubble Machine Super Legendaries first, then the strongest shiny pets so enchant slots remain usable.",
-		Default = Config.autoBubbleTeam ~= false,
-		Callback = function(isEnabled)
-			Config.autoBubbleTeam = isEnabled == true
-			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
 			saveConfig()
 		end,
 	})
@@ -12443,14 +12402,12 @@ do
 			"autoInventoryCleanup",
 			"inventoryCleanupMinCopies",
 			"autoDeleteLowRarityEggPets",
-			"autoEquipBestPets",
 			"autoUpgradeMastery",
 			"autoPowerOrbEquipped",
 			"autoCollectCoins",
 			"autoBubble",
 			"autoSell",
 			"autoBubbleCompetition",
-			"autoBubbleTeam",
 			"competitiveRewardChoice",
 			"selectedObby",
 			"autoObby",
@@ -12473,7 +12430,6 @@ do
 			"autoEnchant",
 			"equippedTargetEnchant",
 			"equippedTargetEnchant2",
-			"superLegendaryEnchantPriorities",
 			"equippedTargetEnchantLevel",
 			"equippedEnchantCurrency",
 			"gemGenieTargetItem",
@@ -12881,29 +12837,6 @@ do
 								addConfigOption("equippedTargetEnchant", enchantName, enchantName, enchantInfo)
 								addConfigOption("equippedTargetEnchant2", enchantName, enchantName, enchantInfo)
 							end
-						end
-						local superEnchantOptions = {
-							{ "hatch-blessing-plus", "Hatch Blessing Plus", "hatchblessing" },
-							{ "luck-boost-plus", "Luck Boost Plus", "luckboost" },
-							{ "hatch-blessing", "Hatch Blessing", "hatchblessing" },
-							{ "luck-boost", "Luck Boost", "luckboost" },
-						}
-						for _, superEnchantOption in ipairs(superEnchantOptions) do
-							local optionData
-							for enchantName, enchantInfo in pairs(type(enchantData) == "table" and enchantData or {}) do
-								if type(enchantName) == "string"
-									and string.lower(enchantName):gsub("[%s_%-]", "") == superEnchantOption[3]
-								then
-									optionData = enchantInfo
-									break
-								end
-							end
-							addConfigOption(
-								"superLegendaryEnchantPriorities",
-								superEnchantOption[1],
-								superEnchantOption[2],
-								optionData
-							)
 						end
 						addConfigOption("equippedTargetEnchant2", "", "None")
 						for potionName, potion in pairs(type(potionData) == "table" and potionData or {}) do
@@ -13916,12 +13849,6 @@ do
 														and configKey ~= "safeMode"
 														and type(configValue) == type(defaultConfig[configKey])
 													then
-														if configKey == "superLegendaryEnchantPriorities" then
-															configValue =
-																activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(
-																	configValue
-																)
-														end
 														if
 															Config.safeMode == true
 															and type(Config.safeModeSavedConfig) == "table"
@@ -14248,16 +14175,8 @@ do
 			end
 		end
 	end)
-	task.spawn(function()
-		while isCurrentRun() do
-			task.wait(Config.autoEquipBestPets and 3 or 0.85)
-			if Config.autoEquipBestPets and not Config.autoEnchant and not Config.autoBubbleTeam then
-				pcall(function()
-					remoteEvent:FireServer("EquipBestPets")
-				end)
-			end
-		end
-	end)
+	-- Removed: this used to auto-fire EquipBestPets in the background. The script no longer
+	-- equips or unequips pets on its own for any reason.
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoUpgradeMastery and 1 or 0.85)
@@ -14450,58 +14369,6 @@ do
 		Callback = function(scriptStateADD)
 			Config.autoEnchant = scriptStateADD
 			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
-			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
-			saveConfig()
-		end,
-	})
-	scriptStateTJ:AddDropdown("SuperLegendaryEnchants", {
-		Title = "Equip Super Legendaries",
-		Description = "Select qualifying enchants. Plus variants are equipped first.",
-		Values = {
-			"Hatch Blessing Plus",
-			"Luck Boost Plus",
-			"Hatch Blessing",
-			"Luck Boost",
-		},
-		Default = (function()
-			local selectedEnchantLabels = {}
-			local enchantLabelByKey = {
-				["hatch-blessing-plus"] = "Hatch Blessing Plus",
-				["luck-boost-plus"] = "Luck Boost Plus",
-				["hatch-blessing"] = "Hatch Blessing",
-				["luck-boost"] = "Luck Boost",
-			}
-			for _, enchantKey in ipairs(Config.superLegendaryEnchantPriorities) do
-				if enchantLabelByKey[enchantKey] then
-					table.insert(selectedEnchantLabels, enchantLabelByKey[enchantKey])
-				end
-			end
-			return selectedEnchantLabels
-		end)(),
-		Multi = true,
-		Callback = function(selectedEnchantLabels)
-			local enchantKeyByLabel = {
-				["Hatch Blessing Plus"] = "hatch-blessing-plus",
-				["Luck Boost Plus"] = "luck-boost-plus",
-				["Hatch Blessing"] = "hatch-blessing",
-				["Luck Boost"] = "luck-boost",
-			}
-			local selectedEnchantPriorities = {}
-			for _, enchantLabel in ipairs(type(selectedEnchantLabels) == "table" and selectedEnchantLabels or {}) do
-				if enchantKeyByLabel[enchantLabel] then
-					table.insert(selectedEnchantPriorities, enchantKeyByLabel[enchantLabel])
-				end
-			end
-			for enchantLabel, selected in pairs(
-				type(selectedEnchantLabels) == "table" and selectedEnchantLabels or {}
-			) do
-				local enchantKey = type(enchantLabel) == "string" and enchantKeyByLabel[enchantLabel] or nil
-				if enchantKey and selected == true and not table.find(selectedEnchantPriorities, enchantKey) then
-					table.insert(selectedEnchantPriorities, enchantKey)
-				end
-			end
-			Config.superLegendaryEnchantPriorities =
-				activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(selectedEnchantPriorities)
 			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
 			saveConfig()
 		end,
@@ -15125,49 +14992,6 @@ function getEnchantablePets()
 	local scriptStateTI = scriptStateGP.Teams[scriptStateGP.TeamEquipped]
 	return (scriptStateTI and type(scriptStateTI.Pets) == "table") and scriptStateTI.Pets or {}
 end
-activeStates.BGSI_Lite_GetPetIdCounts = function(petIds)
-	local counts = {}
-	for _, petId in ipairs(type(petIds) == "table" and petIds or {}) do
-		local normalizedPetId = tostring(petId)
-		counts[normalizedPetId] = (counts[normalizedPetId] or 0) + 1
-	end
-	return counts
-end
-activeStates.BGSI_Lite_PetTeamCountsMatch = function(equippedPetIds, selectedPetIds, selectedPetIdCounts)
-	if #equippedPetIds ~= #selectedPetIds then
-		return false
-	end
-	local equippedPetIdCounts = activeStates.BGSI_Lite_GetPetIdCounts(equippedPetIds)
-	for petId, selectedCount in pairs(selectedPetIdCounts) do
-		if equippedPetIdCounts[petId] ~= selectedCount then
-			return false
-		end
-	end
-	for petId, equippedCount in pairs(equippedPetIdCounts) do
-		if selectedPetIdCounts[petId] ~= equippedCount then
-			return false
-		end
-	end
-	return true
-end
-function getEnchantPetPriority(pet)
-	local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
-	local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
-	local isShiny = pet.Shiny == true or pet.IsShiny == true
-	if isShiny and rarity == "Celestial" then
-		return 1
-	end
-	if isShiny and rarity == "Secret" then
-		return 2
-	end
-	if isShiny and rarity == "Infinity" then
-		return 3
-	end
-	if isShiny and rarity == "Void" then
-		return 4
-	end
-	return 5
-end
 activeStates.BGSI_Lite_IsShinyEnchantPet = function(pet)
 	if type(pet) ~= "table" or (pet.Shiny ~= true and pet.IsShiny ~= true) then
 		return false
@@ -15196,279 +15020,28 @@ function getEnchantCurrency(scriptStateVC)
 	end
 	return nil
 end
-activeStates.BGSI_Lite_SuperEnchantPriorityKeyById = {
-	["super-bubble-plus"] = "bubble-machine-plus",
-	["super-bubble"] = "bubble-machine",
-	["super-speed-plus"] = "hatch-blessing-plus",
-	["super-luck-plus"] = "luck-boost-plus",
-	["super-speed"] = "hatch-blessing",
-	["super-luck"] = "luck-boost",
-}
-function getSuperLegendaryEnchantPriorityKey(enchantEntry)
-	local enchantId = type(enchantEntry) == "table" and (enchantEntry.Id or enchantEntry.id) or enchantEntry
-	return activeStates.BGSI_Lite_SuperEnchantPriorityKeyById[tostring(enchantId or "")]
-end
-function getMaxEnchantTeamLimits(playerData)
-	local maxPetsEquipped = 13
-	local maxSupersEquipped = tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3
-	pcall(function()
-		local statsModule = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
-		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
-	end)
-	return maxPetsEquipped, maxSupersEquipped
-end
-function appendPetCopiesToTeamSelection(
-	pet,
-	selectedPetIds,
-	selectedPetIdCounts,
-	maxPetsEquipped,
-	isSuperLegendary,
-	selectedSuperCount,
-	maxSupersEquipped
-)
-	local petId = tostring(pet.Id or "")
-	if petId == "" then
-		return selectedSuperCount
-	end
-	local availableCopies = math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
-	for _ = 1, availableCopies do
-		if #selectedPetIds >= maxPetsEquipped then
-			break
-		end
-		if isSuperLegendary and selectedSuperCount >= maxSupersEquipped then
-			break
-		end
-		table.insert(selectedPetIds, petId)
-		selectedPetIdCounts[petId] = (selectedPetIdCounts[petId] or 0) + 1
-		if isSuperLegendary then
-			selectedSuperCount += 1
-		end
-	end
-	return selectedSuperCount
-end
-function buildAutoEnchantTeamSelection(playerData)
+-- Auto Enchant never equips or unequips a pet. It only enchants whichever eligible
+-- (shiny Celestial/Secret) pets are already sitting in your currently-equipped team -
+-- build that team yourself in-game, the same way you always have.
+function getEligibleEquippedEnchantPetIds(playerData)
 	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
-		return nil, nil
+		return {}
 	end
-	local superEnchantPriorities = activeStates.BGSI_Lite_NormalizeSuperLegendaryEnchantPriorities(
-		Config.superLegendaryEnchantPriorities
-	)
-	if Config.autoBubbleTeam then
-		superEnchantPriorities = {
-			"bubble-machine-plus",
-			"bubble-machine",
-		}
-	end
-	local superEnchantPriorityIndexes = {}
-	for priorityIndex, enchantKey in ipairs(superEnchantPriorities) do
-		superEnchantPriorityIndexes[tostring(enchantKey)] = priorityIndex
-	end
-	local shinyCandidates = {}
-	local superCandidates = {}
-	if type(activeStates.BGSI_Lite_BubblePetUtil) ~= "table" then
-		pcall(function()
-			activeStates.BGSI_Lite_BubblePetUtil =
-				require(ReplicatedStorage.Shared.Utils.Stats.PetUtil)
-		end)
-	end
+	local petById = {}
 	for _, pet in ipairs(playerData.Pets) do
-		if activeStates.BGSI_Lite_IsShinyEnchantPet(pet) then
-			table.insert(shinyCandidates, pet)
-		end
-		if not Config.autoBubbleTeam then
-			continue
-		end
-		local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
-		local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
-		local isSuperLegendary = pet.Super == true
-			or pet.IsSuper == true
-			or rarity == "Super"
-			or rarity == "Super Legendary"
-		if not isSuperLegendary then
-			continue
-		end
-		local superEnchantPriorityIndex
-		local superEnchantMatchCount = 0
-		for _, enchantEntry in ipairs(getPetEnchantList(pet)) do
-			local enchantKey = getSuperLegendaryEnchantPriorityKey(enchantEntry)
-			local priorityIndex = enchantKey and superEnchantPriorityIndexes[enchantKey]
-			if priorityIndex and (not superEnchantPriorityIndex or priorityIndex < superEnchantPriorityIndex) then
-				superEnchantPriorityIndex = priorityIndex
-			end
-			if priorityIndex then
-				superEnchantMatchCount += 1
-			end
-		end
-		if superEnchantPriorityIndex == nil then
-			continue
-		end
-		local bubbleScore = 0
-		if type(activeStates.BGSI_Lite_BubblePetUtil) == "table" then
-			pcall(function()
-				local petStats = activeStates.BGSI_Lite_BubblePetUtil:GetStats(pet, playerData)
-				bubbleScore = math.max(0, tonumber(type(petStats) == "table" and petStats.Bubbles) or 0)
-			end)
-		end
-		table.insert(superCandidates, {
-			pet = pet,
-			enchantPriority = superEnchantPriorityIndex,
-			bubbleScore = bubbleScore,
-			enchantScore = superEnchantMatchCount,
-		})
-	end
-	table.sort(shinyCandidates, function(leftPet, rightPet)
-		local leftPriority = getEnchantPetPriority(leftPet)
-		local rightPriority = getEnchantPetPriority(rightPet)
-		if leftPriority ~= rightPriority then
-			return leftPriority < rightPriority
-		end
-		return tostring(leftPet.Id) < tostring(rightPet.Id)
-	end)
-	table.sort(superCandidates, function(leftCandidate, rightCandidate)
-		if leftCandidate.enchantPriority ~= rightCandidate.enchantPriority then
-			return leftCandidate.enchantPriority < rightCandidate.enchantPriority
-		end
-		if leftCandidate.bubbleScore ~= rightCandidate.bubbleScore then
-			return leftCandidate.bubbleScore > rightCandidate.bubbleScore
-		end
-		if leftCandidate.enchantScore ~= rightCandidate.enchantScore then
-			return leftCandidate.enchantScore > rightCandidate.enchantScore
-		end
-		return tostring(leftCandidate.pet.Id) < tostring(rightCandidate.pet.Id)
-	end)
-	local maxPetsEquipped, maxSupersEquipped = getMaxEnchantTeamLimits(playerData)
-	local selectedPetIds = {}
-	local selectedPetIdCounts = {}
-	local selectedSuperCount = 0
-	for _, candidate in ipairs(superCandidates) do
-		selectedSuperCount = appendPetCopiesToTeamSelection(
-			candidate.pet,
-			selectedPetIds,
-			selectedPetIdCounts,
-			maxPetsEquipped,
-			true,
-			selectedSuperCount,
-			maxSupersEquipped
-		)
-	end
-	for _, pet in ipairs(shinyCandidates) do
-		selectedSuperCount = appendPetCopiesToTeamSelection(
-			pet,
-			selectedPetIds,
-			selectedPetIdCounts,
-			maxPetsEquipped,
-			false,
-			selectedSuperCount,
-			maxSupersEquipped
-		)
-	end
-	if #selectedPetIds == 0 then
-		return nil, nil
-	end
-	return selectedPetIds, selectedPetIdCounts
-end
-activeStates.BGSI_Lite_IsFullEnchantTeamEquipped = function(playerData, equippedPetIds)
-	local selectedPetIds, selectedPetIdCounts = buildAutoEnchantTeamSelection(playerData)
-	if not selectedPetIds or not selectedPetIdCounts then
-		return false
-	end
-	equippedPetIds = type(equippedPetIds) == "table" and equippedPetIds or getEnchantablePets()
-	return activeStates.BGSI_Lite_PetTeamCountsMatch(equippedPetIds, selectedPetIds, selectedPetIdCounts)
-end
-function prepareAutoEnchantTeam()
-	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	if type(playerData) ~= "table" then
-		return false
-	end
-	local selectedPetIds, selectedPetIdCounts = buildAutoEnchantTeamSelection(playerData)
-	if not selectedPetIds or not selectedPetIdCounts then
-		return false
-	end
-	local equippedPetIds = getEnchantablePets()
-	local teamMatches = activeStates.BGSI_Lite_PetTeamCountsMatch(
-		equippedPetIds,
-		selectedPetIds,
-		selectedPetIdCounts
-	)
-	if teamMatches then
-		return true
-	end
-	local hasMissingTeamPets = #equippedPetIds < #selectedPetIds
-	if not hasMissingTeamPets then
-		local equippedPetIdCounts = activeStates.BGSI_Lite_GetPetIdCounts(equippedPetIds)
-		for petId, selectedCount in pairs(selectedPetIdCounts) do
-			if (equippedPetIdCounts[petId] or 0) < selectedCount then
-				hasMissingTeamPets = true
-				break
-			end
+		local petId = tostring(pet.Id or "")
+		if petId ~= "" then
+			petById[petId] = pet
 		end
 	end
-	if not hasMissingTeamPets and tick() - (tonumber(activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt) or 0) < 2 then
-		return false
-	end
-	activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = tick()
-
-	local function sendTeamCorrections(currentPetIds)
-		local currentCounts = activeStates.BGSI_Lite_GetPetIdCounts(currentPetIds)
-		local extraCounts = {}
-		for petId, currentCount in pairs(currentCounts) do
-			local extraCount = currentCount - (selectedPetIdCounts[petId] or 0)
-			if extraCount > 0 then
-				extraCounts[petId] = extraCount
-			end
-		end
-		for _, petId in ipairs(currentPetIds) do
-			local normalizedPetId = tostring(petId)
-			if (extraCounts[normalizedPetId] or 0) > 0 then
-				remoteEvent:FireServer("UnequipPet", normalizedPetId)
-				extraCounts[normalizedPetId] -= 1
-				task.wait(0.1)
-			end
-		end
-		task.wait(0.2)
-		currentPetIds = getEnchantablePets()
-		currentCounts = activeStates.BGSI_Lite_GetPetIdCounts(currentPetIds)
-		local missingCounts = {}
-		for petId, selectedCount in pairs(selectedPetIdCounts) do
-			local missingCount = selectedCount - (currentCounts[petId] or 0)
-			if missingCount > 0 then
-				missingCounts[petId] = missingCount
-			end
-		end
-		for _, petId in ipairs(selectedPetIds) do
-			if (missingCounts[petId] or 0) > 0 then
-				remoteEvent:FireServer("EquipPet", petId)
-				missingCounts[petId] -= 1
-				task.wait(0.1)
-			end
+	local eligiblePetIds = {}
+	for _, petId in ipairs(getEnchantablePets()) do
+		local pet = petById[tostring(petId)]
+		if pet and activeStates.BGSI_Lite_IsShinyEnchantPet(pet) then
+			table.insert(eligiblePetIds, tostring(petId))
 		end
 	end
-
-	sendTeamCorrections(equippedPetIds)
-	local equipDeadline = tick() + 15
-	local equipRetryCount = 0
-	local nextEquipRetry = tick() + 0.35
-	repeat
-		task.wait(0.15)
-		playerData = profileStore:IsReady() and profileStore:Get() or playerData
-		selectedPetIds, selectedPetIdCounts = buildAutoEnchantTeamSelection(playerData)
-		if not selectedPetIds or not selectedPetIdCounts then
-			break
-		end
-		equippedPetIds = getEnchantablePets()
-		teamMatches = activeStates.BGSI_Lite_PetTeamCountsMatch(
-			equippedPetIds,
-			selectedPetIds,
-			selectedPetIdCounts
-		)
-		if not teamMatches and tick() >= nextEquipRetry and equipRetryCount < 15 then
-			equipRetryCount += 1
-			nextEquipRetry = tick() + 0.35
-			sendTeamCorrections(equippedPetIds)
-		end
-	until teamMatches or tick() >= equipDeadline
-	return teamMatches
-		and activeStates.BGSI_Lite_IsFullEnchantTeamEquipped(playerData, equippedPetIds)
+	return eligiblePetIds
 end
 local autoEnchantThreadRunning = false
 local ENCHANT_REROLL_COOLDOWN = 0.25
@@ -15611,32 +15184,12 @@ function getEnchantTargetList()
 				task.wait(1)
 				continue
 			end
-			local teamReady = false
-			pcall(function()
-				teamReady = prepareAutoEnchantTeam()
-			end)
-			if not teamReady then
-				task.wait(2)
-				continue
-			end
 			local currentPlayerData = profileStore:IsReady() and profileStore:Get() or nil
-			local equippedPetIds = getEnchantablePets()
-			if not activeStates.BGSI_Lite_IsFullEnchantTeamEquipped(currentPlayerData, equippedPetIds) then
-				task.wait(1)
-				continue
-			end
-			if #equippedPetIds == 0 then
+			-- Reads whatever team you already have equipped. Never equips or unequips anything.
+			local eligiblePetIds = getEligibleEquippedEnchantPetIds(currentPlayerData)
+			if #eligiblePetIds == 0 then
 				task.wait(2)
 				continue
-			end
-			local selectedTeamPetIds = buildAutoEnchantTeamSelection(currentPlayerData)
-			if not selectedTeamPetIds then
-				task.wait(2)
-				continue
-			end
-			local enchantPetData = {}
-			for _, pet in ipairs(type(currentPlayerData) == "table" and currentPlayerData.Pets or {}) do
-				enchantPetData[tostring(pet.Id or "")] = pet
 			end
 			local targetEnchantOne = tostring(Config.equippedTargetEnchant or "secret-hunter")
 			local targetEnchantTwo = tostring(Config.equippedTargetEnchant2 or "ultra-roller")
@@ -15644,25 +15197,22 @@ function getEnchantTargetList()
 			local selectedEnchantCurrencyMode = Config.equippedEnchantCurrency
 				or "Auto (Secret = Crystals,Normal = Gems)"
 			local allEnchantSuccess = true
-			for petIndex, teamPetId in ipairs(selectedTeamPetIds) do
+			for petIndex, petId in ipairs(eligiblePetIds) do
 				if not Config.autoEnchant or not isCurrentRun() then
 					break
 				end
-				local petData = enchantPetData[tostring(teamPetId)]
-				if petData and activeStates.BGSI_Lite_IsShinyEnchantPet(petData) then
-					local enchantSuccess = activeStates.BGSI_Lite_RerollEnchantPet(
-						tostring(teamPetId),
-						targetEnchantOne,
-						targetEnchantTwo,
-						targetEnchantLevel,
-						selectedEnchantCurrencyMode
-					)
-					if not enchantSuccess then
-						allEnchantSuccess = false
-						break
-					end
+				local enchantSuccess = activeStates.BGSI_Lite_RerollEnchantPet(
+					petId,
+					targetEnchantOne,
+					targetEnchantTwo,
+					targetEnchantLevel,
+					selectedEnchantCurrencyMode
+				)
+				if not enchantSuccess then
+					allEnchantSuccess = false
+					break
 				end
-				if petIndex < #selectedTeamPetIds then
+				if petIndex < #eligiblePetIds then
 					task.wait(0.5)
 				end
 			end
@@ -15686,14 +15236,6 @@ task.spawn(function()
 			getEnchantTargetList()
 		end
 		lastAutoEnchantState = Config.autoEnchant
-	end
-end)
-task.spawn(function()
-	while isCurrentRun() do
-		task.wait(Config.autoBubbleTeam and 3 or 0.85)
-		if Config.autoBubbleTeam and not Config.autoEnchant and not isPriorityAutomationActive() then
-			pcall(prepareAutoEnchantTeam)
-		end
 	end
 end)
 do
