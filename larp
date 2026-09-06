@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.26"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.27"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,37 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.27",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Removed Claim 4th Rewards",
+				description = "Removed the leftover July 4th event toggle and its background claim loop.",
+				icon = "trash-2",
+			},
+			{
+				title = "Shadow Leviathan Quest can target a specific reward",
+				description = "Added a Target Item picker and an Optimised (hatch-only) mode - the exact same setup Gem Genie already uses, built by sampling every reward the quest generator can actually produce.",
+				icon = "target",
+			},
+			{
+				title = "Auto Claim Chest supports multiple chests",
+				description = "Select Chest is now multi-select - pick as many chests as you want claimed automatically instead of just one.",
+				icon = "package",
+			},
+			{
+				title = "Swapped Overlord Rift for Cloudy Egg Rift",
+				description = "Overlord Rift was removed from the game, so it's gone from the Special Rift Priority list, replaced with Cloudy Egg Rift.",
+				icon = "refresh-cw",
+			},
+			{
+				title = "Rebirth Machine pets are now a dropdown",
+				description = "Pick pets from a dropdown loaded with every Secret-rarity pet actually usable in the Rebirth Machine instead of typing names out by hand.",
+				icon = "list-filter",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.26",
 		releasedAt = "September 6, 2026",
@@ -1455,6 +1486,7 @@ local defaultConfig = {
 	safeModeSavedConfig = {},
 	autoCollectPresentRain = false,
 	selectedWorldChest = "Giant Chest",
+	selectedWorldChests = {},
 	autoClaimWorldChest = false,
 	selectedChest = "golden-chest",
 	autoChestSummon = false,
@@ -1484,7 +1516,7 @@ local defaultConfig = {
 	specialRiftPriority = {
 		"corruptshadow-rift",
 		"shadow-rift",
-		"overlord-rift",
+		"cloudyegg-rift",
 		"doodle-rift",
 	},
 	potionType = "Speed",
@@ -1524,7 +1556,6 @@ local defaultConfig = {
 	autoClaimPrizes = false,
 	autoDailyRewards = true,
 	autoWheelSpin = true,
-	autoClaimJuly4thRewards = false,
 	autoUpgradeMastery = false,
 	autoCollectCoins = false,
 	autoUseFragments = false,
@@ -1569,6 +1600,8 @@ local defaultConfig = {
 	questStallTimeoutSeconds = 60,
 	autoShadowLeviathanQuest = false,
 	autoRerollShadowLeviathanQuest = false,
+	shadowLeviathanTargetItem = "",
+	optimisedShadowLeviathanQuest = false,
 	autoGlobalIncentive = false,
 	autoClaimGlobalIncentive = false,
 	autoClosePopups = true,
@@ -8329,7 +8362,7 @@ do
 	local specialRiftOptions = {
 		"corruptshadow-rift",
 		"shadow-rift",
-		"overlord-rift",
+		"cloudyegg-rift",
 		"doodle-rift",
 	}
 	local specialRiftOptionSet = {}
@@ -9577,14 +9610,24 @@ do
 		Config.selectedChest = chestRiftNames[1] or "golden-chest"
 	end
 	potionTab:AddSection("Normal Chests")
+	-- Migrate the old single-select value into the new multi-select list once, so an
+	-- existing choice isn't silently lost.
+	if
+		(type(Config.selectedWorldChests) ~= "table" or #Config.selectedWorldChests == 0)
+		and type(Config.selectedWorldChest) == "string"
+		and Config.selectedWorldChest ~= ""
+	then
+		Config.selectedWorldChests = { Config.selectedWorldChest }
+	end
 	local worldChestDropdown = potionTab:AddDropdown("SelectedWorldChest", {
-		Title = "Select Chest",
+		Title = "Select Chests",
+		Description = "Pick one or more chests to auto-claim.",
 		Values = worldChestList,
-		Default = Config.selectedWorldChest,
-		Multi = false,
+		Default = Config.selectedWorldChests,
+		Multi = true,
 		Search = true,
-		Callback = function(selectedWorldChestCallback)
-			Config.selectedWorldChest = selectedWorldChestCallback
+		Callback = function(selectedWorldChestsCallback)
+			Config.selectedWorldChests = selectedWorldChestsCallback
 			saveConfig()
 		end,
 	})
@@ -9635,7 +9678,13 @@ do
 		while isCurrentRun() do
 			task.wait(Config.autoClaimWorldChest and 1 or 0.85)
 			if Config.autoClaimWorldChest then
-				claimChestByName(Config.selectedWorldChest)
+				local selectedChests = getSelectedValues(Config.selectedWorldChests or {})
+				if #selectedChests == 0 and type(Config.selectedWorldChest) == "string" then
+					selectedChests = { Config.selectedWorldChest }
+				end
+				for _, chestName in ipairs(selectedChests) do
+					claimChestByName(chestName)
+				end
 			end
 		end
 	end)
@@ -11052,11 +11101,6 @@ do
 			activeStates.BGSI_Lite_LuckEggHopInProgress = false
 		end
 	end
-	local function claimJuly4thRewards()
-		pcall(function()
-			remoteEvent:FireServer("July4thEventLoginsClaim")
-		end)
-	end
 	local function getInventoryItemAmount(itemName)
 		if type(itemName) ~= "string" or itemName == "" then
 			return 0
@@ -11443,17 +11487,6 @@ do
 		Callback = function(role)
 			Config.accountRole = role
 			saveConfig()
-		end,
-	})
-	gameTab:AddToggle("AutoClaimJuly4thRewards", {
-		Title = "Claim 4th Rewards",
-		Default = Config.autoClaimJuly4thRewards,
-		Callback = function(isEnabled)
-			Config.autoClaimJuly4thRewards = isEnabled
-			saveConfig()
-			if isEnabled then
-				claimJuly4thRewards()
-			end
 		end,
 	})
 	gameTab:AddToggle("AutoUpgradeMastery", {
@@ -11936,7 +11969,7 @@ do
 		return getShopData()
 	end
 
-	local function getSelectedValues(selectionTable)
+	function getSelectedValues(selectionTable)
 		local selectedValues = {}
 
 		if type(selectionTable) ~= "table" then
@@ -12903,6 +12936,7 @@ do
 
 			-- Chests and potions
 			"selectedWorldChest",
+			"selectedWorldChests",
 			"autoClaimWorldChest",
 			"selectedChest",
 			"autoChestSummon",
@@ -12922,7 +12956,6 @@ do
 			"autoClaimPrizes",
 			"autoDailyRewards",
 			"autoWheelSpin",
-			"autoClaimJuly4thRewards",
 			"autoInventoryCleanup",
 			"inventoryCleanupMinCopies",
 			"autoDeleteLowRarityEggPets",
@@ -12967,6 +13000,8 @@ do
 			"questStallTimeoutSeconds",
 			"autoShadowLeviathanQuest",
 			"autoRerollShadowLeviathanQuest",
+			"shadowLeviathanTargetItem",
+			"optimisedShadowLeviathanQuest",
 			"autoCurrencyTeams",
 			"selectedTicketTeam",
 			"selectedTicketReturnTeam",
@@ -14685,16 +14720,6 @@ do
 				end
 			end
 		end)
-	end)
-	task.spawn(function()
-		local lastJuly4thClaimAt = 0
-		while isCurrentRun() do
-			task.wait(Config.autoClaimJuly4thRewards and 5 or 0.85)
-			if Config.autoClaimJuly4thRewards and tick() - lastJuly4thClaimAt >= 1800 then
-				claimJuly4thRewards()
-				lastJuly4thClaimAt = tick()
-			end
-		end
 	end)
 	-- Removed: this used to auto-fire EquipBestPets in the background. The script no longer
 	-- equips or unequips pets on its own for any reason.
@@ -16678,6 +16703,57 @@ do
 	-- which must be picked with StartLeviathanQuest(index) before it can be worked on -
 	-- unlike regular bounties, which are already active and just need their tasks run.
 	scriptStateUC:AddSection("Shadow Leviathan Quest")
+	-- Same setup as Gem Genie's target picker: sample the quest generator across many
+	-- seeds with the real player data and collect every distinct reward item it can
+	-- produce, so the dropdown always reflects exactly what's actually obtainable instead
+	-- of a guessed/hardcoded list.
+	local function getShadowLeviathanTargetOptions()
+		local options, seen = {}, {}
+		local function addOption(rewardName)
+			if type(rewardName) ~= "string" or rewardName == "" or seen[rewardName] then
+				return
+			end
+			seen[rewardName] = true
+			table.insert(options, rewardName)
+		end
+		local questFn = activeStates.BGSI_Lite_GetShadowLeviathanQuestModule()
+		if type(questFn) == "function" then
+			local dataOk, playerData = pcall(function()
+				return profileStore:Get()
+			end)
+			if dataOk and type(playerData) == "table" then
+				for seed = 1, 1500 do
+					local ok, candidateQuest = pcall(questFn, playerData, seed)
+					if ok and type(candidateQuest) == "table" and type(candidateQuest.Rewards) == "table" then
+						for _, reward in ipairs(candidateQuest.Rewards) do
+							if type(reward) == "table" then
+								addOption(reward.Name or reward.Currency or reward.Item)
+							end
+						end
+					end
+				end
+			end
+		end
+		table.sort(options)
+		return options
+	end
+	local shadowLeviathanTargetOptions = getShadowLeviathanTargetOptions()
+	if not table.find(shadowLeviathanTargetOptions, Config.shadowLeviathanTargetItem) then
+		Config.shadowLeviathanTargetItem = shadowLeviathanTargetOptions[1] or ""
+		saveConfig()
+	end
+	scriptStateUC:AddDropdown("ShadowLeviathanTarget", {
+		Title = "Target Item",
+		Description = "Which reward to aim for when picking between the 3 available quests. Ignored in Optimised mode.",
+		Values = shadowLeviathanTargetOptions,
+		Default = Config.shadowLeviathanTargetItem,
+		Multi = false,
+		Search = true,
+		Callback = function(selectedTarget)
+			Config.shadowLeviathanTargetItem = selectedTarget
+			saveConfig()
+		end,
+	})
 	scriptStateUC:AddToggle("AutoShadowLeviathanQuest", {
 		Title = "Auto Shadow Leviathan Quest",
 		Description = "Picks a quest as soon as one becomes available and completes its tasks the same way regular bounties are handled.",
@@ -16687,9 +16763,17 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateUC:AddToggle("OptimisedShadowLeviathanQuest", {
+		Title = "Optimised mode (only hatch tasks, ignores selected item)",
+		Default = Config.optimisedShadowLeviathanQuest,
+		Callback = function(isEnabled)
+			Config.optimisedShadowLeviathanQuest = isEnabled == true
+			saveConfig()
+		end,
+	})
 	scriptStateUC:AddToggle("AutoRerollShadowLeviathanQuest", {
 		Title = "Reroll For Best Reward",
-		Description = "Spends Reroll Orbs re-rolling the 3 choices if none of them offer the Ancient Shadow Leviathan pet or a good Fragment - same items the game's own reroll button avoids rerolling away from.",
+		Description = "Spends Reroll Orbs re-rolling the 3 choices if none of them offer the Ancient Shadow Leviathan pet or a good Fragment - same items the game's own reroll button avoids rerolling away from. Skipped whenever a Target Item match is found instead.",
 		Default = Config.autoRerollShadowLeviathanQuest,
 		Callback = function(isEnabled)
 			Config.autoRerollShadowLeviathanQuest = isEnabled == true
@@ -17320,14 +17404,59 @@ activeStates.BGSI_Lite_RunShadowLeviathanAutomation = function()
 		return
 	end
 
+	-- Same setup as Gem Genie: Optimised mode ignores the target item and only wants a
+	-- quest whose tasks are all hatch-type; otherwise pick whichever of the 3 candidates
+	-- actually offers the configured target reward (checking each reward's Name/Currency/
+	-- Item, same match Gem Genie's own target picker uses), falling back to whichever one
+	-- offers the Leviathan pet or a good Fragment if no candidate matches the target.
 	local bestIndex
-	for candidateIndex = 1, 3 do
-		if
-			candidates[candidateIndex]
-			and activeStates.BGSI_Lite_ShadowLeviathanCandidateHasGoodReward(candidates[candidateIndex])
-		then
-			bestIndex = candidateIndex
-			break
+	if Config.optimisedShadowLeviathanQuest == true then
+		for candidateIndex = 1, 3 do
+			local candidate = candidates[candidateIndex]
+			if type(candidate) == "table" and type(candidate.Tasks) == "table" then
+				local allHatchTasks = true
+				for _, questTask in pairs(candidate.Tasks) do
+					if type(questTask) == "table" and not isHatchBountyTask(questTask) then
+						allHatchTasks = false
+						break
+					end
+				end
+				if allHatchTasks then
+					bestIndex = candidateIndex
+					break
+				end
+			end
+		end
+	elseif type(Config.shadowLeviathanTargetItem) == "string" and Config.shadowLeviathanTargetItem ~= "" then
+		local targetLower = string.lower(Config.shadowLeviathanTargetItem)
+		for candidateIndex = 1, 3 do
+			local candidate = candidates[candidateIndex]
+			if type(candidate) == "table" and type(candidate.Rewards) == "table" then
+				for _, reward in ipairs(candidate.Rewards) do
+					if type(reward) == "table" then
+						local rewardName = reward.Name or reward.Currency or reward.Item
+						if type(rewardName) == "string" and string.lower(rewardName) == targetLower then
+							bestIndex = candidateIndex
+							break
+						end
+					end
+				end
+			end
+			if bestIndex then
+				break
+			end
+		end
+	end
+
+	if not bestIndex then
+		for candidateIndex = 1, 3 do
+			if
+				candidates[candidateIndex]
+				and activeStates.BGSI_Lite_ShadowLeviathanCandidateHasGoodReward(candidates[candidateIndex])
+			then
+				bestIndex = candidateIndex
+				break
+			end
 		end
 	end
 
@@ -19997,22 +20126,76 @@ activeStates.BGSI_Lite_InstallRebirthCarnivalFeatures = function()
 		return scriptStateFQ
 	end
 	Config.RebirthVariants = normalizeRebirthVariants(Config.RebirthVariants)
-	scriptStateGB:AddInput("RebirthPet", {
-		Title = "Pet Name(s)",
-		Default = Config.RebirthPetName,
-		Placeholder = "e.g. Man Face Lord",
-		Callback = function(scriptStateJS)
-			Config.RebirthPetName = scriptStateJS
+	-- Which pets are actually usable in the Rebirth Machine, confirmed straight from the
+	-- game's own RebirthMachineUtil.IsPetEligible: must be Secret rarity, and never
+	-- Infinity, Void, or AdminAbuse - Celestial Secrets are allowed too, since the
+	-- Rebirth Machine (unlike Crystal/Sky Altar) has no ManualPets allow-list narrowing
+	-- that down further. Builds the picker from that instead of requiring the pet name(s)
+	-- to be typed out by hand.
+	local function getEligibleRebirthPetNames()
+		local eligibleNames = {}
+		if type(petRarityData) == "table" then
+			for petName, petInfo in pairs(petRarityData) do
+				if
+					type(petInfo) == "table"
+					and petInfo.Rarity == "Secret"
+					and petInfo.Infinity ~= true
+					and petInfo.Void ~= true
+					and petInfo.AdminAbuse ~= true
+				then
+					table.insert(eligibleNames, petName)
+				end
+			end
+		end
+		table.sort(eligibleNames)
+		return eligibleNames
+	end
+	-- Defined once here since it's needed immediately below, before the identical local
+	-- further down (used for the actual rebirth pet matching) is declared.
+	local function splitRebirthPetNamesForUi(commaSeparatedNames)
+		local names = {}
+		if type(commaSeparatedNames) ~= "string" or commaSeparatedNames == "" then
+			return names
+		end
+		for rawName in string.gmatch(commaSeparatedNames, "([^,]+)") do
+			local trimmedName = rawName:match("^%s*(.-)%s*$")
+			if trimmedName and trimmedName ~= "" then
+				table.insert(names, trimmedName)
+			end
+		end
+		return names
+	end
+	local eligibleRebirthPetNames = getEligibleRebirthPetNames()
+	local rebirthPetDropdown = scriptStateGB:AddDropdown("RebirthPet", {
+		Title = "Pet(s)",
+		Description = "Every Secret-rarity pet usable in the Rebirth Machine.",
+		Values = eligibleRebirthPetNames,
+		Default = splitRebirthPetNamesForUi(Config.RebirthPetName),
+		Multi = true,
+		Search = true,
+		Callback = function(selectedPetNames)
+			Config.RebirthPetName = table.concat(getSelectedValues(selectedPetNames), ",")
 			saveConfig()
 		end,
 	})
-	scriptStateGB:AddInput("AdminRebirthPet", {
-		Title = "Admin Pet Name(s)",
-		Default = Config.AdminRebirthPetName,
-		Placeholder = "e.g. Man Face Lord",
-		Callback = function(scriptStateWD)
-			Config.AdminRebirthPetName = scriptStateWD
+	local adminRebirthPetDropdown = scriptStateGB:AddDropdown("AdminRebirthPet", {
+		Title = "Admin Pet(s)",
+		Description = "Every Secret-rarity pet usable in the Rebirth Machine.",
+		Values = eligibleRebirthPetNames,
+		Default = splitRebirthPetNamesForUi(Config.AdminRebirthPetName),
+		Multi = true,
+		Search = true,
+		Callback = function(selectedPetNames)
+			Config.AdminRebirthPetName = table.concat(getSelectedValues(selectedPetNames), ",")
 			saveConfig()
+		end,
+	})
+	scriptStateGB:AddButton({
+		Title = "Refresh usable pet list",
+		Callback = function()
+			eligibleRebirthPetNames = getEligibleRebirthPetNames()
+			fireRemoteEventRepeatedly(rebirthPetDropdown, eligibleRebirthPetNames)
+			fireRemoteEventRepeatedly(adminRebirthPetDropdown, eligibleRebirthPetNames)
 		end,
 	})
 	scriptStateGB:AddDropdown("RebirthVariants", {
