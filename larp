@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.25"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.26"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.26",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Rifts tab kept reappearing - fixed for real this time",
+				description = "Rayfield evidently re-shows its own sidebar rows on its own at some point, which silently undid a one-time hide. It now keeps re-hiding the Rifts row for the whole session instead of only ever doing it once.",
+				icon = "eye-off",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.25",
 		releasedAt = "September 6, 2026",
@@ -6809,29 +6820,31 @@ local scriptStateYT = scriptStateOG:AddTab({
 -- loop that reads those Config values keeps working exactly as before) - only the
 -- sidebar row is hidden, so settings stay controllable from the web dashboard even with
 -- the tab out of the local menu. Guessing at the returned tab object's field names
--- didn't actually hide the row (confirmed - it was still visible), so instead of
--- guessing again this scans the ACTUAL rendered UI for the sidebar row whose label reads
--- exactly "Rifts" and hides that row's real Instance directly - independent of whatever
--- Rayfield Gen2's internal tab object looks like. Retries for a few seconds in case the
--- sidebar hasn't finished rendering yet when this runs.
+-- didn't actually hide the row, so instead this scans the ACTUAL rendered UI for the
+-- sidebar row whose label reads exactly "Rifts" and hides that row's real Instance
+-- directly - independent of whatever Rayfield Gen2's internal tab object looks like.
 local riftsTab = scriptStateOG:AddTab({
 	Title = "Rifts",
 	Icon = "circle-dot",
 })
+-- The one-shot version of this (hide it once, stop) came back after a while - Rayfield
+-- Gen2 evidently re-asserts Visible = true on its own sidebar rows at some point (a
+-- selection change, a re-render, reopening the menu - something), which just silently
+-- undoes a single external override. Runs for the rest of the session instead of
+-- stopping after the first success, so it keeps re-hiding the row every time the library
+-- puts it back instead of only ever fixing it once.
 task.spawn(function()
-	local deadline = tick() + 10
-	local hidden = false
-	while not hidden and tick() < deadline and isCurrentRun() do
-		task.wait(0.25)
+	local everHidden = false
+	local lastWarnAt = 0
+	while isCurrentRun() do
+		task.wait(0.5)
+		local hiddenThisPass = false
 		pcall(function()
 			local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
 			if not playerGui then
 				return
 			end
 			for _, descendant in ipairs(playerGui:GetDescendants()) do
-				if hidden then
-					break
-				end
 				if
 					(descendant:IsA("TextLabel") or descendant:IsA("TextButton"))
 					and descendant.Text == "Rifts"
@@ -6843,21 +6856,24 @@ task.spawn(function()
 							break
 						end
 						if candidate:IsA("GuiButton") or candidate:IsA("Frame") or candidate:IsA("ImageButton") then
-							local hideOk = pcall(function()
-								candidate.Visible = false
-							end)
-							if hideOk then
-								hidden = true
+							if candidate.Visible then
+								pcall(function()
+									candidate.Visible = false
+								end)
 							end
+							hiddenThisPass = true
 							break
 						end
 					end
 				end
 			end
 		end)
-	end
-	if not hidden then
-		warn("[1rzHub Lite] Still couldn't find the Rifts sidebar row to hide after scanning PlayerGui for 10s.")
+		if hiddenThisPass then
+			everHidden = true
+		elseif not everHidden and tick() - lastWarnAt >= 10 then
+			lastWarnAt = tick()
+			warn("[1rzHub Lite] Still couldn't find the Rifts sidebar row to hide.")
+		end
 	end
 end)
 
