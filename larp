@@ -2,15 +2,31 @@ if type(getgenv) == "function" then
 	local globalEnv = getgenv()
 	local previousHubCleanup = rawget(globalEnv, "_1rzHubLiteCleanup")
 	if type(previousHubCleanup) == "function" then
-		pcall(previousHubCleanup)
+		local cleanupOk, cleanupError = pcall(previousHubCleanup)
+		if not cleanupOk then
+			warn("[1rzHub Lite] Previous instance cleanup failed: " .. tostring(cleanupError))
+		end
 		globalEnv._1rzHubLiteCleanup = nil
 	end
 	pcall(function()
 		local previousRayfieldWindow = rawget(globalEnv, "RayfieldGen2Window")
-		if previousRayfieldWindow and type(previousRayfieldWindow.Unload) == "function" then
-			previousRayfieldWindow:Unload()
-			globalEnv.RayfieldGen2Window = nil
+		if previousRayfieldWindow and not previousRayfieldWindow.unloaded then
+			if type(previousRayfieldWindow.Unload) == "function" then
+				local unloadOk, unloadError = pcall(function()
+					previousRayfieldWindow:Unload()
+				end)
+				if not unloadOk then
+					warn("[1rzHub Lite] Previous window failed to unload: " .. tostring(unloadError))
+				end
+			end
 		end
+	end)
+	globalEnv.RayfieldGen2Window = nil
+	-- Unload above may only flag the old window for removal rather than tearing it down
+	-- synchronously - give it a frame before this run builds its own window, so the two
+	-- don't ever exist on screen at the same time.
+	pcall(function()
+		game:GetService("RunService").Heartbeat:Wait()
 	end)
 	pcall(function()
 		if type(getgc) == "function" then
@@ -50,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.08"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.13"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -81,17 +97,72 @@ end
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+		version = "2026.09.06.13",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Cleaner changelog",
+				description = "Reworked the Update History menu to show recent changes at a glance instead of a giant list of buttons, and shortened every past changelog entry.",
+				icon = "scroll-text",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.12",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Mystery boxes and inventory eggs open concurrently",
+				description = "Mystery boxes and inventory eggs now open several at once instead of one at a time, so it's much faster.",
+				icon = "zap",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.11",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Removed Bubble Competition",
+				description = "Removed the Bubble Competition event and its automation since it no longer exists in the game; regular bubble farming is unaffected.",
+				icon = "trash-2",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.10",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed Auto Update stacking duplicate menus",
+				description = "Fixed Auto Update sometimes reloading repeatedly and stacking duplicate menu windows on top of each other.",
+				icon = "refresh-cw",
+			},
+		},
+	},
+	{
+		version = "2026.09.06.09",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed Auto Open Box stopping at 10",
+				description = "Fixed Auto Open Box stopping early instead of actually opening the full 50 boxes per batch.",
+				icon = "gift",
+			},
+		},
+	},
+	{
 		version = "2026.09.06.08",
 		releasedAt = "September 6, 2026",
 		notes = {
 			{
 				title = "Fixed hatching blocking mystery box collection",
-				description = "Found the actual cause in the game's own network code: every remote action - HatchEgg, UseGift, ClaimGift, all of it - is multiplexed onto a single shared RemoteEvent with no queue of its own. Our hatch loop was already checking the server's cooldown before firing, but it polls up to ~200 times a second, and during the brief round trip after a hatch is accepted (before the server moves the cooldown forward), every one of those polls still saw the old cooldown as expired and fired again - a burst of duplicate HatchEgg calls on that one shared channel, every single hatch, which is exactly what could crowd out a mystery box's UseGift/ClaimGift riding the same channel. Hatching now fires at most once per real cooldown window no matter how fast it's polled, which removes 100% of that wasted duplicate traffic.",
+				description = "Fixed hatching spamming duplicate requests fast enough to crowd out mystery box opening on the shared channel.",
 				icon = "zap",
 			},
 			{
 				title = "Hatching is now event-driven",
-				description = "Added a listener on the game's own cooldown timer that fires the instant it actually elapses, instead of waiting to notice on the next poll. It runs alongside the existing loop as a low-latency front-runner, so hatching reacts as fast as the server will allow with zero wasted requests in between.",
+				description = "Hatching now fires the instant the cooldown ends instead of waiting for the next poll, with no wasted requests.",
 				icon = "gauge",
 			},
 		},
@@ -102,7 +173,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Icons next to every dropdown option",
-				description = "Every dropdown across the menu (eggs, rifts, chests, potions, enchants, fragments, mystery boxes, pets, etc.) now shows an icon beside each option, resolved from the game's own data. The name-to-icon lookup is built once and cached - only ever scanned again if it wasn't built yet, never on every render. Applied by patching Rayfield's own row-recycling method directly, so an icon stays correctly matched to its option even while scrolling or searching a long list.",
+				description = "Every dropdown in the menu now shows an icon next to each option, matching the game's own icons.",
 				icon = "image",
 			},
 		},
@@ -113,7 +184,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Hatch Inventory Egg (new)",
-				description = "New section under Eggs for eggs held as an item rather than spawned in the world - Elite Egg, Superhero Egg, the Series N Eggs, Prismatic Egg, seasonal event eggs, and anything else that reads Type == \"Egg\" in the game's own Powerups data. Pick one from the dropdown (built live from that data, not a hardcoded list) and Auto Hatch Inventory Egg fires HatchPowerupEgg for up to 12 at a time back to back while you own any.",
+				description = "Added Auto Hatch Inventory Egg, a new section for hatching eggs held as items rather than spawned in the world.",
 				icon = "egg",
 			},
 		},
@@ -124,12 +195,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed rifts box crash: 'lacking capability Plugin'",
-				description = "Root cause found via the error the last fix surfaced: Console recreates its per-line labels with Instance.new whenever the line count grows, and that call was happening from the background update loop's thread rather than the one that first built the UI - which this executor blocks with a capability error. Current Rifts is now built with Text instead, which only ever rebinds one already-built label's string and never calls Instance.new after its first build, so background updates can't hit this at all.",
+				description = "Fixed a crash in the Current Rifts box caused by how it rebuilt its text labels in the background.",
 				icon = "bug",
 			},
 			{
 				title = "Webhook: fixed Secret Luck reading half the real value",
-				description = "The game now shows one combined 'Secret/Infinity Luck' debug stat in some cases instead of two separate ones. The old matching only looked for 'secret'+'luck' or 'infinity'+'luck' separately, so a stale, unsynced legacy 'Secret Luck' tag (if the game still exposes one) could win over the correct combined reading - which is exactly what showed roughly half the real in-game number. The combined tag is now checked first and always wins when present.",
+				description = "Fixed the webhook showing roughly half the real Secret Luck value when the game combines it with Infinity Luck.",
 				icon = "bug",
 			},
 		},
@@ -140,7 +211,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed rifts box stuck on 'Scanning...'",
-				description = "The rift scan loop wasn't pcall-wrapped, so a single bad frame threw once, silently killed that whole background loop, and left the box on its placeholder text forever with no error shown and no further attempts. It now catches errors, keeps retrying every 5 seconds, and prints the real error into the box itself if one happens, instead of hanging silently.",
+				description = "Fixed the rift scan box getting stuck on 'Scanning...' forever after a single error.",
 				icon = "bug",
 			},
 		},
@@ -151,7 +222,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Re-enchant threshold",
-				description = "New 'Re-enchant Below Level (0 = off)' field under Enchant: a pet that already has both target enchants but at this level or lower is treated as unfinished and gets both slots fully re-rolled again, instead of being left alone forever. Useful for a pet enchanted a while back that's stuck on a stale, low level.",
+				description = "Added a 'Re-enchant Below Level' option to re-roll pets that finished enchanting at a low level.",
 				icon = "refresh-cw",
 			},
 		},
@@ -162,7 +233,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Mystery Box: parallel collection, real 50-box batches",
-				description = "Collect() itself blocks for roughly half a second on its own squash/explode animation, and calling it in a plain loop let each drop's wait queue up behind the last - that's why a batch was visibly collecting one at a time. Every ready drop's Collect() now fires in its own thread so they all resolve in the same instant. Separately, the server appears to cap what a single UseGift call actually spawns (observed at 10 no matter what was requested), so reaching 50 now fires that call repeatedly, each capped to the real per-call limit, until 50 total have been requested or you run out of boxes.",
+				description = "Mystery Box collection now happens in parallel and properly opens full batches of 50 instead of stalling.",
 				icon = "zap",
 			},
 		},
@@ -173,12 +244,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Mystery Box: true instant collection, no teleporting",
-				description = "Re-read the game's Gift class: the 8-hit requirement lives entirely in :Hit(), which just calls the wrapper's own :Collect() once its counter reaches 8 - and :Collect() itself has no hit-count check and never checks player position, only that the drop's ~0.5s spawn-in animation has finished. Auto Open Box now calls :Collect() directly the instant each drop is ready, with no hitting and no teleporting to it.",
+				description = "Mystery Box opening now collects each drop instantly with no hitting and no teleporting to it.",
 				icon = "zap",
 			},
 			{
 				title = "Auto Setup Team: fixed stalling after one equip",
-				description = "The game's own client refuses to equip a pet at all once the team looks full, and firing every unequip immediately followed by every equip didn't give the server time to process the unequips first - so most equips were getting silently rejected. It now unequips one at a time, confirms each one actually left the team before continuing, then equips, with a few retry passes for anything that still doesn't land.",
+				description = "Fixed Auto Setup Team stalling after equipping just one pet when the team looked full.",
 				icon = "users",
 			},
 		},
@@ -189,7 +260,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Mystery Box batches raised to 50",
-				description = "Auto Open Box now spawns up to 50 gifts per batch instead of 10 (still capped to the game's own per-batch limit if that's actually lower), and gives a larger batch enough time to hit every drop to completion instead of cutting off early.",
+				description = "Auto Open Box now opens up to 50 gifts per batch instead of 10.",
 				icon = "gift",
 			},
 		},
@@ -200,12 +271,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Setup Team (new, off by default)",
-				description = "An explicit, opt-in team builder under Enchant: 'Setup Team Now' equips shiny Celestial pets first, then shiny Secrets - pets already carrying your Target Enchant 1/2 are picked first within each rarity, no normal (non-shiny) pets ever. An optional 'Also Equip Super Legendaries' toggle reserves up to 3 slots for a custom mix you choose (Hatch Blessing/Hatch Blessing+/Luck Boost/Luck Boost+ counts, e.g. 2 Luck Boost + 1 Hatch Blessing). A 'Keep Team Setup' toggle re-applies it automatically if you want that; otherwise it only ever runs when you press the button. This is now the only place in the script that equips or unequips anything.",
+				description = "Added Auto Setup Team, an opt-in tool under Enchant that equips your best shiny pets for you.",
 				icon = "users",
 			},
 			{
 				title = "Webhook heading restored",
-				description = "The pet name above User Info is '# Name' again instead of plain bold - the large-gap bug that originally caused it to be removed was the heading sitting in its own component next to the thumbnail, which is now fixed by keeping it merged into the same section as the fields.",
+				description = "Fixed the webhook's pet name heading losing its '# Name' style and reverting to plain bold text.",
 				icon = "image",
 			},
 		},
@@ -216,12 +287,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Enchant: instant lock, zero-race",
-				description = "Rebuilt against the game's own decompiled client code. Gems/Reroll Orb rerolls now use RerollEnchants' synchronous return value directly (it hands back the pet's exact new enchant list in the same round trip), so the next protect slot is always computed from a confirmed result - never a blind cooldown. Shadow Crystal rerolls (which get no return value at all) now wait for the pet's replicated data to actually change before rerolling again. Both changes make it structurally impossible to roll past a landed target enchant. Target matching also changed: every occupied slot must now be one of your selected target enchants (matching the official game's own check), instead of requiring one specific target in one specific slot.",
+				description = "Enchanting now locks onto target enchants instantly with no more race conditions, and target matching was tightened up.",
 				icon = "lock",
 			},
 			{
 				title = "Mystery Box opening actually works now",
-				description = "UseGift only spawns the physical gift drop - it never granted the reward by itself. The game requires each drop to be hit 8 times before it auto-collects (confirmed from the client's Gift class). Auto Open Box now waits for the drop to spawn, teleports to it, and hits it to completion instead of firing UseGift and walking away empty-handed.",
+				description = "Fixed Auto Open Box not actually granting rewards - it now waits for and collects each drop properly.",
 				icon = "gift",
 			},
 		},
@@ -232,7 +303,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Removed all automatic pet equip/unequip",
-				description = "Auto Build Bubble Team and Auto Equip Best Pets are gone entirely, along with the team-swapping logic behind Auto Enchant. The script no longer fires EquipPet/UnequipPet on its own for any reason, including while it used to (incorrectly) keep running under Safe Mode. Auto Enchant now only enchants whatever shiny Celestial/Secret pets are already sitting in the team you equipped yourself.",
+				description = "Removed all automatic pet team swapping - the script no longer equips or unequips pets on its own.",
 				icon = "shield-check",
 			},
 		},
@@ -243,17 +314,17 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Rayfield Gen2 1.2.0: Sidebar layout",
-				description = "The menu now runs its tabs down a sidebar instead of across the top, and every tab is grouped under a rail heading (General, Hatching, Automation, Integrations).",
+				description = "Menu tabs now run down a sidebar instead of across the top, grouped under section headings.",
 				icon = "panel-left",
 			},
 			{
 				title = "New elements: Text, Divider, Progress, Console",
-				description = "The interface wrapper now exposes AddText, AddDivider, AddProgress, and AddConsole for the new 1.2.0 components, alongside the existing toggle/slider/dropdown/etc. helpers.",
+				description = "Added new Text, Divider, Progress, and Console elements to the menu.",
 				icon = "layout-list",
 			},
 			{
 				title = "Element locking",
-				description = "Toggles, sliders, dropdowns, inputs, and buttons can now be Locked/Unlocked (dims the control, blocks input, and stops its callback from firing) - useful for gating a feature behind a key check.",
+				description = "Toggles, sliders, dropdowns, inputs, and buttons can now be locked to block interaction with them.",
 				icon = "lock",
 			},
 		},
@@ -264,7 +335,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Update fix: stuck 'latest version' flag",
-				description = "The one-shot reload guard was stored on the persisted state table, so it survived the self-reload and made every check after the first update permanently report 'already on latest,' even with a newer version on GitHub. It's now a fresh local reset on every load, and check failures (network/parse errors) are now reported separately instead of being shown as 'up to date.'",
+				description = "Fixed Auto Update getting permanently stuck reporting you're on the latest version even when you're not.",
 				icon = "bug",
 			},
 		},
@@ -275,7 +346,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "No more auto-equip on load",
-				description = "Auto Build Bubble Team now defaults off instead of on, so the script no longer unequips/equips your pet team the moment it loads. Toggle it back on under Game if you want it.",
+				description = "Auto Build Bubble Team now defaults off, so the script no longer swaps your pet team the moment it loads.",
 				icon = "shield-check",
 			},
 		},
@@ -286,7 +357,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Update",
-				description = "Periodically checks github.com/nf4z/larp for a newer release and reloads the script in place automatically, with a manual check-now button and adjustable interval under Other.",
+				description = "Added Auto Update, which checks for a newer release and reloads automatically, with a manual check button too.",
 				icon = "refresh-cw",
 			},
 		},
@@ -297,7 +368,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Hatch webhook heading fix",
-				description = "The pet name now renders as normal bold text merged into the same section as User Info, removing the large gap caused by the old '#' heading in its own component.",
+				description = "Fixed the hatch webhook's pet name heading leaving a large gap above User Info.",
 				icon = "image",
 			},
 		},
@@ -308,17 +379,17 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Sky Altar support",
-				description = "Adds an Auto Sky Altar option, cooldown handling, eligible-pet selection, and Sky Altar execution using the game's NextSkyAltarUse state.",
+				description = "Added Auto Sky Altar, with cooldown handling and eligible pet selection built in.",
 				icon = "cloud",
 			},
 			{
 				title = "Sky Altar special recipe handling",
-				description = "Supports the Rainshine x3 special combination for the Azure Shard recipe while ensuring three distinct pet instances are selected.",
+				description = "Added support for the Rainshine x3 special recipe, correctly picking three distinct pets for it.",
 				icon = "sparkles",
 			},
 			{
 				title = "Rebirth configuration compatibility",
-				description = "Adds SkyAltarEnabled to the persisted configuration without changing the existing Rebirth Machine, Crystal Altar, or Admin Rebirth Machine defaults.",
+				description = "Added a saved Sky Altar setting without touching your existing rebirth settings.",
 				icon = "settings",
 			},
 		},
@@ -329,32 +400,32 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Hatch Webhook Variant Header + Icon Fix",
-				description = "Renders the compact variant name above User Info while preserving the pet icon beside it for every hatch variant.",
+				description = "Fixed the hatch webhook showing the pet's variant name and icon together properly.",
 				icon = "image",
 			},
 			{
 				title = "Hatch Webhook Variant Heading Fix",
-				description = "Removes the old Player hatched a ... embed title and displays the compact # Variant Pet Name heading as the embed description directly above User Info.",
+				description = "Cleaned up the hatch webhook's title into a compact variant and pet name heading.",
 				icon = "heading",
 			},
 			{
 				title = "Per-account config and live webhook isolation",
-				description = "Stores settings and live webhook message IDs separately for each Roblox account, preventing accounts from overwriting each other or fighting over the same Discord message. Existing shared config is migrated on first load.",
+				description = "Each Roblox account now gets its own settings and webhook message instead of sharing and overwriting one.",
 				icon = "users",
 			},
 			{
 				title = "Live Webhook Emoji Layout",
-				description = "Uses the requested Discord custom emojis for hatch speed, luck, server, and total; uses alarm-clock and star for uptime and best hatch; removes the Hatching status text and shows the current egg name directly with green/red status accent colors.",
+				description = "Updated the live webhook's emojis and layout for hatch speed, luck, uptime, and best hatch.",
 				icon = "sparkles",
 			},
 			{
 				title = "Persistent Live Webhook + Hatch Webhook Formatting",
-				description = "Persists the live webhook message ID so the same Discord message is edited across reloads, changes live status naming to DisplayName (username), and formats hatch variants as a compact # variant title above User Info.",
+				description = "The live webhook now edits the same Discord message across reloads instead of posting a new one.",
 				icon = "radio",
 			},
 			{
 				title = "Hatch request safeguard",
-				description = "Hatch requests now fall back to one egg if the max-hatch resolver errors, preventing a resolver failure from stopping the hatch request loop.",
+				description = "Hatch requests now fall back to one egg instead of breaking if the max-hatch calculation fails.",
 				icon = "egg",
 			},
 		},
@@ -365,7 +436,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Targeted rift server hopping",
-				description = "Added selectable public-server hopping for any egg rifts in the game data, with separate checked-server history and 4x Egg hop priority.",
+				description = "Added server hopping for egg rifts, with checked-server history and priority for 4x Egg.",
 				icon = "shuffle",
 			},
 		},
@@ -376,7 +447,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Gated special rift priority",
-				description = "Special rift priority now resolves and teleports only while Auto Special Rift is enabled.",
+				description = "Special rift priority now only applies while Auto Special Rift is turned on.",
 				icon = "circle-dot",
 			},
 		},
@@ -387,7 +458,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Special rift priorities",
-				description = "Added configurable priority handling for Corrupt Shadow, Shadow, Overlord, and Doodle rifts while keeping the 4x Luck egg first.",
+				description = "Added priority ordering for Corrupt Shadow, Shadow, Overlord, and Doodle rifts, with 4x Luck still first.",
 				icon = "list-ordered",
 			},
 			{
@@ -414,12 +485,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Crystal enchant rerolls",
-				description = "Protects target enchant slots while rerolling with Shadow Crystals, using the same slot-1/slot-2 logic as manual crystal rolling.",
+				description = "Shadow Crystal rerolls now protect your target enchant slots the same way manual rolling does.",
 				icon = "wand-sparkles",
 			},
 			{
 				title = "Full shiny enchant teams",
-				description = "Equips every shiny Celestial and Secret copy before enchanting, retries missing slots aggressively, and blocks rerolls until the team is complete.",
+				description = "Equips every shiny Celestial and Secret pet before enchanting and blocks rerolls until the team is full.",
 				icon = "team",
 			},
 		},
@@ -430,7 +501,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Visible automation controls",
-				description = "Adds Rayfield settings for popup closing, Event Board purchases, and the Season Infinite Track transition.",
+				description = "Added menu settings for popup closing, Event Board purchases, and the Season Infinite Track.",
 				icon = "settings-2",
 			},
 		},
@@ -441,7 +512,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Automatic Crystal Altar",
-				description = "Uses valid owned pets with matching variants and prioritizes the guaranteed Omega Crystal Dragon recipe.",
+				description = "Crystal Altar now uses your owned pets and prioritizes the guaranteed Omega Crystal Dragon recipe.",
 				icon = "gem",
 			},
 		},
@@ -452,7 +523,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Complete enchant teams",
-				description = "Counts stacked pet copies individually, repairs partial team equips, and retries missing slots before enchanting.",
+				description = "Enchanting now counts stacked pet copies properly and fixes partial team equips before starting.",
 				icon = "wand-sparkles",
 			},
 		},
@@ -463,7 +534,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Uninterrupted 4x Luck hatching",
-				description = "Keeps the summoned 4x Luck egg ahead of special rifts and automatically closes in-game prompts.",
+				description = "4x Luck egg hatching now takes priority over special rifts and auto-closes in-game prompts.",
 				icon = "badge-x",
 			},
 		},
@@ -474,7 +545,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reliable dashboard updates",
-				description = "Resolves GitHub updates through immutable commit versions and retries briefly stale downloads.",
+				description = "Update checks now use immutable GitHub commit versions and retry briefly stale downloads.",
 				icon = "refresh-cw",
 			},
 		},
@@ -485,7 +556,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Automatic Event Board and Infinite Track",
-				description = "Adds priority-based Boost Crystal event purchases and automatically starts the Season Infinite Track after standard completion.",
+				description = "Added automatic Boost Crystal event purchases and auto-starts the Season Infinite Track after completion.",
 				icon = "infinity",
 			},
 		},
@@ -496,7 +567,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Cooldown-aware obby selection",
-				description = "The automatic cycle now skips cooling-down courses and immediately starts the hardest course currently available.",
+				description = "Obby automation now skips courses on cooldown and starts the hardest one available.",
 				icon = "timer-reset",
 			},
 		},
@@ -507,7 +578,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fast three-key chest draining",
-				description = "Temporarily pauses hatch input and movement while obby chests are drained, with direct verified three-key claims for faster opening.",
+				description = "Obby chests with three keys now open faster, with hatching paused briefly while they drain.",
 				icon = "fast-forward",
 			},
 		},
@@ -518,7 +589,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fully automatic obby cycle",
-				description = "Automatically runs Hard, Medium, and Easy in order, drains each matching key supply, and leaves for the next course.",
+				description = "Obby automation now runs Hard, Medium, and Easy in order and drains each course's keys.",
 				icon = "repeat-2",
 			},
 		},
@@ -529,7 +600,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Server-registered obby runs",
-				description = "Obby automation now starts from the Classic Island activation and waits for the game's active-run state before completing or opening chests.",
+				description = "Obby automation now waits for the game's actual run state before completing or opening chests.",
 				icon = "flag",
 			},
 		},
@@ -540,7 +611,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reliable obby chest opening",
-				description = "Obby chests now use the game's real loot viewer interaction and verify that keys were consumed before continuing.",
+				description = "Obby chests now use the game's real loot interaction and confirm keys were actually consumed.",
 				icon = "key-round",
 			},
 		},
@@ -551,7 +622,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Classic Island obby automation",
-				description = "Choose Easy, Medium, or Hard and automatically complete the generated course, collect its key, and open the matching chest.",
+				description = "Added Classic Island obby automation - pick a difficulty and it completes the course and opens the chest.",
 				icon = "map-pin",
 			},
 		},
@@ -562,7 +633,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Roblox register-limit fix",
-				description = "The competition and enchanting upgrade now stays below Roblox's 200-local register limit so the full script can load.",
+				description = "Fixed the script sometimes failing to load because a recent update pushed it over Roblox's variable limit.",
 				icon = "activity",
 			},
 		},
@@ -573,7 +644,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Instant competition bubble selling",
-				description = "Competition mode now sells immediately after each accepted bubble while continuing to blow at the game's fastest accepted cadence.",
+				description = "Competition mode now sells each bubble right away instead of waiting, while still blowing as fast as possible.",
 				icon = "activity",
 			},
 		},
@@ -584,12 +655,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Verified competition planner",
-				description = "Competition rewards, bubble-team equips, and enchant rerolls now retry against replicated game state instead of assuming a remote request succeeded.",
+				description = "Competition rewards, team equips, and enchant rerolls now retry until the game actually confirms they worked.",
 				icon = "sparkles",
 			},
 			{
 				title = "Strict shiny enchant teams",
-				description = "Enchant teams now use Bubble Machine pets first when requested, then shiny Celestials and shiny Secrets only; normal Celestials are never selected.",
+				description = "Enchant teams now use Bubble Machine pets first, then shiny Celestials and Secrets - never normal pets.",
 				icon = "team",
 			},
 		},
@@ -600,7 +671,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Complete rift luck reporting",
-				description = "Every active egg rift now reports its real BonusLuck multiplier to the dashboard, including the game's 1x default.",
+				description = "The dashboard now shows the real luck multiplier for every active rift, even the default 1x ones.",
 				icon = "sparkles",
 			},
 		},
@@ -611,7 +682,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Perfect egg plate positioning",
-				description = "Auto Hatch now places the character directly on the selected egg's Plate surface, with the existing safe position retained as a fallback.",
+				description = "Auto Hatch now stands you directly on the egg's plate, falling back to the old safe spot if needed.",
 				icon = "map-pin",
 			},
 		},
@@ -622,7 +693,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Accurate 4x luck egg reporting",
-				description = "The dashboard banner now reports only the live summoned 4x Luck egg, with its real egg icon, world, and remaining time.",
+				description = "The dashboard banner now shows the real active 4x Luck egg, with its icon, world, and time left.",
 				icon = "sparkles",
 			},
 		},
@@ -633,7 +704,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Safe egg and rift positioning",
-				description = "Auto Hatch now uses each egg's real Root position, and dashboard rift actions use the live Output interaction point without requiring a PrimaryPart.",
+				description = "Auto Hatch and rift actions now use each egg or rift's real position instead of a required part.",
 				icon = "map-pin",
 			},
 		},
@@ -644,7 +715,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Live rift controls",
-				description = "The dashboard now reports real rift icons, 4x egg timers, active server events, and verified hatch, chest, gift, and sell actions.",
+				description = "The dashboard now shows real rift icons, 4x egg timers, active events, and confirms its own actions.",
 				icon = "sparkles",
 			},
 		},
@@ -655,7 +726,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Interface loading recovery",
-				description = "The Rifts panel now uses the supported paragraph control so every tab finishes loading normally.",
+				description = "Fixed the Rifts panel sometimes stopping other tabs from finishing loading.",
 				icon = "panel-top",
 			},
 		},
@@ -666,7 +737,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Account startup recovery",
-				description = "The loader no longer waits for the post-menu ScreenGui before restoring config, skipping the intro, and connecting to the dashboard.",
+				description = "The script now loads settings, skips the intro, and connects to the dashboard faster on startup.",
 				icon = "play",
 			},
 		},
@@ -677,12 +748,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Season quest recovery",
-				description = "Season Pass automation now resolves the game's exact daily and hourly quest IDs and recovers instead of stopping when one quest snapshot is malformed.",
+				description = "Season Pass automation now recovers instead of stopping when one quest's data looks broken.",
 				icon = "bug",
 			},
 			{
 				title = "Accurate rift scanning",
-				description = "Rift scans now use live attributes with the game's rift definitions, hide expired entries, and report readable egg and chest names.",
+				description = "Rift scans now hide expired entries and show readable egg and chest names instead of raw IDs.",
 				icon = "circle-dot",
 			},
 		},
@@ -693,7 +764,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Rift tracking tab",
-				description = "Added new Rifts tab to display active rifts with time remaining, type, and world. Includes teleport and hatch buttons.",
+				description = "Added a Rifts tab showing active rifts with time left, type, and world, plus teleport and hatch buttons.",
 				icon = "circle-dot",
 			},
 		},
@@ -704,7 +775,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Quest bug fix",
-				description = "Fixed function definition order issue that prevented quests from working after adding skip bubbling quests feature.",
+				description = "Fixed quests breaking after the skip bubbling quests option was added.",
 				icon = "bug",
 			},
 		},
@@ -715,7 +786,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Skip Bubbling Quests option",
-				description = "Added toggle to skip bubbling quests, similar to skip ticket and pearl quests.",
+				description = "Added a toggle to skip bubbling quests, same as the existing ticket and pearl skip options.",
 				icon = "circle-dot",
 			},
 		},
@@ -726,12 +797,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Shiny Celestial enchant priority",
-				description = "Shiny Celestials are equipped and enchanted before shiny Secrets, with rarity flags resolved from live pet data.",
+				description = "Shiny Celestials are now equipped and enchanted before shiny Secrets.",
 				icon = "sparkles",
 			},
 			{
 				title = "Current team enchant repair",
-				description = "Always scans the equipped team even when automatic team building is still converging, and confirms every enchant table shape.",
+				description = "Enchanting now always scans your equipped team, even while auto team building is still settling.",
 				icon = "wand-sparkles",
 			},
 		},
@@ -742,7 +813,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reliable inventory cleanup",
-				description = "Uses the accepted pet deletion call, preserves the configured copy floor, skips pets saved in any team, and confirms every deletion.",
+				description = "Pet deletion now keeps your configured minimum copies, skips teamed pets, and confirms each deletion.",
 				icon = "trash-2",
 			},
 		},
@@ -753,7 +824,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Competition team recovery",
-				description = "Rotates through filter-safe unique team names, retries quickly after rejection, and reports creation progress.",
+				description = "Competition team creation now retries quickly with different names if one gets rejected.",
 				icon = "users",
 			},
 		},
@@ -764,12 +835,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Complete special hatch detection",
-				description = "Reads every nested hatch payload shape and reports Celestial, Infinity, Void, Secret, and Super Legendary pets.",
+				description = "Hatch detection now correctly catches Celestial, Infinity, Void, Secret, and Super Legendary pets.",
 				icon = "sparkles",
 			},
 			{
 				title = "No dropped duplicate hatches",
-				description = "Uses unique pet IDs and hatch counters so legitimate repeated copies are no longer hidden by webhook duplicate windows.",
+				description = "Fixed the webhook hiding real repeated hatches as if they were duplicates.",
 				icon = "bell-ring",
 			},
 		},
@@ -780,12 +851,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Accepted-state bubble scheduler",
-				description = "Blows during confirmed hatch cooldowns, verifies replicated bubble gains, and prevents bubble requests from reserving hatch frames.",
+				description = "Bubble blowing now fits into hatch cooldowns instead of competing with hatch requests for the same frame.",
 				icon = "circle-dot",
 			},
 			{
 				title = "Competition bubble safeguards",
-				description = "Clears Bubble Lock automatically and avoids unnecessary Infinity Gum sells unless Auto Sell is enabled.",
+				description = "Bubble Lock now clears automatically, and Infinity Gum is only sold if Auto Sell is on.",
 				icon = "shield-check",
 			},
 		},
@@ -796,7 +867,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Competition quest progression",
-				description = "Waits for a confirmed team before timing bubble progress and rotates safe team names until creation succeeds.",
+				description = "Competition quests now wait for a confirmed team before tracking bubble progress.",
 				icon = "chart-no-axes-column-increasing",
 			},
 		},
@@ -807,7 +878,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Filter-safe competition team names",
-				description = "Creates unique team names without usernames or long digit sequences that Roblox can filter.",
+				description = "Competition team names no longer use usernames or long numbers that Roblox tends to filter out.",
 				icon = "users",
 			},
 		},
@@ -818,7 +889,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reliable bubbling while hatching",
-				description = "Gives bubble requests their own dispatch window and removes redundant hatch bursts that could starve them.",
+				description = "Bubble blowing no longer gets starved out by hatch requests firing too aggressively.",
 				icon = "circle-dot",
 			},
 		},
@@ -829,7 +900,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reliable intro skip",
-				description = "Advances the real Play and Low Detail intro stages through the game's button callbacks and waits for slow-loading clients.",
+				description = "The intro skip now waits properly for slow-loading clients instead of firing too early.",
 				icon = "fast-forward",
 			},
 		},
@@ -840,12 +911,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Interleaved hatch and bubble scheduler",
-				description = "Replaces oversized low-FPS hatch floods with bounded bursts and reserves a bubble request before each hatch burst.",
+				description = "Hatch bursts are now smaller and always leave room for a bubble request in between.",
 				icon = "bolt",
 			},
 			{
 				title = "Persistent competition bubbling",
-				description = "Bubble and sell checks continue during quest automation instead of being suppressed by unrelated priority states.",
+				description = "Bubble and sell checks now keep running during quest automation instead of getting paused.",
 				icon = "sparkles",
 			},
 		},
@@ -856,12 +927,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Automatic bubble teams",
-				description = "Builds a shiny enchant-compatible bubble team and prioritizes Bubble Machine Super Legendaries.",
+				description = "Auto-builds a bubble team that prioritizes Bubble Machine Super Legendaries and stays enchant-compatible.",
 				icon = "sparkles",
 			},
 			{
 				title = "Competition inventory automation",
-				description = "Enables low-rarity egg deletion and buys competition fragments before other shop stock.",
+				description = "Now deletes low-rarity eggs automatically and buys competition fragments before anything else in the shop.",
 				icon = "shopping-bag",
 			},
 		},
@@ -872,12 +943,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Bubble Competition automation",
-				description = "Bubbles and sells anywhere while hatching, creates a team, rerolls non-bubble tasks, and claims earned rewards.",
+				description = "Added full Bubble Competition automation - team creation, bubbling while hatching, quest rerolls, and reward claims.",
 				icon = "sparkles",
 			},
 			{
 				title = "Live team stats",
-				description = "The dashboard now shows competition score, rank, reward progress, team total, and every member contribution.",
+				description = "The dashboard now shows competition score, rank, reward progress, and each member's contribution.",
 				icon = "chart",
 			},
 		},
@@ -888,12 +959,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Smart shrine supplies",
-				description = "Dreamer Shrine now rations shards, buys available stock, and uses free shop rerolls when empty.",
+				description = "Dreamer Shrine now rations shards, restocks when possible, and uses free rerolls when out.",
 				icon = "brain",
 			},
 			{
 				title = "Capability-safe quests",
-				description = "Hatch quests no longer depend on restricted virtual keyboard calls.",
+				description = "Fixed hatch quests relying on a restricted virtual keyboard call that could break on some executors.",
 				icon = "shield-check",
 			},
 		},
@@ -904,7 +975,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Automatic event potions",
-				description = "Detects the egg being hatched and maintains the matching event potion at the highest owned level.",
+				description = "The script now detects the egg you're hatching and keeps the matching event potion active at your best level.",
 				icon = "flask-conical",
 			},
 		},
@@ -915,7 +986,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Loader compile fix",
-				description = "Low-FPS hatch bursts no longer add another top-level register to the loader.",
+				description = "Fixed low-FPS hatch bursts pushing the loader over its variable limit.",
 				icon = "wrench",
 			},
 		},
@@ -926,7 +997,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Low-FPS hatch bursts",
-				description = "Valid hatch windows now send a same-frame request burst scaled to the configured FPS.",
+				description = "Hatch requests now burst together in the same frame, scaled to your configured FPS.",
 				icon = "gauge",
 			},
 		},
@@ -937,7 +1008,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Game-timed hatching",
-				description = "Hatches now fire on the game's exact cooldown with full capacity, automatic rare-popup closing, and complete intro skipping.",
+				description = "Hatching now fires right on the game's cooldown at full capacity, with popups and intros auto-skipped.",
 				icon = "zap",
 			},
 		},
@@ -948,7 +1019,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Full hatch capacity",
-				description = "Every hatch request now uses the game's exact maximum egg count for the account.",
+				description = "Hatch requests now always use your account's actual maximum egg count.",
 				icon = "egg",
 			},
 		},
@@ -959,7 +1030,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Maximum hatch speed",
-				description = "Hatch requests and R + E input now run every available scheduler cycle.",
+				description = "Hatch requests and the R+E key spam now run on every available cycle for max speed.",
 				icon = "zap",
 			},
 		},
@@ -970,7 +1041,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Higher hatch rate",
-				description = "Hatch requests retry sooner, and the key spam option now presses both R and E.",
+				description = "Hatch requests now retry sooner, and key spam presses both R and E.",
 				icon = "gauge",
 			},
 		},
@@ -981,17 +1052,17 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Faster hatching",
-				description = "Hatch requests now follow confirmed game responses instead of flooding the same cooldown.",
+				description = "Hatch requests now wait for the game's actual response instead of flooding the same cooldown.",
 				icon = "gauge",
 			},
 			{
 				title = "Background box opening",
-				description = "Mystery boxes open in small batches without holding up the hatch loop.",
+				description = "Mystery boxes now open in small batches in the background without slowing down hatching.",
 				icon = "gift",
 			},
 			{
 				title = "Quicker live controls",
-				description = "Relay commands and potion use spend less time waiting between confirmed actions.",
+				description = "Relay commands and potion use now wait less time between actions.",
 				icon = "radio-tower",
 			},
 		},
@@ -1002,7 +1073,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Config stays in sync",
-				description = "New script settings now show up on the site automatically.",
+				description = "New script settings now show up on the dashboard site automatically.",
 				icon = "refresh-cw",
 			},
 		},
@@ -1013,7 +1084,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Safe Mode",
-				description = "Pauses automation, restores normal rendering, and removes the FPS cap without losing your saved setup.",
+				description = "Added Safe Mode, which pauses all automation and restores normal rendering without losing your saved setup.",
 				icon = "shield-check",
 			},
 		},
@@ -1024,7 +1095,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Relay connects without reloading",
-				description = "Opening connect.bat picks up accounts that are already running and shows the live connection count.",
+				description = "Opening connect.bat now picks up already-running accounts and shows a live connection count.",
 				icon = "radio-tower",
 			},
 		},
@@ -1035,7 +1106,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Less idle time",
-				description = "Keeps hatching between enchant checks and moves on sooner when a quest stops progressing.",
+				description = "Hatching now continues between enchant checks, and stalled quests get skipped sooner.",
 				icon = "gauge",
 			},
 		},
@@ -1046,7 +1117,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Super Legendary priorities",
-				description = "Choose which Super Legendary enchants count when the script builds your team.",
+				description = "You can now choose which Super Legendary enchants count when the script builds your team.",
 				icon = "sparkles",
 			},
 		},
@@ -1057,12 +1128,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Optional connection relay",
-				description = "Use connect.bat for faster dashboard controls and grouped account polling.",
+				description = "Added connect.bat as an optional relay for faster dashboard controls and grouped account polling.",
 				icon = "radio-tower",
 			},
 			{
 				title = "Faster action updates",
-				description = "Potion use and other live actions show up through the relay without the usual delay.",
+				description = "Potion use and other live actions now show up through the relay without the usual delay.",
 				icon = "zap",
 			},
 		},
@@ -1073,17 +1144,17 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Automation timing",
-				description = "Hatching, potion refreshes, recovery, and inventory cleanup follow the account's current game state.",
+				description = "Hatching, potion refreshes, recovery, and inventory cleanup now follow the account's actual game state.",
 				icon = "activity",
 			},
 			{
 				title = "More reward claims",
-				description = "Daily rewards and wheel spins are handled with prizes, index rewards, chests, and mastery.",
+				description = "Added automatic claiming for daily rewards, wheel spins, index rewards, chests, and mastery.",
 				icon = "gift",
 			},
 			{
 				title = "Live dashboard settings",
-				description = "Account roles and automation settings can be applied without rejoining.",
+				description = "Account roles and automation settings can now be changed without rejoining the game.",
 				icon = "settings",
 			},
 		},
@@ -1094,12 +1165,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reward checks cleaned up",
-				description = "Mastery, chest, and index claims only run when the reward is actually available.",
+				description = "Mastery, chest, and index claims now only fire when a reward is actually available.",
 				icon = "gauge",
 			},
 			{
 				title = "Hatch recovery",
-				description = "Only repositions after hatching has genuinely stopped.",
+				description = "Repositioning now only kicks in after hatching has actually stopped.",
 				icon = "refresh-cw",
 			},
 		},
@@ -1110,12 +1181,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Enchant team priorities",
-				description = "Uses the saved Super Legendary enchant order and leaves a matching team alone.",
+				description = "Enchanting now follows your saved Super Legendary order and leaves a matching team alone.",
 				icon = "sparkles",
 			},
 			{
 				title = "Fewer enchant requests",
-				description = "Pet lookups, equips, and rerolls follow replicated state and the game's cooldown.",
+				description = "Pet lookups, equips, and rerolls now respect the game's cooldown instead of spamming requests.",
 				icon = "activity",
 			},
 		},
@@ -1126,12 +1197,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Safer inventory cleanup",
-				description = "Clears low-rarity duplicates while protecting locked, equipped, Super Legendary, Secret, Infinity, Void, and Celestial pets.",
+				description = "Cleanup now only deletes low-rarity duplicates and never touches locked, equipped, or top-rarity pets.",
 				icon = "shield-check",
 			},
 			{
 				title = "Clearer account activity",
-				description = "The dashboard gives active hatching priority and reports cleanup states more accurately.",
+				description = "The dashboard now prioritizes active hatching and reports cleanup status more accurately.",
 				icon = "activity",
 			},
 		},
@@ -1142,7 +1213,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Pet totals fixed",
-				description = "Secret, Infinity, Void, and Celestial totals now handle both rarity values and pet flags.",
+				description = "Fixed Secret, Infinity, Void, and Celestial pet totals sometimes counting wrong.",
 				icon = "sparkles",
 			},
 		},
@@ -1153,12 +1224,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Update history",
-				description = "The Main tab lists each recorded version and its release time.",
+				description = "The Main tab now lists every past version along with its release time.",
 				icon = "history",
 			},
 			{
 				title = "Release details",
-				description = "Open any version to read its full notes.",
+				description = "You can now click any past version to read its full release notes.",
 				icon = "file-clock",
 			},
 		},
@@ -1169,7 +1240,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Release notes on Main",
-				description = "The latest changes are available from the Main tab.",
+				description = "You can now see the latest changes right from the Main tab.",
 				icon = "list",
 			},
 		},
@@ -1180,32 +1251,32 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Update popup",
-				description = "Shows the release notes once when a new script version loads.",
+				description = "A popup now shows the release notes once whenever a new version loads.",
 				icon = "message-square-more",
 			},
 			{
 				title = "Rayfield Gen2",
-				description = "Moved the in-game menu to Rayfield Gen2 with native tabs, controls, stats, and popups.",
+				description = "Rebuilt the whole menu on Rayfield Gen2, with native tabs, controls, stats, and popups.",
 				icon = "layout-dashboard",
 			},
 			{
 				title = "Live stats",
-				description = "Tracks hatch rate, luck, hatch speed, FPS, uptime, server players, and hatching state.",
+				description = "Added live tracking for hatch rate, luck, speed, FPS, uptime, and server player count.",
 				icon = "chart-no-axes-combined",
 			},
 			{
 				title = "Hatch animation setting",
-				description = "The saved setting applies after joining and stays active after script reloads.",
+				description = "Your hatch animation setting now applies on join and sticks around after reloads.",
 				icon = "egg",
 			},
 			{
 				title = "Dynamic dropdowns",
-				description = "Egg, shop, fragment, box, enchant, and team options refresh from current game data.",
+				description = "Egg, shop, fragment, box, enchant, and team dropdowns now refresh from live game data.",
 				icon = "list-filter",
 			},
 			{
 				title = "Performance controls",
-				description = "Includes minimum graphics, an FPS cap, and cleaner render-distance handling.",
+				description = "Added minimum graphics, an FPS cap, and cleaner render-distance handling for better performance.",
 				icon = "gauge",
 			},
 		},
@@ -1296,7 +1367,6 @@ local defaultConfig = {
 	inventoryCleanupMinCopies = 10,
 	autoDeleteLowRarityEggPets = true,
 	autoBuyFragments = true,
-	autoBuyCompetitiveShop = true,
 	selectedFragments = {},
 	dashboardSyncEnabled = true,
 	dashboardSyncAutoEnabled = false,
@@ -1313,8 +1383,6 @@ local defaultConfig = {
 	shopInterval = 1,
 	autoBubble = false,
 	autoSell = false,
-	autoBubbleCompetition = true,
-	competitiveRewardChoice = 2,
 	selectedObby = "Easy",
 	autoObby = false,
 	autoObbyCycle = true,
@@ -2303,32 +2371,71 @@ do
 		end
 		return wrappedParagraph
 	end
+	-- A button per version doesn't scale - a script with a hundred releases behind it
+	-- meant a hundred stacked buttons in the sidebar. Instead: the last few versions
+	-- shown right on the tab as a quick skim, and everything else behind one button
+	-- that opens a single scrollable changelog popup.
 	function tabMethods:AddReleaseHistory(releaseHistory)
-		self:AddSection("Update history")
-		for _, release in ipairs(releaseHistory) do
-			local releaseEntry = release
-			self.Native:CreateButton({
-				name = "Version " .. tostring(releaseEntry.version),
-				description = tostring(releaseEntry.releasedAt) .. " - " .. tostring(#releaseEntry.notes) .. " changes",
-				icon = "history",
-				callback = function()
-					Interface:Popup({
-						Title = "What's new",
-						SubTitle = "Version "
-							.. tostring(releaseEntry.version)
-							.. " - "
-							.. tostring(releaseEntry.releasedAt),
-						Boxes = releaseEntry.notes,
-						Options = {
-							{
-								text = "Close",
-								style = "primary",
-							},
-						},
-					})
-				end,
+		self:AddSection("Update History")
+
+		local recentCount = math.min(3, #releaseHistory)
+		for index = 1, recentCount do
+			local release = releaseHistory[index]
+			local titles = {}
+			for _, note in ipairs(release.notes) do
+				table.insert(titles, "•  " .. tostring(note.title))
+			end
+			self:AddText({
+				Title = "v" .. tostring(release.version) .. "  ·  " .. tostring(release.releasedAt),
+				Content = table.concat(titles, "\n"),
 			})
 		end
+
+		local maxFullHistoryVersions = 30
+		self.Native:CreateButton({
+			name = "Full Changelog",
+			description = tostring(#releaseHistory) .. " versions",
+			icon = "scroll-text",
+			callback = function()
+				local boxes = {}
+				local shownCount = math.min(maxFullHistoryVersions, #releaseHistory)
+				for index = 1, shownCount do
+					local release = releaseHistory[index]
+					table.insert(boxes, {
+						title = "v" .. tostring(release.version),
+						description = tostring(release.releasedAt),
+						icon = "tag",
+					})
+					for _, note in ipairs(release.notes) do
+						table.insert(boxes, {
+							title = tostring(note.title),
+							description = tostring(note.description or ""),
+							icon = note.icon,
+						})
+					end
+				end
+				if #releaseHistory > shownCount then
+					table.insert(boxes, {
+						title = (#releaseHistory - shownCount) .. " earlier version"
+							.. ((#releaseHistory - shownCount) == 1 and "" or "s")
+							.. " not shown",
+						description = "",
+						icon = "ellipsis",
+					})
+				end
+				Interface:Popup({
+					Title = "Changelog",
+					SubTitle = tostring(#releaseHistory) .. " versions",
+					Boxes = boxes,
+					Options = {
+						{
+							text = "Close",
+							style = "primary",
+						},
+					},
+				})
+			end,
+		})
 	end
 	function tabMethods:AddChangelog()
 		self:AddReleaseHistory(activeStates.BGSI_Lite_ReleaseHistory)
@@ -5060,9 +5167,6 @@ activeStates.BGSI_Lite_ObserveBubbleAmount = function(playerData)
 		end
 		activeStates.BGSI_Lite_LastBubbleAcceptedAt = acceptedAt
 		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
-		if Config.autoBubbleCompetition and type(activeStates.BGSI_Lite_SellBubble) == "function" then
-			task.defer(activeStates.BGSI_Lite_SellBubble)
-		end
 	elseif bubbleAmount < previousAmount then
 		activeStates.BGSI_Lite_BubbleRequestPendingAt = 0
 		activeStates.BGSI_Lite_BubbleSellPendingAt = 0
@@ -5093,20 +5197,6 @@ function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, script
 			bountyRequirement = getBountyTaskRequirement(selectedPotionCallback)
 		end
 		local bountyProgress = getBountyTaskProgress(scriptStateABM, scriptStatePW)
-		local questId = tostring(scriptStateABM.Id or scriptStateABM.ID or "")
-		if questId:sub(1, 12) == "competitive-" then
-			local playerData = profileStore:IsReady() and profileStore:Get() or nil
-			local competitive = type(playerData) == "table" and playerData.Competitive or nil
-			if type(competitive) ~= "table" or type(competitive.Clan) ~= "table" then
-				if type(activeStates.BGSI_Lite_RunCompetitiveAutomation) == "function" then
-					activeStates.BGSI_Lite_RunCompetitiveAutomation()
-				end
-				activeStates.BGSI_Lite_SetActiveQuest(scriptStateABM, scriptStatePW, bountyProgress, "waiting")
-				questProgressWatch = nil
-				task.wait(1)
-				continue
-			end
-		end
 		questProgressWatch, scriptStateStalled = activeStates.BGSI_Lite_RecordQuestProgress(
 			questProgressWatch,
 			scriptStateABM,
@@ -5134,61 +5224,6 @@ function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, script
 	end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStatePW)
 end
-activeStates.BGSI_Lite_GetCompetitiveShared = function()
-	if type(activeStates.BGSI_Lite_CompetitiveShared) ~= "table" then
-		pcall(function()
-			activeStates.BGSI_Lite_CompetitiveShared =
-				require(ReplicatedStorage.Shared.Data.CompetitiveShared)
-		end)
-	end
-	return activeStates.BGSI_Lite_CompetitiveShared
-end
-activeStates.BGSI_Lite_GetCompetitiveTeamName = function(teamNameAttempt, maximumLength)
-	local firstWords = {
-		"Blue",
-		"Bright",
-		"Cozy",
-		"Golden",
-		"Happy",
-		"Lucky",
-		"Sunny",
-		"Crystal",
-	}
-	local secondWords = {
-		"Bubbles",
-		"Crew",
-		"Eggs",
-		"Friends",
-		"Pets",
-		"Stars",
-		"Team",
-		"Hatchers",
-	}
-	local safeLetters = "BCDFGHJKLMNPQRSTVWXYZ"
-	local safeDigits = "23456789"
-	local seed = (
-		(LocalPlayer.UserId % 2147483000)
-		+ (math.max(0, math.floor(tonumber(teamNameAttempt) or 0)) + 1) * 104729
-		+ (os.time() % 1000003) * 8191
-	) % 2147483647
-	local random = Random.new(seed)
-	local function getRandomCharacter(characters)
-		local characterIndex = random:NextInteger(1, #characters)
-		return string.sub(characters, characterIndex, characterIndex)
-	end
-	local suffix = getRandomCharacter(safeLetters)
-		.. getRandomCharacter(safeDigits)
-		.. getRandomCharacter(safeLetters)
-		.. getRandomCharacter(safeDigits)
-	local firstWord = firstWords[random:NextInteger(1, #firstWords)]
-	local secondWord = secondWords[random:NextInteger(1, #secondWords)]
-	maximumLength = math.max(8, math.floor(tonumber(maximumLength) or 20))
-	local teamName = firstWord .. " " .. secondWord .. " " .. suffix
-	if #teamName > maximumLength then
-		teamName = firstWord .. " " .. suffix
-	end
-	return teamName:sub(1, maximumLength)
-end
 activeStates.BGSI_Lite_GetNotificationText = function(notification)
 	if type(notification) == "string" then
 		return notification
@@ -5202,204 +5237,6 @@ activeStates.BGSI_Lite_GetNotificationText = function(notification)
 		end
 	end
 	return ""
-end
-activeStates.BGSI_Lite_GetCompetitiveTelemetry = function()
-	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	local competitiveShared = activeStates.BGSI_Lite_GetCompetitiveShared()
-	if type(playerData) ~= "table" or type(competitiveShared) ~= "table" then
-		return nil
-	end
-	local season
-	pcall(function()
-		season = competitiveShared:GetSeason()
-	end)
-	if not season then
-		return { Active = false }
-	end
-	local competitive = type(playerData.Competitive) == "table" and playerData.Competitive or {}
-	local clan = type(competitive.Clan) == "table" and competitive.Clan or nil
-	local clanId = clan and tostring(clan.Id or "")
-		or (type(competitive.Clan) == "string" and competitive.Clan or "")
-	local members = {}
-	local teamScore = 0
-	if clan and type(clan.Members) == "table" then
-		for _, member in ipairs(clan.Members) do
-			if type(member) == "table" then
-				local memberScore = member.UserId == LocalPlayer.UserId
-						and math.max(0, tonumber(competitive.Score) or 0)
-					or math.max(0, tonumber(member.Score) or 0)
-				teamScore = teamScore + memberScore
-				table.insert(members, {
-					UserId = tostring(member.UserId or ""),
-					Username = tostring(member.Username or ""),
-					DisplayName = tostring(member.DisplayName or member.Username or ""),
-					Score = memberScore,
-					Owner = clan.Members[1] == member,
-				})
-			end
-		end
-	end
-	local seasonData = type(competitiveShared.Seasons) == "table" and competitiveShared.Seasons[season] or nil
-	local teamRank = 0
-	pcall(function()
-		local leaderboard = Workspace.Worlds["The Overworld"].Leaderboards.Competitive
-		local ranks = HttpService:JSONDecode(leaderboard:GetAttribute("Ranks"))
-		for rank, entry in ipairs(ranks) do
-			if type(entry) == "table" and tostring(entry.id or "") == tostring(clan and clan.Id or "") then
-				teamRank = rank
-				break
-			end
-		end
-	end)
-	local teamStatus = clanId ~= "" and "ready" or "creating"
-	if clanId == "" and Config.autoBubbleCompetition ~= true then
-		teamStatus = "disabled"
-	elseif clanId == "" then
-		pcall(function()
-			if competitiveShared:IsFinalDay(season) then
-				teamStatus = "locked"
-			end
-		end)
-	end
-	return {
-		Active = true,
-		Season = tonumber(season) or 0,
-		Score = math.max(0, tonumber(competitive.Score) or 0),
-		MaxPoints = math.max(0, tonumber(competitiveShared.MaxPoints) or 0),
-		Claimed = type(competitive.Claimed) == "table" and #competitive.Claimed or 0,
-		RewardTiers = seasonData and type(seasonData.Rewards) == "table" and #seasonData.Rewards or 0,
-		TeamName = clanId,
-		TeamStatus = teamStatus,
-		TeamAttempts = math.max(0, math.floor(tonumber(activeStates.BGSI_Lite_CompetitiveTeamNameAttempt) or 0)),
-		TeamLastName = tostring(activeStates.BGSI_Lite_CompetitiveTeamLastName or ""),
-		TeamRank = teamRank,
-		TeamScore = teamScore,
-		Members = members,
-		EndsAt = seasonData and type(seasonData.FinishTime) == "table"
-				and math.max(0, tonumber(seasonData.FinishTime.UnixTimestamp) or 0)
-			or 0,
-	}
-end
-activeStates.BGSI_Lite_RunCompetitiveAutomation = function()
-	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	local competitiveShared = activeStates.BGSI_Lite_GetCompetitiveShared()
-	if type(playerData) ~= "table" or type(competitiveShared) ~= "table" then
-		return
-	end
-	local season
-	pcall(function()
-		season = competitiveShared:GetSeason()
-	end)
-	local competitive = type(playerData.Competitive) == "table" and playerData.Competitive or nil
-	local seasonData = season and type(competitiveShared.Seasons) == "table"
-			and competitiveShared.Seasons[season]
-		or nil
-	if not season or not competitive or type(seasonData) ~= "table" then
-		return
-	end
-	if tonumber(activeStates.BGSI_Lite_CompetitiveTeamSeason) ~= tonumber(season) then
-		activeStates.BGSI_Lite_CompetitiveTeamSeason = season
-		activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
-		activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = 0
-		activeStates.BGSI_Lite_CompetitiveTeamLastName = ""
-	end
-	local competitiveClanId = type(competitive.Clan) == "table" and tostring(competitive.Clan.Id or "")
-		or (type(competitive.Clan) == "string" and competitive.Clan or "")
-	if competitiveClanId ~= "" then
-		activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
-	elseif tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveTeamAttemptAt) or 0) >= 3 then
-		local isFinalDay = false
-		pcall(function()
-			isFinalDay = competitiveShared:IsFinalDay(season)
-		end)
-		if not isFinalDay then
-			local maximumLength = type(sharedConstants) == "table"
-					and type(sharedConstants.Clan) == "table"
-					and tonumber(sharedConstants.Clan.MaxNameLength)
-				or 20
-			local teamNameAttempt = math.max(
-				0,
-				math.floor(tonumber(activeStates.BGSI_Lite_CompetitiveTeamNameAttempt) or 0)
-			)
-			local teamName = activeStates.BGSI_Lite_GetCompetitiveTeamName(teamNameAttempt, maximumLength)
-			if teamName ~= "" then
-				local teamRequestSent = pcall(remoteEvent.FireServer, remoteEvent, "ClanCreate", teamName)
-				if teamRequestSent then
-					activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = tick()
-					activeStates.BGSI_Lite_CompetitiveTeamNameAttempt = teamNameAttempt + 1
-					activeStates.BGSI_Lite_CompetitiveTeamLastName = teamName
-				end
-			end
-		end
-	end
-	local function hasClaimedReward(rewardIndex)
-		for claimedKey, claimedValue in pairs(type(competitive.Claimed) == "table" and competitive.Claimed or {}) do
-			if tostring(claimedKey) == tostring(rewardIndex) and claimedValue == true then
-				return true
-			end
-			if tostring(claimedValue) == tostring(rewardIndex) then
-				return true
-			end
-		end
-		return false
-	end
-	if type(seasonData.Rewards) == "table" and type(competitive.Claimed) == "table" then
-		activeStates.BGSI_Lite_CompetitiveRewardClaimAt =
-			type(activeStates.BGSI_Lite_CompetitiveRewardClaimAt) == "table"
-				and activeStates.BGSI_Lite_CompetitiveRewardClaimAt
-				or {}
-		for rewardIndex in ipairs(seasonData.Rewards) do
-			local requirement = math.huge
-			pcall(function()
-				requirement = tonumber(competitiveShared:GetRequirement(seasonData, rewardIndex)) or math.huge
-			end)
-			if
-				not hasClaimedReward(rewardIndex)
-				and math.max(0, tonumber(competitive.Score) or 0) >= requirement
-				and tick()
-					- (tonumber(activeStates.BGSI_Lite_CompetitiveRewardClaimAt[rewardIndex]) or 0)
-					>= 2
-			then
-				local claimSent = pcall(
-					remoteEvent.FireServer,
-					remoteEvent,
-					"ClaimCompetitivePrize",
-					rewardIndex,
-					math.clamp(math.floor(tonumber(Config.competitiveRewardChoice) or 2), 1, 2)
-				)
-				if claimSent then
-					activeStates.BGSI_Lite_CompetitiveRewardClaimAt[rewardIndex] = tick()
-				end
-				task.wait(0.15)
-			end
-		end
-	end
-	if type(itemUtil) == "table" and type(competitiveShared.RerollCost) == "table" then
-		local ownedAmount = 0
-		local requiredAmount = math.huge
-		pcall(function()
-			ownedAmount = tonumber(itemUtil:GetOwnedAmount(playerData, competitiveShared.RerollCost)) or 0
-			requiredAmount = tonumber(itemUtil:GetAmount(competitiveShared.RerollCost)) or math.huge
-		end)
-		activeStates.BGSI_Lite_CompetitiveRerollAt = activeStates.BGSI_Lite_CompetitiveRerollAt or {}
-		for questSlot = 3, 4 do
-			local quest
-			pcall(function()
-				quest = questModule:FindById(playerData, tostring(competitiveShared.QuestKey or "competitive") .. "-" .. questSlot)
-			end)
-			local questTask = type(quest) == "table" and type(quest.Tasks) == "table" and quest.Tasks[1] or nil
-			if
-				type(questTask) == "table"
-				and not isBubbleBountyTask(questTask)
-				and ownedAmount >= requiredAmount
-				and tick() - (tonumber(activeStates.BGSI_Lite_CompetitiveRerollAt[questSlot]) or 0) >= 15
-			then
-				pcall(remoteEvent.FireServer, remoteEvent, "CompetitiveReroll", questSlot)
-				activeStates.BGSI_Lite_CompetitiveRerollAt[questSlot] = tick()
-				ownedAmount = ownedAmount - requiredAmount
-			end
-		end
-	end
 end
 
 do
@@ -9941,27 +9778,37 @@ do
 		end,
 	})
 
+	-- HatchPowerupEgg caps at 12 per call client-side and carries no server-side cooldown
+	-- attribute at all (confirmed from the game's own decompiled source - unlike world
+	-- HatchEgg's NextEggOpenAt, nothing gates a second call from landing immediately
+	-- after the first), so firing several 12-batches from concurrent workers via
+	-- BGSI_Lite_ConcurrentConsumeItem (defined on activeStates in the Mystery Box section
+	-- further down - available by the time this loop actually runs, since the whole
+	-- script finishes loading before any background loop's first task.wait resumes)
+	-- drains a large inventory egg stack far faster than one call at a time ever could.
 	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
 		local selectedEggName = tostring(Config.selectedInventoryEgg or "")
-		if selectedEggName == "" then
-			return false
+		if selectedEggName == "" or type(activeStates.BGSI_Lite_ConcurrentConsumeItem) ~= "function" then
+			return 0
 		end
-		local playerData = profileStore:IsReady() and profileStore:Get() or nil
-		local owned = type(playerData) == "table"
-				and type(playerData.Powerups) == "table"
-				and tonumber(playerData.Powerups[selectedEggName])
-			or 0
-		owned = math.max(0, math.floor(owned or 0))
-		if owned <= 0 then
-			return false
-		end
-		local amount = math.min(12, owned)
-		return pcall(activeStates.BGSI_Lite_FireGameRemote, "HatchPowerupEgg", selectedEggName, amount)
+		return activeStates.BGSI_Lite_ConcurrentConsumeItem({
+			remoteName = "HatchPowerupEgg",
+			itemName = selectedEggName,
+			perCallCap = 12,
+			concurrency = 4,
+			targetTotal = 999999,
+			shouldContinue = function()
+				return isCurrentRun()
+					and Config.autoHatchInventoryEgg
+					and Config.safeMode ~= true
+					and tostring(Config.selectedInventoryEgg or "") == selectedEggName
+			end,
+		})
 	end
 
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.autoHatchInventoryEgg and 0.05 or 0.85)
+			task.wait(Config.autoHatchInventoryEgg and 0.5 or 0.85)
 			if Config.autoHatchInventoryEgg and Config.safeMode ~= true then
 				pcall(activeStates.BGSI_Lite_RunInventoryEggHatch)
 			end
@@ -11339,28 +11186,6 @@ do
 			saveConfig()
 		end,
 	})
-	gameTab:AddToggle("AutoBubbleCompetition", {
-		Title = "Auto Bubble Competition",
-		Description = "Bubble and sell anywhere while hatching, create a team, reroll non-bubble tasks, and claim rewards.",
-		Default = Config.autoBubbleCompetition,
-		Callback = function(isEnabled)
-			Config.autoBubbleCompetition = isEnabled
-			if isEnabled then
-				activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
-			end
-			saveConfig()
-		end,
-	})
-	gameTab:AddDropdown("CompetitiveRewardChoice", {
-		Title = "Competition Reward Choice",
-		Description = "Choose the first or second reward whenever a competition tier is ready.",
-		Values = { "1", "2" },
-		Default = tostring(Config.competitiveRewardChoice or 2),
-		Callback = function(selectedChoice)
-			Config.competitiveRewardChoice = tonumber(selectedChoice) or 2
-			saveConfig()
-		end,
-	})
 	gameTab:AddSection("Classic Island Obbys")
 	gameTab:AddToggle("AutoObbyCycle", {
 		Title = "Hard to Easy Obby Cycle",
@@ -12291,16 +12116,6 @@ do
 			saveConfig()
 		end,
 	})
-	gameTab:AddToggle("AutoBuyCompetitiveShop", {
-		Title = "Auto Buy Competition Shop",
-		Description = "Spends Bubble Coins on all available fragments first, then buys the remaining affordable stock.",
-		Default = Config.autoBuyCompetitiveShop ~= false,
-		Callback = function(enabled)
-			Config.autoBuyCompetitiveShop = enabled == true
-			saveConfig()
-		end,
-	})
-
 	gameTab:AddInput("ShopBuyInterval", {
 		Title = "Buy Delay",
 		Default = tostring(Config.shopInterval or 1),
@@ -12413,76 +12228,6 @@ do
 			end
 		end
 	end)
-	task.spawn(function()
-		while isCurrentRun() do
-			task.wait(Config.autoBuyCompetitiveShop and math.max(1, tonumber(Config.shopInterval) or 1) or 0.85)
-			if not Config.autoBuyCompetitiveShop then
-				continue
-			end
-			if not activeStates.BGSI_Lite_ShopUtil then
-				pcall(function()
-					activeStates.BGSI_Lite_ShopUtil = require(ReplicatedStorage.Shared.Utils.ShopUtil)
-				end)
-			end
-			local shopUtil = activeStates.BGSI_Lite_ShopUtil
-			local playerData = profileStore:IsReady() and profileStore:Get() or nil
-			local shopState = type(playerData) == "table"
-					and type(playerData.Shops) == "table"
-					and playerData.Shops["bubblecomp-shop"]
-				or nil
-			if type(shopUtil) ~= "table" or type(shopState) ~= "table" then
-				continue
-			end
-			local itemsOk, itemsData, itemStocks =
-				pcall(shopUtil.GetItemsData, shopUtil, "bubblecomp-shop", LocalPlayer, playerData)
-			local unlockedOk, unlockedSlots = pcall(
-				shopUtil.GetUnlockedSlots,
-				shopUtil,
-				playerData,
-				type(itemsData) == "table" and #itemsData or 0
-			)
-			if not itemsOk or type(itemsData) ~= "table" or type(itemStocks) ~= "table" then
-				continue
-			end
-			local fragmentsRemaining = false
-			for pass = 1, 2 do
-				for slotIndex, shopItem in ipairs(itemsData) do
-					local product = type(shopItem) == "table" and shopItem.Product or nil
-					local productName = type(product) == "table" and tostring(product.Name or "") or ""
-					local isFragment = string.find(string.lower(productName), "fragment", 1, true) ~= nil
-					local boughtAmount = type(shopState.Bought) == "table"
-							and math.max(0, tonumber(shopState.Bought[slotIndex]) or 0)
-						or 0
-					local availableStock = math.max(0, (tonumber(itemStocks[slotIndex]) or 0) - boughtAmount)
-					if
-						availableStock > 0
-						and (not unlockedOk or slotIndex <= unlockedSlots)
-						and ((pass == 1 and isFragment) or (pass == 2 and not isFragment))
-					then
-						local canAffordOk, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, shopItem.Cost)
-						if canAffordOk and canAfford then
-							pcall(remoteEvent.FireServer, remoteEvent, "BuyShopItem", "bubblecomp-shop", slotIndex, true)
-							task.wait(0.3)
-							playerData = profileStore:IsReady() and profileStore:Get() or playerData
-							shopState = type(playerData.Shops) == "table"
-									and playerData.Shops["bubblecomp-shop"]
-								or shopState
-							boughtAmount = type(shopState.Bought) == "table"
-									and math.max(0, tonumber(shopState.Bought[slotIndex]) or 0)
-								or boughtAmount
-						end
-						if pass == 1 and boughtAmount < (tonumber(itemStocks[slotIndex]) or 0) then
-							fragmentsRemaining = true
-						end
-					end
-				end
-				if pass == 1 and fragmentsRemaining then
-					break
-				end
-			end
-		end
-	end)
-
 	gameTab:AddSection("Mystery Boxes")
 	local function getGiftNames()
 		local giftNames = {}
@@ -12874,8 +12619,6 @@ do
 			"autoCollectCoins",
 			"autoBubble",
 			"autoSell",
-			"autoBubbleCompetition",
-			"competitiveRewardChoice",
 			"selectedObby",
 			"autoObby",
 			"autoObbyCycle",
@@ -12883,7 +12626,6 @@ do
 			"obbyChestUseThreeKeys",
 			"autoUseFragments",
 			"autoBuyFragments",
-			"autoBuyCompetitiveShop",
 			"selectedFragments",
 			"selectedShops",
 			"selectedShopItems",
@@ -13835,10 +13577,6 @@ do
 									or nil,
 								serverPlayers = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardServerPlayers, {}),
 								config = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardConfig, {}),
-								competition = activeStates.BGSI_Lite_SafeDashboardBuild(
-									activeStates.BGSI_Lite_GetCompetitiveTelemetry,
-									nil
-								),
 								rifts = activeStates.BGSI_Lite_SafeDashboardBuild(function()
 									return activeStates.BGSI_Lite_DashboardRifts or {}
 								end, {}),
@@ -14707,23 +14445,21 @@ do
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoBubble or Config.autoBubbleCompetition) and 0.01 or 0.85)
-			if Config.autoBubble or Config.autoBubbleCompetition then
+			task.wait(Config.autoBubble and 0.01 or 0.85)
+			if Config.autoBubble then
 				activeStates.BGSI_Lite_BlowBubble()
 			end
 		end
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait((Config.autoSell or Config.autoBubbleCompetition) and 0.05 or 0.85)
-			if Config.autoSell or Config.autoBubbleCompetition then
+			task.wait(Config.autoSell and 0.05 or 0.85)
+			if Config.autoSell then
 				local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
 				if
 					bubbleState
 					and bubbleState.Amount > 0
 					and (
-						Config.autoBubbleCompetition
-						or
 						(
 							not bubbleState.Infinite
 							and bubbleState.Storage > 0
@@ -14738,14 +14474,6 @@ do
 				then
 					activeStates.BGSI_Lite_SellBubble()
 				end
-			end
-		end
-	end)
-	task.spawn(function()
-		while isCurrentRun() do
-			task.wait(Config.autoBubbleCompetition and 2 or 0.85)
-			if Config.autoBubbleCompetition then
-				pcall(activeStates.BGSI_Lite_RunCompetitiveAutomation)
 			end
 		end
 	end)
@@ -14837,6 +14565,108 @@ do
 		end
 		return collectedAnyEver
 	end
+
+	-- Concurrent batch consumer: fires a Powerup-consuming remote (UseGift,
+	-- HatchPowerupEgg, ...) from several worker coroutines at once instead of one call,
+	-- wait, check, repeat. Confirmed straight from the game's own Constants table
+	-- (v1.MaxSpawnableLimit = 50) that UseGift's real per-call cap is 50, not the 10 this
+	-- script used to assume - and neither UseGift nor HatchPowerupEgg carry any
+	-- server-side cooldown attribute the way world HatchEgg's NextEggOpenAt does, so
+	-- nothing actually stops several batches from being in flight together. The only
+	-- thing that was limiting speed before was firing them one at a time.
+	--
+	-- lastObservedOwned/reconcileObserved is the concurrency-safety mechanism: Luau
+	-- coroutines only yield at task.wait, so any stretch of code with no task.wait in it
+	-- runs atomically relative to every other worker. reconcileObserved reads the live
+	-- owned amount and, if it dropped since the last time ANYONE observed it, claims the
+	-- whole drop for totalConsumed and rebases the baseline - all without yielding - so
+	-- whichever worker notices a drop first claims it and the next worker to check sees
+	-- the already-updated baseline and claims nothing extra. That rules out two workers
+	-- double-crediting the same server-side consumption. pendingClaimed works the same
+	-- way to stop two workers claiming the same not-yet-consumed units for their batches.
+	activeStates.BGSI_Lite_ConcurrentConsumeItem = function(options)
+		local remoteName = options.remoteName
+		local itemName = options.itemName
+		local perCallCap = math.max(1, math.floor(tonumber(options.perCallCap) or 12))
+		local concurrency = math.max(1, math.floor(tonumber(options.concurrency) or 4))
+		local targetTotal = math.max(1, math.floor(tonumber(options.targetTotal) or perCallCap))
+		local shouldContinue = type(options.shouldContinue) == "function" and options.shouldContinue
+			or function()
+				return true
+			end
+		local onBatchConfirmed = options.onBatchConfirmed
+		local giftItem = { Type = "Powerup", Name = itemName }
+
+		local function getOwned()
+			local ownedAmount = 0
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				local amount = itemUtil:GetOwnedAmount(playerData, giftItem)
+				ownedAmount = math.max(0, math.floor(tonumber(amount) or 0))
+			end)
+			return ownedAmount
+		end
+
+		local lastObservedOwned = getOwned()
+		local totalConsumed = 0
+		local pendingClaimed = 0
+		local activeWorkers = 0
+
+		local function reconcileObserved()
+			local current = getOwned()
+			if current < lastObservedOwned then
+				local delta = lastObservedOwned - current
+				lastObservedOwned = current
+				totalConsumed += delta
+				if type(onBatchConfirmed) == "function" then
+					pcall(onBatchConfirmed, delta)
+				end
+			end
+			return current
+		end
+
+		local function worker()
+			activeWorkers += 1
+			while totalConsumed < targetTotal and shouldContinue() do
+				local ownedAmount = reconcileObserved()
+				local available = ownedAmount - pendingClaimed
+				local remainingTarget = targetTotal - totalConsumed - pendingClaimed
+				local batchAmount = math.min(perCallCap, remainingTarget, available)
+				if batchAmount <= 0 then
+					break
+				end
+				pendingClaimed += batchAmount
+				pcall(activeStates.BGSI_Lite_FireGameRemote, remoteName, itemName, batchAmount)
+				local waitDeadline = tick() + 3
+				local sawDrop = false
+				repeat
+					task.wait(0.1)
+					local before = lastObservedOwned
+					reconcileObserved()
+					if lastObservedOwned < before then
+						sawDrop = true
+					end
+				until sawDrop or tick() >= waitDeadline or not shouldContinue()
+				pendingClaimed = math.max(0, pendingClaimed - batchAmount)
+				if not sawDrop then
+					task.wait(0.2)
+				end
+			end
+			activeWorkers -= 1
+		end
+
+		for _ = 1, concurrency do
+			task.spawn(worker)
+		end
+
+		local overallDeadline = tick() + 60
+		while activeWorkers > 0 and tick() < overallDeadline and shouldContinue() do
+			task.wait(0.1)
+		end
+		reconcileObserved()
+		return totalConsumed
+	end
+
 	task.spawn(function()
 		while isCurrentRun() do
 			local scriptStateIP = math.clamp(tonumber(Config.autoOpenMysteryDelay) or 0.2, 0.2, 60)
@@ -14846,60 +14676,45 @@ do
 				and type(Config.selectedMysteryBox) == "string"
 				and Config.selectedMysteryBox ~= ""
 			then
-				-- The server appears to cap what a single UseGift call actually spawns
-				-- (observed capping at 10 regardless of the amount requested) - so reaching
-				-- a 50-box batch means firing that call several times back-to-back, each
-				-- capped to that real per-call limit, rather than asking for 50 in one shot.
-				local perCallLimit = math.max(
-					1,
-					math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 10)
-				)
 				local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
-				local targetTotal = 50
-				local totalRequested = 0
-				while
-					totalRequested < targetTotal
-					and isCurrentRun()
-					and Config.autoOpenMystery
-				do
-					local ownedAmount = 0
-					pcall(function()
-						local playerData = profileStore:IsReady() and profileStore:Get() or nil
-						local amount = itemUtil:GetOwnedAmount(
-							playerData,
-							{ Type = "Powerup", Name = Config.selectedMysteryBox }
-						)
-						ownedAmount = math.max(0, math.floor(tonumber(amount) or 0))
-					end)
-					if ownedAmount <= 0 then
-						break
-					end
-					local batchAmount = math.min(perCallLimit, targetTotal - totalRequested, ownedAmount)
-					if batchAmount <= 0 then
-						break
-					end
-					pcall(
-						activeStates.BGSI_Lite_FireGameRemote,
-						"UseGift",
-						Config.selectedMysteryBox,
-						batchAmount
-					)
-					totalRequested += batchAmount
-					if type(physicalItem) == "table" then
-						local spawned = false
-						local spawnDeadline = tick() + 3
-						repeat
-							task.wait(0.1)
-							local activeCount = 0
+				local boxName = Config.selectedMysteryBox
+				local collectorRunning = true
+				-- Collecting runs concurrently with the consume workers below instead of
+				-- after each batch - since multiple UseGift batches can legitimately be in
+				-- flight together now, waiting for one batch's drops to fully clear before
+				-- requesting the next would only waste time again.
+				task.spawn(function()
+					local collectDeadline = tick() + 65
+					while collectorRunning and isCurrentRun() and tick() < collectDeadline do
+						local activeCount = 0
+						if type(physicalItem) == "table" then
 							pcall(function()
 								activeCount = physicalItem:GetActiveObjects("Gift")
 							end)
-							spawned = activeCount > 0
-						until spawned or tick() >= spawnDeadline
-						if spawned then
-							activeStates.BGSI_Lite_OpenSpawnedGifts(10)
 						end
+						if activeCount > 0 then
+							activeStates.BGSI_Lite_OpenSpawnedGifts(2)
+						end
+						task.wait(0.15)
 					end
+				end)
+				activeStates.BGSI_Lite_ConcurrentConsumeItem({
+					remoteName = "UseGift",
+					itemName = boxName,
+					perCallCap = math.max(
+						1,
+						math.floor(tonumber(sharedConstants and sharedConstants.MaxSpawnableLimit) or 50)
+					),
+					concurrency = 3,
+					targetTotal = 50,
+					shouldContinue = function()
+						return isCurrentRun() and Config.autoOpenMystery and Config.selectedMysteryBox == boxName
+					end,
+				})
+				collectorRunning = false
+				task.wait(0.2)
+				if type(physicalItem) == "table" then
+					activeStates.BGSI_Lite_OpenSpawnedGifts(3)
 				end
 			end
 		end
@@ -19047,15 +18862,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 			if not isCurrentRun() then
 				return
 			end
-			if scriptStateKW == "Notification" then
-				local notificationText = string.lower(activeStates.BGSI_Lite_GetNotificationText(scriptStateNY))
-				if
-					string.find(notificationText, "team name was filtered", 1, true)
-					or string.find(notificationText, "try another one", 1, true)
-				then
-					activeStates.BGSI_Lite_CompetitiveTeamAttemptAt = 0
-				end
-			end
 			local scriptStatePO
 			if
 				scriptStateKW == "HatchEgg"
@@ -19118,7 +18924,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				end
 				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
 				if
-					(Config.autoBubble or Config.autoBubbleCompetition)
+					Config.autoBubble
 					and type(activeStates.BGSI_Lite_BlowBubble) == "function"
 				then
 					task.defer(activeStates.BGSI_Lite_BlowBubble)
@@ -20531,6 +20337,30 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 		return "up-to-date", downloadedVersion
 	end
 
+	-- Circuit breaker: activeStates is getgenv() itself, so these two fields survive a
+	-- reload. If a script we just reloaded INTO still sees a mismatch against the exact
+	-- same downloadedVersion it was supposed to have just become, something is broken
+	-- (the new script errored before reaching its own version assignment, GitHub is
+	-- serving something inconsistent, etc.) - reloading again would only stack another
+	-- window on top of the one that never got torn down, repeating forever. Refuse to
+	-- reload to a target we already just reloaded to within the last two minutes, and
+	-- force-sync our version marker to it instead so the mismatch stops recurring.
+	if
+		activeStates.BGSI_Lite_LastAutoUpdateTarget == downloadedVersion
+		and type(activeStates.BGSI_Lite_LastAutoUpdateAt) == "number"
+		and tick() - activeStates.BGSI_Lite_LastAutoUpdateAt < 120
+	then
+		warn(
+			"[1rzHub Lite] Auto-update refused to reload again: already attempted version "
+				.. downloadedVersion
+				.. " "
+				.. tostring(math.floor(tick() - activeStates.BGSI_Lite_LastAutoUpdateAt))
+				.. "s ago and this run still doesn't match it. Skipping to avoid a reload loop."
+		)
+		activeStates.BGSI_Lite_ScriptVersion = downloadedVersion
+		return "error", downloadedVersion, "Refused repeat reload to the same version to avoid a loop"
+	end
+
 	local compiledScript, compileError = loadstring(scriptSource)
 	if type(compiledScript) ~= "function" then
 		warn(
@@ -20543,6 +20373,8 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 	end
 
 	autoUpdateReloadQueued = true
+	activeStates.BGSI_Lite_LastAutoUpdateTarget = downloadedVersion
+	activeStates.BGSI_Lite_LastAutoUpdateAt = tick()
 	print("[" .. LocalPlayer.Name .. "] Auto-update found version " .. downloadedVersion .. ". Reloading...")
 	if type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
 		activeStates.BGSI_Lite_LogDashboardAction("Auto-updating to version " .. downloadedVersion, "info")
