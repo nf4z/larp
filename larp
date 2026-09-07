@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.32"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.33"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.33",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Skip Ticket and Pearl Quests now interrupts a run in progress",
+				description = "Turning Skip on while a ticket or pearl task was already being farmed did nothing until that task finished on its own - the pickup loops only listened to whether the enclosing feature was still on, not the Skip toggle itself. They now recheck it every cycle and bail immediately.",
+				icon = "square-x",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.32",
 		releasedAt = "September 6, 2026",
@@ -6394,6 +6405,18 @@ do
 				end
 				activeQuestData = scriptStateQuest
 				local scriptStateTask = scriptStateQuest.Tasks and scriptStateQuest.Tasks[scriptStateTaskIndex]
+				-- Ticket/pearl pickup used to keep running for as long as the outer
+				-- shouldContinue() said so, which has nothing to do with Skip Ticket and
+				-- Pearl Quests - it just means "the enclosing feature is still on". Once this
+				-- loop was dispatched into, flipping Skip on mid-task did nothing until the
+				-- whole task finished on its own. Re-checking every iteration lets Skip
+				-- actually interrupt a pickup run that's already in progress.
+				if
+					type(scriptStateTask) == "table"
+					and activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateTask)
+				then
+					break
+				end
 				local scriptStateNeeded = scriptStateTask and getBountyTaskRequirement(scriptStateTask)
 					or scriptStateRequirement
 				local scriptStateProgress = getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex)
@@ -6474,6 +6497,15 @@ do
 				end
 				activeQuestData = scriptStateQuest
 				local scriptStateTask = scriptStateQuest.Tasks and scriptStateQuest.Tasks[scriptStateTaskIndex]
+				-- Same live re-check as the ticket pickup loop above: relying only on
+				-- shouldContinue() meant flipping Skip on mid-task never interrupted a pearl
+				-- run already in progress.
+				if
+					type(scriptStateTask) == "table"
+					and activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateTask)
+				then
+					break
+				end
 				local scriptStateNeeded = scriptStateTask and getBountyTaskRequirement(scriptStateTask)
 					or scriptStateRequirement
 				local scriptStateProgress = getBountyTaskProgress(scriptStateQuest, scriptStateTaskIndex)
