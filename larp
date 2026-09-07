@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.31"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.32"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.32",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Inventory Cleanup no longer waits for a full inventory",
+				description = "It used to only trim duplicate pets once the pet inventory was literally full, so a huge Legendary-and-below duplicate stack just sat there forever with free slots open. Now it trims any disposable stack over your Cleanup Minimum Copies right away - Super Legendary, Celestial, Infinity, Void, and Secret pets are still never touched.",
+				icon = "trash-2",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.31",
 		releasedAt = "September 6, 2026",
@@ -3641,9 +3652,16 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 		return false
 	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
-	if not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+	if type(playerData) ~= "table" then
 		return false
 	end
+	-- Used to require the pet inventory to be literally full before trimming anything,
+	-- which meant a high-count non-Super duplicate stack (Legendary and below - Super
+	-- Legendary/Celestial/Infinity/Void/Secret never qualify as disposable to begin
+	-- with, see BGSI_Lite_GetDisposablePetRank) just sat there forever as long as any
+	-- free slot remained. The candidate selection below already only touches stacks
+	-- whose count exceeds the configured minimum, so it's already scoped to "high
+	-- counts" - there's no need to also wait for the inventory to fill up first.
 	local minimumCopies = math.max(2, math.floor(tonumber(Config.inventoryCleanupMinCopies) or 10))
 	local candidateGroups = {}
 	for _, pet in ipairs(type(playerData) == "table" and type(playerData.Pets) == "table" and playerData.Pets or {}) do
@@ -3697,7 +3715,7 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 		for _, selectedCandidate in ipairs(candidates) do
 			local remainingCopies = selectedCandidate.amount
 			for _, candidatePet in ipairs(selectedCandidate.pets) do
-				if not isCurrentRun() or not activeStates.BGSI_Lite_IsPetInventoryFull(playerData) then
+				if not isCurrentRun() then
 					return
 				end
 				playerData = profileStore:IsReady() and profileStore:Get() or nil
