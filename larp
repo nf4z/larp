@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.30"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.06.31"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,22 @@ end
 -- Check new players that join
 Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.06.31",
+		releasedAt = "September 6, 2026",
+		notes = {
+			{
+				title = "Fixed a crash that broke other tabs on load",
+				description = "The Shadow Leviathan Target Item dropdown called a helper function before it existed yet, which threw an error mid-build and cut off every tab that hadn't loaded yet. Fixed by defining it earlier.",
+				icon = "bug",
+			},
+			{
+				title = "Season Pass Quests now actually get claimed",
+				description = "Daily/hourly challenge quests were dropped from the automation's list the instant they hit 'Completed', before anything ever claimed them - so they sat finished-but-unrewarded forever, and if that flag flipped early on a multi-task quest, an unfinished bubble task inside it got abandoned too even with Skip Bubbling Quests off. Now it claims finished quests and keeps working unfinished ones instead of dropping them.",
+				icon = "check-check",
+			},
+		},
+	},
 	{
 		version = "2026.09.06.30",
 		releasedAt = "September 6, 2026",
@@ -16710,6 +16726,23 @@ do
 	-- which must be picked with StartLeviathanQuest(index) before it can be worked on -
 	-- unlike regular bounties, which are already active and just need their tasks run.
 	scriptStateUC:AddSection("Shadow Leviathan Quest")
+	-- BGSI_Lite_GetShadowLeviathanQuestModule's "real" definition lives further down
+	-- the file (next to the rest of the Shadow Leviathan automation), which hadn't run
+	-- yet at this point during UI construction - calling it here threw "attempt to call
+	-- a nil value" and aborted the whole tab-building function partway through, which is
+	-- why other tabs below this one stopped loading too. Defining it here as well (the
+	-- later definition just overwrites this one, harmlessly) makes it available before
+	-- its first real use.
+	if type(activeStates.BGSI_Lite_GetShadowLeviathanQuestModule) ~= "function" then
+		activeStates.BGSI_Lite_GetShadowLeviathanQuestModule = function()
+			if activeStates.BGSI_Lite_ShadowLeviathanQuestModule == nil then
+				local ok, questFn = pcall(require, ReplicatedStorage.Shared.Data.Quests.ShadowLeviathanQuest)
+				activeStates.BGSI_Lite_ShadowLeviathanQuestModule = (ok and questFn) or false
+			end
+			local questFn = activeStates.BGSI_Lite_ShadowLeviathanQuestModule
+			return questFn ~= false and questFn or nil
+		end
+	end
 	-- Same setup as Gem Genie's target picker: sample the quest generator across many
 	-- seeds with the real player data and collect every distinct reward item it can
 	-- produce, so the dropdown always reflects exactly what's actually obtainable instead
@@ -17734,6 +17767,63 @@ task.spawn(function()
 		task.wait(0.5)
 	end
 end)
+-- A quest object with .Completed == true (all tasks already at/above requirement)
+-- used to be dropped from stopGemGenieAutomation()'s returned list entirely, on the
+-- assumption a completed quest needs no further work. That's wrong for this game:
+-- reaching the task requirement and actually being rewarded are two separate steps -
+-- the quest sits "Completed" but still "Claimed ~= true" until a Claim remote fires.
+-- Dropping it the instant it hit Completed meant the automation forgot the quest
+-- existed and never claimed it (Auto Claim Season Pass only claims the reward TRACK,
+-- not individual daily/hourly quests) - and if a quest's Completed flag flips true
+-- from server-side bookkeeping before every one of its tasks is actually finished
+-- (e.g. a partial-reward tier), the automation would abandon a still-unfinished
+-- bubble task the same way, which is exactly what looked like a bubble quest that
+-- "won't complete" even with Skip Bubbling Quests turned off.
+activeStates.BGSI_Lite_IsQuestFullyComplete = function(questData)
+	if type(questData) ~= "table" then
+		return false
+	end
+	if type(questData.Tasks) ~= "table" then
+		return questData.Completed == true
+	end
+	local sawTask = false
+	for _, taskIndex in ipairs(makeIndexList(questData.Tasks)) do
+		local questTask = questData.Tasks[taskIndex]
+		if type(questTask) == "table" then
+			sawTask = true
+			if getBountyTaskProgress(questData, taskIndex) < getBountyTaskRequirement(questTask) then
+				return false
+			end
+		end
+	end
+	if sawTask then
+		return true
+	end
+	return questData.Completed == true
+end
+-- The real Claim remote name for an individual daily/hourly challenge quest isn't
+-- confirmed (unlike ChallengePassClaimReward/ClaimGlobalIncentives, which are), so
+-- this fires every plausible candidate the same defensive way FireChallengePassAction
+-- and equipPetTeam already do elsewhere in this script - a wrong guess is a silent
+-- no-op server-side, caught by pcall either way.
+activeStates.BGSI_Lite_ClaimSeasonChallengeQuest = function(challengeQuestId)
+	if type(challengeQuestId) ~= "string" or challengeQuestId == "" then
+		return
+	end
+	for _, actionName in ipairs({
+		"ClaimQuest",
+		"ClaimChallenge",
+		"ClaimDailyChallenge",
+		"ClaimHourlyChallenge",
+		"ClaimBounty",
+		"ClaimQuestReward",
+		"ClaimChallengeReward",
+	}) do
+		pcall(function()
+			remoteEvent:FireServer(actionName, challengeQuestId)
+		end)
+	end
+end
 function stopGemGenieAutomation()
 	local scriptStateFE = {}
 	if not profileStore:IsReady() then
@@ -17768,10 +17858,10 @@ function stopGemGenieAutomation()
 			end
 			if
 				type(challengeQuest) == "table"
-				and challengeQuest.Completed ~= true
 				and challengeQuest.Claimed ~= true
 				and type(challengeQuest.Tasks) == "table"
 			then
+				challengeQuest.Id = challengeQuest.Id or challengeQuest.ID or challengeId
 				table.insert(scriptStateFE, challengeQuest)
 			end
 		end
@@ -17837,6 +17927,10 @@ task.spawn(function()
 		end
 		local scriptStateWQ = false
 		for loopSlotAH, scriptStateAAE in ipairs(scriptStateSA) do
+			if activeStates.BGSI_Lite_IsQuestFullyComplete(scriptStateAAE) then
+				scriptStateWQ = true
+				break
+			end
 			for loopSlotAW, scriptStateTB in ipairs(makeIndexList(scriptStateAAE.Tasks)) do
 				local scriptStateWO = scriptStateAAE.Tasks[scriptStateTB]
 				if type(scriptStateWO) == "table" then
@@ -17873,39 +17967,44 @@ task.spawn(function()
 				break
 			end
 			local scriptStateKZ = scriptStateZC.Id or scriptStateZC.ID
-			for loopSlotBA, scriptStateAC in ipairs(makeIndexList(scriptStateZC.Tasks)) do
-				if not Config.autoDailyHourlyChallenge then
-					break
-				end
-				if activeStates.BGSI_Lite_GemGenieActive then
-					break
-				end
-				local scriptStateDY = scriptStateZC.Tasks[scriptStateAC]
-				if type(scriptStateDY) == "table" then
-					local scriptStateADS = getBountyTaskRequirement(scriptStateDY)
-					local scriptStateTP = getBountyTaskProgress(scriptStateZC, scriptStateAC)
-					if
-						scriptStateTP < scriptStateADS
-						and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateDY)
-						and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateDY)
-						and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateZC, scriptStateAC)
-					then
-						local fallbackUtilityA = function()
-							return Config.autoDailyHourlyChallenge and not activeStates.BGSI_Lite_GemGenieActive
-						end
-						local fallbackUtilityG = function()
-							return runSeasonChallengeTask(scriptStateKZ)
-						end
-						local taskOk = pcall(
-							activeStates.BGSI_Lite_RunQuestTask,
-							fallbackUtilityG,
-							scriptStateAC,
-							scriptStateADS,
-							fallbackUtilityA
-						)
-						if not taskOk then
-							activeStates.BGSI_Lite_ClearActiveQuest(scriptStateZC, scriptStateAC)
-							break
+			if activeStates.BGSI_Lite_IsQuestFullyComplete(scriptStateZC) then
+				pcall(activeStates.BGSI_Lite_ClaimSeasonChallengeQuest, scriptStateKZ)
+				task.wait(0.2)
+			else
+				for loopSlotBA, scriptStateAC in ipairs(makeIndexList(scriptStateZC.Tasks)) do
+					if not Config.autoDailyHourlyChallenge then
+						break
+					end
+					if activeStates.BGSI_Lite_GemGenieActive then
+						break
+					end
+					local scriptStateDY = scriptStateZC.Tasks[scriptStateAC]
+					if type(scriptStateDY) == "table" then
+						local scriptStateADS = getBountyTaskRequirement(scriptStateDY)
+						local scriptStateTP = getBountyTaskProgress(scriptStateZC, scriptStateAC)
+						if
+							scriptStateTP < scriptStateADS
+							and not activeStates.BGSI_Lite_ShouldSkipTicketOrPearlQuest(scriptStateDY)
+							and not activeStates.BGSI_Lite_ShouldSkipBubblingQuest(scriptStateDY)
+							and not activeStates.BGSI_Lite_IsQuestTaskDeferred(scriptStateZC, scriptStateAC)
+						then
+							local fallbackUtilityA = function()
+								return Config.autoDailyHourlyChallenge and not activeStates.BGSI_Lite_GemGenieActive
+							end
+							local fallbackUtilityG = function()
+								return runSeasonChallengeTask(scriptStateKZ)
+							end
+							local taskOk = pcall(
+								activeStates.BGSI_Lite_RunQuestTask,
+								fallbackUtilityG,
+								scriptStateAC,
+								scriptStateADS,
+								fallbackUtilityA
+							)
+							if not taskOk then
+								activeStates.BGSI_Lite_ClearActiveQuest(scriptStateZC, scriptStateAC)
+								break
+							end
 						end
 					end
 				end
