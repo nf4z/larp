@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,22 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.12.03",
+		releasedAt = "September 12, 2026",
+		notes = {
+			{
+				title = "Box Condenser (new)",
+				description = "Game tab: Auto Condense turns every 100 Mystery Boxes into a Condensed Mystery Box, with a Keep Gems reserve and a Condense Now button.",
+				icon = "package",
+			},
+			{
+				title = "Auto Open Box takes multiple boxes",
+				description = "Pick any mix of boxes (Condensed, Guild, regular) and it takes turns opening the ones you own. It leaves plain Mystery Boxes for the condenser while Auto Condense can still use them.",
+				icon = "gift",
+			},
+		},
+	},
 	{
 		version = "2026.09.12.02",
 		releasedAt = "September 12, 2026",
@@ -1699,8 +1715,11 @@ local defaultConfig = {
 	autoObbyChest = false,
 	obbyChestUseThreeKeys = true,
 	selectedMysteryBox = "Mystery Box",
+	selectedMysteryBoxes = {},
 	autoOpenMystery = false,
 	autoOpenMysteryDelay = 0.2,
+	autoCondenseMysteryBoxes = false,
+	condenserGemReserve = 0,
 	autoGemGenie = false,
 	optimisedGemGenie = false,
 	gemGenieTargetItem = "Shadow Crystal",
@@ -12760,16 +12779,29 @@ do
 		end
 		return giftNames
 	end
-	local mysteryBoxDropdown = gameTab:AddDropdown("SelectedMysteryBox", {
-		Title = "Select Box",
-		Values = {
-			Config.selectedMysteryBox ~= "" and Config.selectedMysteryBox or "Mystery Box",
-		},
-		Default = Config.selectedMysteryBox ~= "" and Config.selectedMysteryBox or "Mystery Box",
-		Multi = false,
+	-- Multi-select so regular, Condensed and Guild boxes can all be opened in rotation.
+	-- selectedMysteryBox (single) stays in sync with the first pick for older code paths
+	-- such as the pearl quest, which still read it.
+	if type(Config.selectedMysteryBoxes) ~= "table" then
+		Config.selectedMysteryBoxes = {}
+	end
+	if
+		#getSelectedValues(Config.selectedMysteryBoxes) == 0
+		and type(Config.selectedMysteryBox) == "string"
+		and Config.selectedMysteryBox ~= ""
+	then
+		Config.selectedMysteryBoxes = { Config.selectedMysteryBox }
+	end
+	local mysteryBoxDropdown = gameTab:AddDropdown("SelectedMysteryBoxes", {
+		Title = "Boxes To Open",
+		Description = "Pick any mix, e.g. Mystery Box and Condensed Mystery Box. Auto Open Box takes turns between the ones you own.",
+		Values = getGiftNames(),
+		Default = getSelectedValues(Config.selectedMysteryBoxes),
+		Multi = true,
 		Search = true,
-		Callback = function(selectedMysteryBoxCallback)
-			Config.selectedMysteryBox = selectedMysteryBoxCallback
+		Callback = function(selectedBoxes)
+			Config.selectedMysteryBoxes = getSelectedValues(selectedBoxes)
+			Config.selectedMysteryBox = Config.selectedMysteryBoxes[1] or "Mystery Box"
 			saveConfig()
 		end,
 	})
@@ -12802,6 +12834,178 @@ do
 			end
 		end,
 	})
+	-- Box Condenser (game update 72), from Shared.Data.BoxCondenser: 100 Mystery Boxes +
+	-- 500 Gems -> 1 Condensed Mystery Box. The machine is
+	-- workspace.Worlds["The Overworld"].Islands.Zen.Island.BoxCondenser, and the game's
+	-- own buttons fire CondenseMysteryBox(false) for one craft or (true) for craft-all.
+	activeStates.BGSI_Lite_InstallBoxCondenser = function()
+		local condenserData = { Input = "Mystery Box", Output = "Condensed Mystery Box", Boxes = 100, Gems = 500 }
+		pcall(function()
+			local data = require(ReplicatedStorage.Shared.Data.BoxCondenser)
+			if type(data) == "table" and data.Input and data.Output then
+				condenserData = data
+			end
+		end)
+		local boxesPerCraft = math.max(1, tonumber(condenserData.Boxes) or 100)
+		local gemsPerCraft = math.max(1, tonumber(condenserData.Gems) or 500)
+
+		local function getOwnedPowerup(powerupName)
+			local owned = 0
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				owned = tonumber(itemUtil:GetOwnedAmount(playerData, { Type = "Powerup", Name = powerupName })) or 0
+			end)
+			return math.max(0, math.floor(owned))
+		end
+
+		local function getCraftCounts()
+			local boxes = getOwnedPowerup(condenserData.Input)
+			local gems = getCurrentGems()
+			local reserve = math.max(0, tonumber(Config.condenserGemReserve) or 0)
+			local byBoxes = math.floor(boxes / boxesPerCraft)
+			local affordable = math.min(byBoxes, math.floor(gems / gemsPerCraft))
+			local allowed = math.min(byBoxes, math.floor(math.max(0, gems - reserve) / gemsPerCraft))
+			return allowed, affordable, boxes
+		end
+		activeStates.BGSI_Lite_CanCondenseMysteryBoxes = function()
+			return (getCraftCounts()) > 0
+		end
+
+		local function getCondenserCFrame()
+			local ok, targetCFrame = pcall(function()
+				local machine = workspace.Worlds["The Overworld"].Islands.Zen.Island.BoxCondenser
+				return activeStates.BGSI_Lite_GetInstanceTargetCFrame(machine:FindFirstChild("Activation") or machine)
+			end)
+			return ok and typeof(targetCFrame) == "CFrame" and targetCFrame or nil
+		end
+
+		-- Same snap-fire-snap-back trick as selling: the player is back where they were in
+		-- the same frame, so Auto Hatch keeps its spot at the egg.
+		local function fireAtCondenser(craftAll)
+			local character = LocalPlayer.Character
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			local originalCFrame = rootPart and rootPart.CFrame
+			local machineCFrame = getCondenserCFrame()
+			if rootPart and machineCFrame then
+				rootPart.CFrame = machineCFrame
+			end
+			pcall(activeStates.BGSI_Lite_FireGameRemote, "CondenseMysteryBox", craftAll == true)
+			if rootPart and machineCFrame and originalCFrame then
+				rootPart.CFrame = originalCFrame
+			end
+		end
+
+		local function waitForOutputAbove(previousAmount, seconds)
+			local deadline = tick() + seconds
+			repeat
+				task.wait(0.1)
+			until getOwnedPowerup(condenserData.Output) > previousAmount or tick() >= deadline
+			return getOwnedPowerup(condenserData.Output) > previousAmount
+		end
+
+		activeStates.BGSI_Lite_CondenseMysteryBoxes = function()
+			if Config.safeMode == true or activeStates.BGSI_Lite_CondenserBusy then
+				return 0
+			end
+			local allowed, affordable = getCraftCounts()
+			if allowed <= 0 then
+				return 0
+			end
+			activeStates.BGSI_Lite_CondenserBusy = true
+			local startAmount = getOwnedPowerup(condenserData.Output)
+			pcall(function()
+				if allowed >= affordable then
+					-- Craft-all spends every Gem it can, so only use it when the reserve
+					-- doesn't hold anything back.
+					fireAtCondenser(true)
+					waitForOutputAbove(startAmount, 3)
+				else
+					for _ = 1, allowed do
+						if Config.safeMode == true or not isCurrentRun() then
+							break
+						end
+						local before = getOwnedPowerup(condenserData.Output)
+						fireAtCondenser(false)
+						if not waitForOutputAbove(before, 2) then
+							break
+						end
+					end
+				end
+			end)
+			activeStates.BGSI_Lite_CondenserBusy = false
+			return math.max(0, getOwnedPowerup(condenserData.Output) - startAmount)
+		end
+
+		gameTab:AddSection("Box Condenser")
+		local condenserStatus = gameTab:AddParagraph({
+			Title = "Condenser",
+			Content = "Loading...",
+		})
+		gameTab:AddToggle("AutoCondenseMysteryBoxes", {
+			Title = "Auto Condense Mystery Boxes",
+			Description = "Turns every 100 Mystery Boxes into 1 Condensed Mystery Box (500 Gems each). Never takes your Gems below Keep Gems.",
+			Default = Config.autoCondenseMysteryBoxes,
+			Callback = function(isEnabled)
+				Config.autoCondenseMysteryBoxes = isEnabled == true
+				saveConfig()
+			end,
+		})
+		gameTab:AddInput("CondenserGemReserve", {
+			Title = "Keep Gems",
+			Description = "Condensing stops before your Gems would drop below this.",
+			Default = tostring(math.max(0, tonumber(Config.condenserGemReserve) or 0)),
+			Numeric = true,
+			Callback = function(value)
+				local reserve = tonumber(value)
+				if reserve then
+					Config.condenserGemReserve = math.max(0, math.floor(reserve))
+					saveConfig()
+				end
+			end,
+		})
+		gameTab:AddButton({
+			Title = "Condense Now",
+			Description = "Condenses as many as you can afford right now.",
+			Callback = function()
+				task.spawn(function()
+					local made = activeStates.BGSI_Lite_CondenseMysteryBoxes()
+					pcall(function()
+						Interface:Notify({
+							Title = "Box Condenser",
+							Content = made > 0 and ("Made " .. tostring(made) .. " Condensed Mystery Box(es).")
+								or "Nothing to condense (need 100 Mystery Boxes and 500 spare Gems).",
+							Duration = 4,
+						})
+					end)
+				end)
+			end,
+		})
+
+		task.spawn(function()
+			while isCurrentRun() do
+				pcall(function()
+					local allowed, _, boxes = getCraftCounts()
+					condenserStatus:SetDesc(
+						string.format(
+							"Mystery Boxes: %d  -  Condensed: %d\nCan condense now: %d (%d boxes + %d Gems each)",
+							boxes,
+							getOwnedPowerup(condenserData.Output),
+							allowed,
+							boxesPerCraft,
+							gemsPerCraft
+						)
+					)
+				end)
+				if Config.autoCondenseMysteryBoxes == true and Config.safeMode ~= true then
+					pcall(activeStates.BGSI_Lite_CondenseMysteryBoxes)
+				end
+				task.wait(4)
+			end
+		end)
+	end
+	xpcall(activeStates.BGSI_Lite_InstallBoxCondenser, function(installError)
+		warn("[1rzHub Lite] Box Condenser failed to load: " .. tostring(installError))
+	end)
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoPlaytime and 5 or 0.85)
@@ -13140,8 +13344,11 @@ do
 			"shopInterval",
 			"autoBuyShops",
 			"selectedMysteryBox",
+			"selectedMysteryBoxes",
 			"autoOpenMystery",
 			"autoOpenMysteryDelay",
+			"autoCondenseMysteryBoxes",
+			"condenserGemReserve",
 
 			-- Enchants and quests
 			"autoEnchant",
@@ -13587,6 +13794,7 @@ do
 								addConfigOption("gemGenieTargetItem", powerupName, powerupLabel, powerup, powerupItem)
 								if type(powerup) == "table" and powerup.Type == "Gift" then
 									addConfigOption("selectedMysteryBox", powerupName, powerupLabel, powerup, powerupItem)
+										addConfigOption("selectedMysteryBoxes", powerupName, powerupLabel, powerup, powerupItem)
 								elseif type(powerup) == "table" and powerup.Type == "Fragment" then
 									addConfigOption("selectedFragments", powerupName, powerupLabel, powerup, powerupItem)
 								end
@@ -15173,17 +15381,53 @@ do
 		return totalConsumed
 	end
 
+	activeStates.BGSI_Lite_GetSelectedMysteryBoxes = function()
+		local selectedBoxes = getSelectedValues(
+			type(Config.selectedMysteryBoxes) == "table" and Config.selectedMysteryBoxes or {}
+		)
+		if #selectedBoxes == 0 and type(Config.selectedMysteryBox) == "string" and Config.selectedMysteryBox ~= "" then
+			selectedBoxes = { Config.selectedMysteryBox }
+		end
+		return selectedBoxes
+	end
+	activeStates.BGSI_Lite_IsMysteryBoxSelected = function(boxName)
+		return table.find(activeStates.BGSI_Lite_GetSelectedMysteryBoxes(), boxName) ~= nil
+	end
+	-- Takes turns between the selected boxes you actually own. Plain Mystery Boxes are
+	-- left alone while Auto Condense can still turn them into Condensed ones, so the two
+	-- features never race for the same boxes.
+	activeStates.BGSI_Lite_PickNextMysteryBox = function()
+		local selectedBoxes = activeStates.BGSI_Lite_GetSelectedMysteryBoxes()
+		if #selectedBoxes == 0 then
+			return nil
+		end
+		for _ = 1, #selectedBoxes do
+			activeStates.BGSI_Lite_MysteryBoxRotation = (tonumber(activeStates.BGSI_Lite_MysteryBoxRotation) or 0)
+					% #selectedBoxes
+				+ 1
+			local candidate = selectedBoxes[activeStates.BGSI_Lite_MysteryBoxRotation]
+			local owned = 0
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				owned = tonumber(itemUtil:GetOwnedAmount(playerData, { Type = "Powerup", Name = candidate })) or 0
+			end)
+			local heldForCondenser = candidate == "Mystery Box"
+				and Config.autoCondenseMysteryBoxes == true
+				and type(activeStates.BGSI_Lite_CanCondenseMysteryBoxes) == "function"
+				and activeStates.BGSI_Lite_CanCondenseMysteryBoxes()
+			if owned > 0 and not heldForCondenser then
+				return candidate
+			end
+		end
+		return nil
+	end
 	task.spawn(function()
 		while isCurrentRun() do
 			local scriptStateIP = math.clamp(tonumber(Config.autoOpenMysteryDelay) or 0.2, 0.2, 60)
 			task.wait(Config.autoOpenMystery and scriptStateIP or 0.85)
-			if
-				Config.autoOpenMystery
-				and type(Config.selectedMysteryBox) == "string"
-				and Config.selectedMysteryBox ~= ""
-			then
+			local boxName = Config.autoOpenMystery and activeStates.BGSI_Lite_PickNextMysteryBox() or nil
+			if boxName then
 				local physicalItem = activeStates.BGSI_Lite_GetPhysicalItemModule()
-				local boxName = Config.selectedMysteryBox
 				local collectorRunning = true
 				-- Collecting runs concurrently with the consume workers below instead of
 				-- after each batch - since multiple UseGift batches can legitimately be in
@@ -15214,7 +15458,9 @@ do
 					concurrency = 3,
 					targetTotal = 50,
 					shouldContinue = function()
-						return isCurrentRun() and Config.autoOpenMystery and Config.selectedMysteryBox == boxName
+						return isCurrentRun()
+							and Config.autoOpenMystery
+							and activeStates.BGSI_Lite_IsMysteryBoxSelected(boxName)
 					end,
 				})
 				collectorRunning = false
