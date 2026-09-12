@@ -76,25 +76,6 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 		level = tostring(level or "info"),
 	}
 end
-local BLACKLISTED_DISPLAY_NAMES = {
-    ["afbq"] = true,
-}
-
-local function checkBlacklist(player)
-    if BLACKLISTED_DISPLAY_NAMES[string.lower(player.DisplayName)] then
-        LocalPlayer:Kick("no.")
-    end
-end
-
--- Check everyone already in the server
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        checkBlacklist(player)
-    end
-end
-
--- Check new players that join
-Players.PlayerAdded:Connect(checkBlacklist)
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
 		version = "2026.09.06.33",
