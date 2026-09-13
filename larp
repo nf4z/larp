@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.06"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,22 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.12.06",
+		releasedAt = "September 12, 2026",
+		notes = {
+			{
+				title = "Quest hatching is more reliable",
+				description = "The shared hatch-task handler used by every quest system (Season Pass, Challenge Pass, Global Incentive, Guild Quests, Shadow Leviathan, Gem Genie) now checks whether teleporting to the quest egg actually landed instead of firing HatchEgg regardless - a failed teleport (egg not streamed in yet) used to fire hatch requests from wherever you already were, which the server just rejects, with no sign anything was wrong. It now retries fast until it's confirmed, warns if it's stuck for a while, and only fires once it's actually there.",
+				icon = "egg",
+			},
+			{
+				title = "Auto Hatch returns to your egg immediately after a quest",
+				description = "Fixed a case where finishing a short quest task could leave Auto Hatch sitting still for up to 2 more seconds before teleporting back to your selected egg - a forced resync now happens immediately instead of waiting on the same cooldown used for routine refreshes.",
+				icon = "corner-up-left",
+			},
+		},
+	},
 	{
 		version = "2026.09.12.05",
 		releasedAt = "September 12, 2026",
@@ -5367,12 +5383,28 @@ function runCurrencyOrbPrep(scriptStateEV, scriptStateDJ)
 	task.spawn(useGoldenOrbs, 4, 1)
 	spamClaimGiantChest(5)
 end
+-- Shared by every quest system that can hand it a hatch-type task (Season Pass,
+-- Challenge Pass, Global Incentive, Guild Quests, Shadow Leviathan, Gem Genie - all of
+-- them dispatch through BGSI_Lite_RunQuestTask into this same function), so fixing it
+-- once fixes "quest hatching" everywhere instead of one system at a time.
+--
+-- Used to fire off a teleport every 3s and just fire HatchEgg regardless of whether
+-- that teleport actually landed - teleportToEggByName can come back false (egg not
+-- streamed into the world yet, chunker still catching up, a name that doesn't resolve
+-- to a location) and that failure was silently thrown away. The result looked exactly
+-- like "won't even start hatching the needed egg": HatchEgg kept firing from wherever
+-- the character already was, which the server has no reason to accept, with nothing
+-- in the console to explain why.
 function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
 	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "hatch")
 	local scriptStateUA = 0
 	local questProgressWatch
 	local scriptStateStalled
 	local activeQuestData
+	local lastTeleportedEgg
+	local teleportConfirmed = false
+	local teleportFailures = 0
+	local lastTeleportWarnAt = 0
 	while scriptStateAAJ() do
 		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 		local scriptStateVL = scriptStateWT()
@@ -5406,13 +5438,41 @@ function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptSt
 			break
 		end
 		local scriptStateYV = getBountyEggName(scriptStateIF or {})
-		if tick() - scriptStateUA >= 3 then
-			pcall(function()
-				teleportToEggByName(scriptStateYV)
-			end)
-			scriptStateUA = tick()
+		if scriptStateYV ~= lastTeleportedEgg then
+			lastTeleportedEgg = scriptStateYV
+			teleportConfirmed = false
+			teleportFailures = 0
+			scriptStateUA = 0
 		end
-		fireHatchEgg(scriptStateYV)
+		-- Once a teleport has actually confirmed the character is at this egg, a 3s
+		-- refresh is plenty (matches the old cadence, covers normal drift). Until then,
+		-- retry every 0.5s instead of quietly waiting out the full 3s per attempt - a
+		-- streaming hiccup should cost a fraction of a second of retries, not stall the
+		-- whole task.
+		local retryInterval = teleportConfirmed and 3 or 0.5
+		if tick() - scriptStateUA >= retryInterval then
+			local teleportOk, teleportLanded = pcall(teleportToEggByName, scriptStateYV)
+			scriptStateUA = tick()
+			if teleportOk and teleportLanded then
+				teleportConfirmed = true
+				teleportFailures = 0
+			elseif not teleportConfirmed then
+				teleportFailures += 1
+				if teleportFailures >= 6 and tick() - lastTeleportWarnAt >= 10 then
+					lastTeleportWarnAt = tick()
+					warn(
+						'[1rzHub Lite] Quest hatch can\'t find/reach "'
+							.. tostring(scriptStateYV)
+							.. '" yet - still retrying (this clears itself once the egg streams in, or the 60s stall timeout will move on)'
+					)
+				end
+			end
+		end
+		-- Firing HatchEgg before a teleport has ever actually landed for this egg just
+		-- wastes calls the server will reject anyway - wait for real confirmation first.
+		if teleportConfirmed then
+			fireHatchEgg(scriptStateYV)
+		end
 		task.wait(0.1)
 	end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStateI)
@@ -8869,13 +8929,15 @@ task.spawn(function()
 			lastHatchRecoveryAt = tick()
 			lastHatchProgressAt = tick()
 		end
-		if
-			lastAutoHatchTeleportAt == 0
-			or (
-				activeStates.BGSI_Lite_ForceAutoHatchTeleport
-				and tick() - lastAutoHatchTeleportAt >= 2
-			)
-		then
+		-- ForceAutoHatchTeleport used to still be gated behind "at least 2s since the
+		-- last auto-hatch teleport," which meant returning from a quest that had only
+		-- run for a couple of seconds (a nearly-finished task, or one quick task away
+		-- from being deferred) could sit for up to 2 more seconds doing nothing before
+		-- actually teleporting back to the egg the user had selected - looking exactly
+		-- like "won't return to the default egg". A forced request means "resync right
+		-- now" by definition, so it now bypasses that gate entirely instead of waiting
+		-- on it.
+		if lastAutoHatchTeleportAt == 0 or activeStates.BGSI_Lite_ForceAutoHatchTeleport then
 			activeStates.BGSI_Lite_ForceAutoHatchTeleport = false
 			pcall(function()
 				teleportToEggByName(scriptStateEL)
