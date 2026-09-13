@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.12.07",
+		releasedAt = "September 12, 2026",
+		notes = {
+			{
+				title = "Auto Enchant now actually fills both slots",
+				description = "Confirmed against the game's own EnchantUtil: a Shiny pet gets 2 enchant slots. The 'is this pet done' check only looked at whichever slots the pet CURRENTLY had, so it stopped the moment the first slot landed either target, without ever confirming a second slot existed at all - matching exactly 'does Secret Hunter but not Ultra Roller'. With two different target enchants configured, it now also requires the pet to actually have both slots filled before calling it done.",
+				icon = "wand-sparkles",
+			},
+		},
+	},
 	{
 		version = "2026.09.12.06",
 		releasedAt = "September 12, 2026",
@@ -16839,17 +16850,41 @@ activeStates.BGSI_Lite_GetPetEnchantSignature = function(petData)
 	table.sort(signatureParts)
 	return table.concat(signatureParts, "|")
 end
+-- A pet gets a second enchant slot only once it's Shiny (confirmed straight from the
+-- game's own EnchantUtil.GetMaxEnchantSlots: base 1, +1 if Shiny == true) - every pet
+-- this reaches is already Shiny (IsShinyEnchantPet gates eligibility upstream), so this
+-- resolves to 2 for the normal case, but stays correct if that ever changes.
+local function getMaxEnchantSlotsForPet(petData)
+	if type(petData) == "table" and (petData.Shiny == true or petData.IsShiny == true) then
+		return 2
+	end
+	return 1
+end
+
 -- Every enchant slot currently on the pet must already be one of the configured target
 -- enchants (at or above the configured level, if any) for the pet to count as done. This
 -- mirrors the official client's own reroll-until check - it reads the exact enchant list
 -- the server just returned and checks each slot against the desired set - rather than
 -- requiring one specific target per specific slot, so a pet that lands the same good
 -- enchant in both slots is finished too instead of being rerolled forever.
-function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel)
+--
+-- requireBothSlotsFilled is what actually fixes "only does Secret Hunter, not Ultra
+-- Roller too": with two distinct targets configured, a pet whose second enchant slot
+-- hasn't landed (or hasn't even been rolled into) yet still only has ONE entry in its
+-- Enchants list - and checking "every entry present is a target" says nothing about
+-- entries that AREN'T present. The very first reroll to land the first target in
+-- whichever slot came back already-present made this return true immediately, before
+-- the second slot was ever confirmed filled with anything at all, target or not. Now,
+-- whenever two different targets are configured, done also requires the enchant list to
+-- actually be as long as the pet's real max slot count - so "done" can't be declared
+-- until both slots genuinely exist and both satisfy a target.
+function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel, requireBothSlotsFilled)
 	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
 	local sawAnyEnchant = false
+	local slotCount = 0
 	for _, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
 		sawAnyEnchant = true
+		slotCount += 1
 		local enchantId = type(enchantEntry) == "table"
 				and (enchantEntry.Id or enchantEntry.id or enchantEntry.ID or enchantEntry.Name)
 			or enchantEntry
@@ -16863,7 +16898,13 @@ function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel)
 			return false
 		end
 	end
-	return sawAnyEnchant
+	if not sawAnyEnchant then
+		return false
+	end
+	if requireBothSlotsFilled and slotCount < getMaxEnchantSlotsForPet(petData) then
+		return false
+	end
+	return true
 end
 
 -- The first slot that already qualifies as a target. Passed back to the game as the
@@ -16926,7 +16967,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		ENCHANT_REROLL_COOLDOWN,
 		tonumber(sharedConstants and sharedConstants.EnchantRerollCooldown) or ENCHANT_REROLL_COOLDOWN
 	)
-	local targetLookup = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
+	local targetLookup, hasSecondEnchantTarget = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
 	targetEnchantLevel = math.max(0, tonumber(targetEnchantLevel) or 0)
 	local reenchantThreshold = math.max(0, tonumber(Config.equippedReenchantThreshold) or 0)
 
@@ -16934,7 +16975,14 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	-- the protect slot entirely so both slots reroll fresh rather than only the stale one -
 	-- matching "re-enchant that pet for both targets again" exactly as asked for.
 	local function isFullyDone(currentPetData)
-		if not isPetEnchantTargetSatisfied(currentPetData, targetLookup, targetEnchantLevel) then
+		if
+			not isPetEnchantTargetSatisfied(
+				currentPetData,
+				targetLookup,
+				targetEnchantLevel,
+				hasSecondEnchantTarget
+			)
+		then
 			return false
 		end
 		return not petHasStaleTargetEnchant(currentPetData, targetLookup, reenchantThreshold)
