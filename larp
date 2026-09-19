@@ -10633,7 +10633,7 @@ do
 				ownedAmount = math.max(
 					0,
 					math.floor(
-						tobnumber(itemUtil:GetOwnedAmount(playerData, {
+						tonumber(itemUtil:GetOwnedAmount(playerData, {
 							Type = "Powerup",
 							Name = eggName,
 						})) or 0
