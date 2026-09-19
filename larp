@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.04"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.04",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Bounty Rift uses the current player world",
+				description = "Fixed bounty SummonRift requests using the bounty egg's data world instead of the world returned by the game's own WorldUtil:GetPlayerWorld(LocalPlayer), which can cause the server to reject the summon.",
+				icon = "map-pin",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.03",
 		releasedAt = "September 19, 2026",
@@ -9633,49 +9644,25 @@ activeStates.BGSI_Lite_SummonBountyRift = function(forceSpawn)
 		end
 	end
 
-	-- The official Rift Summon UI derives the world from Shared.Data.Eggs.
-	-- Do the same instead of maintaining a hardcoded egg -> world list.
+	-- The official Rift Summon UI sends the world returned by the game's own
+	-- WorldUtil:GetPlayerWorld(LocalPlayer). Use that exact value first instead
+	-- of deriving the world from the bounty egg. The server validates the
+	-- requested world against the player's current world.
 	local bountyWorld
 	pcall(function()
-		local Eggs = require(ReplicatedStorage.Shared.Data.Eggs)
-		local eggInfo = Eggs[bountyEggName]
-		if type(eggInfo) == "table" and type(eggInfo.World) == "string" then
-			bountyWorld = eggInfo.World
-		end
+		local WorldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
+		bountyWorld = WorldUtil:GetPlayerWorld(LocalPlayer)
 	end)
 
-	-- Some rift definitions may not have an explicit Egg.World. Match the
-	-- official RiftSummonCosts fallback: use the first mapped area/world.
+	-- Keep the egg/rift data as a fallback for game builds where WorldUtil is
+	-- unavailable, but never prefer it over the official player-world value.
 	if type(bountyWorld) ~= "string" or bountyWorld == "" then
 		pcall(function()
-			local Worlds = require(ReplicatedStorage.Shared.Data.Worlds)
-			if type(riftData) ~= "table" or type(Worlds) ~= "table" then
-				return
+			local Eggs = require(ReplicatedStorage.Shared.Data.Eggs)
+			local eggInfo = Eggs[bountyEggName]
+			if type(eggInfo) == "table" and type(eggInfo.World) == "string" then
+				bountyWorld = eggInfo.World
 			end
-			for _, riftInfo in pairs(riftData) do
-				if
-					type(riftInfo) == "table"
-					and riftInfo.Type == "Egg"
-					and type(riftInfo.Egg) == "string"
-					and string.lower(riftInfo.Egg) == string.lower(bountyEggName)
-					and type(riftInfo.Areas) == "table"
-				then
-					for areaName in pairs(riftInfo.Areas) do
-						local worldName = Worlds[areaName]
-						if type(worldName) == "string" and worldName ~= "" then
-							bountyWorld = worldName
-							return
-						end
-					end
-				end
-			end
-		end)
-	end
-
-	if type(bountyWorld) ~= "string" or bountyWorld == "" then
-		pcall(function()
-			local WorldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
-			bountyWorld = WorldUtil:GetPlayerWorld(LocalPlayer)
 		end)
 	end
 
