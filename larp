@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.03",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Force Update for Auto Setup Team",
+				description = "Added a Force Update button that immediately rebuilds the configured Auto Setup Team and equips the current Super Legendary combination on demand.",
+				icon = "refresh-cw",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.02",
 		releasedAt = "September 19, 2026",
@@ -16334,6 +16345,42 @@ do
 			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
 				activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
 			end
+		end,
+	})
+	scriptStateTJ:AddButton({
+		Title = "Force Update",
+		Description = "Immediately rebuilds and equips the current Auto Setup Team configuration, including the selected Super Legendary combination.",
+		Callback = function()
+			task.spawn(function()
+				if Config.safeMode == true then
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = "Force Update is blocked while Safe Mode is enabled.",
+						Duration = 5,
+					})
+					return
+				end
+				local ok, found = pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+				if not ok then
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = "Force Update failed: " .. tostring(found),
+						Duration = 6,
+					})
+				elseif found then
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = "Team updated and equipped.",
+						Duration = 4,
+					})
+				else
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = "No eligible pets were found for the current configuration.",
+						Duration = 5,
+					})
+				end
+			end)
 		end,
 	})
 	-- All 8 Super Legendary pairs the game has (see SUPER_LEGENDARY_ENCHANT_KEY_BY_ID
