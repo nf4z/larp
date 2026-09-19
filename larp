@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.02",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Auto Setup Team settings now apply immediately",
+				description = "Changing Auto Setup Team, Super Legendary inclusion, or any Super Legendary enchant count now saves the complete configuration and immediately rebuilds/equips the requested combination instead of waiting for the background check.",
+				icon = "users",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.01",
 		releasedAt = "September 19, 2026",
@@ -16154,9 +16165,36 @@ activeStates.BGSI_Lite_RunAutoSetupTeam = function()
 	applyAutoSetupTeamSelection(selectedPetIds)
 	return true
 end
+-- Rebuild/apply the team immediately when its configuration changes, rather than
+-- waiting for the 5-second maintenance loop. A small generation counter also prevents
+-- several slider changes in quick succession from leaving an older apply pass running
+-- against a newer configuration.
+local autoSetupTeamConfigGeneration = 0
+local autoSetupTeamApplyQueued = false
+activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh = function()
+	autoSetupTeamConfigGeneration += 1
+	local requestedGeneration = autoSetupTeamConfigGeneration
+	if autoSetupTeamApplyQueued then
+		return
+	end
+	autoSetupTeamApplyQueued = true
+	task.spawn(function()
+		task.wait(0.1)
+		while isCurrentRun() and Config.autoSetupTeamEnabled == true and Config.safeMode ~= true do
+			local generationAtStart = autoSetupTeamConfigGeneration
+			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+			if generationAtStart == autoSetupTeamConfigGeneration and requestedGeneration == generationAtStart then
+				break
+			end
+			requestedGeneration = autoSetupTeamConfigGeneration
+			task.wait(0.1)
+		end
+		autoSetupTeamApplyQueued = false
+	end)
+end
 task.spawn(function()
 	while isCurrentRun() do
-		task.wait(Config.autoSetupTeamEnabled and 5 or 1)
+		task.wait(Config.autoSetupTeamEnabled and 2 or 1)
 		if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
 			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
 		end
@@ -16282,14 +16320,7 @@ do
 			Config.autoSetupTeamEnabled = isEnabled == true
 			saveConfig()
 			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
-				task.spawn(function()
-					local ok, found = pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
-					Interface:Notify({
-						Title = "Auto Setup Team",
-						Content = (ok and found) and "Team updated." or "No eligible shiny pets found.",
-						Duration = 4,
-					})
-				end)
+				activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
 			end
 		end,
 	})
@@ -16300,6 +16331,9 @@ do
 		Callback = function(isEnabled)
 			Config.autoSetupTeamIncludeSupers = isEnabled == true
 			saveConfig()
+			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+				activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
+			end
 		end,
 	})
 	-- All 8 Super Legendary pairs the game has (see SUPER_LEGENDARY_ENCHANT_KEY_BY_ID
@@ -16334,8 +16368,15 @@ do
 			Default = math.clamp(math.floor(tonumber(Config.autoSetupTeamSuperCounts[spec.key]) or 0), 0, 3),
 			Rounding = 0,
 			Callback = function(value)
-				Config.autoSetupTeamSuperCounts[spec.key] = math.clamp(math.floor(tonumber(value) or 0), 0, 3)
+				local newCount = math.clamp(math.floor(tonumber(value) or 0), 0, 3)
+				Config.autoSetupTeamSuperCounts[spec.key] = newCount
+				-- Persist the complete nested Super Legendary configuration immediately.
+				-- The next apply reads Config directly, so it cannot keep using the old
+				-- slider value cached by the UI.
 				saveConfig()
+				if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+					activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
+				end
 			end,
 		})
 	end
