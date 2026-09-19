@@ -1755,7 +1755,7 @@ local defaultConfig = {
 	selectedFragments = {},
 	dashboardSyncEnabled = true,
 	dashboardSyncAutoEnabled = false,
-	dashboardEndpoint = "https://phantom-7a2u9u3fz-lathans-projects-b33720b8.vercel.app",
+	dashboardEndpoint = "https://larplite.xyz",
 	dashboardIngestToken = "",
 	dashboardBestHatchName = "",
 	dashboardBestHatchChance = 0,
@@ -2089,7 +2089,7 @@ end)
 do
 	local configuredDashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
 	if configuredDashboardEndpoint == "" or configuredDashboardEndpoint:find("larplite%.xyz", 1, false) then
-		Config.dashboardEndpoint = "https://phantom-7a2u9u3fz-lathans-projects-b33720b8.vercel.app"
+		Config.dashboardEndpoint = "https://larplite.xyz"
 		saveConfig()
 	end
 end
