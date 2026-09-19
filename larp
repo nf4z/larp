@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.12.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.01",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Bounty Rift now summons the actual current bounty",
+				description = "Fixed Bounty Rift using a hardcoded world list, treating any successful remote call as a successful summon, and accepting an unrelated newly-rendered rift when the requested egg was not found. It now uses the game's own egg/world data, checks the server's SummonRift success result, and only locks onto a newly created rift that actually matches the bounty egg.",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.09.12.07",
 		releasedAt = "September 12, 2026",
@@ -9490,16 +9501,22 @@ activeStates.BGSI_Lite_RiftMatchesEgg = function(riftObject, bountyEggName)
 	if not riftObject or type(bountyEggName) ~= "string" or bountyEggName == "" then
 		return false
 	end
+	local wantedEgg = string.lower(bountyEggName)
 	local riftInfo = type(riftData) == "table" and riftData[riftObject.Name] or nil
-	if type(riftInfo) == "table" and riftInfo.Type == "Egg" and riftInfo.Egg == bountyEggName then
+	if
+		type(riftInfo) == "table"
+		and riftInfo.Type == "Egg"
+		and type(riftInfo.Egg) == "string"
+		and string.lower(riftInfo.Egg) == wantedEgg
+	then
 		return true
 	end
 	for _, attributeName in ipairs({
 		"Egg",
 		"EggName",
-		"Name",
 	}) do
-		if riftObject:GetAttribute(attributeName) == bountyEggName then
+		local attributeValue = riftObject:GetAttribute(attributeName)
+		if type(attributeValue) == "string" and string.lower(attributeValue) == wantedEgg then
 			return true
 		end
 	end
@@ -9512,15 +9529,16 @@ activeStates.BGSI_Lite_FindNewSpawnedBountyRift = function(bountyEggName, riftsB
 	end
 	riftsBefore = type(riftsBefore) == "table" and riftsBefore or {}
 	for _, riftObject in ipairs(riftsFolder:GetChildren()) do
-		if not riftsBefore[riftObject] and activeStates.BGSI_Lite_RiftMatchesEgg(riftObject, bountyEggName) then
+		if
+			not riftsBefore[riftObject]
+			and activeStates.BGSI_Lite_RiftMatchesEgg(riftObject, bountyEggName)
+		then
 			return riftObject
 		end
 	end
-	for _, riftObject in ipairs(riftsFolder:GetChildren()) do
-		if not riftsBefore[riftObject] then
-			return riftObject
-		end
-	end
+	-- Never accept an unrelated newly-rendered rift. Another player's summon,
+	-- a random world rift, or a delayed render can otherwise make Auto Bounty
+	-- lock onto the wrong rift.
 	return nil
 end
 activeStates.BGSI_Lite_RememberBountyRift = function(riftObject, bountyEggName)
@@ -9569,16 +9587,22 @@ end
 activeStates.BGSI_Lite_SummonBountyRift = function(forceSpawn)
 	local bountyEggName = stopLuckEggAutomation()
 	if type(bountyEggName) ~= "string" or bountyEggName == "" then
-		return false
+		return false, "no-bounty"
 	end
+
 	local existingSpawnedRift = activeStates.BGSI_Lite_GetBountyRiftObject(bountyEggName)
 	if existingSpawnedRift then
 		activeStates.BGSI_Lite_LastBountyRiftEgg = bountyEggName
-		return true
+		return true, "already-exists"
 	end
-	if forceSpawn ~= true and tick() - (tonumber(activeStates.BGSI_Lite_LastBountyRiftSpawnAt) or 0) < 8 then
-		return false
+
+	if
+		forceSpawn ~= true
+		and tick() - (tonumber(activeStates.BGSI_Lite_LastBountyRiftSpawnAt) or 0) < 8
+	then
+		return false, "cooldown"
 	end
+
 	local riftsFolder = activeStates.BGSI_Lite_GetRiftsFolder()
 	local riftsBefore = {}
 	if riftsFolder then
@@ -9586,37 +9610,115 @@ activeStates.BGSI_Lite_SummonBountyRift = function(forceSpawn)
 			riftsBefore[riftObject] = true
 		end
 	end
-	local bountyWorld = (bountyEggName == "Mining Egg" or bountyEggName == "Neon Egg" or bountyEggName == "Cyber Egg")
-			and "Minigame Paradise"
-		or "The Overworld"
-	local summonSucceeded = false
+
+	-- The official Rift Summon UI derives the world from Shared.Data.Eggs.
+	-- Do the same instead of maintaining a hardcoded egg -> world list.
+	local bountyWorld
 	pcall(function()
-		remoteFunction:InvokeServer("SummonRift", {
+		local Eggs = require(ReplicatedStorage.Shared.Data.Eggs)
+		local eggInfo = Eggs[bountyEggName]
+		if type(eggInfo) == "table" and type(eggInfo.World) == "string" then
+			bountyWorld = eggInfo.World
+		end
+	end)
+
+	-- Some rift definitions may not have an explicit Egg.World. Match the
+	-- official RiftSummonCosts fallback: use the first mapped area/world.
+	if type(bountyWorld) ~= "string" or bountyWorld == "" then
+		pcall(function()
+			local Worlds = require(ReplicatedStorage.Shared.Data.Worlds)
+			if type(riftData) ~= "table" or type(Worlds) ~= "table" then
+				return
+			end
+			for _, riftInfo in pairs(riftData) do
+				if
+					type(riftInfo) == "table"
+					and riftInfo.Type == "Egg"
+					and type(riftInfo.Egg) == "string"
+					and string.lower(riftInfo.Egg) == string.lower(bountyEggName)
+					and type(riftInfo.Areas) == "table"
+				then
+					for areaName in pairs(riftInfo.Areas) do
+						local worldName = Worlds[areaName]
+						if type(worldName) == "string" and worldName ~= "" then
+							bountyWorld = worldName
+							return
+						end
+					end
+				end
+			end
+		end)
+	end
+
+	if type(bountyWorld) ~= "string" or bountyWorld == "" then
+		pcall(function()
+			local WorldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
+			bountyWorld = WorldUtil:GetPlayerWorld(LocalPlayer)
+		end)
+	end
+
+	if type(bountyWorld) ~= "string" or bountyWorld == "" then
+		bountyWorld = "The Overworld"
+	end
+
+	-- InvokeServer returns (success, error/status). A successful pcall only
+	-- means the remote call itself did not throw; it does NOT mean the summon
+	-- was accepted by the server.
+	local invokeOk, summonSuccess, summonError = pcall(function()
+		return remoteFunction:InvokeServer("SummonRift", {
 			Type = "Egg",
-			Name = bountyEggName,
 			World = bountyWorld,
+			Name = bountyEggName,
 			Time = 5,
 			Luck = 5,
 		})
-		summonSucceeded = true
 	end)
-	if summonSucceeded then
-		activeStates.BGSI_Lite_LastBountyRiftSpawnAt = tick()
-		activeStates.BGSI_Lite_LastBountyRiftEgg = bountyEggName
-		local spawnedRift
-		local spawnDeadline = tick() + 6
-		repeat
-			spawnedRift = activeStates.BGSI_Lite_FindNewSpawnedBountyRift(bountyEggName, riftsBefore)
-			if spawnedRift then
-				break
-			end
-			task.wait(0.25)
-		until tick() >= spawnDeadline
-		if spawnedRift then
-			activeStates.BGSI_Lite_RememberBountyRift(spawnedRift, bountyEggName)
-		end
+
+	if not invokeOk then
+		warn("[1rzHub Lite] Bounty Rift summon threw an error: " .. tostring(summonSuccess))
+		return false, "invoke-error"
 	end
-	return summonSucceeded
+
+	if summonSuccess ~= true then
+		warn(
+			"[1rzHub Lite] Bounty Rift summon rejected: "
+			.. tostring(summonError or "unknown")
+			.. " | egg="
+			.. tostring(bountyEggName)
+			.. " | world="
+			.. tostring(bountyWorld)
+		)
+		return false, tostring(summonError or "summon-rejected")
+	end
+
+	activeStates.BGSI_Lite_LastBountyRiftSpawnAt = tick()
+	activeStates.BGSI_Lite_LastBountyRiftEgg = bountyEggName
+
+	local spawnedRift
+	local spawnDeadline = tick() + 6
+	repeat
+		spawnedRift =
+			activeStates.BGSI_Lite_FindNewSpawnedBountyRift(
+				bountyEggName,
+				riftsBefore
+			)
+		if spawnedRift then
+			break
+		end
+		task.wait(0.25)
+	until tick() >= spawnDeadline
+
+	if not spawnedRift then
+		warn(
+			"[1rzHub Lite] Summon succeeded for "
+			.. tostring(bountyEggName)
+			.. " but no matching new rift rendered within 6 seconds."
+		)
+		return false, "rift-not-found"
+	end
+
+	activeStates.BGSI_Lite_RememberBountyRift(spawnedRift, bountyEggName)
+	return true, "spawned"
 end
 task.spawn(function()
 	local bountyRiftTeleportAt = 0
