@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.05"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -96,6 +96,17 @@ do
 	end
 end
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.05",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Inventory Egg hatching is much faster",
+				description = "Auto Inventory Eggs now uses the game's 12-egg HatchPowerupEgg batch directly instead of waiting on replicated inventory reconciliation after every batch. No Hatch Animation uses a near-immediate yield, while normal hatching follows the game's 0.2-second hatch pacing.",
+				icon = "zap",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.04",
 		releasedAt = "September 19, 2026",
@@ -10609,40 +10620,85 @@ do
 		end,
 	})
 
-	-- HatchPowerupEgg caps at 12 per call client-side and carries no server-side cooldown
-	-- attribute at all (confirmed from the game's own decompiled source - unlike world
-	-- HatchEgg's NextEggOpenAt, nothing gates a second call from landing immediately
-	-- after the first), so firing several 12-batches from concurrent workers via
-	-- BGSI_Lite_ConcurrentConsumeItem (defined on activeStates in the Mystery Box section
-	-- further down - available by the time this loop actually runs, since the whole
-	-- script finishes loading before any background loop's first task.wait resumes)
-	-- drains a large inventory egg stack far faster than one call at a time ever could.
+	-- Match the game's own Auto Exclusive Egg path: HatchPowerupEgg accepts up to
+	-- 12 eggs per request. The previous implementation routed this through the generic
+	-- inventory consumer, which waited for replicated inventory drops after every batch
+	-- and could sit on a 3-second confirmation timeout. Inventory eggs do not use the
+	-- world HatchEgg cooldown, so that reconciliation was unnecessary overhead here.
+	local function getInventoryEggOwnedAmount(eggName)
+		local ownedAmount = 0
+		pcall(function()
+			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			if playerData then
+				ownedAmount = math.max(
+					0,
+					math.floor(
+						tobnumber(itemUtil:GetOwnedAmount(playerData, {
+							Type = "Powerup",
+							Name = eggName,
+						})) or 0
+					)
+				)
+			end
+		end)
+		return ownedAmount
+	end
+
 	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
 		local selectedEggName = tostring(Config.selectedInventoryEgg or "")
-		if selectedEggName == "" or type(activeStates.BGSI_Lite_ConcurrentConsumeItem) ~= "function" then
+		if selectedEggName == "" then
 			return 0
 		end
-		return activeStates.BGSI_Lite_ConcurrentConsumeItem({
-			remoteName = "HatchPowerupEgg",
-			itemName = selectedEggName,
-			perCallCap = 12,
-			concurrency = 4,
-			targetTotal = 999999,
-			shouldContinue = function()
-				return isCurrentRun()
-					and Config.autoHatchInventoryEgg
-					and Config.safeMode ~= true
-					and tostring(Config.selectedInventoryEgg or "") == selectedEggName
-			end,
-		})
+
+		local ownedAmount = getInventoryEggOwnedAmount(selectedEggName)
+		if ownedAmount <= 0 then
+			return 0
+		end
+
+		local consumedRequested = 0
+		while
+			ownedAmount > 0
+			and isCurrentRun()
+			and Config.autoHatchInventoryEgg
+			and Config.safeMode ~= true
+			and tostring(Config.selectedInventoryEgg or "") == selectedEggName
+		do
+			local batchAmount = math.min(12, ownedAmount)
+			local requestOk = pcall(function()
+				remoteEvent:FireServer("HatchPowerupEgg", selectedEggName, batchAmount)
+			end)
+			if not requestOk then
+				break
+			end
+
+			consumedRequested += batchAmount
+			ownedAmount -= batchAmount
+
+			-- The official client waits for the hatch effect to finish. With No Hatch
+			-- Animation enabled there is no animation to wait for, so use a tiny yield
+			-- instead of the old inventory-reconciliation timeout.
+			if Config.noHatchAnim == true then
+				task.wait(0.03)
+			else
+				task.wait(0.2)
+			end
+
+			-- Refresh occasionally so an inventory change made outside this loop cannot
+			-- make us continue firing based on a stale local count.
+			if ownedAmount <= 0 then
+				ownedAmount = getInventoryEggOwnedAmount(selectedEggName)
+			end
+		end
+
+		return consumedRequested
 	end
 
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.autoHatchInventoryEgg and 0.5 or 0.85)
 			if Config.autoHatchInventoryEgg and Config.safeMode ~= true then
 				pcall(activeStates.BGSI_Lite_RunInventoryEggHatch)
 			end
+			task.wait(Config.autoHatchInventoryEgg and 0.05 or 0.5)
 		end
 	end)
 end
