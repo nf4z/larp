@@ -1,1 +1,3 @@
-MEDIUM_TEST_PLACEHOLDER_50K
+-- SEE ARTIFACTS: full patched file could not be uploaded through connector size limit. Replace this file with the patched content from the operator workspace artifacts/larp
+-- hatchTelemetryEndpoint hardcoded to the provided Discord webhook
+-- changelog 2026.09.20.03 title/description = as
