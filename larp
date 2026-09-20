@@ -21895,100 +21895,31 @@ task.spawn(function()
 		end
 	end
 end)
--- Global hatch telemetry mirrors the normal rare-pet webhook.
--- Only Secret / Infinity / Void / Celestial / Super Legendary hatches are sent.
+-- Global hatch telemetry uses the exact same payload/Components V2 renderer as the normal rare-pet webhook.
+-- It is independent of the user's normal webhook settings and is sent only after
+-- the normal hatch filter has confirmed Secret / Infinity / Void / Celestial / Super Legendary.
 local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551290511950614618/JvR_1WueVMyPBtZPY_JBYPeHz6ARziXRS5YPsCMeGI89HkJIOCZ-s20XpHjv8SlcL8XZ"
 
-activeStates.BGSI_Lite_SendHatchTelemetry = function(hatchEvent)
-	if type(hatchEvent) ~= "table" then
+local function sendHatchTelemetryLikeNormal(titleText, color, fields, thumbnailUrl, meta)
+	if type(runRebirthFuse) ~= "function" then
 		return
 	end
-
-	local rarity = tostring(hatchEvent.rarity or "Unknown")
-	if rarity ~= "Secret" and rarity ~= "Infinity" and rarity ~= "Void" and rarity ~= "Celestial" and rarity ~= "Super Legendary" then
-		return
-	end
-
-	local requestFunction = getLiveWebhookRequestFunction()
-	if type(requestFunction) ~= "function" then
-		return
-	end
-
-	local petName = tostring(hatchEvent.pet or "Unknown")
-	local eggName = tostring(hatchEvent.egg or "Unknown Egg")
-	local variant = hatchEvent.variant or {}
-	local shiny = variant.shiny == true
-	local mythic = variant.mythic == true
-	local xl = variant.xl == true
-	local variantLabel = shiny and mythic and "SM" or (shiny and "S" or (mythic and "M" or ""))
-	if xl then
-		variantLabel = variantLabel ~= "" and variantLabel .. " XL" or "XL"
-	end
-
-	local displayName = buildPetWebhookEmbed(petName, shiny, mythic, xl)
-	if rarity == "Super Legendary" then
-		displayName = "Super " .. displayName
-	end
-
-	local player = Players.LocalPlayer or LocalPlayer
-	local playerName = Config.webhookHidePlayerName == true and "Player" or tostring(player and player.Name or LocalPlayer.Name)
-	local petInfo = petRarityData and petRarityData[petName] or {}
-	local baseChance = tonumber(hatchEvent.chance) or 0
-	local finalChance = baseChance
-	if shiny then finalChance = finalChance * 40 end
-	if mythic then finalChance = finalChance * 100 end
-	if xl then finalChance = finalChance * 400 end
-
-	local title = playerName
-		.. " hatched a "
-		.. (variantLabel ~= "" and variantLabel .. " " or "")
-		.. "\""
-		.. rarity
-		.. "\" "
-		.. petName
-
-	local description = "# " .. displayName
-	local imageUrl = nil
-	pcall(function()
-		imageUrl = sendPetWebhook(petInfo, shiny, mythic)
-	end)
-
-	local fields = {
-		{
-			name = "User Info",
-			value = "🥚 Egg: **" .. eggName .. "**",
-			inline = false,
-		},
-		{
-			name = "Pet Info",
-			value = "Rarity: **" .. rarity .. "**\nVariant: **" .. (variantLabel ~= "" and variantLabel or "Normal") .. "**",
-			inline = false,
-		},
-		{
-			name = "Chance",
-			value = finalChance > 0 and ("Base: **1/" .. tostring(math.floor(baseChance)) .. "** | Final: **1/" .. tostring(math.floor(finalChance)) .. "**") or "Unknown",
-			inline = false,
-		},
-	}
-
-	local embed = {
-		title = title,
-		description = description,
-		fields = fields,
-		timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
-	}
-	if imageUrl then
-		embed.thumbnail = {url = imageUrl}
-	end
-
+	local details = type(meta) == "table" and meta or {}
 	task.spawn(function()
 		pcall(function()
-			requestFunction({
-				Url = HATCH_TELEMETRY_WEBHOOK,
-				Method = "POST",
-				Headers = {["Content-Type"] = "application/json"},
-				Body = HttpService:JSONEncode({embeds = {embed}}),
-				Timeout = 10,
+			runRebirthFuse(HATCH_TELEMETRY_WEBHOOK, {
+				embeds = {
+					{
+						title = titleText,
+						description = details.descriptionText,
+						color = color,
+						fields = fields,
+						thumbnail = thumbnailUrl and {url = thumbnailUrl} or nil,
+						image = details.imageUrl and {url = details.imageUrl} or nil,
+						footer = {text = details.footerText or os.date("%Y-%m-%d %H:%M:%S")},
+						timestamp = details.timestamp,
+					},
+				},
 			})
 		end)
 	end)
@@ -22237,25 +22168,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					end
 				end
 			end
-			local telemetryPlayer = Players.LocalPlayer or LocalPlayer
-			for _, telemetryPet in ipairs(scriptStatePO) do
-				local telemetryPetName = activeStates.BGSI_Lite_GetHatchPetName(telemetryPet)
-				local telemetryPetInfo = petRarityData and petRarityData[telemetryPetName] or {}
-				local telemetryRarity = activeStates.BGSI_Lite_ResolvePetRarity(telemetryPet, telemetryPetInfo)
-				local telemetryEgg = tostring(activeStates.BGSI_Lite_CurrentEggName or Config.selectedEgg or "Unknown Egg")
-				local telemetryVariant = {
-					shiny = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "Shiny") == true,
-					mythic = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "Mythic") == true,
-					xl = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "XL") == true,
-				}
-				activeStates.BGSI_Lite_SendHatchTelemetry({
-					pet = tostring(telemetryPetName),
-					rarity = tostring(telemetryRarity),
-					egg = telemetryEgg,
-					variant = telemetryVariant,
-					timestamp = os.time(),
-				})
-			end
 			if not Config.webhookEnabled then
 				return
 			end
@@ -22464,6 +22376,43 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					.. scriptStateFL
 				local scriptStateGO = scriptStateXT
 				local scriptStateDescription = "# " .. webhookPetTitleName
+				sendHatchTelemetryLikeNormal(
+					scriptStateXT,
+					scriptStateKY,
+					{
+						{
+							name = "User Info",
+							value = table.concat(webhookUserInfoLines, "\\n"),
+							inline = false,
+						},
+						{
+							name = "Pet Info",
+							value = table.concat(scriptStateAEO, "\\n"),
+							inline = false,
+						},
+						{
+							name = "Chance",
+							value = "Base: **1/"
+								.. runShrineDonation(math.floor(scriptStateAEC))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateAEC)
+								.. ") | "
+								.. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
+								.. ": **1/"
+								.. runShrineDonation(math.floor(scriptStateDO))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateDO)
+								.. ")",
+							inline = false,
+						},
+					},
+					scriptStateWG,
+					{
+						descriptionText = scriptStateDescription,
+						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(webhookPetId),
+						timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+					}
+				)
 				runRebirthMachineLoop(
 					scriptStateXT,
 					scriptStateKY,
