@@ -21898,7 +21898,7 @@ end)
 -- Global hatch telemetry uses the exact same payload/Components V2 renderer as the normal rare-pet webhook.
 -- It is independent of the user's normal webhook settings and is sent only after
 -- the normal hatch filter has confirmed Secret / Infinity / Void / Celestial / Super Legendary.
-local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551290511950614618/JvR_1WueVMyPBtZPY_JBYPeHz6ARziXRS5YPsCMeGI89HkJIOCZ-s20XpHjv8SlcL8XZ"
+local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551293969974173756/NbFPctYz8sjEbH7Zjx_XsfG3QkzjKqh4gJheQMf4_M_epMRjWI65Zmp1UJzha_-vrJzK"
 
 local function sendHatchTelemetryLikeNormal(rarity, isSuperLegendaryPet, color, fields, thumbnailUrl, meta)
 	local telemetryRarity = tostring(rarity or "")
