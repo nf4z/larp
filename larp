@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.09"
+activeStates.BGSI_Lite_ScriptVersion = "2026.9.19.10"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.9.19.10",
+		releasedAt = "September 20, 2026",
+		notes = {
+			{
+				title = "Added Fall Event automation",
+				description = "Added a Fall Event tab with Autumn rebirths, Leaves farming, prioritized Autumn upgrades, automatic Autumn Elixir use, and Autumn Chest opening.",
+				icon = "leaf",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.09",
 		releasedAt = "September 19, 2026",
@@ -1741,6 +1752,12 @@ local defaultConfig = {
 	safeMode = false,
 	safeModeSavedConfig = {},
 	autoCollectPresentRain = false,
+	autoFallRebirth = false,
+	autoFallLeaves = false,
+	autoFallUpgrades = false,
+	fallUpgradePriority = "Currency",
+	autoFallElixir = true,
+	autoFallChest = false,
 	selectedWorldChest = "Giant Chest",
 	selectedWorldChests = {},
 	autoClaimWorldChest = false,
@@ -7235,6 +7252,10 @@ local eggTab = scriptStateOG:AddTab({
 	Title = "Eggs",
 	Icon = "egg",
 })
+local fallEventTab = scriptStateOG:AddTab({
+	Title = "Fall Event",
+	Icon = "leaf",
+})
 local scriptStateCZ = scriptStateOG:AddTab({
 	Title = "Event",
 	Icon = "flower",
@@ -9784,6 +9805,262 @@ task.spawn(function()
 		end
 	end
 end)
+do
+	local fallUpgradeData = {
+		Currency = { name = "Extra Currency", type = "Multi", levels = 8, costs = { 1, 2, 4, 8, 12, 20, 30, 40 } },
+		Luck = { name = "Luck", type = "Multi", levels = 7, costs = { 1, 2, 4, 8, 16, 32, 64 } },
+		SecretLuck = { name = "Secret Luck", type = "Multi", levels = 5, costs = { 3, 6, 12, 24, 48 } },
+		InfinityLuck = { name = "Infinity Luck", type = "Multi", levels = 5, costs = { 5, 10, 20, 40, 80 } },
+		AutoRebirth = { name = "Auto Rebirth", type = "Single", levels = 1, costs = { 5 } },
+	}
+	local fallUpgradeOrder = { "Currency", "Luck", "SecretLuck", "InfinityLuck", "AutoRebirth" }
+	local fallUpgradeDisplay = {
+		Currency = "Extra Currency",
+		Luck = "Luck",
+		SecretLuck = "Secret Luck",
+		InfinityLuck = "Infinity Luck",
+		AutoRebirth = "Auto Rebirth",
+	}
+	local fallUpgradeByDisplay = {}
+	for key, label in pairs(fallUpgradeDisplay) do
+		fallUpgradeByDisplay[label] = key
+	end
+
+	fallEventTab:AddSection("Autumn Rebirths")
+	local fallRebirthText = fallEventTab:AddParagraph({
+		Title = "Autumn Rebirths",
+		Content = "Loading...",
+	})
+	fallEventTab:AddToggle("AutoFallRebirth", {
+		Title = "Auto Rebirth",
+		Description = "Automatically rebirths when you have enough Autumn Leaves.",
+		Default = Config.autoFallRebirth,
+		Callback = function(enabled)
+			Config.autoFallRebirth = enabled == true
+			saveConfig()
+		end,
+	})
+
+	fallEventTab:AddSection("Leaves Farming")
+	fallEventTab:AddToggle("AutoFallLeaves", {
+		Title = "Auto-Farm Leaves",
+		Description = "Equips the team named Leaves and stays at the Autumn Leaves farming location.",
+		Default = Config.autoFallLeaves,
+		Callback = function(enabled)
+			Config.autoFallLeaves = enabled == true
+			saveConfig()
+		end,
+	})
+
+	fallEventTab:AddSection("Autumn Upgrades")
+	fallEventTab:AddDropdown("FallUpgradePriority", {
+		Title = "First Upgrade Priority",
+		Description = "Maxes this upgrade first, then continues through the remaining upgrades.",
+		Values = {
+			"Extra Currency",
+			"Luck",
+			"Secret Luck",
+			"Infinity Luck",
+			"Auto Rebirth",
+		},
+		Default = fallUpgradeDisplay[Config.fallUpgradePriority] and Config.fallUpgradePriority == "Currency" and "Extra Currency" or fallUpgradeDisplay[Config.fallUpgradePriority] or "Extra Currency",
+		Multi = false,
+		Search = true,
+		Callback = function(selected)
+			Config.fallUpgradePriority = fallUpgradeByDisplay[selected] or "Currency"
+			saveConfig()
+		end,
+	})
+	fallEventTab:AddToggle("AutoFallUpgrades", {
+		Title = "Auto Upgrades",
+		Description = "Buys the selected priority upgrade until it is maxed, then moves to the next available upgrade.",
+		Default = Config.autoFallUpgrades,
+		Callback = function(enabled)
+			Config.autoFallUpgrades = enabled == true
+			saveConfig()
+		end,
+	})
+
+	fallEventTab:AddSection("Fall Event Utilities")
+	fallEventTab:AddToggle("AutoFallElixir", {
+		Title = "Auto Use Autumn Elixir",
+		Description = "Automatically uses your highest owned Autumn Elixir level. Enabled by default.",
+		Default = Config.autoFallElixir,
+		Callback = function(enabled)
+			Config.autoFallElixir = enabled == true
+			saveConfig()
+		end,
+	})
+	fallEventTab:AddToggle("AutoFallChest", {
+		Title = "Auto Open Autumn Chest",
+		Description = "Automatically opens the Autumn Chest.",
+		Default = Config.autoFallChest,
+		Callback = function(enabled)
+			Config.autoFallChest = enabled == true
+			saveConfig()
+		end,
+	})
+
+	local function getFallData()
+		local data
+		pcall(function()
+			if profileStore:IsReady() then
+				data = profileStore:Get()
+			end
+		end)
+		return type(data) == "table" and data or nil
+	end
+
+	local function updateFallRebirthDisplay(data)
+		if not data then
+			return
+		end
+		local rebirths = math.floor(tonumber(data.AutumnRebirths) or 0)
+		local text = rebirths == 1 and "You have 1 Rebirth" or string.format("You have %d Rebirths", rebirths)
+		pcall(function()
+			fallRebirthText:Set({Title = "Autumn Rebirths", Content = text})
+		end)
+	end
+
+	local function equipLeavesTeam()
+		if type(activeStates.BGSI_Lite_EquipPetTeamByKey) ~= "function" then
+			return false
+		end
+		return activeStates.BGSI_Lite_EquipPetTeamByKey("Leaves") == true
+	end
+
+	local leavesFarmCFrame = CFrame.new(244.661, 14.554, 178.388)
+	local function farmLeaves()
+		if Config.safeMode == true or Config.autoFallLeaves ~= true then
+			return
+		end
+		equipLeavesTeam()
+		local root
+		pcall(function()
+			local character = LocalPlayer.Character
+			root = character and character:FindFirstChild("HumanoidRootPart")
+		end)
+		if root and (root.Position - leavesFarmCFrame.Position).Magnitude > 12 then
+			teleportToCFrame(leavesFarmCFrame)
+		end
+	end
+
+	local function autoFallRebirth()
+		if Config.safeMode == true or Config.autoFallRebirth ~= true then
+			return
+		end
+		local data = getFallData()
+		if not data then
+			return
+		end
+		local leaves = tonumber(data.Leaves26) or 0
+		local rebirths = tonumber(data.AutumnRebirths) or 0
+		local cost
+		pcall(function()
+			if autumnRebirthUtil and type(autumnRebirthUtil.GetRebirthCost) == "function" then
+				cost = tonumber(autumnRebirthUtil:GetRebirthCost(rebirths + 1))
+			end
+		end)
+		if cost and leaves >= cost then
+			activeStates.BGSI_Lite_FireGameRemote("AutumnRebirth")
+		end
+	end
+
+	local function buyFallUpgrade(upgradeKey)
+		local data = getFallData()
+		local info = fallUpgradeData[upgradeKey]
+		if not data or not info then
+			return false
+		end
+		local upgrades = type(data.AutumnUpgrades) == "table" and data.AutumnUpgrades or {}
+		local currentLevel = upgrades[upgradeKey]
+		local level = info.type == "Single" and (currentLevel == true and 1 or 0) or math.floor(tonumber(currentLevel) or 0)
+		if level >= info.levels then
+			return true
+		end
+		local cost = info.costs[level + 1]
+		if not cost then
+			return false
+		end
+		local shards = 0
+		pcall(function()
+			shards = tonumber(itemUtil:GetOwnedAmount(data, {
+				Type = "Currency",
+				Currency = "RebirthShards26",
+				Amount = 0,
+			})) or 0
+		end)
+		if shards < cost then
+			return false
+		end
+		local ok = pcall(function()
+			activeStates.BGSI_Lite_FireGameRemote("BuyAutumnUpgrade", upgradeKey)
+		end)
+		return ok
+	end
+
+	local function getFallUpgradePriority()
+		local first = fallUpgradeByDisplay[fallUpgradeDisplay[Config.fallUpgradePriority] or ""]
+		first = first or Config.fallUpgradePriority
+		local result = {}
+		if fallUpgradeData[first] then
+			table.insert(result, first)
+		end
+		for _, key in ipairs(fallUpgradeOrder) do
+			if key ~= first then
+				table.insert(result, key)
+			end
+		end
+		return result
+	end
+
+	local function autoFallUpgrades()
+		if Config.safeMode == true or Config.autoFallUpgrades ~= true then
+			return
+		end
+		for _, upgradeKey in ipairs(getFallUpgradePriority()) do
+			local data = getFallData()
+			local info = fallUpgradeData[upgradeKey]
+			if data and info then
+				local current = data.AutumnUpgrades and data.AutumnUpgrades[upgradeKey]
+				local level = info.type == "Single" and (current == true and 1 or 0) or math.floor(tonumber(current) or 0)
+				if level < info.levels then
+					if buyFallUpgrade(upgradeKey) then
+						task.wait(0.15)
+					end
+					return
+				end
+			end
+		end
+	end
+
+	task.spawn(function()
+		while isCurrentRun() do
+			local data = getFallData()
+			updateFallRebirthDisplay(data)
+			if Config.safeMode ~= true then
+				autoFallRebirth()
+				autoFallUpgrades()
+				farmLeaves()
+				if Config.autoFallElixir == true and type(activeStates.BGSI_Lite_GetHighestOwnedPotionLevel) == "function" then
+					local level = activeStates.BGSI_Lite_GetHighestOwnedPotionLevel(data, "Autumn Elixir")
+					if level then
+						local remaining = activeStates.BGSI_Lite_GetPotionRemainingSeconds(data, "Autumn Elixir", level)
+						if remaining <= 30 and type(activeStates.BGSI_Lite_UsePotionAmount) == "function" then
+							activeStates.BGSI_Lite_UsePotionAmount("Autumn Elixir", level, 1)
+						end
+					end
+				end
+				if Config.autoFallChest == true then
+					pcall(function()
+						activeStates.BGSI_Lite_FireGameRemote("UnlockEventChest", "Autumn Chest", false)
+					end)
+				end
+			end
+			task.wait(1)
+		end
+	end)
+end
 do
 	scriptStateCZ:AddSection("Event Board")
 	scriptStateCZ:AddToggle("AutoPurchaseEvents", {
