@@ -1,11 +1,37 @@
 -- activeStates.BGSI_Lite_ScriptVersion = "2026.09.20.03"
 local url = "https://tmpfiles.org/dl/1789925035.8464d266a8b3dd3f/wzwdxHtAJgxl/larp.txt"
-local source = game:HttpGet(url, true)
-if type(source) ~= "string" or #source < 1000 then
-	error("failed to download script body")
+
+local ok, source = pcall(function()
+    return game:HttpGet(url, true)
+end)
+
+if not ok or type(source) ~= "string" or #source == 0 then
+    error("failed to download script body")
 end
+
+-- tmpfiles can return an HTML wrapper instead of the raw file.
+if source:sub(1, 1) == "<" then
+    local pre = source:match("<pre[^>]*>([%s%S]-)</pre>")
+    if pre then
+        source = pre
+        source = source:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&#39;", "'"):gsub("&amp;", "&")
+    else
+        local body = source:match("<body[^>]*>([%s%S]-)</body>")
+        if body then
+            source = body
+        end
+    end
+end
+
+source = source:gsub("^%s+", ""):gsub("%s+$", "")
+
+if source:sub(1, 1) == "<" or #source < 1000 then
+    error("failed to download script body")
+end
+
 local fn, err = loadstring(source)
 if not fn then
-	error("compile failed: " .. tostring(err))
+    error("compile failed: " .. tostring(err))
 end
+
 return fn()
