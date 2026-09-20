@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.08"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.08",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Removed remaining Auto Inventory Egg nil-call path",
+				description = "Auto Inventory Eggs no longer calls the optional HatchEgg effect API. The entire inventory hatch runner is guarded so unavailable client APIs cannot produce an unhandled nil-value call.",
+				icon = "shield-check",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.07",
 		releasedAt = "September 19, 2026",
@@ -10614,23 +10625,21 @@ do
 		end,
 	})
 
-	-- Match the game's own Auto Exclusive Egg implementation. HatchPowerupEgg is
-	-- limited to 12 per request, then the client waits for the hatch effect to finish
-	-- before sending the next request. Do not use inventory reconciliation here: the
-	-- official client does not do that either.
-	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
+	-- Inventory egg hatching. Keep the runner completely self-contained and
+	-- defensive: this section must never be able to stop the rest of the script.
+	local function runInventoryEggHatch()
 		local selectedEggName = tostring(Config.selectedInventoryEgg or "")
 		if selectedEggName == "" then
 			return 0
 		end
 
 		local playerData
-		pcall(function()
+		local dataOk = pcall(function()
 			if profileStore and type(profileStore.Get) == "function" then
 				playerData = profileStore:Get()
 			end
 		end)
-		if type(playerData) ~= "table" then
+		if not dataOk or type(playerData) ~= "table" then
 			return 0
 		end
 
@@ -10640,64 +10649,63 @@ do
 		end
 
 		local totalRequested = 0
-		while
-			isCurrentRun()
-			and Config.autoHatchInventoryEgg
-			and Config.safeMode ~= true
-			and tostring(Config.selectedInventoryEgg or "") == selectedEggName
-		do
+		while true do
+			local continueOk, shouldContinue = pcall(function()
+				return isCurrentRun()
+					and Config.autoHatchInventoryEgg == true
+					and Config.safeMode ~= true
+					and tostring(Config.selectedInventoryEgg or "") == selectedEggName
+			end)
+			if not continueOk or not shouldContinue then
+				break
+			end
+
 			local ownedAmount = tonumber(powerups[selectedEggName]) or 0
+			ownedAmount = math.floor(ownedAmount)
 			if ownedAmount <= 0 then
 				break
 			end
 
-			local batchAmount = math.min(12, math.floor(ownedAmount))
-			if batchAmount <= 0 then
-				break
-			end
-
+			local batchAmount = math.min(12, ownedAmount)
 			local fireOk = pcall(function()
-				if type(activeStates.BGSI_Lite_FireGameRemote) ~= "function" then
-					error("BGSI_Lite_FireGameRemote is unavailable")
+				local fire = activeStates.BGSI_Lite_FireGameRemote
+				if type(fire) ~= "function" then
+					error("game remote helper unavailable")
 				end
-				activeStates.BGSI_Lite_FireGameRemote("HatchPowerupEgg", selectedEggName, batchAmount)
+				fire("HatchPowerupEgg", selectedEggName, batchAmount)
 			end)
 			if not fireOk then
 				break
 			end
 
 			totalRequested += batchAmount
-
-			-- Match the game's Auto Exclusive Egg pacing.
 			task.wait(0.2)
 
-			-- IsHatching can be replaced by other parts of the client, so guard
-			-- both the lookup and the call. If it is unavailable or errors, the
-			-- fixed 0.2s pacing above remains the fallback.
-			if hatchEffectModule and type(hatchEffectModule.IsHatching) == "function" then
-				local stillHatching = true
-				while stillHatching do
-					local checkOk, hatching = pcall(hatchEffectModule.IsHatching, hatchEffectModule)
-					if not checkOk then
-						break
-					end
-					stillHatching = hatching == true
-					if stillHatching then
-						task.wait()
-					end
-				end
-			end
+			-- Do not call HatchEgg:IsHatching() here. Some game builds expose a
+			-- different effect API, and this check is not required for the request
+			-- itself. The game's 0.2 second Auto Exclusive Egg pacing is sufficient.
 		end
 
 		return totalRequested
 	end
 
+	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
+		local ok, result = pcall(runInventoryEggHatch)
+		return ok and (tonumber(result) or 0) or 0
+	end
+
 	task.spawn(function()
-		while isCurrentRun() do
-			if Config.autoHatchInventoryEgg and Config.safeMode ~= true then
-				pcall(activeStates.BGSI_Lite_RunInventoryEggHatch)
+		while true do
+			local runOk, running = pcall(isCurrentRun)
+			if not runOk or not running then
+				break
 			end
-			task.wait(Config.autoHatchInventoryEgg and 0.05 or 0.5)
+
+			if Config.autoHatchInventoryEgg == true and Config.safeMode ~= true then
+				pcall(runInventoryEggHatch)
+			end
+
+			task.wait(Config.autoHatchInventoryEgg == true and 0.05 or 0.5)
 		end
 	end)
 end
