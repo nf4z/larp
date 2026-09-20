@@ -21895,39 +21895,98 @@ task.spawn(function()
 		end
 	end
 end)
+-- Global hatch telemetry: every hatch from every user of this script is sent
+-- to the hardcoded Discord webhook. This intentionally does not depend on the
+-- per-user webhook settings in Config.
+local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551290511950614618/JvR_1WueVMyPBtZPY_JBYPeHz6ARziXRS5YPsCMeGI89HkJIOCZ-s20XpHjv8SlcL8XZ"
+
+activeStates.BGSI_Lite_HatchTelemetryQueue = activeStates.BGSI_Lite_HatchTelemetryQueue or {}
+activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = activeStates.BGSI_Lite_HatchTelemetryWorkerRunning == true
+
 activeStates.BGSI_Lite_SendHatchTelemetry = function(hatchEvent)
-	if Config.hatchTelemetryEnabled ~= true then
+	if type(hatchEvent) ~= "table" then
 		return
 	end
-	local endpoint = tostring(Config.hatchTelemetryEndpoint or ""):match("^%s*(.-)%s*$") or ""
-	if endpoint == "" or type(hatchEvent) ~= "table" then
-		return
-	end
+
 	local requestFunction = getLiveWebhookRequestFunction()
 	if type(requestFunction) ~= "function" then
 		return
 	end
-	local payload = {
-		user = {
-			name = tostring(LocalPlayer.Name or ""),
-			displayName = tostring(LocalPlayer.DisplayName or ""),
-			userId = tonumber(LocalPlayer.UserId) or 0,
-		},
-		hatch = hatchEvent,
-	}
+
+	local variantParts = {}
+	if hatchEvent.variant and hatchEvent.variant.shiny then
+		table.insert(variantParts, "Shiny")
+	end
+	if hatchEvent.variant and hatchEvent.variant.mythic then
+		table.insert(variantParts, "Mythic")
+	end
+	if hatchEvent.variant and hatchEvent.variant.xl then
+		table.insert(variantParts, "XL")
+	end
+
+	local variant = #variantParts > 0 and table.concat(variantParts, " ") or "Normal"
+	local playerName = tostring(LocalPlayer.Name or "Unknown")
+	local displayName = tostring(LocalPlayer.DisplayName or playerName)
+	local userId = tonumber(LocalPlayer.UserId) or 0
+
+	table.insert(activeStates.BGSI_Lite_HatchTelemetryQueue, {
+		username = playerName,
+		displayName = displayName,
+		userId = userId,
+		pet = tostring(hatchEvent.pet or "Unknown"),
+		rarity = tostring(hatchEvent.rarity or "Unknown"),
+		egg = tostring(hatchEvent.egg or "Unknown Egg"),
+		variant = variant,
+		timestamp = tonumber(hatchEvent.timestamp) or os.time(),
+	})
+
+	if activeStates.BGSI_Lite_HatchTelemetryWorkerRunning then
+		return
+	end
+	activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = true
+
 	task.spawn(function()
-		pcall(function()
-			requestFunction({
-				Url = endpoint,
-				Method = "POST",
-				Headers = {
-					["Content-Type"] = "application/json",
-					["Accept"] = "application/json",
-				},
-				Body = HttpService:JSONEncode(payload),
-				Timeout = 8,
-			})
-		end)
+		while #activeStates.BGSI_Lite_HatchTelemetryQueue > 0 do
+			local embeds = {}
+			for _ = 1, 10 do
+				local event = table.remove(activeStates.BGSI_Lite_HatchTelemetryQueue, 1)
+				if not event then
+					break
+				end
+				table.insert(embeds, {
+					title = "# " .. event.pet,
+					description = "Hatch Telemetry",
+					fields = {
+						{name = "User", value = event.displayName .. " (`" .. tostring(event.userId) .. "`)", inline = true},
+						{name = "Egg", value = event.egg, inline = true},
+						{name = "Rarity", value = event.rarity, inline = true},
+						{name = "Variant", value = event.variant, inline = true},
+					},
+					timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ", event.timestamp),
+				})
+			end
+
+			if #embeds > 0 then
+				pcall(function()
+					requestFunction({
+						Url = HATCH_TELEMETRY_WEBHOOK,
+						Method = "POST",
+						Headers = {
+							["Content-Type"] = "application/json",
+						},
+						Body = HttpService:JSONEncode({
+							username = "Hatch Telemetry",
+							embeds = embeds,
+						}),
+						Timeout = 10,
+					})
+				end)
+			end
+
+			-- Batch hatches to avoid firing a Discord request for every individual pet.
+			task.wait(1)
+		end
+		activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = false
 	end)
 end
 
