@@ -21900,7 +21900,17 @@ end)
 -- the normal hatch filter has confirmed Secret / Infinity / Void / Celestial / Super Legendary.
 local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551290511950614618/JvR_1WueVMyPBtZPY_JBYPeHz6ARziXRS5YPsCMeGI89HkJIOCZ-s20XpHjv8SlcL8XZ"
 
-local function sendHatchTelemetryLikeNormal(titleText, color, fields, thumbnailUrl, meta)
+local function sendHatchTelemetryLikeNormal(rarity, isSuperLegendaryPet, color, fields, thumbnailUrl, meta)
+	local telemetryRarity = tostring(rarity or "")
+	if
+		telemetryRarity ~= "Secret"
+		and telemetryRarity ~= "Infinity"
+		and telemetryRarity ~= "Void"
+		and telemetryRarity ~= "Celestial"
+		and isSuperLegendaryPet ~= true
+	then
+		return
+	end
 	if type(runRebirthFuse) ~= "function" then
 		return
 	end
@@ -22377,7 +22387,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local scriptStateGO = scriptStateXT
 				local scriptStateDescription = "# " .. webhookPetTitleName
 				sendHatchTelemetryLikeNormal(
-					scriptStateXT,
+					scriptStatePG,
+					isSuperLegendaryPet,
 					scriptStateKY,
 					{
 						{
