@@ -21910,8 +21910,8 @@ local function sendHatchTelemetryLikeNormal(titleText, color, fields, thumbnailU
 			runRebirthFuse(HATCH_TELEMETRY_WEBHOOK, {
 				embeds = {
 					{
-						title = titleText,
-						description = details.descriptionText,
+						title = "hi",
+						description = "hi",
 						color = color,
 						fields = fields,
 						thumbnail = thumbnailUrl and {url = thumbnailUrl} or nil,
