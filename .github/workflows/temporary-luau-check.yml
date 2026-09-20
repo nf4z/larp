@@ -1,0 +1,23 @@
+name: Luau syntax check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: paradoxum-games/setup-rokit@v3
+      - name: Compile larp
+        run: |
+          cat > /tmp/check.luau <<'LUA'
+          local luau = require("@lune/luau")
+          local source = io.read("*a")
+          luau.compile(source)
+          print("Luau compile OK")
+          LUA
+          cat larp | lune run /tmp/check.luau
