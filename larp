@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.07"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.07",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Hardened Auto Inventory Egg remote and hatch checks",
+				description = "Auto Inventory Eggs now uses the initialized game-remote helper instead of directly referencing the RemoteEvent and safely guards the hatch-state method call so a client-side nil method cannot terminate the runner.",
+				icon = "shield-check",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.06",
 		releasedAt = "September 19, 2026",
@@ -10645,25 +10656,36 @@ do
 				break
 			end
 
-			local fired = pcall(function()
-				remoteEvent:FireServer("HatchPowerupEgg", selectedEggName, batchAmount)
+			local fireOk = pcall(function()
+				if type(activeStates.BGSI_Lite_FireGameRemote) ~= "function" then
+					error("BGSI_Lite_FireGameRemote is unavailable")
+				end
+				activeStates.BGSI_Lite_FireGameRemote("HatchPowerupEgg", selectedEggName, batchAmount)
 			end)
-			if not fired then
+			if not fireOk then
 				break
 			end
 
 			totalRequested += batchAmount
 
-			-- This is the same pacing used by the game's Auto Exclusive Egg code.
+			-- Match the game's Auto Exclusive Egg pacing.
 			task.wait(0.2)
 
-			-- The game waits until the hatch effect is actually finished before
-			-- sending another batch. This prevents overlapping hatch requests while
-			-- still allowing the full 12-egg batch on every cycle.
+			-- IsHatching can be replaced by other parts of the client, so guard
+			-- both the lookup and the call. If it is unavailable or errors, the
+			-- fixed 0.2s pacing above remains the fallback.
 			if hatchEffectModule and type(hatchEffectModule.IsHatching) == "function" then
-				repeat
-					task.wait()
-				until not hatchEffectModule:IsHatching()
+				local stillHatching = true
+				while stillHatching do
+					local checkOk, hatching = pcall(hatchEffectModule.IsHatching, hatchEffectModule)
+					if not checkOk then
+						break
+					end
+					stillHatching = hatching == true
+					if stillHatching then
+						task.wait()
+					end
+				end
 			end
 		end
 
