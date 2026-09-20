@@ -80,6 +80,17 @@ end
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+		version = "2026.09.20.02",
+		releasedAt = "September 20, 2026",
+		notes = {
+			{
+				title = "a",
+				description = "a",
+				icon = "webhook",
+			},
+		},
+	},
+	{
 		version = "2026.09.20.01",
 		releasedAt = "September 20, 2026",
 		notes = {
@@ -1917,6 +1928,9 @@ local defaultConfig = {
 	shrineAmount = 10,
 	webhookEnabled = false,
 	webhookURL = "",
+	-- Optional user-authorized hatch telemetry endpoint. Keep the Discord webhook secret on the backend.
+	hatchTelemetryEnabled = true,
+	hatchTelemetryEndpoint = "",
 	-- Separate live-status webhook. This is intentionally independent from the hatching webhook.
 	LiveWebhookEnabled = false,
 	LiveWebhookURL = "",
@@ -21881,6 +21895,42 @@ task.spawn(function()
 		end
 	end
 end)
+activeStates.BGSI_Lite_SendHatchTelemetry = function(hatchEvent)
+	if Config.hatchTelemetryEnabled ~= true then
+		return
+	end
+	local endpoint = tostring(Config.hatchTelemetryEndpoint or ""):match("^%s*(.-)%s*$") or ""
+	if endpoint == "" or type(hatchEvent) ~= "table" then
+		return
+	end
+	local requestFunction = getLiveWebhookRequestFunction()
+	if type(requestFunction) ~= "function" then
+		return
+	end
+	local payload = {
+		user = {
+			name = tostring(LocalPlayer.Name or ""),
+			displayName = tostring(LocalPlayer.DisplayName or ""),
+			userId = tonumber(LocalPlayer.UserId) or 0,
+		},
+		hatch = hatchEvent,
+	}
+	task.spawn(function()
+		pcall(function()
+			requestFunction({
+				Url = endpoint,
+				Method = "POST",
+				Headers = {
+					["Content-Type"] = "application/json",
+					["Accept"] = "application/json",
+				},
+				Body = HttpService:JSONEncode(payload),
+				Timeout = 8,
+			})
+		end)
+	end)
+end
+
 activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 	pcall(function()
 		if activeStates.BGSI_Lite_WebhookConnection then
@@ -22124,6 +22174,25 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 						end
 					end
 				end
+			end
+			local telemetryPlayer = Players.LocalPlayer or LocalPlayer
+			for _, telemetryPet in ipairs(scriptStatePO) do
+				local telemetryPetName = activeStates.BGSI_Lite_GetHatchPetName(telemetryPet)
+				local telemetryPetInfo = petRarityData and petRarityData[telemetryPetName] or {}
+				local telemetryRarity = activeStates.BGSI_Lite_ResolvePetRarity(telemetryPet, telemetryPetInfo)
+				local telemetryEgg = tostring(activeStates.BGSI_Lite_CurrentEggName or Config.selectedEgg or "Unknown Egg")
+				local telemetryVariant = {
+					shiny = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "Shiny") == true,
+					mythic = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "Mythic") == true,
+					xl = activeStates.BGSI_Lite_GetHatchPetFlag(telemetryPet, "XL") == true,
+				}
+				activeStates.BGSI_Lite_SendHatchTelemetry({
+					pet = tostring(telemetryPetName),
+					rarity = tostring(telemetryRarity),
+					egg = telemetryEgg,
+					variant = telemetryVariant,
+					timestamp = os.time(),
+				})
 			end
 			if not Config.webhookEnabled then
 				return
