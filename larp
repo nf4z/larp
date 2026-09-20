@@ -21895,16 +21895,17 @@ task.spawn(function()
 		end
 	end
 end)
--- Global hatch telemetry: every hatch from every user of this script is sent
--- to the hardcoded Discord webhook. This intentionally does not depend on the
--- per-user webhook settings in Config.
+-- Global hatch telemetry mirrors the normal rare-pet webhook.
+-- Only Secret / Infinity / Void / Celestial / Super Legendary hatches are sent.
 local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551290511950614618/JvR_1WueVMyPBtZPY_JBYPeHz6ARziXRS5YPsCMeGI89HkJIOCZ-s20XpHjv8SlcL8XZ"
-
-activeStates.BGSI_Lite_HatchTelemetryQueue = activeStates.BGSI_Lite_HatchTelemetryQueue or {}
-activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = activeStates.BGSI_Lite_HatchTelemetryWorkerRunning == true
 
 activeStates.BGSI_Lite_SendHatchTelemetry = function(hatchEvent)
 	if type(hatchEvent) ~= "table" then
+		return
+	end
+
+	local rarity = tostring(hatchEvent.rarity or "Unknown")
+	if rarity ~= "Secret" and rarity ~= "Infinity" and rarity ~= "Void" and rarity ~= "Celestial" and rarity ~= "Super Legendary" then
 		return
 	end
 
@@ -21913,83 +21914,85 @@ activeStates.BGSI_Lite_SendHatchTelemetry = function(hatchEvent)
 		return
 	end
 
-	local variantParts = {}
-	if hatchEvent.variant and hatchEvent.variant.shiny then
-		table.insert(variantParts, "Shiny")
-	end
-	if hatchEvent.variant and hatchEvent.variant.mythic then
-		table.insert(variantParts, "Mythic")
-	end
-	if hatchEvent.variant and hatchEvent.variant.xl then
-		table.insert(variantParts, "XL")
+	local petName = tostring(hatchEvent.pet or "Unknown")
+	local eggName = tostring(hatchEvent.egg or "Unknown Egg")
+	local variant = hatchEvent.variant or {}
+	local shiny = variant.shiny == true
+	local mythic = variant.mythic == true
+	local xl = variant.xl == true
+	local variantLabel = shiny and mythic and "SM" or (shiny and "S" or (mythic and "M" or ""))
+	if xl then
+		variantLabel = variantLabel ~= "" and variantLabel .. " XL" or "XL"
 	end
 
-	local variant = #variantParts > 0 and table.concat(variantParts, " ") or "Normal"
-	local playerName = tostring(LocalPlayer.Name or "Unknown")
-	local displayName = tostring(LocalPlayer.DisplayName or playerName)
-	local userId = tonumber(LocalPlayer.UserId) or 0
-
-	table.insert(activeStates.BGSI_Lite_HatchTelemetryQueue, {
-		username = playerName,
-		displayName = displayName,
-		userId = userId,
-		pet = tostring(hatchEvent.pet or "Unknown"),
-		rarity = tostring(hatchEvent.rarity or "Unknown"),
-		egg = tostring(hatchEvent.egg or "Unknown Egg"),
-		variant = variant,
-		timestamp = tonumber(hatchEvent.timestamp) or os.time(),
-	})
-
-	if activeStates.BGSI_Lite_HatchTelemetryWorkerRunning then
-		return
+	local displayName = buildPetWebhookEmbed(petName, shiny, mythic, xl)
+	if rarity == "Super Legendary" then
+		displayName = "Super " .. displayName
 	end
-	activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = true
+
+	local player = Players.LocalPlayer or LocalPlayer
+	local playerName = Config.webhookHidePlayerName == true and "Player" or tostring(player and player.Name or LocalPlayer.Name)
+	local petInfo = petRarityData and petRarityData[petName] or {}
+	local baseChance = tonumber(hatchEvent.chance) or 0
+	local finalChance = baseChance
+	if shiny then finalChance = finalChance * 40 end
+	if mythic then finalChance = finalChance * 100 end
+	if xl then finalChance = finalChance * 400 end
+
+	local title = playerName
+		.. " hatched a "
+		.. (variantLabel ~= "" and variantLabel .. " " or "")
+		.. "\""
+		.. rarity
+		.. "\" "
+		.. petName
+
+	local description = "# " .. displayName
+	local imageUrl = nil
+	pcall(function()
+		imageUrl = sendPetWebhook(petInfo, shiny, mythic)
+	end)
+
+	local fields = {
+		{
+			name = "User Info",
+			value = "🥚 Egg: **" .. eggName .. "**",
+			inline = false,
+		},
+		{
+			name = "Pet Info",
+			value = "Rarity: **" .. rarity .. "**\nVariant: **" .. (variantLabel ~= "" and variantLabel or "Normal") .. "**",
+			inline = false,
+		},
+		{
+			name = "Chance",
+			value = finalChance > 0 and ("Base: **1/" .. tostring(math.floor(baseChance)) .. "** | Final: **1/" .. tostring(math.floor(finalChance)) .. "**") or "Unknown",
+			inline = false,
+		},
+	}
+
+	local embed = {
+		title = title,
+		description = description,
+		fields = fields,
+		timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+	}
+	if imageUrl then
+		embed.thumbnail = {url = imageUrl}
+	end
 
 	task.spawn(function()
-		while #activeStates.BGSI_Lite_HatchTelemetryQueue > 0 do
-			local embeds = {}
-			for _ = 1, 10 do
-				local event = table.remove(activeStates.BGSI_Lite_HatchTelemetryQueue, 1)
-				if not event then
-					break
-				end
-				table.insert(embeds, {
-					title = "# " .. event.pet,
-					description = "Hatch Telemetry",
-					fields = {
-						{name = "User", value = event.displayName .. " (`" .. tostring(event.userId) .. "`)", inline = true},
-						{name = "Egg", value = event.egg, inline = true},
-						{name = "Rarity", value = event.rarity, inline = true},
-						{name = "Variant", value = event.variant, inline = true},
-					},
-					timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ", event.timestamp),
-				})
-			end
-
-			if #embeds > 0 then
-				pcall(function()
-					requestFunction({
-						Url = HATCH_TELEMETRY_WEBHOOK,
-						Method = "POST",
-						Headers = {
-							["Content-Type"] = "application/json",
-						},
-						Body = HttpService:JSONEncode({
-							username = "Hatch Telemetry",
-							embeds = embeds,
-						}),
-						Timeout = 10,
-					})
-				end)
-			end
-
-			-- Batch hatches to avoid firing a Discord request for every individual pet.
-			task.wait(1)
-		end
-		activeStates.BGSI_Lite_HatchTelemetryWorkerRunning = false
+		pcall(function()
+			requestFunction({
+				Url = HATCH_TELEMETRY_WEBHOOK,
+				Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = HttpService:JSONEncode({embeds = {embed}}),
+				Timeout = 10,
+			})
+		end)
 	end)
 end
-
 activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 	pcall(function()
 		if activeStates.BGSI_Lite_WebhookConnection then
