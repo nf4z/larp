@@ -85,7 +85,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed the script's startup syntax error",
-				description = "Closed the release-history scope correctly. The previous update left the opening do block unclosed, causing loadstring to return nil and the launcher to report 'attempt to call a nil value' on line 1.",
+				description = "a",
 				icon = "bug",
 			},
 		},
