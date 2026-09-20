@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.08"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.19.09"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.19.09",
+		releasedAt = "September 19, 2026",
+		notes = {
+			{
+				title = "Fixed the script's startup syntax error",
+				description = "Closed the release-history scope correctly. The previous update left the opening do block unclosed, causing loadstring to return nil and the launcher to report 'attempt to call a nil value' on line 1.",
+				icon = "bug",
+			},
+		},
+	},
 	{
 		version = "2026.09.19.08",
 		releasedAt = "September 19, 2026",
@@ -1710,6 +1721,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		},
 	},
 }
+end
 activeStates.BGSI_Lite_ReleaseNotes = activeStates.BGSI_Lite_ReleaseHistory[1].notes
 local currentRunToken = {}
 activeStates._1rzHubLiteRunToken = currentRunToken
