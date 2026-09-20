@@ -76,25 +76,8 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 		level = tostring(level or "info"),
 	}
 end
--- Blacklist: stops blacklisted people from using this script. It only ever looks at the
--- account running the script. The old version checked everyone ELSE in the server and
--- kicked the person running it, so anyone who shared a server with a matching display
--- name got kicked for nothing.
-do
-	-- Display names, compared exactly (case-insensitive, surrounding spaces ignored).
-	local blacklistedDisplayNames = {
-		["afbq"] = true,
-	}
-	-- UserIds never change and belong to one account, so they're the most reliable
-	-- entry if one's ever known, e.g. [123456789] = true.
-	local blacklistedUserIds = {}
 
-	local displayName = string.lower((tostring(LocalPlayer.DisplayName or "")):gsub("^%s+", ""):gsub("%s+$", ""))
-	if blacklistedUserIds[LocalPlayer.UserId] == true or blacklistedDisplayNames[displayName] == true then
-		LocalPlayer:Kick("no.")
-		return
-	end
-end
+do
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
 		version = "2026.09.19.05",
@@ -218,17 +201,6 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 				title = "Auto Open Box takes multiple boxes",
 				description = "Pick any mix of boxes (Condensed, Guild, regular) and it takes turns opening the ones you own. It leaves plain Mystery Boxes for the condenser while Auto Condense can still use them.",
 				icon = "gift",
-			},
-		},
-	},
-	{
-		version = "2026.09.12.02",
-		releasedAt = "September 12, 2026",
-		notes = {
-			{
-				title = "Blacklist no longer kicks innocent players",
-				description = "It used to kick you if anyone else in your server had a blacklisted display name. Now it only checks the account running the script, with an exact name match.",
-				icon = "user-x",
 			},
 		},
 	},
