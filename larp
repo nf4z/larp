@@ -1,14 +1,11 @@
 -- activeStates.BGSI_Lite_ScriptVersion = "2026.09.20.03"
--- multipart loader; marker above satisfies auto-update version check
-local HttpService = game:GetService("HttpService")
 local base = "https://raw.githubusercontent.com/nf4z/larp/main/"
-local partCount = 9
+local partCount = 41
 local chunks = table.create(partCount)
 for i = 0, partCount - 1 do
-	local url = base .. "larp_part_" .. tostring(i) .. "?r=" .. tostring(os.time()) .. "-" .. tostring(i)
-	local body = game:HttpGet(url, true)
+	local body = game:HttpGet(base .. "p_" .. tostring(i) .. "?r=" .. tostring(os.time()) .. "-" .. tostring(i), true)
 	if type(body) ~= "string" or #body == 0 then
-		error("failed to download larp_part_" .. tostring(i))
+		error("failed to download p_" .. tostring(i))
 	end
 	chunks[i + 1] = body
 end
