@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.9.19.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.20.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -80,7 +80,7 @@ end
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
-		version = "2026.9.19.10",
+		version = "2026.09.20.01",
 		releasedAt = "September 20, 2026",
 		notes = {
 			{
@@ -9806,6 +9806,11 @@ task.spawn(function()
 	end
 end)
 do
+	local autumnRebirthUtil
+	pcall(function()
+		autumnRebirthUtil = require(ReplicatedStorage.Shared.Utils.AutumnRebirthUtil)
+	end)
+
 	local fallUpgradeData = {
 		Currency = { name = "Extra Currency", type = "Multi", levels = 8, costs = { 1, 2, 4, 8, 12, 20, 30, 40 } },
 		Luck = { name = "Luck", type = "Multi", levels = 7, costs = { 1, 2, 4, 8, 16, 32, 64 } },
