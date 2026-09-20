@@ -14,10 +14,10 @@ jobs:
       - uses: paradoxum-games/setup-rokit@v3
       - name: Compile larp
         run: |
-          cat > /tmp/check.luau <<'LUA'
+          cat > check.luau <<'LUA'
+          local fs = require("@lune/fs")
           local luau = require("@lune/luau")
-          local source = io.read("*a")
-          luau.compile(source)
+          luau.compile(fs.readFile("larp"))
           print("Luau compile OK")
           LUA
-          cat larp | lune run /tmp/check.luau
+          lune run check.luau
