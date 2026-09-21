@@ -21923,7 +21923,7 @@ local function sendHatchTelemetryLikeNormal(rarity, isSuperLegendaryPet, titleTe
 				copiedField[key] = value
 			end
 			if copiedField.name == "User Info" then
-				copiedField.value = "User: **" .. tostring(details.userName or "Player") .. "**\\n" .. tostring(copiedField.value or "")
+				copiedField.value = "User: **" .. tostring(details.userName or "Player") .. "**\n" .. tostring(copiedField.value or "")
 			end
 			table.insert(telemetryFields, copiedField)
 		end
@@ -21948,6 +21948,585 @@ local function sendHatchTelemetryLikeNormal(rarity, isSuperLegendaryPet, titleTe
 	end)
 end
 
+activeStates.BGSI_Lite_InstallPetWebhookListener = function()
+	pcall(function()
+		if activeStates.BGSI_Lite_WebhookConnection then
+			activeStates.BGSI_Lite_WebhookConnection:Disconnect()
+			activeStates.BGSI_Lite_WebhookConnection = nil
+		end
+	end)
+	activeStates.BGSI_Lite_RecentPetWebhookKeys = type(activeStates.BGSI_Lite_RecentPetWebhookKeys) == "table"
+			and activeStates.BGSI_Lite_RecentPetWebhookKeys
+		or {}
+	local recentPetWebhookKeys = activeStates.BGSI_Lite_RecentPetWebhookKeys
+	local function isSuperLegendaryWebhookPet(webhookPetEntry, petData)
+		local isLegendaryBasePet = type(petData) == "table" and petData.Rarity == "Legendary"
+		if not isLegendaryBasePet then
+			return false
+		end
+		return activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "Super")
+	end
+	local function shouldSendPetWebhookEntry(webhookPetEntry, petName, petRarity, isShiny, isMythic, isXL)
+		local now = tick()
+		for webhookKey, webhookSentAt in pairs(recentPetWebhookKeys) do
+			if now - webhookSentAt > 120 then
+				recentPetWebhookKeys[webhookKey] = nil
+			end
+		end
+		local petId = activeStates.BGSI_Lite_GetWebhookPetEntryId(webhookPetEntry)
+		if petId == nil or tostring(petId) == "" then
+			return true
+		end
+		local webhookKey = "id|" .. tostring(petId)
+		if recentPetWebhookKeys[webhookKey] and now - recentPetWebhookKeys[webhookKey] < 120 then
+			return false
+		end
+		recentPetWebhookKeys[webhookKey] = now
+		return true
+	end
+	local savedWebhookHatchTracker = loadWebhookHatchTracker()
+	activeStates.BGSI_Lite_WebhookHatchTracker = type(activeStates.BGSI_Lite_WebhookHatchTracker) == "table"
+			and activeStates.BGSI_Lite_WebhookHatchTracker
+		or {}
+	for petDisplayName, savedHatchCount in pairs(savedWebhookHatchTracker) do
+		activeStates.BGSI_Lite_WebhookHatchTracker[petDisplayName] =
+			math.max(tonumber(activeStates.BGSI_Lite_WebhookHatchTracker[petDisplayName]) or 0, savedHatchCount)
+	end
+	local function incrementWebhookHatchTracker(petDisplayName)
+		petDisplayName = tostring(petDisplayName or "Unknown")
+		local latestTracker = loadWebhookHatchTracker()
+		for savedPetName, savedHatchCount in pairs(latestTracker) do
+			activeStates.BGSI_Lite_WebhookHatchTracker[savedPetName] =
+				math.max(tonumber(activeStates.BGSI_Lite_WebhookHatchTracker[savedPetName]) or 0, savedHatchCount)
+		end
+		local currentCount = math.max(
+			tonumber(activeStates.BGSI_Lite_WebhookHatchTracker[petDisplayName]) or 0,
+			tonumber(latestTracker[petDisplayName]) or 0
+		)
+		currentCount = currentCount + 1
+		activeStates.BGSI_Lite_WebhookHatchTracker[petDisplayName] = currentCount
+		saveWebhookHatchTracker()
+		return currentCount
+	end
+	local function formatWebhookChancePercent(oneInChance)
+		oneInChance = tonumber(oneInChance) or 0
+		if oneInChance <= 0 then
+			return "0%"
+		end
+		local chancePercent = 100 / oneInChance
+		if chancePercent < 0.000001 then
+			return string.format("%.3g%%", chancePercent)
+		end
+		return string.format("%.8f", chancePercent):gsub("0+$", ""):gsub("%.$", "") .. "%"
+	end
+	activeStates.BGSI_Lite_WebhookConnection = remoteEvent.OnClientEvent:Connect(
+		function(scriptStateKW, scriptStateNY, ...)
+			if not isCurrentRun() then
+				return
+			end
+			local scriptStatePO
+			if
+				scriptStateKW == "HatchEgg"
+				or scriptStateKW == "HatchPowerupEgg"
+				or scriptStateKW == "ExclusiveHatch"
+			then
+				if type(scriptStateNY) == "table" then
+					scriptStatePO = scriptStateNY.Pets
+					if type(scriptStatePO) ~= "table" and #scriptStateNY > 0 then
+						scriptStatePO = scriptStateNY
+					end
+					if
+						type(scriptStatePO) ~= "table"
+						and activeStates.BGSI_Lite_GetHatchPetName(scriptStateNY) ~= "Unknown"
+					then
+						scriptStatePO = {
+							scriptStateNY,
+						}
+					end
+				end
+			elseif scriptStateKW == "ItemsReceived" then
+				if type(scriptStateNY) == "table" then
+					scriptStatePO = {}
+					for loopSlotCF, scriptStateABW in ipairs(scriptStateNY) do
+						if type(scriptStateABW) == "table" and scriptStateABW.Type == "Pet" then
+							table.insert(scriptStatePO, scriptStateABW)
+						end
+					end
+					if #scriptStatePO == 0 then
+						scriptStatePO = nil
+					end
+				end
+			end
+			if not scriptStatePO or type(scriptStatePO) ~= "table" or #scriptStatePO == 0 then
+				return
+			end
+			if
+				scriptStateKW == "HatchEgg"
+				or scriptStateKW == "HatchPowerupEgg"
+				or scriptStateKW == "ExclusiveHatch"
+				then
+					local hatchAcceptedAt = tick()
+				if scriptStateKW == "HatchEgg" then
+					local previousHatchAcceptedAt = tonumber(activeStates.BGSI_Lite_LastHatchAcceptedAt)
+					if previousHatchAcceptedAt and previousHatchAcceptedAt > 0 then
+						local hatchInterval = hatchAcceptedAt - previousHatchAcceptedAt
+						if hatchInterval >= 0.05 and hatchInterval <= 3 then
+							local previousInterval =
+								tonumber(activeStates.BGSI_Lite_AcceptedHatchInterval) or hatchInterval
+							activeStates.BGSI_Lite_AcceptedHatchInterval =
+								previousInterval * 0.7 + hatchInterval * 0.3
+							activeStates.BGSI_Lite_AdaptiveHatchDelay = math.clamp(
+								activeStates.BGSI_Lite_AcceptedHatchInterval * 0.02,
+								0.005,
+								0.015
+							)
+						end
+					end
+					activeStates.BGSI_Lite_LastHatchAcceptedAt = hatchAcceptedAt
+				end
+				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
+				if
+					Config.autoBubble
+					and type(activeStates.BGSI_Lite_BlowBubble) == "function"
+				then
+					task.defer(activeStates.BGSI_Lite_BlowBubble)
+				end
+				for _, dashboardHatchPet in ipairs(scriptStatePO) do
+					local dashboardPetName = activeStates.BGSI_Lite_GetHatchPetName(dashboardHatchPet)
+					local dashboardPetInfo = petRarityData and petRarityData[dashboardPetName] or {}
+					local dashboardChancePercent = tonumber(checkLowCurrencyWebhook(dashboardPetName, dashboardPetInfo))
+						or 100
+					local dashboardOneInChance = dashboardChancePercent > 0 and (100 / dashboardChancePercent) or 0
+					local dashboardShiny = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Shiny")
+					local dashboardMythic = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Mythic")
+					local dashboardXL = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "XL")
+					if dashboardShiny then
+						dashboardOneInChance = dashboardOneInChance * 40
+					end
+					if dashboardMythic then
+						dashboardOneInChance = dashboardOneInChance * 100
+					end
+					if dashboardXL then
+						dashboardOneInChance = dashboardOneInChance * 400
+					end
+					if dashboardOneInChance > (tonumber(activeStates.BGSI_Lite_DashboardBestHatchChance) or 0) then
+						local dashboardPetDisplayName =
+							buildPetWebhookEmbed(dashboardPetName, dashboardShiny, dashboardMythic, dashboardXL)
+						if isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo) then
+							dashboardPetDisplayName = "Super " .. dashboardPetDisplayName
+						end
+						activeStates.BGSI_Lite_DashboardBestHatchName = dashboardPetDisplayName
+						activeStates.BGSI_Lite_DashboardBestHatchChance = dashboardOneInChance
+					end
+					local dashboardIsSuper = isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo)
+					local dashboardRarity = activeStates.BGSI_Lite_ResolvePetRarity(
+						dashboardHatchPet,
+						dashboardPetInfo
+					)
+					if dashboardIsSuper and dashboardRarity ~= "Celestial" then
+						dashboardRarity = "Super Legendary"
+					end
+					local dashboardTracksPet = dashboardRarity == "Secret"
+						or dashboardRarity == "Infinity"
+						or dashboardRarity == "Void"
+						or dashboardRarity == "Celestial"
+						or dashboardIsSuper
+					local dashboardExistingCount
+					if dashboardTracksPet then
+						local dashboardVariantName =
+							buildPetWebhookEmbed(dashboardPetName, dashboardShiny, dashboardMythic, dashboardXL)
+						if dashboardIsSuper then
+							dashboardVariantName = "Super " .. dashboardVariantName
+						end
+						dashboardExistingCount = getPetVariantName(dashboardVariantName, dashboardHatchPet)
+						dashboardHatchPet.BGSI_Lite_DashboardExistingCount = dashboardExistingCount
+					end
+					local dashboardEnchantments = {}
+					if dashboardIsSuper then
+						local _, enchantNames = getWebhookSuperLegendaryEnchantText(
+							dashboardHatchPet,
+							dashboardPetName,
+							dashboardShiny,
+							dashboardMythic,
+							dashboardXL
+						)
+						dashboardEnchantments = enchantNames or {}
+					end
+					local dashboardEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "Unknown Egg")
+					activeStates.BGSI_Lite_RecordEggDiscovery(
+						dashboardEggName,
+						tostring(dashboardPetName),
+						dashboardRarity,
+						activeStates.BGSI_Lite_GetDashboardPetAssetId(dashboardHatchPet, dashboardPetInfo),
+						dashboardShiny == true,
+						dashboardMythic == true,
+						dashboardXL == true,
+						dashboardIsSuper,
+						dashboardEnchantments,
+						dashboardExistingCount
+					)
+					if dashboardTracksPet then
+						local dashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
+						if type(dashboardHatches) == "table" then
+							table.insert(dashboardHatches, {
+								eventId = HttpService:GenerateGUID(false),
+								petName = tostring(dashboardPetName),
+								rarity = dashboardRarity,
+								chance = dashboardOneInChance,
+								eggName = dashboardEggName,
+								imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(
+									dashboardHatchPet,
+									dashboardPetInfo
+								),
+								shiny = dashboardShiny == true,
+								mythic = dashboardMythic == true,
+								xl = dashboardXL == true,
+								super = dashboardIsSuper,
+								enchantments = dashboardEnchantments,
+								existingCount = dashboardExistingCount,
+							})
+							if #dashboardHatches > 500 then
+								table.remove(dashboardHatches, 1)
+							end
+						end
+					end
+				end
+			end
+			if not Config.webhookEnabled then
+				return
+			end
+			local resolvedWebhookPetIds = {}
+			for loopSlotAA, scriptStateACH in ipairs(scriptStatePO) do
+				activeStates.BGSI_Lite_LastWebhookStoredPet = nil
+				if loopSlotAA > 1 then
+					task.wait(0.1)
+				end
+				local scriptStateFL = activeStates.BGSI_Lite_GetHatchPetName(scriptStateACH)
+				local scriptStateEQ = petRarityData and petRarityData[scriptStateFL] or {}
+				local scriptStatePG = activeStates.BGSI_Lite_ResolvePetRarity(scriptStateACH, scriptStateEQ)
+				local isSuperLegendaryPet = isSuperLegendaryWebhookPet(scriptStateACH, scriptStateEQ)
+				if
+					scriptStatePG ~= "Secret"
+					and scriptStatePG ~= "Infinity"
+					and scriptStatePG ~= "Void"
+					and scriptStatePG ~= "Celestial"
+					and not isSuperLegendaryPet
+				then
+					continue
+				end
+				local scriptStateLS = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Shiny")
+				local scriptStateNI = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Mythic")
+				local scriptStateKK = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "XL")
+				if
+					not shouldSendPetWebhookEntry(
+						scriptStateACH,
+						scriptStateFL,
+						scriptStatePG,
+						scriptStateLS,
+						scriptStateNI,
+						scriptStateKK
+					)
+				then
+					continue
+				end
+				local scriptStateKY
+				if scriptStateLS and scriptStateNI then
+					scriptStateKY = tonumber("00FF00", 16)
+				elseif scriptStateNI then
+					scriptStateKY = tonumber("5E03FC", 16)
+				elseif scriptStateLS then
+					scriptStateKY = tonumber("FFFF00", 16)
+				else
+					scriptStateKY = tonumber("FF0000", 16)
+				end
+				local scriptStateAFP = 1
+				if scriptStateKK then
+					scriptStateAFP = tonumber(sharedConstants and sharedConstants.XLMultiplier) or 2.5
+				end
+				if scriptStateLS and scriptStateNI then
+					scriptStateAFP = scriptStateAFP * 2.25
+				elseif scriptStateLS then
+					scriptStateAFP = scriptStateAFP * 1.5
+				elseif scriptStateNI then
+					scriptStateAFP = scriptStateAFP * 1.75
+				end
+				local webhookPetDisplayName =
+					buildPetWebhookEmbed(scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK)
+				local webhookPetTitleName = (isSuperLegendaryPet and "Super " or "") .. webhookPetDisplayName
+				local scriptStateBR = scriptStateACH.BGSI_Lite_DashboardExistingCount
+				if scriptStateBR == nil then
+					scriptStateBR = getPetVariantName(webhookPetTitleName, scriptStateACH)
+				end
+				local webhookHatchCount = incrementWebhookHatchTracker(webhookPetTitleName)
+				local webhookPetId = activeStates.BGSI_Lite_GetResolvedWebhookPetId(
+					scriptStateACH,
+					scriptStateFL,
+					scriptStateLS,
+					scriptStateNI,
+					scriptStateKK,
+					resolvedWebhookPetIds
+				) or "Unknown"
+				if webhookPetId ~= "Unknown" then
+					resolvedWebhookPetIds[tostring(webhookPetId)] = true
+				end
+				local scriptStateMO = checkLowCurrencyWebhook(scriptStateFL, scriptStateEQ)
+				local scriptStateAEC = 100 / scriptStateMO
+				local scriptStateYS = 1
+				if scriptStateLS then
+					scriptStateYS = scriptStateYS * 40
+				end
+				if scriptStateNI then
+					scriptStateYS = scriptStateYS * 100
+				end
+				if scriptStateKK then
+					scriptStateYS = scriptStateYS * 400
+				end
+				local scriptStateDO = scriptStateAEC * scriptStateYS
+				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
+				local scriptStateAEB = isSuperLegendaryPet and "Super Legendary" or scriptStatePG
+				local scriptStateAEO = {}
+				local webhookPlayer = Players.LocalPlayer
+				local webhookPlayerName = Config.webhookHidePlayerName == true and "Player"
+					or (webhookPlayer and webhookPlayer.Name or LocalPlayer.Name)
+				local webhookUserStats = getWebhookRequestFunction()
+				local webhookUserTotals = getDiscordTimestamp()
+				local webhookUserInfoLines = {
+					"<:purple_circle:1363755750828019774> Current Bubbles: **" .. getShrineAmountValue(
+						webhookUserTotals.BubblesBlown
+					) .. "**",
+					"🪙 Coins: **" .. getShrineAmountValue(webhookUserStats.Coins) .. "**",
+					"<:gem:1363755998401269854> Gems: **" .. getShrineAmountValue(webhookUserStats.Gems) .. "**",
+					"<:egg:1377264232915013673> Total Eggs: **"
+						.. runShrineDonation(webhookUserTotals.EggsHatched)
+						.. "**",
+					"<:four_leaf_clover:1462133363182796810> Luck: **"
+						.. tostring(webhookUserStats.LuckDisplay)
+						.. "**",
+					"❓ Secret luck: **" .. tostring(webhookUserStats.SecretLuckDisplay) .. "**",
+					"♾️ Infinity luck: **" .. tostring(webhookUserStats.InfinityLuckDisplay) .. "**",
+				}
+				if isSuperLegendaryPet then
+					local superLegendaryEnchantText = getWebhookSuperLegendaryEnchantText(
+						scriptStateACH,
+						scriptStateFL,
+						scriptStateLS,
+						scriptStateNI,
+						scriptStateKK
+					)
+					if superLegendaryEnchantText then
+						table.insert(scriptStateAEO, superLegendaryEnchantText)
+					end
+				end
+				local webhookPetTier = tonumber(
+					activeStates.BGSI_Lite_GetHatchPetValue(scriptStateACH, { "Tier" }) or scriptStateEQ.Tier
+				)
+				if webhookPetTier then
+					table.insert(
+						scriptStateAEO,
+						"<:crossed_swords:1411581143114846318> Pet Tier: **"
+							.. runShrineDonation(webhookPetTier)
+							.. "**"
+					)
+				end
+				if scriptStateEQ.Tag and scriptStateEQ.Tag ~= "" then
+					table.insert(scriptStateAEO, "🏷️ Origins: **" .. tostring(scriptStateEQ.Tag) .. "**")
+				end
+				local webhookStatEmojis = {
+					Bubbles = "<:purple_circle:1363755750828019774>",
+					CarnivalCoins = "<:circus_tent:1520159699230785707>",
+					Gems = "<:gem:1363755998401269854>",
+				}
+				local addedWebhookStats = {}
+				if type(scriptStateEQ.Stats) == "table" then
+					for _, webhookStatName in ipairs({ "Bubbles", "CarnivalCoins", "Gems" }) do
+						local webhookStatValue = scriptStateEQ.Stats[webhookStatName]
+						if type(webhookStatValue) == "number" then
+							table.insert(
+								scriptStateAEO,
+								webhookStatEmojis[webhookStatName]
+									.. " "
+									.. webhookStatName
+									.. ": **"
+									.. activeStates.BGSI_Lite_GetWebhookPetStatValue(webhookStatValue * scriptStateAFP)
+									.. "**"
+							)
+							addedWebhookStats[webhookStatName] = true
+						end
+					end
+					for webhookStatName, webhookStatValue in pairs(scriptStateEQ.Stats) do
+						if type(webhookStatValue) == "number" and not addedWebhookStats[webhookStatName] then
+							local webhookStatEmoji = scriptStateDX[webhookStatName] or ""
+							table.insert(
+								scriptStateAEO,
+								webhookStatEmoji
+									.. " "
+									.. webhookStatName
+									.. ": **"
+									.. activeStates.BGSI_Lite_GetWebhookPetStatValue(webhookStatValue * scriptStateAFP)
+									.. "**"
+							)
+						end
+					end
+				end
+				table.insert(scriptStateAEO, "")
+				table.insert(
+					scriptStateAEO,
+					"Exist: **" .. (scriptStateBR and runShrineDonation(scriptStateBR) or "0") .. "**"
+				)
+				table.insert(
+					scriptStateAEO,
+					"You've hatched this pet **"
+						.. runShrineDonation(webhookHatchCount)
+						.. "** time"
+						.. (webhookHatchCount == 1 and "!" or "s!")
+				)
+				if isSuperLegendaryPet then
+					table.insert(scriptStateAEO, "**Server Id**:\n```" .. tostring(game.JobId) .. "```")
+				end
+				local webhookVariantLabel = scriptStateLS and scriptStateNI and "SM"
+					or (scriptStateLS and "S" or (scriptStateNI and "M" or ""))
+				if scriptStateKK then
+					webhookVariantLabel = webhookVariantLabel ~= "" and webhookVariantLabel .. " XL" or "XL"
+				end
+				if isSuperLegendaryPet then
+					webhookVariantLabel = webhookVariantLabel ~= "" and "Super " .. webhookVariantLabel or "Super"
+				end
+				local scriptStateXT = webhookPlayerName
+					.. " hatched a "
+					.. (webhookVariantLabel ~= "" and webhookVariantLabel .. " " or "")
+					.. '"'
+					.. scriptStateAEB
+					.. '" '
+					.. scriptStateFL
+				local scriptStateGO = scriptStateXT
+				local scriptStateDescription = "# " .. webhookPetTitleName
+				sendHatchTelemetryLikeNormal(
+					scriptStatePG,
+					isSuperLegendaryPet,
+					scriptStateKY,
+					{
+						{
+							name = "User Info",
+							value = table.concat(webhookUserInfoLines, "\\n"),
+							inline = false,
+						},
+						{
+							name = "Pet Info",
+							value = table.concat(scriptStateAEO, "\\n"),
+							inline = false,
+						},
+						{
+							name = "Chance",
+							value = "Base: **1/"
+								.. runShrineDonation(math.floor(scriptStateAEC))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateAEC)
+								.. ") | "
+								.. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
+								.. ": **1/"
+								.. runShrineDonation(math.floor(scriptStateDO))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateDO)
+								.. ")",
+							inline = false,
+						},
+					},
+					scriptStateWG,
+					{
+						descriptionText = scriptStateDescription,
+						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(webhookPetId),
+						timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+					}
+				)
+					sendHatchTelemetryLikeNormal(
+					scriptStatePG,
+					isSuperLegendaryPet,
+					scriptStateXT,
+					scriptStateKY,
+					{
+						{
+							name = "User Info",
+							value = table.concat(webhookUserInfoLines, "\n"),
+							inline = false,
+						},
+						{
+							name = "Pet Info",
+							value = table.concat(scriptStateAEO, "\n"),
+							inline = false,
+						},
+						{
+							name = "Chance",
+							value = "Base: **1/"
+								.. runShrineDonation(math.floor(scriptStateAEC))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateAEC)
+								.. ") | "
+								.. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
+								.. ": **1/"
+								.. runShrineDonation(math.floor(scriptStateDO))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateDO)
+								.. ")",
+							inline = false,
+						},
+					},
+					scriptStateWG,
+					{
+						descriptionText = scriptStateDescription,
+						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(webhookPetId),
+						timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+						userName = webhookPlayerName,
+					}
+				)
+		runRebirthMachineLoop(
+					scriptStateXT,
+					scriptStateKY,
+					{
+						{
+							name = "User Info",
+							value = table.concat(webhookUserInfoLines, "\n"),
+							inline = false,
+						},
+						{
+							name = "Pet Info",
+							value = table.concat(scriptStateAEO, "\n"),
+							inline = false,
+						},
+						{
+							name = "Chance",
+							value = "Base: **1/"
+								.. runShrineDonation(math.floor(scriptStateAEC))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateAEC)
+								.. ") | "
+								.. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
+								.. ": **1/"
+								.. runShrineDonation(math.floor(scriptStateDO))
+								.. "** ("
+								.. formatWebhookChancePercent(scriptStateDO)
+								.. ")",
+							inline = false,
+						},
+					},
+					scriptStateWG,
+					scriptStateGO,
+					{
+						titleText = nil,
+						descriptionText = scriptStateDescription,
+						imageUrl = nil,
+						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(
+							webhookPetId
+						),
+						timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+					}
+				)
+			end
+		end
+	)
+end
+
+pcall(activeStates.BGSI_Lite_InstallPetWebhookListener)
+activeStates.BGSI_Lite_InstallPetWebhookListener = nil
 -- ============================================================================
 -- AUTO UPDATE
 -- Periodically checks the GitHub repo (https://github.com/nf4z/larp) for a
