@@ -22400,44 +22400,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					.. scriptStateFL
 				local scriptStateGO = scriptStateXT
 				local scriptStateDescription = "# " .. webhookPetTitleName
-				sendHatchTelemetryLikeNormal(
-					scriptStatePG,
-					isSuperLegendaryPet,
-					scriptStateKY,
-					{
-						{
-							name = "User Info",
-							value = table.concat(webhookUserInfoLines, "\\n"),
-							inline = false,
-						},
-						{
-							name = "Pet Info",
-							value = table.concat(scriptStateAEO, "\\n"),
-							inline = false,
-						},
-						{
-							name = "Chance",
-							value = "Base: **1/"
-								.. runShrineDonation(math.floor(scriptStateAEC))
-								.. "** ("
-								.. formatWebhookChancePercent(scriptStateAEC)
-								.. ") | "
-								.. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
-								.. ": **1/"
-								.. runShrineDonation(math.floor(scriptStateDO))
-								.. "** ("
-								.. formatWebhookChancePercent(scriptStateDO)
-								.. ")",
-							inline = false,
-						},
-					},
-					scriptStateWG,
-					{
-						descriptionText = scriptStateDescription,
-						footerText = "@76yx | #" .. runShrineDonation(webhookHatchCount) .. " | " .. tostring(webhookPetId),
-						timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
-					}
-				)
 					sendHatchTelemetryLikeNormal(
 					scriptStatePG,
 					isSuperLegendaryPet,
