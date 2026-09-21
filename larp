@@ -4111,14 +4111,18 @@ activeStates.BGSI_Lite_ApplyHatchAnimationSetting = function()
 	end
 	return true
 end
-activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+if type(activeStates.BGSI_Lite_ApplyHatchAnimationSetting) == "function" then
+	activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+end
 LocalPlayer.CharacterAdded:Connect(function()
 	if Config.healthRecoveryEnabled ~= true then
 		return
 	end
 	task.wait(1)
 	activeStates.BGSI_Lite_ForceAutoHatchTeleport = Config.autoHatch == true
-	activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+	if type(activeStates.BGSI_Lite_ApplyHatchAnimationSetting) == "function" then
+		activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+	end
 end)
 task.spawn(function()
 	while isCurrentRun() do
@@ -4128,14 +4132,16 @@ task.spawn(function()
 			and hatchEffectModule
 			and hatchEffectModule.Play ~= activeStates.BGSI_Lite_NoHatchAnimationPlay
 		then
-			activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+			if type(activeStates.BGSI_Lite_ApplyHatchAnimationSetting) == "function" then
+				activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
+			end
 		end
 		if Config.healthRecoveryEnabled == true then
 			local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
 			local screenGui = playerGui and playerGui:FindFirstChild("ScreenGui")
 			if screenGui == nil and playerGui then
 				screenGui = playerGui:WaitForChild("ScreenGui", 3)
-				if screenGui then
+				if screenGui and type(activeStates.BGSI_Lite_ApplyHatchAnimationSetting) == "function" then
 					activeStates.BGSI_Lite_ApplyHatchAnimationSetting()
 				end
 			end
