@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.20.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.21.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -7345,6 +7345,45 @@ local scriptStateKM = scriptStateOG:AddTab({
 local scriptStateAFW = scriptStateOG:AddTab({
 	Title = "Other",
 	Icon = "workflow",
+})
+scriptStateAFW:AddSection("Configuration")
+scriptStateAFW:AddButton({
+	Title = "Reset Config & Restart",
+	Description = "Delete all saved settings and restart LarpLite with a completely fresh configuration.",
+	Callback = function()
+		local resetFiles = {
+			configFile,
+			sharedConfigFile,
+			legacyConfigFile,
+		}
+		local deletedAny = false
+		for _, fileName in ipairs(resetFiles) do
+			if type(isfile) == "function" and isfile(fileName) and type(delfile) == "function" then
+				pcall(function()
+					delfile(fileName)
+					deletedAny = true
+				end)
+			end
+		end
+		Config.safeMode = false
+		if type(activeStates.BGSI_Lite_ForceReloadScript) == "function" then
+			local status, err = activeStates.BGSI_Lite_ForceReloadScript()
+			if status == "queued" then
+				return
+			end
+			Interface:Notify({
+				Title = "Reset failed",
+				Content = tostring(err or "Could not restart the script."),
+				Duration = 5,
+			})
+			return
+		end
+		Interface:Notify({
+			Title = "Reset failed",
+			Content = "The script reload function is not ready yet.",
+			Duration = 5,
+		})
+	end,
 })
 do
 	local statsTab = activeStates.BGSI_Lite_StatsTab
