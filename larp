@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.21.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.22.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -8778,10 +8778,13 @@ do
 			end
 		end,
 	})
-	activeStates.BGSI_Lite_BountyInfoParagraph = eggTab:AddParagraph({
+	activeStates.BGSI_Lite_BountyInfoParagraph = eggTab:AddInput("CurrentBountyDisplay", {
 		Title = "Current Bounty",
-		Content = "Loading...",
+		Default = "Loading...",
+		Callback = function()
+		end,
 	})
+	activeStates.BGSI_Lite_BountyInfoParagraph:Lock("Read-only")
 	eggTab:AddSection("Admin Abuse")
 	eggTab:AddToggle("AutoLuckEgg", {
 		Title = "Auto Hatch 4x Egg (AA)",
@@ -9534,13 +9537,9 @@ activeStates.BGSI_Lite_UpdateBountyInfoParagraph = function()
 		return
 	end
 	local bountyInfoText = activeStates.BGSI_Lite_GetBountyInfoText()
-	if type(activeStates.BGSI_Lite_BountyInfoParagraph.SetDesc) == "function" then
+	if type(activeStates.BGSI_Lite_BountyInfoParagraph.SetValue) == "function" then
 		pcall(function()
-			activeStates.BGSI_Lite_BountyInfoParagraph:SetDesc(bountyInfoText)
-		end)
-	elseif activeStates.BGSI_Lite_BountyInfoParagraph.DescLabel then
-		pcall(function()
-			activeStates.BGSI_Lite_BountyInfoParagraph.DescLabel.Text = bountyInfoText
+			activeStates.BGSI_Lite_BountyInfoParagraph:SetValue(bountyInfoText)
 		end)
 	end
 end
@@ -9891,10 +9890,13 @@ do
 	end
 
 	fallEventTab:AddSection("Autumn Rebirths")
-	local fallRebirthText = fallEventTab:AddParagraph({
+	local fallRebirthText = fallEventTab:AddInput("AutumnRebirthsDisplay", {
 		Title = "Autumn Rebirths",
-		Content = "Loading...",
+		Default = "Loading...",
+		Callback = function()
+		end,
 	})
+	fallRebirthText:Lock("Read-only")
 	fallEventTab:AddToggle("AutoFallRebirth", {
 		Title = "Auto Rebirth",
 		Description = "Automatically rebirths when you have enough Autumn Leaves.",
@@ -9982,7 +9984,7 @@ do
 		local rebirths = math.floor(tonumber(data.AutumnRebirths) or 0)
 		local text = rebirths == 1 and "You have 1 Rebirth" or string.format("You have %d Rebirths", rebirths)
 		pcall(function()
-			fallRebirthText:Set({Title = "Autumn Rebirths", Content = text})
+			fallRebirthText:SetValue(text)
 		end)
 	end
 
