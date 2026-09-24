@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.23.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.23.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -4712,19 +4712,7 @@ function fireHatchEgg(scriptStateQC)
 	-- A stale NextEggOpenAt callback can otherwise keep hatching after Auto Hatch is
 	-- turned off. Only allow hatch requests while an actual hatch-related automation
 	-- is enabled, or while a priority quest is deliberately running a hatch task.
-	local hatchAutomationEnabled =
-		Config.autoHatch == true
-		or Config.autoBounty == true
-		or Config.spawnRift == true
-		or Config.autoLuckEgg == true
-		or Config.autoRiftEgg == true
-		or Config.autoSpecialRift == true
-		or Config.autoHatchInventoryEgg == true
-		or (
-			Config.autoEnchant == true
-			and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
-		)
-		or isPriorityAutomationActive()
+	local hatchAutomationEnabled = activeStates.BGSI_Lite_IsEggAutomationActive()
 	if not hatchAutomationEnabled then
 		activeStates.BGSI_Lite_LastHatchRequestedEgg = nil
 		activeStates.BGSI_Lite_ForceAutoHatchTeleport = false
@@ -4776,17 +4764,7 @@ pcall(function()
 			end
 				if
 				isCurrentRun()
-				and (
-					Config.autoHatch == true
-					or Config.autoBounty == true
-					or Config.spawnRift == true
-					or Config.autoLuckEgg == true
-					or Config.autoRiftEgg == true
-					or Config.autoSpecialRift == true
-					or Config.autoHatchInventoryEgg == true
-					or (Config.autoEnchant == true and activeStates.BGSI_Lite_NormalAutomationPaused ~= true)
-					or isPriorityAutomationActive()
-				)
+				and activeStates.BGSI_Lite_IsEggAutomationActive()
 			then
 				fireHatchEgg(eggName)
 			end
@@ -7062,13 +7040,18 @@ function isPriorityAutomationActive()
 		or activeStates.BGSI_Lite_ObbyChestActive
 		or activeStates.BGSI_Lite_GuildQuestActive
 end
+activeStates.BGSI_Lite_IsEggAutomationActive = function()
+	return Config.autoHatch == true
+		or Config.autoBounty == true
+		or Config.spawnRift == true
+		or Config.autoLuckEgg == true
+		or Config.autoRiftEgg == true
+		or Config.autoSpecialRift == true
+		or Config.autoHatchInventoryEgg == true
+		or isPriorityAutomationActive()
+end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 	return Config.autoHatch == true
-		or (
-			Config.autoEnchant == true
-			and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
-			and not isPriorityAutomationActive()
-		)
 end
 function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
@@ -16610,10 +16593,10 @@ end
 -- Returns true if a team was found and applied (or already matched), false if there were
 -- no eligible pets to build a team from at all.
 activeStates.BGSI_Lite_RunAutoSetupTeam = function()
-	-- Checked here, not just at each caller, so nothing that ever calls this - the
-	-- toggle callback, the background loop, or anything added later - can equip or
-	-- unequip a single pet while Safe Mode is on.
-	if Config.safeMode == true then
+	-- Auto Setup Team is only a hatch-team maintenance feature. Never let it
+	-- re-equip the hatch team while the user is only running unrelated automation
+	-- such as Autumn Leaves.
+	if Config.safeMode == true or not activeStates.BGSI_Lite_IsEggAutomationActive() then
 		return false
 	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
@@ -16639,7 +16622,12 @@ activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh = function()
 	autoSetupTeamApplyQueued = true
 	task.spawn(function()
 		task.wait(0.1)
-		while isCurrentRun() and Config.autoSetupTeamEnabled == true and Config.safeMode ~= true do
+		while
+			isCurrentRun()
+			and Config.autoSetupTeamEnabled == true
+			and Config.safeMode ~= true
+			and activeStates.BGSI_Lite_IsEggAutomationActive()
+		do
 			local generationAtStart = autoSetupTeamConfigGeneration
 			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
 			if generationAtStart == autoSetupTeamConfigGeneration and requestedGeneration == generationAtStart then
@@ -16654,7 +16642,11 @@ end
 task.spawn(function()
 	while isCurrentRun() do
 		task.wait(Config.autoSetupTeamEnabled and 2 or 1)
-		if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+		if
+			Config.autoSetupTeamEnabled
+			and Config.safeMode ~= true
+			and activeStates.BGSI_Lite_IsEggAutomationActive()
+		then
 			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
 		end
 	end
