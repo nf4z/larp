@@ -4709,6 +4709,28 @@ function fireHatchEgg(scriptStateQC)
 		return false
 	end
 
+	-- A stale NextEggOpenAt callback can otherwise keep hatching after Auto Hatch is
+	-- turned off. Only allow hatch requests while an actual hatch-related automation
+	-- is enabled, or while a priority quest is deliberately running a hatch task.
+	local hatchAutomationEnabled =
+		Config.autoHatch == true
+		or Config.autoBounty == true
+		or Config.spawnRift == true
+		or Config.autoLuckEgg == true
+		or Config.autoRiftEgg == true
+		or Config.autoSpecialRift == true
+		or Config.autoHatchInventoryEgg == true
+		or (
+			Config.autoEnchant == true
+			and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
+		)
+		or isPriorityAutomationActive()
+	if not hatchAutomationEnabled then
+		activeStates.BGSI_Lite_LastHatchRequestedEgg = nil
+		activeStates.BGSI_Lite_ForceAutoHatchTeleport = false
+		return false
+	end
+
 	local requestTime = tick()
 	local nextEggOpenAt = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
 	if getCurrentTimestamp() < nextEggOpenAt then
@@ -8715,7 +8737,11 @@ do
 		Title = "Auto Hatch",
 		Default = Config.autoHatch,
 		Callback = function(scriptStateRG)
-			Config.autoHatch = scriptStateRG
+			Config.autoHatch = scriptStateRG == true
+			if not Config.autoHatch then
+				activeStates.BGSI_Lite_LastHatchRequestedEgg = nil
+				activeStates.BGSI_Lite_ForceAutoHatchTeleport = false
+			end
 			if scriptStateRG then
 				clearDisabledPriorityStates()
 				activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
