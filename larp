@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.22.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.23.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -4774,7 +4774,20 @@ pcall(function()
 			if waitSeconds > 0 then
 				task.wait(waitSeconds)
 			end
-			if isCurrentRun() then
+				if
+				isCurrentRun()
+				and (
+					Config.autoHatch == true
+					or Config.autoBounty == true
+					or Config.spawnRift == true
+					or Config.autoLuckEgg == true
+					or Config.autoRiftEgg == true
+					or Config.autoSpecialRift == true
+					or Config.autoHatchInventoryEgg == true
+					or (Config.autoEnchant == true and activeStates.BGSI_Lite_NormalAutomationPaused ~= true)
+					or isPriorityAutomationActive()
+				)
+			then
 				fireHatchEgg(eggName)
 			end
 		end)
@@ -8789,7 +8802,11 @@ do
 		Title = "Auto Hatch Bounty Egg",
 		Default = Config.autoBounty,
 		Callback = function(scriptStateGH)
-			Config.autoBounty = scriptStateGH
+			Config.autoBounty = scriptStateGH == true
+			if not Config.autoBounty then
+				activeStates.BGSI_Lite_LastHatchRequestedEgg = nil
+				activeStates.BGSI_Lite_BountyRiftActive = false
+			end
 			saveConfig()
 		end,
 	})
