@@ -1750,9 +1750,6 @@ activeStates._1rzHubLiteRunToken = currentRunToken
 function isCurrentRun()
 	return activeStates._1rzHubLiteRunToken == currentRunToken
 end
-function isAutomationBlocked()
-	return not isCurrentRun() or (Config and Config.safeMode == true)
-end
 pcall(function()
 	local openUi = CoreGui:FindFirstChild("OpenUI")
 	if openUi then
@@ -1989,6 +1986,9 @@ activeStates.BGSI_Lite_SafeModePreservedKeys = {
 }
 local legacyConfigFile = "1rzHubConfig.json"
 local Config
+function isAutomationBlocked()
+	return not isCurrentRun() or (Config and Config.safeMode == true)
+end
 -- Loads the saved config and falls back safely if the file is missing/broken.
 function loadConfig()
 	local scriptStateBB = {}
