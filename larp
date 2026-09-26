@@ -1750,6 +1750,9 @@ activeStates._1rzHubLiteRunToken = currentRunToken
 function isCurrentRun()
 	return activeStates._1rzHubLiteRunToken == currentRunToken
 end
+function isAutomationBlocked()
+	return not isCurrentRun() or (Config and Config.safeMode == true)
+end
 pcall(function()
 	local openUi = CoreGui:FindFirstChild("OpenUI")
 	if openUi then
@@ -4150,7 +4153,7 @@ task.spawn(function()
 end)
 -- Teleport helper: moves the character root to a CFrame safely.
 function teleportToCFrame(targetCFrame)
-	if typeof(targetCFrame) ~= "CFrame" or not LocalPlayer then
+	if isAutomationBlocked() or typeof(targetCFrame) ~= "CFrame" or not LocalPlayer then
 		return false
 	end
 	local playerCharacter = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -4648,6 +4651,9 @@ task.defer(function()
 end)
 local teleportOffsetY = 3
 function teleportToEggByName(scriptStateABE)
+	if isAutomationBlocked() then
+		return false
+	end
 	local selectedEggLocation = chooseBestEggLocation(scriptStateABE)
 	local selectedEggInstance = selectedEggLocation and selectedEggLocation.instance
 	local eggPlate = typeof(selectedEggInstance) == "Instance"
@@ -4705,7 +4711,7 @@ end
 -- the very first fire for a window still goes out the instant that window opens.
 local lastFiredForNextEggOpenAt = -1
 function fireHatchEgg(scriptStateQC)
-	if not isCurrentRun() or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
+	if isAutomationBlocked() or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
 	end
 
@@ -5945,6 +5951,9 @@ do
 	end
 
 	local function equipPetTeam(scriptStateTargetTeam)
+		if isAutomationBlocked() then
+			return false
+		end
 		local scriptStateResolvedTeam = resolvePetTeamKey(scriptStateTargetTeam)
 		if scriptStateResolvedTeam == nil then
 			return false
@@ -6526,7 +6535,7 @@ do
 	local pearlPickupTaskRunning = false
 
 	local function teleportToWorldPortal(worldName)
-		if type(worldName) ~= "string" or worldName == "" then
+		if isAutomationBlocked() or type(worldName) ~= "string" or worldName == "" then
 			return
 		end
 		pcall(function()
@@ -11922,6 +11931,9 @@ do
 			print("[" .. LocalPlayer.Name .. "] Target-rift scan pages = " .. tostring(scannedPages) .. ", unvisited servers = " .. tostring(#serverIds))
 			print("[" .. LocalPlayer.Name .. "] Target-rift hop JobId = " .. serverId)
 			local teleportOk, teleportError = pcall(function()
+				if isAutomationBlocked() then
+					return
+				end
 				TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, LocalPlayer)
 			end)
 			if not teleportOk then
@@ -11939,7 +11951,7 @@ do
 	end
 
 	activeStates.BGSI_Lite_HopForLuckEgg = function()
-		if not isCurrentRun() or Config.autoHopLuckEgg ~= true or activeStates.BGSI_Lite_LuckEggHopInProgress then
+		if isAutomationBlocked() or Config.autoHopLuckEgg ~= true or activeStates.BGSI_Lite_LuckEggHopInProgress then
 			return
 		end
 		activeStates.BGSI_Lite_LuckEggHopInProgress = true
@@ -11986,6 +11998,9 @@ do
 			)
 			print("[" .. LocalPlayer.Name .. "] Server hop target JobId = " .. serverId)
 			local teleportOk, teleportError = pcall(function()
+				if isAutomationBlocked() then
+					return
+				end
 				TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, LocalPlayer)
 			end)
 			if not teleportOk then
@@ -19605,6 +19620,9 @@ activeStates.BGSI_Lite_InstallServerTab = function()
 				target = servers[1]
 			end
 			local teleportOk, teleportError = pcall(function()
+				if isAutomationBlocked() then
+					return
+				end
 				TeleportService:TeleportToPlaceInstance(game.PlaceId, target.id, LocalPlayer)
 			end)
 			if not teleportOk then
@@ -19617,6 +19635,9 @@ activeStates.BGSI_Lite_InstallServerTab = function()
 	end
 
 	local function rejoinServer()
+		if isAutomationBlocked() then
+			return
+		end
 		if isPrivateServer() then
 			notify("Server", "Can't rejoin a private server directly - rejoining a public one instead.")
 			pcall(function()
