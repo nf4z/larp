@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.26.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.26.02"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -9118,6 +9118,11 @@ task.spawn(function()
 		local scriptStateTL = summonedEgg and summonedEgg:FindFirstChild("EggPlatformSpawn")
 		local luckEggName = activeStates.BGSI_Lite_FindLuckEggName and activeStates.BGSI_Lite_FindLuckEggName()
 			or "4x Luck Ultra Carnival Egg"
+		if isPriorityAutomationActive() or Config.safeMode == true then
+			activeStates.BGSI_Lite_LuckEggActive = false
+			task.wait(0.25)
+			continue
+		end
 		if not scriptStateTL then
 			if activeStates.BGSI_Lite_LuckEggActive then
 				activeStates.BGSI_Lite_LuckEggActive = false
@@ -20001,13 +20006,21 @@ function getGemGenieQuestData()
 	end
 	return nil
 end
+function gemGenieNormalizeTarget(value)
+	if type(value) ~= "string" then
+		return ""
+	end
+	return string.lower((value:gsub("^%s+", ""):gsub("%s+$", "")))
+end
 function gemGenieValueMatchesTarget(value, target)
-	if type(target) ~= "string" or target == "" then
+	local targetLower = gemGenieNormalizeTarget(target)
+	if targetLower == "" then
 		return false
 	end
-	local targetLower = string.lower(target)
 	if type(value) == "string" then
-		return string.lower(value) == targetLower
+		local valueLower = gemGenieNormalizeTarget(value)
+		return valueLower == targetLower
+			or valueLower:gsub("%s+item$", "") == targetLower:gsub("%s+item$", "")
 	end
 	return false
 end
@@ -20016,7 +20029,7 @@ function gemGenieRewardMatchesTarget(reward, target, depth, visited)
 		return gemGenieValueMatchesTarget(reward, target)
 	end
 	depth = depth or 0
-	if depth > 5 then
+	if depth > 8 then
 		return false
 	end
 	visited = visited or {}
@@ -20024,19 +20037,24 @@ function gemGenieRewardMatchesTarget(reward, target, depth, visited)
 		return false
 	end
 	visited[reward] = true
-	for _, key in ipairs({"Name", "name", "Item", "item", "Reward", "reward", "Currency", "currency"}) do
-		local value = reward[key]
-		if gemGenieValueMatchesTarget(value, target) then
-			return true
-		end
-		if type(value) == "table" and gemGenieRewardMatchesTarget(value, target, depth + 1, visited) then
+	for key, value in pairs(reward) do
+		if type(key) == "string" and type(value) == "string" then
+			if
+				(key == "Name" or key == "name" or key == "Item" or key == "item"
+					or key == "Reward" or key == "reward" or key == "Currency" or key == "currency"
+					or key == "Id" or key == "id")
+				and gemGenieValueMatchesTarget(value, target)
+			then
+				return true
+			end
+		elseif type(value) == "table" and gemGenieRewardMatchesTarget(value, target, depth + 1, visited) then
 			return true
 		end
 	end
 	return false
 end
 function gemGenieQuestMatchesTarget(questData, target)
-	if type(questData) ~= "table" or type(target) ~= "string" or target == "" then
+	if type(questData) ~= "table" or gemGenieNormalizeTarget(target) == "" then
 		return false
 	end
 	if type(questData.Rewards) == "table" then
@@ -20046,7 +20064,7 @@ function gemGenieQuestMatchesTarget(questData, target)
 			end
 		end
 	end
-	return false
+	return gemGenieRewardMatchesTarget(questData.Reward, target)
 end
 function getQuestTaskByType(scriptStateQM, scriptStateJZ, scriptStateS)
 	local scriptStateBI, scriptStatePY = pcall(function()
