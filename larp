@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.07"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.08"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.08",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Safe Mode no longer re-enables Auto Setup Team",
+				description = "Turning Safe Mode off could restore an old, stale copy of the setting and re-equip your team.",
+				icon = "team",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.07",
 		releasedAt = "September 27, 2026",
@@ -2120,11 +2131,22 @@ local defaultConfig = {
 	autoUpdateScript = true,
 	autoUpdateIntervalSeconds = 300,
 }
+-- Keys Safe Mode never forces off and never restores from its snapshot - the live
+-- value the user last set is always the truth for these. Auto Setup Team belongs
+-- here because it directly equips/unequips pets: without this, turning it off while
+-- Safe Mode happened to be on (or already off) would still get silently reverted to
+-- whatever it was the last time Safe Mode was switched on, re-equipping a team the
+-- user just told it to leave alone. Actually running it is still gated separately by
+-- Config.safeMode everywhere Auto Setup Team acts, so this only stops the toggle's
+-- own value from being clobbered - it does not let it act during Safe Mode.
 activeStates.BGSI_Lite_SafeModePreservedKeys = {
 	safeMode = true,
 	safeModeSavedConfig = true,
 	dashboardSyncEnabled = true,
 	dashboardSyncAutoEnabled = true,
+	autoSetupTeamEnabled = true,
+	autoSetupTeamIncludeSupers = true,
+	autoSetupTeamSuperCounts = true,
 }
 local legacyConfigFile = "1rzHubConfig.json"
 local Config
@@ -2440,8 +2462,7 @@ activeStates.BGSI_Lite_SetSafeMode = function(enabled)
 		for configKey, savedValue in pairs(savedConfig) do
 			if
 				defaultConfig[configKey] ~= nil
-				and configKey ~= "safeMode"
-				and configKey ~= "safeModeSavedConfig"
+				and not activeStates.BGSI_Lite_SafeModePreservedKeys[configKey]
 				and typeof(savedValue) == typeof(defaultConfig[configKey])
 			then
 				Config[configKey] = savedValue
