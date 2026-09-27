@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.05"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -99,19 +99,33 @@ activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 end
 
 do
+-- Changelog style: newest release first. A note is a short title and ONE short
+-- sentence saying what changed for the player - keep the description under about
+-- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.05",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Shorter changelog entries",
+				description = "Every past entry is now one short sentence, and new ones will be too.",
+				icon = "list",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.04",
 		releasedAt = "September 27, 2026",
 		notes = {
 			{
 				title = "Inventory Cleanup actually deletes pets now",
-				description = "Checked against the game itself: DeletePet takes three arguments - the 36-character pet id, how many copies to delete, and whether the pet was picked from a team. The script sent only the id, so the server received no amount and deleted nothing, every time. All three are now sent, so cleanup does what it says.",
+				description = "The delete request was missing the amount, so the server never removed anything.",
 				icon = "trash-2",
 			},
 			{
 				title = "Cleanup can trim a stack instead of needing to drop it whole",
-				description = "Cleanup would only delete a duplicate stack if removing the entire stack still left your minimum copies, so one stack larger than the minimum was never touched - the usual case. It now deletes exactly the number of copies above your minimum, in a single request rather than one pet at a time.",
+				description = "It now removes just the copies above your minimum instead of only ever dropping a whole stack.",
 				icon = "layers",
 			},
 			{
@@ -127,7 +141,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "The same egg no longer shows a different icon on each account",
-				description = "Egg icons were resolved by searching the egg's whole record for anything that looked like an asset. When the egg's own Image was not found first, that search descended into the egg's pet list and returned a pet instead - and because the search walked the record in an undefined order, each account could settle on a different image for the same egg. Egg icons now read the Image field directly, the same one the in-game egg list uses, and the fallback search is ordered so two accounts always agree.",
+				description = "Egg icons now come from the egg's own image instead of whatever a search found first.",
 				icon = "egg",
 			},
 		},
@@ -138,12 +152,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Egg icons on the dashboard are the real ones again",
-				description = "Every egg was sent to the Account Dashboard with no icon, because the option builder passed a lookup flag where the egg's record belonged. The dashboard fell back to a generic egg for all of them - and for an egg its icon catalogue had not added yet, Spirit Egg among them, there was nothing else to fall back to. The real asset now comes from the game's own egg data, and the egg you are currently hatching reports its icon with every heartbeat.",
+				description = "Eggs now send their real icon to the dashboard instead of a generic placeholder.",
 				icon = "egg",
 			},
 			{
 				title = "Fixed dropdown choices now come from the script",
-				description = "Obby difficulty, priority events, the first Autumn upgrade and the enchant currency were each listed in two places - here and on the dashboard - so changing one left the other stale. The script reports these lists now, and the dashboard shows whatever this build actually supports.",
+				description = "The dashboard shows the choices this build supports instead of its own stale copy.",
 				icon = "list",
 			},
 		},
@@ -154,7 +168,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Dashboard sync failures now say what is actually wrong",
-				description = "A dashboard URL sitting behind Vercel Deployment Protection or a host password returns 401 before the request ever reaches the dashboard, which looked exactly like a bad connection key. The script now reads the response and names the cause, so a protected URL, a rejected key and a wrong endpoint no longer all print the same thing.",
+				description = "A blocked URL, a rejected key and a wrong endpoint no longer all print the same thing.",
 				icon = "plug",
 			},
 		},
@@ -165,17 +179,17 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Dashboard dropdowns that were always empty now fill in",
-				description = "Target Rifts, Special Rift Priority, World Chests and Inventory Egg are pickable from the Account Dashboard. The script was never sending choices for them, so the dashboard showed 'Connect an account to load these choices from the game' no matter how long you waited.",
+				description = "Target Rifts, Special Rift Priority, World Chests and Inventory Egg are pickable again.",
 				icon = "list",
 			},
 			{
 				title = "Live webhook URL is no longer reported to the dashboard",
-				description = "The hatch webhook URL was already kept out of telemetry. The live status webhook URL and the hatch telemetry endpoint now get the same treatment - you can set them from the dashboard, but the saved value is never sent back.",
+				description = "You can still set it from the dashboard, but the saved value is never sent back.",
 				icon = "shield-check",
 			},
 			{
 				title = "A custom dashboard host is left alone",
-				description = "Startup used to rewrite the dashboard endpoint on every run. It now only fills in an unset endpoint and tidies up different spellings of the default host, so a custom host stays put.",
+				description = "Startup only fills in an unset endpoint now instead of rewriting it every run.",
 				icon = "link",
 			},
 		},
@@ -197,7 +211,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Added Fall Event automation",
-				description = "Added a Fall Event tab with Autumn rebirths, Leaves farming, prioritized Autumn upgrades, automatic Autumn Elixir use, and Autumn Chest opening.",
+				description = "Autumn rebirths, Leaves farming, prioritised upgrades, Elixir use and Chest opening.",
 				icon = "leaf",
 			},
 		},
@@ -208,7 +222,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed the script's startup syntax error",
-				description = "a",
+				description = "The script would not load at all.",
 				icon = "bug",
 			},
 		},
@@ -219,7 +233,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Removed remaining Auto Inventory Egg nil-call path",
-				description = "Auto Inventory Eggs no longer calls the optional HatchEgg effect API. The entire inventory hatch runner is guarded so unavailable client APIs cannot produce an unhandled nil-value call.",
+				description = "The inventory hatch runner is guarded so a missing client API cannot break it.",
 				icon = "shield-check",
 			},
 		},
@@ -230,7 +244,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Hardened Auto Inventory Egg remote and hatch checks",
-				description = "Auto Inventory Eggs now uses the initialized game-remote helper instead of directly referencing the RemoteEvent and safely guards the hatch-state method call so a client-side nil method cannot terminate the runner.",
+				description = "Guards the hatch-state call so a missing method cannot stop the runner.",
 				icon = "shield-check",
 			},
 		},
@@ -241,7 +255,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed Auto Inventory Egg runtime errors",
-				description = "Reworked Auto Inventory Eggs to follow the game's actual Auto Exclusive Egg flow: read Powerups directly, fire up to 12 eggs, wait for the hatch effect, then continue. Added guards around LocalData and HatchEgg access.",
+				description = "Reworked to follow the game's real Auto Exclusive Egg flow.",
 				icon = "bug",
 			},
 		},
@@ -252,7 +266,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Inventory Egg hatching is much faster",
-				description = "Auto Inventory Eggs now uses the game's 12-egg HatchPowerupEgg batch directly instead of waiting on replicated inventory reconciliation after every batch. No Hatch Animation uses a near-immediate yield, while normal hatching follows the game's 0.2-second hatch pacing.",
+				description = "Uses the game's 12-egg batch instead of waiting for the inventory to catch up each time.",
 				icon = "zap",
 			},
 		},
@@ -263,7 +277,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Bounty Rift uses the current player world",
-				description = "Fixed bounty SummonRift requests using the bounty egg's data world instead of the world returned by the game's own WorldUtil:GetPlayerWorld(LocalPlayer), which can cause the server to reject the summon.",
+				description = "Summons now use the world the game reports for you, which the server was rejecting.",
 				icon = "map-pin",
 			},
 		},
@@ -274,7 +288,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Force Update for Auto Setup Team",
-				description = "Added a Force Update button that immediately rebuilds the configured Auto Setup Team and equips the current Super Legendary combination on demand.",
+				description = "Rebuilds your team and equips the current Super Legendary combination on demand.",
 				icon = "refresh-cw",
 			},
 		},
@@ -285,7 +299,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Setup Team settings now apply immediately",
-				description = "Changing Auto Setup Team, Super Legendary inclusion, or any Super Legendary enchant count now saves the complete configuration and immediately rebuilds/equips the requested combination instead of waiting for the background check.",
+				description = "Changing any Auto Setup Team option rebuilds and equips straight away.",
 				icon = "users",
 			},
 		},
@@ -296,7 +310,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Bounty Rift now summons the actual current bounty",
-				description = "Fixed Bounty Rift using a hardcoded world list, treating any successful remote call as a successful summon, and accepting an unrelated newly-rendered rift when the requested egg was not found. It now uses the game's own egg/world data, checks the server's SummonRift success result, and only locks onto a newly created rift that actually matches the bounty egg.",
+				description = "It only locks onto a rift that actually matches the bounty egg.",
 				icon = "bug",
 			},
 		},
@@ -307,7 +321,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Enchant now actually fills both slots",
-				description = "Confirmed against the game's own EnchantUtil: a Shiny pet gets 2 enchant slots. The 'is this pet done' check only looked at whichever slots the pet CURRENTLY had, so it stopped the moment the first slot landed either target, without ever confirming a second slot existed at all - matching exactly 'does Secret Hunter but not Ultra Roller'. With two different target enchants configured, it now also requires the pet to actually have both slots filled before calling it done.",
+				description = "With two targets set it now requires both enchant slots filled before a pet counts as done.",
 				icon = "wand-sparkles",
 			},
 		},
@@ -318,12 +332,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Quest hatching is more reliable",
-				description = "The shared hatch-task handler used by every quest system (Season Pass, Challenge Pass, Global Incentive, Guild Quests, Shadow Leviathan, Gem Genie) now checks whether teleporting to the quest egg actually landed instead of firing HatchEgg regardless - a failed teleport (egg not streamed in yet) used to fire hatch requests from wherever you already were, which the server just rejects, with no sign anything was wrong. It now retries fast until it's confirmed, warns if it's stuck for a while, and only fires once it's actually there.",
+				description = "Quest hatching now confirms the teleport landed before firing, and retries until it has.",
 				icon = "egg",
 			},
 			{
 				title = "Auto Hatch returns to your egg immediately after a quest",
-				description = "Fixed a case where finishing a short quest task could leave Auto Hatch sitting still for up to 2 more seconds before teleporting back to your selected egg - a forced resync now happens immediately instead of waiting on the same cooldown used for routine refreshes.",
+				description = "Finishing a quest task returns to your egg at once instead of waiting up to 2 seconds.",
 				icon = "corner-up-left",
 			},
 		},
@@ -334,7 +348,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Special Rift Priority is now built from real game data",
-				description = "Fixed 'cloudyegg-rift', a dead id that was never real (the Cloudy egg spawns through a different system entirely) and added the new Void Realm 4x rift automatically. The list now reads Shared.Data.Rifts directly instead of a hardcoded id list, so future rift changes show up without an update, and each option displays its real egg name instead of a raw id.",
+				description = "The list reads the game's rift data directly, so new rifts appear without an update.",
 				icon = "sparkles",
 			},
 		},
@@ -345,12 +359,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Server tab (new)",
-				description = "Live player count, uptime, ping and FPS, every active Event Board event with time left plus what's coming up, global boosts, rifts, and the player list with friends marked.",
+				description = "Live players, uptime, ping and FPS, active events, global boosts, rifts and who is here.",
 				icon = "server",
 			},
 			{
 				title = "Server tools",
-				description = "Anti-AFK (beats the game's 12-minute idle server move), auto rejoin on disconnect, rejoin, server hop, hop to the emptiest server, join alerts, and copy or join a Job Id.",
+				description = "Anti-AFK, auto rejoin, server hop, hop to emptiest, join alerts, and copy or join a Job Id.",
 				icon = "wrench",
 			},
 		},
@@ -361,12 +375,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Box Condenser (new)",
-				description = "Game tab: Auto Condense turns every 100 Mystery Boxes into a Condensed Mystery Box, with a Keep Gems reserve and a Condense Now button.",
+				description = "Turns every 100 Mystery Boxes into a Condensed one, with a Keep Gems reserve.",
 				icon = "package",
 			},
 			{
 				title = "Auto Open Box takes multiple boxes",
-				description = "Pick any mix of boxes (Condensed, Guild, regular) and it takes turns opening the ones you own. It leaves plain Mystery Boxes for the condenser while Auto Condense can still use them.",
+				description = "Pick any mix of boxes and it takes turns opening the ones you own.",
 				icon = "gift",
 			},
 		},
@@ -377,12 +391,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Guilds tab (new)",
-				description = "Shows your guild, level, season/week, points and this week's quest tiers. Auto Guild Quests works the Bubble, Hatch and Sell quests, Auto Claim grabs every unlocked Guild and Global track reward, and Auto Accept joins the first guild that invites you.",
+				description = "Shows your guild and weekly quests, works them for you, and claims the rewards.",
 				icon = "shield",
 			},
 			{
 				title = "Bubbling actually blows now",
-				description = "Blow refused to fire whenever your Bubble Power was bigger than your storage, so it never bubbled at all. It now only stops when storage is really full, same as the game.",
+				description = "It only stops when storage is really full now, the same as the game.",
 				icon = "circle",
 			},
 		},
@@ -393,7 +407,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Skip Ticket and Pearl Quests: closed the teleport gap",
-				description = "The last fix stopped an in-progress pickup from continuing once Skip turned on, but it could still teleport, open the portal, and equip a farm team first if the call was queued up waiting behind another pickup run. Now it rechecks Skip right at the start too, before any of that happens.",
+				description = "Skip is rechecked before any teleport, so a queued run cannot start one anyway.",
 				icon = "square-x",
 			},
 		},
@@ -404,7 +418,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Skip Ticket and Pearl Quests now interrupts a run in progress",
-				description = "Turning Skip on while a ticket or pearl task was already being farmed did nothing until that task finished on its own - the pickup loops only listened to whether the enclosing feature was still on, not the Skip toggle itself. They now recheck it every cycle and bail immediately.",
+				description = "Turning Skip on now stops a ticket or pearl run immediately instead of after it finishes.",
 				icon = "square-x",
 			},
 		},
@@ -415,7 +429,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Inventory Cleanup no longer waits for a full inventory",
-				description = "It used to only trim duplicate pets once the pet inventory was literally full, so a huge Legendary-and-below duplicate stack just sat there forever with free slots open. Now it trims any disposable stack over your Cleanup Minimum Copies right away - Super Legendary, Celestial, Infinity, Void, and Secret pets are still never touched.",
+				description = "It trims any disposable stack over your minimum right away, leaving rare pets untouched.",
 				icon = "trash-2",
 			},
 		},
@@ -426,12 +440,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed a crash that broke other tabs on load",
-				description = "The Shadow Leviathan Target Item dropdown called a helper function before it existed yet, which threw an error mid-build and cut off every tab that hadn't loaded yet. Fixed by defining it earlier.",
+				description = "A helper was called before it existed, which cut off every tab that had not loaded yet.",
 				icon = "bug",
 			},
 			{
 				title = "Season Pass Quests now actually get claimed",
-				description = "Daily/hourly challenge quests were dropped from the automation's list the instant they hit 'Completed', before anything ever claimed them - so they sat finished-but-unrewarded forever, and if that flag flipped early on a multi-task quest, an unfinished bubble task inside it got abandoned too even with Skip Bubbling Quests off. Now it claims finished quests and keeps working unfinished ones instead of dropping them.",
+				description = "Finished quests are claimed instead of being dropped from the list before anything claims them.",
 				icon = "check-check",
 			},
 		},
@@ -442,7 +456,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Guaranteed sell kiosk position for The Overworld",
-				description = "Pulled the real coordinates of The Overworld's Sell kiosk straight out of the game's own place file by decoding it directly, and added them as a guaranteed fallback for whenever the live tag scan comes up empty.",
+				description = "Added the real Sell kiosk coordinates as a fallback for when the live scan finds nothing.",
 				icon = "map-pin",
 			},
 		},
@@ -453,7 +467,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Reload Script button (new)",
-				description = "Added under Auto Update, below Check For Update Now. Downloads the current script fresh and reloads immediately, even if it's the same version - a quick clean reset without waiting on a real update.",
+				description = "Downloads the script fresh and reloads immediately, even on the same version.",
 				icon = "refresh-cw",
 			},
 		},
@@ -464,12 +478,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Rifts tab is actually gone now",
-				description = "Hiding it never stuck since Rayfield kept recreating or re-showing that sidebar row. It's no longer created at all now, so there's nothing left for the library to bring back.",
+				description = "The tab is no longer created at all, so nothing can bring it back.",
 				icon = "trash-2",
 			},
 			{
 				title = "Shadow Leviathan pet always selectable as a reroll target",
-				description = "The Leviathan pet was rare enough in the reward pool that random sampling could miss it and leave it off the Target Item list. It's now always available to pick, along with the good Fragments.",
+				description = "The Leviathan pet is always available to pick now, along with the good Fragments.",
 				icon = "target",
 			},
 		},
@@ -485,7 +499,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 			},
 			{
 				title = "Shadow Leviathan Quest can target a specific reward",
-				description = "Added a Target Item picker and an Optimised (hatch-only) mode - the exact same setup Gem Genie already uses, built by sampling every reward the quest generator can actually produce.",
+				description = "Added a Target Item picker and an Optimised hatch-only mode, the same as Gem Genie.",
 				icon = "target",
 			},
 			{
@@ -500,7 +514,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 			},
 			{
 				title = "Rebirth Machine pets are now a dropdown",
-				description = "Pick pets from a dropdown loaded with every Secret-rarity pet actually usable in the Rebirth Machine instead of typing names out by hand.",
+				description = "Pick from a list of every Secret pet the machine accepts instead of typing names.",
 				icon = "list-filter",
 			},
 		},
@@ -511,7 +525,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Rifts tab kept reappearing - fixed for real this time",
-				description = "Rayfield evidently re-shows its own sidebar rows on its own at some point, which silently undid a one-time hide. It now keeps re-hiding the Rifts row for the whole session instead of only ever doing it once.",
+				description = "The Rifts row stays hidden for the whole session instead of only once.",
 				icon = "eye-off",
 			},
 		},
@@ -522,7 +536,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed Auto Rebirth Machine doing nothing",
-				description = "It was calling the rebirth remote without the machine-key argument the game actually requires, so the pet list landed in the wrong slot and every call silently failed. Fixed - confirmed the correct call format straight from the game's own data.",
+				description = "The rebirth call was missing an argument the game requires, so every attempt failed silently.",
 				icon = "wrench",
 			},
 		},
@@ -533,12 +547,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed bubble quests getting stuck",
-				description = "The sell kiosk it teleports to for selling was being cached and could go stale after changing worlds, silently failing selling from out of range, capping bubbles out, and stopping the quest cold. Now it re-finds the nearest kiosk every time instead of trusting an old one.",
+				description = "It re-finds the nearest sell kiosk each time instead of trusting a stale one.",
 				icon = "bug",
 			},
 			{
 				title = "Stuck Gem Genie quests now force a reroll",
-				description = "Added a hard fallback: if the same quest sits with zero progress on anything for 4 minutes straight, it rerolls automatically instead of staying parked forever.",
+				description = "A quest with no progress for 4 minutes rerolls automatically instead of staying parked.",
 				icon = "refresh-cw",
 			},
 		},
@@ -549,7 +563,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "All 8 Super Legendary enchants in Auto Setup Team",
-				description = "Was only Luck Boost and Hatch Blessing (Bubble Machine was wired up but had no slider at all). Added Bubble Machine, Burst Blessing, Shiny Blessing, Mythic Blessing, Infinity Blessing, and Duplication, all with their + versions - the complete set the game actually has.",
+				description = "Added Bubble Machine, Burst, Shiny, Mythic, Infinity and Duplication, with their + versions.",
 				icon = "sparkles",
 			},
 		},
@@ -560,7 +574,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Actually hid the Rifts tab this time",
-				description = "The last attempt guessed at internal property names and didn't work. Now it scans the real rendered menu for the sidebar row labeled \"Rifts\" and hides that Instance directly, so it no longer depends on guessing Rayfield's internals.",
+				description = "It finds the real sidebar row and hides it instead of guessing at internal names.",
 				icon = "eye-off",
 			},
 		},
@@ -571,12 +585,12 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Setup Team is now one switch",
-				description = "Merged the 'Setup Team Now' button and 'Keep Team Setup' toggle into a single Auto Setup Team switch - flipping it on applies immediately and keeps it applied.",
+				description = "The button and toggle are one switch that applies immediately and keeps it applied.",
 				icon = "toggle-left",
 			},
 			{
 				title = "Fixed Auto Setup Team ignoring Safe Mode",
-				description = "The old manual button could equip pets even with Safe Mode on since it never checked. It's gone now, and the team logic itself refuses to run at all while Safe Mode is active, no matter what triggers it.",
+				description = "The team logic refuses to run while Safe Mode is on, whatever triggers it.",
 				icon = "shield",
 			},
 		},
@@ -587,7 +601,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Hid the Rifts tab",
-				description = "Removed the Rifts tab from the sidebar. Every toggle and its background automation keeps working off whatever it was last set to - settings still change from the web dashboard, just not from this menu.",
+				description = "Automation keeps running on its last settings, still changeable from the dashboard.",
 				icon = "eye-off",
 			},
 		},
@@ -598,7 +612,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Currency Teams (new)",
-				description = "New toggle under Collection Teams. Detects saved teams named things like \"Tickets\", \"Gems\", \"Coins\", \"Pearls\", \"Bubble\", or \"Hatch\" and switches to the right one automatically for whatever a quest needs - and builds one from your best-owned pets for that currency when no matching team exists.",
+				description = "Switches to the right saved currency team, or builds one from your best pets.",
 				icon = "users",
 			},
 		},
@@ -609,7 +623,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Shadow Leviathan Quest (new)",
-				description = "New section under Quests for the Shadow Leviathan quest system. Auto-picks a quest the moment one's available and completes its tasks, with an option to reroll the 3 choices for a shot at the Leviathan pet or a good Fragment.",
+				description = "Picks a quest as soon as one is available and completes it, with optional rerolling.",
 				icon = "moon",
 			},
 		},
@@ -620,7 +634,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Auto Sell Bubble no longer needs to be near the kiosk",
-				description = "Selling bubbles requires being near the world Sell kiosk. It now finds the nearest one automatically and snaps there and back in the same instant to sell, instead of needing you to walk over.",
+				description = "It finds the nearest kiosk and snaps there and back to sell.",
 				icon = "map-pin",
 			},
 		},
@@ -631,7 +645,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Bubble blowing no longer pauses for hatching",
-				description = "Auto Bubble used to skip a blow whenever a hatch was about to land, a leftover precaution from before hatching was fixed to stop flooding shared remotes. Removed - blowing and selling now run freely alongside hatching. Confirmed straight from the game's own client that both remotes were already instant with no confirmation menu, same as this script's existing calls.",
+				description = "Blowing and selling now run freely alongside hatching.",
 				icon = "sparkles",
 			},
 		},
@@ -642,7 +656,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "More reliable ticket/pearl pickup collection",
-				description = "Ticket farming now scans the game's real pickup folder directly instead of a slow, sometimes-wrong background scan, so it collects more consistently.",
+				description = "Ticket farming scans the game's real pickup folder, so it collects more consistently.",
 				icon = "coins",
 			},
 		},
@@ -653,7 +667,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Fixed Inventory Cleanup never deleting anything",
-				description = "Inventory Cleanup was treating every pet as enchanted (even unenchanted ones), so it never found anything eligible to delete. Fixed - it still never touches Super Legendaries, Secrets, Celestials, Infinitys, or Voids.",
+				description = "Cleanup was treating every pet as enchanted, so it never found anything to delete.",
 				icon = "trash-2",
 			},
 		},
@@ -664,7 +678,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Cleaner changelog",
-				description = "Reworked the Update History menu to show recent changes at a glance instead of a giant list of buttons, and shortened every past changelog entry.",
+				description = "Update History shows recent changes at a glance instead of a giant list of buttons.",
 				icon = "scroll-text",
 			},
 		},
@@ -686,7 +700,7 @@ activeStates.BGSI_Lite_ReleaseHistory = {
 		notes = {
 			{
 				title = "Removed Bubble Competition",
-				description = "Removed the Bubble Competition event and its automation since it no longer exists in the game; regular bubble farming is unaffected.",
+				description = "Regular bubble farming is unaffected.",
 				icon = "trash-2",
 			},
 		},
