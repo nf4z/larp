@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.08"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.09"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.09",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Auto Currency Teams no longer equips a hatch team on its own",
+				description = "Its \"hatch\" category reused Auto Setup Team's own logic, so it kept equipping one even with Auto Setup Team off.",
+				icon = "team",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.08",
 		releasedAt = "September 27, 2026",
@@ -17219,6 +17230,15 @@ end
 -- No-op entirely unless Config.autoCurrencyTeams is on.
 activeStates.BGSI_Lite_ApplyCurrencyTeam = function(category)
 	if Config.autoCurrencyTeams ~= true or Config.safeMode == true then
+		return false
+	end
+	-- "hatch" isn't a real currency - it's Auto Setup Team's own selection (or a
+	-- saved team literally named "hatch") equipped through this second entry point.
+	-- Auto Currency Teams being on for tickets/pearls/etc. said nothing about wanting
+	-- that, so it stayed on and kept re-equipping a hatch team even with Auto Setup
+	-- Team switched off. Auto Setup Team's own toggle is the only thing that should
+	-- decide whether anything touches the hatch team.
+	if category == "hatch" and Config.autoSetupTeamEnabled ~= true then
 		return false
 	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
