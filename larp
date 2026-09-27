@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.26.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.01"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.01",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Dashboard sync failures now say what is actually wrong",
+				description = "A dashboard URL sitting behind Vercel Deployment Protection or a host password returns 401 before the request ever reaches the dashboard, which looked exactly like a bad connection key. The script now reads the response and names the cause, so a protected URL, a rejected key and a wrong endpoint no longer all print the same thing.",
+				icon = "plug",
+			},
+		},
+	},
 	{
 		version = "2026.09.26.03",
 		releasedAt = "September 26, 2026",
@@ -16003,6 +16014,29 @@ do
 									dashboardSyncDelay = 1
 								end
 							else
+								-- A 401 from the dashboard itself means the connection key is
+								-- wrong. A 401 from the host in front of it means the request
+								-- never arrived, which looks identical from here unless the
+								-- body is read - so name the common cases instead of printing
+								-- a status code that sends people hunting for the wrong thing.
+								local failureHint
+								local lowerBody = string.lower(tostring(responseBody or ""))
+								if string.find(lowerBody, "vercel_auth_enabled", 1, true)
+									or string.find(lowerBody, "protected deployment", 1, true)
+								then
+									failureHint = "This dashboard URL is behind Vercel Deployment Protection, so the"
+										.. " request never reaches the dashboard. Turn Vercel Authentication off for"
+										.. " the project, or point the dashboard endpoint at the production domain."
+								elseif string.find(lowerBody, "password_enabled\":true", 1, true) then
+									failureHint = "This dashboard URL is password protected by its host, so the request"
+										.. " never reaches the dashboard."
+								elseif statusCode == 401 or statusCode == 403 then
+									failureHint = "The dashboard rejected the connection key. Generate a new key on the"
+										.. " dashboard and paste it into the script config."
+								elseif statusCode == 404 then
+									failureHint = "Nothing is listening at this dashboard URL. Check the endpoint in the"
+										.. " script config."
+								end
 								if tick() - dashboardFailureLogAt >= 10 then
 									print(
 										"["
@@ -16012,6 +16046,9 @@ do
 											.. ", Body = "
 											.. string.sub(responseBody, 1, 200)
 									)
+									if failureHint then
+										print("[" .. LocalPlayer.Name .. "] " .. failureHint)
+									end
 									dashboardFailureLogAt = tick()
 								end
 								dashboardConnected = false
