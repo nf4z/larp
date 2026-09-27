@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.06"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,22 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.06",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Using an Elixir from the dashboard works",
+				description = "Elixirs with no level were looked up as level 1, so the game saw none of them to use.",
+				icon = "flask-conical",
+			},
+			{
+				title = "Using many potions at once no longer stops early",
+				description = "Each request uses exactly one potion, but the script assumed ten and gave up a tenth of the way.",
+				icon = "layers",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.05",
 		releasedAt = "September 27, 2026",
@@ -11703,31 +11719,36 @@ do
 		activeStates.BGSI_Lite_PotionUseActive = true
 		local useOk, usedAmount = pcall(function()
 			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			-- The game matches a stored potion on Name AND Level, comparing Level by
+			-- equality - so an item held with no level is only found by a lookup that
+			-- also has no level. Defaulting a missing level to 1 made every levelless
+			-- elixir (Circus, Infinity, Secret, Egg) look like you owned none of it,
+			-- which is why using one reported "the game only used 0 of 1".
 			local potionItem = {
 				Type = "Potion",
 				Name = tostring(potionType or ""),
-				Level = tonumber(potionLevel) or 1,
+				Level = tonumber(potionLevel),
 			}
 			local amountOk, amountBefore = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
 			amountBefore = amountOk and math.max(0, math.floor(tonumber(amountBefore) or 0)) or 0
 			local targetAmount = math.max(0, amountBefore - math.max(1, math.floor(tonumber(requestedAmount) or 1)))
 			local currentAmount = amountBefore
 			local stalledAttempts = 0
-			local useDeadline = tick() + math.clamp(6 + (amountBefore - targetAmount) * 0.25, 8, 90)
+			-- One request per potion, so the budget has to scale with how many were
+			-- asked for. 250 is a normal request and needs well over the old 90s cap.
+			local useDeadline = tick() + math.clamp(6 + (amountBefore - targetAmount) * 0.3, 8, 240)
 			while
 				isCurrentRun()
 				and currentAmount > targetAmount
 				and tick() < useDeadline
 				and stalledAttempts < 4
 			do
-				local remainingAmount = currentAmount - targetAmount
-				local batchAmount = stalledAttempts > 0 and 1 or math.min(10, remainingAmount)
-				activeStates.BGSI_Lite_FireGameRemote(
-					"UsePotion",
-					potionItem.Name,
-					potionItem.Level,
-					batchAmount
-				)
+				-- UsePotion takes the name and the level, and consumes exactly one. There
+				-- is no bulk form anywhere in the game, so using 250 means firing 250
+				-- times. The old third argument was invented here and ignored by the
+				-- server, while the loop assumed a call had consumed up to ten - so it
+				-- fired a tenth of the requests needed and then gave up.
+				activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, potionItem.Level)
 				local previousAmount = currentAmount
 				local replicationDeadline = tick() + 0.75
 				repeat
@@ -15816,7 +15837,9 @@ do
 															remoteEvent:FireServer("UseFragment", fragmentType)
 														end
 													elseif itemType == "Powerup" and powerup and powerup.Type == "Gift" then
-														remoteEvent:FireServer("UseGift", itemName, remaining)
+														-- The game caps a single UseGift at Constants.MaxSpawnableLimit,
+														-- which is 50; asking for more than that in one call is refused.
+														remoteEvent:FireServer("UseGift", itemName, math.min(50, remaining))
 													elseif itemType == "Powerup" and powerup and powerup.Type == "Egg" then
 														remoteEvent:FireServer("HatchPowerupEgg", itemName, math.min(12, remaining))
 													else
