@@ -66,7 +66,28 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.02"
+-- Choice lists the in-game UI offers. They live here so the dropdowns below and the
+-- options reported to the Account Dashboard read the same source - the dashboard used
+-- to keep its own copy of each one, which went stale the moment a list changed here.
+activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
+activeStates.BGSI_Lite_PriorityEventOptions = {
+	"Luck Event",
+	"Shiny Event",
+	"Mythic Event",
+	"Celestial Event",
+	"Secret Event",
+	"Infinity Event",
+	"XL Event",
+	"Super Palooza",
+}
+activeStates.BGSI_Lite_FallUpgradeOptions = {
+	{ value = "Currency", label = "Extra Currency" },
+	{ value = "Luck", label = "Luck" },
+	{ value = "SecretLuck", label = "Secret Luck" },
+	{ value = "InfinityLuck", label = "Infinity Luck" },
+	{ value = "AutoRebirth", label = "Auto Rebirth" },
+}
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +100,22 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.02",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Egg icons on the dashboard are the real ones again",
+				description = "Every egg was sent to the Account Dashboard with no icon, because the option builder passed a lookup flag where the egg's record belonged. The dashboard fell back to a generic egg for all of them - and for an egg its icon catalogue had not added yet, Spirit Egg among them, there was nothing else to fall back to. The real asset now comes from the game's own egg data, and the egg you are currently hatching reports its icon with every heartbeat.",
+				icon = "egg",
+			},
+			{
+				title = "Fixed dropdown choices now come from the script",
+				description = "Obby difficulty, priority events, the first Autumn upgrade and the enchant currency were each listed in two places - here and on the dashboard - so changing one left the other stale. The script reports these lists now, and the dashboard shows whatever this build actually supports.",
+				icon = "list",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.01",
 		releasedAt = "September 27, 2026",
@@ -10352,16 +10389,7 @@ do
 	scriptStateCZ:AddDropdown("PriorityEvents", {
 		Title = "Priority Events",
 		Description = "Selected events are checked in the order shown here.",
-		Values = {
-			"Luck Event",
-			"Shiny Event",
-			"Mythic Event",
-			"Celestial Event",
-			"Secret Event",
-			"Infinity Event",
-			"XL Event",
-			"Super Palooza",
-		},
+		Values = activeStates.BGSI_Lite_PriorityEventOptions,
 		Default = Config.PriorityEvents,
 		Multi = true,
 		Callback = function(selectedEvents)
@@ -12652,7 +12680,7 @@ do
 	gameTab:AddDropdown("SelectedObby", {
 		Title = "Selected Obby",
 		Description = "Choose the course used when the automatic Hard-to-Easy cycle is disabled.",
-		Values = { "Easy", "Medium", "Hard" },
+		Values = activeStates.BGSI_Lite_ObbyDifficultyOptions,
 		Default = Config.selectedObby,
 		Multi = false,
 		Callback = function(selectedObby)
@@ -14659,9 +14687,34 @@ do
 							table.insert(details.configOptions[configKey], option)
 						end
 
-						for eggName, eggInfo in pairs(getEggDataLookup()) do
+						-- getEggDataLookup returns name -> true, so passing its value through as
+						-- the option's data meant every egg option came back with no icon, and
+						-- the dashboard fell back to a generic egg for all of them. The real
+						-- record lives in the Eggs data module.
+						local function eggRecord(eggName)
+							local record = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
+							if record ~= nil then
+								return record
+							end
+							pcall(function()
+								local assets = ReplicatedStorage:FindFirstChild("Assets")
+								local eggsFolder = assets and assets:FindFirstChild("Eggs")
+								record = eggsFolder and eggsFolder:FindFirstChild(eggName) or nil
+							end)
+							return record
+						end
+						activeStates.BGSI_Lite_GetDashboardEggAssetId = function(eggName)
+							if type(eggName) ~= "string" or eggName == "" then
+								return nil
+							end
+							local ok, assetId = pcall(function()
+								return getAssetId(eggRecord(eggName), 0, {})
+							end)
+							return ok and assetId or nil
+						end
+						for eggName in pairs(getEggDataLookup()) do
 							if not string.lower(tostring(eggName)):find(" golden$") then
-								addConfigOption("selectedEgg", eggName, eggName, eggInfo)
+								addConfigOption("selectedEgg", eggName, eggName, eggRecord(eggName))
 							end
 						end
 						if not string.lower(tostring(activeStates.BGSI_Lite_CurrentEggName or "")):find(" golden$") then
@@ -14842,6 +14895,21 @@ do
 						end
 						addConfigOption("selectedPearlReturnTeam", "", "Restore previous team")
 						addConfigOption("selectedTicketReturnTeam", "", "Restore previous team")
+						-- Fixed choice lists the in-game UI offers. Reporting them means the
+						-- dashboard shows exactly what this build supports instead of relying
+						-- on its own copy, which silently goes stale when a list changes here.
+						for _, difficulty in ipairs(activeStates.BGSI_Lite_ObbyDifficultyOptions or {}) do
+							addConfigOption("selectedObby", difficulty)
+						end
+						for _, eventName in ipairs(activeStates.BGSI_Lite_PriorityEventOptions or {}) do
+							addConfigOption("PriorityEvents", eventName)
+						end
+						for _, upgrade in ipairs(activeStates.BGSI_Lite_FallUpgradeOptions or {}) do
+							addConfigOption("fallUpgradePriority", upgrade.value, upgrade.label)
+						end
+						for _, currency in ipairs(activeStates.BGSI_Lite_EnchantCurrencyOptions or {}) do
+							addConfigOption("equippedEnchantCurrency", currency)
+						end
 						for _, options in pairs(details.configOptions) do
 							table.sort(options, function(left, right)
 								return string.lower(left.label) < string.lower(right.label)
@@ -15099,6 +15167,21 @@ do
 							dashboardConfig.dashboardEggsPerHatch = dashboardStatsUtil:GetMaxEggHatches(playerData)
 							dashboardConfig.dashboardHatchSpeedMultiplier =
 								dashboardStatsUtil:GetHatchSpeed(LocalPlayer, playerData)
+						end)
+						-- The dashboard's egg icons come from a third-party catalog that lags
+						-- behind the game, so a newly added egg shows a generic placeholder.
+						-- The game already knows the real asset; send it.
+						pcall(function()
+							local currentEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "")
+							if
+								currentEggName ~= ""
+								and type(activeStates.BGSI_Lite_GetDashboardEggAssetId) == "function"
+							then
+								local eggAssetId = activeStates.BGSI_Lite_GetDashboardEggAssetId(currentEggName)
+								if eggAssetId then
+									dashboardConfig.dashboardCurrentEggIcon = tostring(eggAssetId)
+								end
+							end
 						end)
 						return dashboardConfig
 					end
@@ -16499,6 +16582,8 @@ do
 	for loopSlotDC, scriptStateG in ipairs(enchantNameList) do
 		table.insert(targetEnchantDropdownValues, scriptStateG)
 	end
+	-- Published so the dashboard renders the same choices this dropdown offers,
+	-- rather than keeping a second copy of the list that drifts when this one changes.
 	local enchantCurrencyOptions = {
 		"Auto (Secret = Crystals,Normal = Gems)",
 		"Auto (Secret = Crystals,Normal = Reroll Orbs)",
@@ -16561,6 +16646,7 @@ do
 			saveConfig()
 		end,
 	})
+	activeStates.BGSI_Lite_EnchantCurrencyOptions = enchantCurrencyOptions
 	scriptStateTJ:AddDropdown("EnchantCurrency", {
 		Title = "Currency",
 		Values = enchantCurrencyOptions,
