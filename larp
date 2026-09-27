@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.09"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.10"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,22 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.10",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Quest hatching no longer interrupts Auto-Farm Leaves",
+				description = "Season Pass, Guild Quests, and similar hatch quests were teleporting away from the Leaves spot to hatch an egg.",
+				icon = "leaf",
+			},
+			{
+				title = "Autumn Rebirth fires the moment it's affordable",
+				description = "It shared a once-a-second pass with other Fall Event tasks, so it could sit ready for most of a second before firing.",
+				icon = "zap",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.09",
 		releasedAt = "September 27, 2026",
@@ -5727,6 +5743,13 @@ end
 -- the character already was, which the server has no reason to accept, with nothing
 -- in the console to explain why.
 function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
+	-- Auto-Farm Leaves says "stay at the Autumn Leaves spot" - every hatch-type quest
+	-- (Season Pass, Challenge Pass, Global Incentive, Guild Quests, Shadow Leviathan,
+	-- Gem Genie) goes through this one function, so this is the single place needed to
+	-- stop any of them teleporting the character away to hatch an egg while it's on.
+	if Config.autoFallLeaves == true then
+		return false, "FarmingLeaves"
+	end
 	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "hatch")
 	local scriptStateUA = 0
 	local questProgressWatch
@@ -10464,12 +10487,22 @@ do
 		end
 	end
 
+	-- Rebirth needs to fire the moment Leaves crosses the cost, not whenever the shared
+	-- upgrades/leaves/elixir/chest pass next comes around - that pass only runs once a
+	-- second, so a rebirth could otherwise sit ready for most of a second before firing.
+	task.spawn(function()
+		while isCurrentRun() do
+			if Config.safeMode ~= true then
+				autoFallRebirth()
+			end
+			task.wait(0.1)
+		end
+	end)
 	task.spawn(function()
 		while isCurrentRun() do
 			local data = getFallData()
 			updateFallRebirthDisplay(data)
 			if Config.safeMode ~= true then
-				autoFallRebirth()
 				autoFallUpgrades()
 				farmLeaves()
 				if Config.autoFallElixir == true and type(activeStates.BGSI_Lite_GetHighestOwnedPotionLevel) == "function" then
