@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.03"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -100,6 +100,17 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.03",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "The same egg no longer shows a different icon on each account",
+				description = "Egg icons were resolved by searching the egg's whole record for anything that looked like an asset. When the egg's own Image was not found first, that search descended into the egg's pet list and returned a pet instead - and because the search walked the record in an undefined order, each account could settle on a different image for the same egg. Egg icons now read the Image field directly, the same one the in-game egg list uses, and the fallback search is ordered so two accounts always agree.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.02",
 		releasedAt = "September 27, 2026",
@@ -14616,8 +14627,21 @@ do
 									return assetId
 								end
 							end
-							for _, child in pairs(value) do
-								local assetId = getAssetId(child, depth + 1, seen)
+							-- Last resort: anything nested that looks like an asset. pairs() has no
+							-- defined order, so without sorting two clients walking the same record
+							-- could each settle on a different image - which is exactly what made
+							-- the dashboard show a different icon per account for the same egg.
+							local childKeys = {}
+							for childKey in pairs(value) do
+								if type(childKey) == "string" or type(childKey) == "number" then
+									table.insert(childKeys, childKey)
+								end
+							end
+							table.sort(childKeys, function(left, right)
+								return tostring(left) < tostring(right)
+							end)
+							for _, childKey in ipairs(childKeys) do
+								local assetId = getAssetId(value[childKey], depth + 1, seen)
 								if assetId then
 									return assetId
 								end
@@ -14691,30 +14715,29 @@ do
 						-- the option's data meant every egg option came back with no icon, and
 						-- the dashboard fell back to a generic egg for all of them. The real
 						-- record lives in the Eggs data module.
-						local function eggRecord(eggName)
+						-- An egg keeps its icon in Image, the same field the in-game egg list
+						-- reads. Handing the whole record to the generic resolver instead let
+						-- it fall through to the egg's pet list and pick a pet's image, so
+						-- narrow it to the one field that is actually the egg.
+						local function eggIconData(eggName)
 							local record = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
-							if record ~= nil then
-								return record
-							end
-							pcall(function()
-								local assets = ReplicatedStorage:FindFirstChild("Assets")
-								local eggsFolder = assets and assets:FindFirstChild("Eggs")
-								record = eggsFolder and eggsFolder:FindFirstChild(eggName) or nil
-							end)
-							return record
+							local image = type(record) == "table" and record.Image or nil
+							return image and { Image = image } or nil
 						end
 						activeStates.BGSI_Lite_GetDashboardEggAssetId = function(eggName)
 							if type(eggName) ~= "string" or eggName == "" then
 								return nil
 							end
 							local ok, assetId = pcall(function()
-								return getAssetId(eggRecord(eggName), 0, {})
+								local record = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
+								local image = type(record) == "table" and record.Image or nil
+								return image and tostring(image):match("%d+") or nil
 							end)
 							return ok and assetId or nil
 						end
 						for eggName in pairs(getEggDataLookup()) do
 							if not string.lower(tostring(eggName)):find(" golden$") then
-								addConfigOption("selectedEgg", eggName, eggName, eggRecord(eggName))
+								addConfigOption("selectedEgg", eggName, eggName, eggIconData(eggName))
 							end
 						end
 						if not string.lower(tostring(activeStates.BGSI_Lite_CurrentEggName or "")):find(" golden$") then
