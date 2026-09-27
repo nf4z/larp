@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.03"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.04"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -100,6 +100,27 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.04",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Inventory Cleanup actually deletes pets now",
+				description = "Checked against the game itself: DeletePet takes three arguments - the 36-character pet id, how many copies to delete, and whether the pet was picked from a team. The script sent only the id, so the server received no amount and deleted nothing, every time. All three are now sent, so cleanup does what it says.",
+				icon = "trash-2",
+			},
+			{
+				title = "Cleanup can trim a stack instead of needing to drop it whole",
+				description = "Cleanup would only delete a duplicate stack if removing the entire stack still left your minimum copies, so one stack larger than the minimum was never touched - the usual case. It now deletes exactly the number of copies above your minimum, in a single request rather than one pet at a time.",
+				icon = "layers",
+			},
+			{
+				title = "Deleting a pet from the dashboard works",
+				description = "The dashboard's delete button fired the same incomplete request, so it never removed anything either.",
+				icon = "trash-2",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.03",
 		releasedAt = "September 27, 2026",
@@ -4049,17 +4070,28 @@ activeStates.BGSI_Lite_CleanupFullPetInventory = function()
 				local amountBeforeDelete = livePet
 						and math.max(1, math.floor(tonumber(livePet.Amount or livePet.Count) or 1))
 					or 0
+				-- How many copies of this stack may go without dropping the total below
+				-- the configured minimum. The old check only allowed deleting a stack
+				-- whole, so a single stack larger than the minimum could never be
+				-- trimmed at all - the usual case, and the reason cleanup looked dead
+				-- even before the remote call itself was wrong.
+				local deletableAmount = math.min(amountBeforeDelete, remainingCopies - minimumCopies)
 				if
 					livePet
 					and livePet.Name == selectedCandidate.name
 					and activeStates.BGSI_Lite_GetDisposablePetRank(livePet)
 					and not activeStates.BGSI_Lite_IsPetEquipped(playerData, candidatePet.id)
-					and remainingCopies - amountBeforeDelete >= minimumCopies
+					and deletableAmount >= 1
 					and activeStates.BGSI_Lite_BlockedCleanupPets[candidatePet.id] == nil
 				then
+					-- The game fires DeletePet with three arguments: the 36-character pet
+					-- id, how many copies to delete, and whether the pet was picked from a
+					-- team. This used to send only the id, so the server saw no amount and
+					-- deleted nothing at all.
+					local deleteId = string.sub(tostring(candidatePet.id), 1, 36)
 					local amountAfterDelete = amountBeforeDelete
 					for _ = 1, 3 do
-						remoteEvent:FireServer("DeletePet", candidatePet.id)
+						remoteEvent:FireServer("DeletePet", deleteId, deletableAmount, false)
 						local deleteDeadline = tick() + 4
 						repeat
 							task.wait(0.1)
@@ -15673,8 +15705,15 @@ do
 
 													local amountBeforeDelete = getCommandPetAmount()
 													local amountAfterDelete = amountBeforeDelete
+													-- Three arguments, as the game sends them: the 36-character
+													-- pet id, how many copies to delete, and whether the pet came
+													-- from a team. Sending only the id left the server with no
+													-- amount, so nothing was ever deleted.
+													local deleteId = string.sub(tostring(nextPetId), 1, 36)
+													local deleteAmount =
+														math.max(1, math.min(amountBeforeDelete, targetAmount - deletedAmount))
 													for deleteAttempt = 1, 3 do
-														remoteEvent:FireServer("DeletePet", nextPetId)
+														remoteEvent:FireServer("DeletePet", deleteId, deleteAmount, false)
 														local deleteDeadline = tick() + 4
 														repeat
 															task.wait(0.1)
