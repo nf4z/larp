@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.06"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.07"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.07",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Potion and item icons show up on the dashboard",
+				description = "Only two layers of each icon were sent, so anything drawn differently arrived blank.",
+				icon = "image",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.06",
 		releasedAt = "September 27, 2026",
@@ -15100,20 +15111,16 @@ do
 							if amount <= 0 then
 								return
 							end
-							local imageAssetId = getAssetId(source, 0, {})
-							local overlayAssetId
-							if not imageAssetId and itemUtil and type(itemUtil.UpdateIcon) == "function" then
-								local iconContainer = Instance.new("Frame")
-								local iconLabel = Instance.new("ImageLabel")
-								iconLabel.Name = "Label"
-								iconLabel.Parent = iconContainer
-								pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, item)
-								local border = iconContainer:FindFirstChild("Border", true)
-								local liquid = iconContainer:FindFirstChild("Liquid", true)
-								imageAssetId = getAssetId(border and border.Image or iconLabel.Image, 0, {})
-								overlayAssetId = getAssetId(liquid and liquid.Image, 0, {})
-								iconContainer:Destroy()
-							end
+							-- A potion icon is several stacked images - bottle, liquid, border,
+							-- level pip - and this used to pick out only the two named "Border"
+							-- and "Liquid", so anything drawn differently came through blank.
+							-- GetDashboardItemIcon renders the item the way the game does and
+							-- keeps every visible layer with its z-order and scale, which is
+							-- what the config pickers already use.
+							local itemIcon = activeStates.BGSI_Lite_GetDashboardItemIcon(item)
+							local imageLayers = itemIcon and itemIcon.imageLayers or nil
+							local imageAssetId = itemIcon and itemIcon.imageAssetId
+								or getAssetId(source, 0, {})
 							local itemName = getItemText("GetName", item, item.Name)
 							local itemKey = table.concat({ tostring(item.Type), tostring(item.Name), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
 							table.insert(details.inventory, {
@@ -15126,7 +15133,7 @@ do
 								amount = amount,
 								description = getItemText("GetDescription", item, source and source.Description),
 								imageAssetId = imageAssetId,
-								overlayAssetId = overlayAssetId,
+								imageLayers = imageLayers,
 								usable = usable == true,
 							})
 						end
