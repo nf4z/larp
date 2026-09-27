@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.26.02"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.26.03"
 activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
 activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
 	activeStates.BGSI_Lite_DashboardLogSequence += 1
@@ -79,6 +79,27 @@ end
 
 do
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.26.03",
+		releasedAt = "September 26, 2026",
+		notes = {
+			{
+				title = "Dashboard dropdowns that were always empty now fill in",
+				description = "Target Rifts, Special Rift Priority, World Chests and Inventory Egg are pickable from the Account Dashboard. The script was never sending choices for them, so the dashboard showed 'Connect an account to load these choices from the game' no matter how long you waited.",
+				icon = "list",
+			},
+			{
+				title = "Live webhook URL is no longer reported to the dashboard",
+				description = "The hatch webhook URL was already kept out of telemetry. The live status webhook URL and the hatch telemetry endpoint now get the same treatment - you can set them from the dashboard, but the saved value is never sent back.",
+				icon = "shield-check",
+			},
+			{
+				title = "A custom dashboard host is left alone",
+				description = "Startup used to rewrite the dashboard endpoint on every run. It now only fills in an unset endpoint and tidies up different spellings of the default host, so a custom host stays put.",
+				icon = "link",
+			},
+		},
+	},
 	{
 		version = "2026.09.20.02",
 		releasedAt = "September 20, 2026",
@@ -2190,13 +2211,20 @@ pcall(function()
 	end
 end)
 
--- Migrate the Account Dashboard off the retired larplite.xyz host.
--- Keep the saved ingest token untouched; only the upstream URL changes.
+-- Normalise the Account Dashboard host. An unset endpoint falls back to the default,
+-- and any spelling of the default host (no scheme, http://, a trailing slash) is
+-- rewritten to the canonical https:// form. A custom host is left alone. The saved
+-- ingest token is never touched here.
 do
+	local dashboardDefaultHost = "https://larplite.xyz"
 	local configuredDashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
-	if configuredDashboardEndpoint == "" or configuredDashboardEndpoint:find("larplite%.xyz", 1, false) then
-		Config.dashboardEndpoint = "https://larplite.xyz"
-		saveConfig()
+	local isDefaultHost = configuredDashboardEndpoint:gsub("/+$", ""):lower():match("^https?://larplite%.xyz$")
+		or configuredDashboardEndpoint:gsub("/+$", ""):lower() == "larplite.xyz"
+	if configuredDashboardEndpoint == "" or isDefaultHost then
+		if Config.dashboardEndpoint ~= dashboardDefaultHost then
+			Config.dashboardEndpoint = dashboardDefaultHost
+			saveConfig()
+		end
 	end
 end
 
@@ -14631,26 +14659,62 @@ do
 						if not string.lower(tostring(activeStates.BGSI_Lite_LuckEggName or "")):find(" golden$") then
 							addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
 						end
+						-- Same label rule the in-game Special Rift Priority dropdown uses: the
+						-- rift's own Egg field, because the id is not a reliable name (the
+						-- "corruptshadow" rift's real egg is "Corrupt Dark Rift Egg").
+						local function riftOptionLabel(riftId, riftInfo)
+							if type(riftInfo) == "table" and type(riftInfo.Egg) == "string" and riftInfo.Egg ~= "" then
+								return riftInfo.Egg
+							end
+							local words = {}
+							for word in tostring(riftId):gsub("%-rift$", ""):gmatch("[%a%d]+") do
+								table.insert(words, word:sub(1, 1):upper() .. word:sub(2))
+							end
+							table.insert(words, "Rift")
+							return table.concat(words, " ")
+						end
 						for riftName, riftInfo in pairs(type(riftData) == "table" and riftData or {}) do
 							if type(riftInfo) == "table" and riftInfo.Type == "Egg" then
 								addConfigOption("selectedRiftEgg", riftName, riftName, riftInfo)
+								-- Matches getTargetRiftHopOptions: every egg rift can be hopped to.
+								addConfigOption("targetRiftIds", riftName, riftOptionLabel(riftName, riftInfo), riftInfo)
+								-- Matches isSpecialEggRift: the weighted, non-ignored egg rifts.
+								if
+									riftInfo.Ignore ~= true
+									and type(riftInfo.Weight) == "number"
+									and riftInfo.Weight > 0
+									and riftInfo.Weight < 10
+								then
+									addConfigOption(
+										"specialRiftPriority",
+										riftName,
+										riftOptionLabel(riftName, riftInfo),
+										riftInfo
+									)
+								end
 							elseif type(riftInfo) == "table" and riftInfo.Type == "Chest" then
 								addConfigOption("selectedChest", riftName, riftName, riftInfo)
 							end
 						end
+						-- selectedWorldChests is the multi-select that superseded the single
+						-- selectedWorldChest; both are still live config keys, so feed both.
+						local function addWorldChestOption(chestName, chestInfo)
+							addConfigOption("selectedWorldChest", chestName, chestName, chestInfo)
+							addConfigOption("selectedWorldChests", chestName, chestName, chestInfo)
+						end
 						local rendered = Workspace:FindFirstChild("Rendered")
 						local renderedChests = rendered and rendered:FindFirstChild("Chests")
 						for _, chest in ipairs(renderedChests and renderedChests:GetChildren() or {}) do
-							addConfigOption("selectedWorldChest", chest.Name)
+							addWorldChestOption(chest.Name)
 						end
 						local chestData = safeRequireTable(function()
 							return require(ReplicatedStorage.Shared.Data.Chests)
 						end) or {}
 						for chestName, chestInfo in pairs(chestData) do
-							addConfigOption("selectedWorldChest", chestName, chestName, chestInfo)
+							addWorldChestOption(chestName, chestInfo)
 						end
 						for _, chestName in ipairs({ "Giant Chest", "Infinity Chest", "Ticket Chest", "Void Chest" }) do
-							addConfigOption("selectedWorldChest", chestName)
+							addWorldChestOption(chestName)
 						end
 						for enchantName, enchantInfo in pairs(type(enchantData) == "table" and enchantData or {}) do
 							if type(enchantName) == "string" and not string.lower(enchantName):find("^super%-") then
@@ -14681,9 +14745,12 @@ do
 								addConfigOption("gemGenieTargetItem", powerupName, powerupLabel, powerup, powerupItem)
 								if type(powerup) == "table" and powerup.Type == "Gift" then
 									addConfigOption("selectedMysteryBox", powerupName, powerupLabel, powerup, powerupItem)
-										addConfigOption("selectedMysteryBoxes", powerupName, powerupLabel, powerup, powerupItem)
+									addConfigOption("selectedMysteryBoxes", powerupName, powerupLabel, powerup, powerupItem)
 								elseif type(powerup) == "table" and powerup.Type == "Fragment" then
 									addConfigOption("selectedFragments", powerupName, powerupLabel, powerup, powerupItem)
+								elseif type(powerup) == "table" and powerup.Type == "Egg" then
+									-- Same source getInventoryEggNames reads for the in-game dropdown.
+									addConfigOption("selectedInventoryEgg", powerupName, powerupLabel, powerup, powerupItem)
 								end
 							end
 						end
@@ -14988,10 +15055,19 @@ do
 						return details
 					end
 
+					-- Destinations the dashboard lets you set but must never read back: it
+					-- shows them as write-only fields, so reporting the saved value would
+					-- hand every viewer of the dashboard a working webhook URL.
+					local dashboardWriteOnlyConfigKeys = {
+						webhookURL = true,
+						LiveWebhookURL = true,
+						hatchTelemetryEndpoint = true,
+					}
+
 					local function buildDashboardConfig()
 						local dashboardConfig = {}
 						for _, configKey in ipairs(dashboardConfigKeys) do
-							if configKey ~= "webhookURL" then
+							if not dashboardWriteOnlyConfigKeys[configKey] then
 								if
 									Config.safeMode == true
 									and configKey ~= "safeMode"
