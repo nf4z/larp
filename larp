@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.12"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.12",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Auto-Farm Leaves no longer teleports anywhere",
+				description = "It now just equips the Leaves team and pauses Auto Hatch, instead of moving the player to a hardcoded spot.",
+				icon = "leaf",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.11",
 		releasedAt = "September 27, 2026",
@@ -7286,7 +7297,10 @@ activeStates.BGSI_Lite_IsEggAutomationActive = function()
 		or isPriorityAutomationActive()
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
-	return Config.autoHatch == true
+	-- Auto-Farm Leaves means "stay on the Leaves team" - Auto Hatch teleporting to an
+	-- egg and swapping the equipped team back out from under it would defeat that, so
+	-- Auto Hatch pauses for as long as Leaves farming is on.
+	return Config.autoHatch == true and Config.autoFallLeaves ~= true
 end
 function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
@@ -10308,7 +10322,7 @@ do
 	fallEventTab:AddSection("Leaves Farming")
 	fallEventTab:AddToggle("AutoFallLeaves", {
 		Title = "Auto-Farm Leaves",
-		Description = "Equips the team named Leaves and stays at the Autumn Leaves farming location.",
+		Description = "Equips the team named Leaves and pauses Auto Hatch for as long as this is on. Does not move the player anywhere.",
 		Default = Config.autoFallLeaves,
 		Callback = function(enabled)
 			Config.autoFallLeaves = enabled == true
@@ -10393,20 +10407,16 @@ do
 		return activeStates.BGSI_Lite_EquipPetTeamByKey("Leaves") == true
 	end
 
-	local leavesFarmCFrame = CFrame.new(244.661, 14.554, 178.388)
+	-- Farming leaves isn't a location, it's the equipped team - the game credits the
+	-- Leaves currency for having that team equipped anywhere, and a hardcoded CFrame
+	-- was just as likely to drop the player somewhere wrong as the right spot. Equip
+	-- the team and stop there; BGSI_Lite_ShouldMaintainHatching pauses Auto Hatch for
+	-- as long as this is on, so nothing else drags the player away either.
 	local function farmLeaves()
 		if Config.safeMode == true or Config.autoFallLeaves ~= true then
 			return
 		end
 		equipLeavesTeam()
-		local root
-		pcall(function()
-			local character = LocalPlayer.Character
-			root = character and character:FindFirstChild("HumanoidRootPart")
-		end)
-		if root and (root.Position - leavesFarmCFrame.Position).Magnitude > 12 then
-			teleportToCFrame(leavesFarmCFrame)
-		end
 	end
 
 	local function autoFallRebirth()
