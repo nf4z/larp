@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.11"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.09.27.11",
+		releasedAt = "September 27, 2026",
+		notes = {
+			{
+				title = "Auto Setup Team only ever touches the team named \"Hatch\"",
+				description = "It used to maintain whatever team was equipped, including Leaves - now it leaves every other team alone.",
+				icon = "team",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.10",
 		releasedAt = "September 27, 2026",
@@ -17044,7 +17055,29 @@ end
 -- why it looked like it "stopped after 1 pet." Unequipping first, confirming the team
 -- actually shrank, and only then equipping - with a few retry passes for anything that
 -- still didn't land - fixes that.
+-- The single choke point for every path that can equip/unequip a pet for hatching
+-- (Auto Setup Team's own maintenance loop, and the "hatch" fallback inside Auto
+-- Currency Teams). Whatever team the player currently has equipped only gets touched
+-- if it is literally named "Hatch" - Leaves, or any other team, is left completely
+-- alone even while this feature is on, instead of the old behavior of silently
+-- maintaining "whichever team happens to be equipped right now".
+function isEquippedTeamNamedHatch()
+	local ok, playerData = pcall(function()
+		return profileStore:IsReady() and profileStore:Get() or nil
+	end)
+	if not ok or type(playerData) ~= "table" or type(playerData.Teams) ~= "table" or playerData.TeamEquipped == nil then
+		return false
+	end
+	local team = playerData.Teams[playerData.TeamEquipped]
+	local teamName = type(team) == "table" and (team.Name or team.TeamName) or nil
+	return type(teamName) == "string" and teamName:lower():match("^%s*(.-)%s*$") == "hatch"
+end
+activeStates.BGSI_Lite_IsEquippedTeamNamedHatch = isEquippedTeamNamedHatch
+
 function applyAutoSetupTeamSelection(selectedPetIds)
+	if not isEquippedTeamNamedHatch() then
+		return false
+	end
 	local selectedSet = {}
 	for _, petId in ipairs(selectedPetIds) do
 		selectedSet[tostring(petId)] = true
@@ -17121,13 +17154,17 @@ activeStates.BGSI_Lite_RunAutoSetupTeam = function()
 	if Config.safeMode == true or not activeStates.BGSI_Lite_IsEggAutomationActive() then
 		return false
 	end
+	-- Only ever touch pets while the player is actually on the team named "Hatch" -
+	-- Leaves (or anything else currently equipped) is left alone entirely.
+	if not isEquippedTeamNamedHatch() then
+		return false
+	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local selectedPetIds = buildAutoSetupTeamSelection(playerData)
 	if not selectedPetIds then
 		return false
 	end
-	applyAutoSetupTeamSelection(selectedPetIds)
-	return true
+	return applyAutoSetupTeamSelection(selectedPetIds)
 end
 -- Rebuild/apply the team immediately when its configuration changes, rather than
 -- waiting for the 5-second maintenance loop. A small generation counter also prevents
@@ -17278,25 +17315,30 @@ activeStates.BGSI_Lite_ApplyCurrencyTeam = function(category)
 	if type(playerData) ~= "table" then
 		return false
 	end
-	local detected = activeStates.BGSI_Lite_DetectCurrencyTeamKeys(playerData)
-	local teamKey = detected[category]
-	if teamKey and type(activeStates.BGSI_Lite_EquipPetTeamByKey) == "function" then
-		if activeStates.BGSI_Lite_EquipPetTeamByKey(teamKey) then
-			return true
+	-- "hatch" never switches teams, even to a saved team that happens to be named
+	-- "hatch" - the only thing that ever changes what team is equipped is the player.
+	-- This only ever adjusts pets within the team already equipped, and only when
+	-- that team is named "Hatch" (checked inside applyAutoSetupTeamSelection below).
+	if category ~= "hatch" then
+		local detected = activeStates.BGSI_Lite_DetectCurrencyTeamKeys(playerData)
+		local teamKey = detected[category]
+		if teamKey and type(activeStates.BGSI_Lite_EquipPetTeamByKey) == "function" then
+			if activeStates.BGSI_Lite_EquipPetTeamByKey(teamKey) then
+				return true
+			end
 		end
 	end
 	local bestPetIds = activeStates.BGSI_Lite_GetBestPetIdsForCurrency(playerData, category)
 	if not bestPetIds or #bestPetIds == 0 then
 		return false
 	end
-	applyAutoSetupTeamSelection(bestPetIds)
-	return true
+	return applyAutoSetupTeamSelection(bestPetIds)
 end
 do
 	scriptStateTJ:AddSection("Auto Setup Team")
 	scriptStateTJ:AddToggle("AutoSetupTeamKeepUpdated", {
 		Title = "Auto Setup Team",
-		Description = "Equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity, no normal (non-shiny) pets - and keeps re-applying it whenever your equipped team drifts from it. Applies immediately when switched on. Blocked entirely while Safe Mode is on.",
+		Description = 'Only ever touches the team named "Hatch" - any other team, including Leaves, is left alone. While on Hatch, equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity, no normal (non-shiny) pets - and keeps re-applying it whenever the team drifts from it. Applies immediately when switched on. Blocked entirely while Safe Mode is on.',
 		Default = Config.autoSetupTeamEnabled,
 		Callback = function(isEnabled)
 			Config.autoSetupTeamEnabled = isEnabled == true
@@ -17328,6 +17370,14 @@ do
 						Title = "Auto Setup Team",
 						Content = "Force Update is blocked while Safe Mode is enabled.",
 						Duration = 5,
+					})
+					return
+				end
+				if not isEquippedTeamNamedHatch() then
+					Interface:Notify({
+						Title = "Auto Setup Team",
+						Content = 'Only the team named "Hatch" is ever touched - switch to it in-game first.',
+						Duration = 6,
 					})
 					return
 				end
@@ -18598,7 +18648,7 @@ do
 	scriptStateUC:AddSection("Collection Teams")
 	scriptStateUC:AddToggle("AutoCurrencyTeams", {
 		Title = "Auto Currency Teams",
-		Description = "Detects saved pet teams by name (a team named \"Tickets\", \"Gems\", \"Bubble\", \"Coins\", \"Pearls\", or \"Hatch\") and switches to the matching one for whichever of those a quest task needs. Falls back to building a team from your best-owned pets for that specific currency when no matching team exists. Overrides the manual team pickers below while on.",
+		Description = "Detects saved pet teams by name (a team named \"Tickets\", \"Gems\", \"Bubble\", \"Coins\", or \"Pearls\") and switches to the matching one for whichever of those a quest task needs. Falls back to building a team from your best-owned pets for that specific currency when no matching team exists. Overrides the manual team pickers below while on. Never switches or touches anything for hatch quests - that's Auto Setup Team's job, and only while already on the team named \"Hatch\".",
 		Default = Config.autoCurrencyTeams,
 		Callback = function(isEnabled)
 			Config.autoCurrencyTeams = isEnabled == true
