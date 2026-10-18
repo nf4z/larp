@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.09.27.12"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.01"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,22 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.01",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Egg names in hatch messages",
+				description = "Hatch webhooks now show the egg below Origins, using hatch results and the game's egg data.",
+				icon = "egg",
+			},
+			{
+				title = "Minimum hatch chance",
+				description = "Filter hatch webhooks by final odds using values such as 50m, 50b, or 5t.",
+				icon = "filter",
+			},
+		},
+	},
 	{
 		version = "2026.09.27.12",
 		releasedAt = "September 27, 2026",
@@ -2130,6 +2146,7 @@ local defaultConfig = {
 	shrineAmount = 10,
 	webhookEnabled = false,
 	webhookURL = "",
+	webhookMinimumChance = "",
 	-- Optional user-authorized hatch telemetry endpoint. Keep the Discord webhook secret on the backend.
 	hatchTelemetryEnabled = true,
 	hatchTelemetryEndpoint = "",
@@ -14522,7 +14539,7 @@ do
 
 			-- Webhook preferences. The URL is accepted from authenticated
 			-- dashboard commands, but is never included in heartbeat telemetry.
-			"webhookEnabled", "webhookURL", "webhookHidePlayerName",
+			"webhookEnabled", "webhookURL", "webhookHidePlayerName", "webhookMinimumChance",
 			"webhookPingEnabled",
 			"webhookPingUserId",
 			"webhookLowCurrencyEnabled",
@@ -21573,6 +21590,73 @@ function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
 	end
 	return 100
 end
+-- Minimum final 1-in-X odds for hatch notifications; blank or zero disables it.
+function parseWebhookMinimumChance(value)
+	local text = tostring(value or ""):lower():gsub("%s+", ""):gsub(",", "")
+	if text == "" then return 0 end
+	local numberText, suffix = text:match("^(%d*%.?%d+)([kmbt]?)$")
+	local number = numberText and tonumber(numberText)
+	if not number then return nil end
+	local multipliers = {k = 1e3, m = 1e6, b = 1e9, t = 1e12}
+	local result = number * (multipliers[suffix] or 1)
+	if result ~= result or result == math.huge then return nil end
+	return result
+end
+
+function meetsWebhookMinimumChance(name, info, shiny, mythic, xl)
+	local minimum = parseWebhookMinimumChance(Config.webhookMinimumChance)
+	if not minimum then return false end
+	if minimum == 0 then return true end
+	local percent = tonumber(checkLowCurrencyWebhook(name, info))
+	if not percent or percent <= 0 or percent ~= percent or percent == math.huge then return false end
+	local oneIn = 100 / percent
+	if shiny then oneIn = oneIn * 40 end
+	if mythic then oneIn = oneIn * 100 end
+	if xl then oneIn = oneIn * 400 end
+	-- Allow only floating-point rounding at the inclusive threshold boundary.
+	return oneIn >= minimum * (1 - 1e-14)
+end
+
+-- The game's HatchEgg:Play consumes result.Name as the egg name. Eggs also
+-- populates Pets[petName].Egg from Pool entries shaped as {Item={Type="Pet",Name=...}}.
+-- Read the accepted result, not a current selection that may have changed meanwhile.
+function getWebhookHatchEggName(petEntry, petInfo, eventName, hatchResult)
+	local function eggName(value)
+		if type(value) == "table" then value = value.Name or value.EggName end
+		if type(value) ~= "string" then return nil end
+		value = value:match("^%s*(.-)%s*$")
+		if value ~= "" and value ~= "Unknown" then return value end
+	end
+	local explicit = eggName(activeStates.BGSI_Lite_GetHatchPetValue(petEntry, {"Egg", "EggName", "SourceEgg"}))
+	if explicit then return explicit end
+	if (eventName == "HatchEgg" or eventName == "HatchPowerupEgg" or eventName == "ExclusiveHatch")
+		and type(hatchResult) == "table" then
+		local resultEgg = eggName(hatchResult.EggName) or eggName(hatchResult.Egg)
+			or (type(hatchResult.Pets) == "table" and eggName(hatchResult.Name))
+		if resultEgg then return resultEgg end
+	end
+	local metadataEgg = type(petInfo) == "table" and eggName(petInfo.Egg)
+	if metadataEgg then return metadataEgg end
+	local petName = activeStates.BGSI_Lite_GetHatchPetName(petEntry)
+	local candidates = {}
+	for name, egg in pairs(type(eggDataModule) == "table" and eggDataModule or {}) do
+		if type(egg) == "table" and type(egg.Pool) == "table" then
+			for _, entry in pairs(egg.Pool) do
+				local item = type(entry) == "table" and entry.Item
+				if type(item) == "table" and item.Type == "Pet" and item.Name == petName then
+					candidates[name] = true
+				end
+			end
+		end
+	end
+	local found
+	for name in pairs(candidates) do
+		if found then return "Unknown" end
+		found = eggName(name)
+	end
+	return found or "Unknown"
+end
+
 function getPetVariantName(scriptStateSU, webhookPetEntry)
 	if not remoteFunction or type(scriptStateSU) ~= "string" or scriptStateSU == "" then
 		return nil
@@ -22433,6 +22517,20 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateKM:AddInput("WebhookMinimumChance", {
+		Title = "Minimum Hatch Chance (1 in X)",
+		Description = "Send pets at this chance or rarer, including Shiny/Mythic/XL bonuses. Examples: 50m, 50b, 5t. Blank or 0 disables the filter.",
+		Default = Config.webhookMinimumChance,
+		Placeholder = "50m / 50b / 5t (empty = all)",
+		Callback = function(value)
+			if not parseWebhookMinimumChance(value) then
+				Interface:Notify({Title = "Invalid hatch chance", Content = "Use a number such as 50m, 50b, or 5t. Your previous setting is unchanged.", Duration = 5})
+				return
+			end
+			Config.webhookMinimumChance = tostring(value or "")
+			saveConfig()
+		end,
+	})
 	scriptStateKM:AddSection("Live Webhook")
 	scriptStateKM:AddToggle("LiveWebhookEnabled", {
 		Title = "Enable Live Webhook",
@@ -22949,6 +23047,9 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local scriptStateLS = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Shiny")
 				local scriptStateNI = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Mythic")
 				local scriptStateKK = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "XL")
+				if not meetsWebhookMinimumChance(scriptStateFL, scriptStateEQ, scriptStateLS, scriptStateNI, scriptStateKK) then
+					continue
+				end
 				if
 					not shouldSendPetWebhookEntry(
 						scriptStateACH,
@@ -23063,6 +23164,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				if scriptStateEQ.Tag and scriptStateEQ.Tag ~= "" then
 					table.insert(scriptStateAEO, "🏷️ Origins: **" .. tostring(scriptStateEQ.Tag) .. "**")
 				end
+				table.insert(scriptStateAEO, "🥚 Egg: **"
+					.. getWebhookHatchEggName(scriptStateACH, scriptStateEQ, scriptStateKW, scriptStateNY) .. "**")
 				local webhookStatEmojis = {
 					Bubbles = "<:purple_circle:1363755750828019774>",
 					CarnivalCoins = "<:circus_tent:1520159699230785707>",
