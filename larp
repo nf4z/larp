@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.01"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.02"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.02",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Shorter webhook label",
+				description = "The minimum hatch chance setting is now labeled Minimum Chance.",
+				icon = "filter",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.01",
 		releasedAt = "October 18, 2026",
@@ -22518,7 +22529,7 @@ do
 		end,
 	})
 	scriptStateKM:AddInput("WebhookMinimumChance", {
-		Title = "Minimum Hatch Chance (1 in X)",
+		Title = "Minimum Chance",
 		Description = "Send pets at this chance or rarer, including Shiny/Mythic/XL bonuses. Examples: 50m, 50b, 5t. Blank or 0 disables the filter.",
 		Default = Config.webhookMinimumChance,
 		Placeholder = "50m / 50b / 5t (empty = all)",
