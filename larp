@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.05"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.07"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -104,12 +104,34 @@ do
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+		version = "2026.10.18.07",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Simpler Leader page",
+				description = "A compact account roster keeps live sync and handover controls easy to find.",
+				icon = "crown",
+			},
+		},
+	},
+	{
+		version = "2026.10.18.06",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Clearer account role names",
+				description = "Fleet controls and status now use the clearer Leader title for the coordinating account.",
+				icon = "crown",
+			},
+		},
+	},
+	{
 		version = "2026.10.18.05",
 		releasedAt = "October 18, 2026",
 		notes = {
 			{
-				title = "Account fleet with a master account",
-				description = "Accounts running the script on one PC now find each other. The longest-running one becomes MASTER, turns dark blue, gets a Master tab, and pushes every setting to the other accounts the moment it changes.",
+				title = "Account fleet with a Leader account",
+				description = "The longest-running account becomes Leader, gets a blue theme and Leader tab, and shares settings live.",
 				icon = "crown",
 			},
 		},
@@ -23662,11 +23684,11 @@ end
 --
 -- Every copy of the script running on this PC (one per Roblox account) drops a small
 -- heartbeat file into the executor workspace and reads everyone else's, so the accounts
--- find each other without any server. From that roster one account is picked as MASTER:
+-- find each other without any server. From that roster one account is picked as Leader:
 --   * automatically, the one that has been running the longest, or
---   * manually, the one a player pinned with "Make this account master".
--- The master gets a dark-blue window and a "Master" tab. Any setting changed on the
--- master is written to a shared settings file the moment it is saved, and every other
+--   * manually, the one a player pinned with "Make this account Leader".
+-- The Leader gets a dark-blue window and a "Leader" tab. Any setting changed on the
+-- Leader is written to a shared settings file the moment it is saved, and every other
 -- account picks it up within a fraction of a second and applies it live.
 --
 -- Everything lives inside one function so it adds no top-level locals to the script.
@@ -23690,7 +23712,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 	local HEARTBEAT_INTERVAL = 1
 
 	local fleet = {
-		role = "solo", -- "solo" (nobody else around), "master" or "alt"
+		role = "solo", -- "solo", "master" (displayed as Leader) or "alt"
 		masterId = nil,
 		roster = {},
 		rev = 0, -- last revision this account published as master
@@ -23767,7 +23789,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 		end)
 	end
 
-	-- A reload (auto-update) must not send a long-running master to the back of the
+	-- A reload (auto-update) must not send a long-running Leader to the back of the
 	-- queue, so a recent heartbeat from this same account keeps its original start time.
 	local startedAt = tick()
 	do
@@ -23877,7 +23899,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 
 	-- Every account runs this same function over the same files, so they all agree on the
 	-- answer without talking to each other. A pin wins while that account is online;
-	-- otherwise the longest-running account is master. A lone account is never master.
+	-- otherwise the longest-running account is Leader. A lone account is never Leader.
 	local function electMaster(list)
 		if #list < 2 then
 			return nil
@@ -23967,7 +23989,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 	end
 
 	-- Same follow-up work the Account Dashboard's "apply config" command does, so a
-	-- setting pushed from the master behaves exactly like one applied from the dashboard.
+	-- setting pushed from the Leader behaves exactly like one applied from the dashboard.
 	local function applyRemoteConfig(remoteConfig)
 		local applied = 0
 		fleet.applying = true
@@ -24009,8 +24031,8 @@ activeStates.BGSI_Lite_FleetInit = function()
 			return
 		end
 		local revText, fromId = text:match("^(%d+):(%d+)$")
-		-- Only the current master is listened to; a stale revision left by a previous
-		-- master is ignored (and not marked as seen, in case that account takes over).
+		-- Only the current Leader is listened to; a stale revision left by a previous
+		-- Leader is ignored (and not marked as seen, in case that account takes over).
 		if not revText or fromId ~= fleet.masterId then
 			return
 		end
@@ -24040,17 +24062,17 @@ activeStates.BGSI_Lite_FleetInit = function()
 					.. LocalPlayer.Name
 					.. "] Fleet: applied "
 					.. tostring(applied)
-					.. " setting(s) from master "
+					.. " setting(s) from Leader "
 					.. tostring(payload.fromName or fromId)
 			)
 			updateUi()
 		else
-			warn("[LarpLite Fleet] Could not apply master settings: " .. tostring(err))
+			warn("[LarpLite Fleet] Could not apply Leader settings: " .. tostring(err))
 		end
 	end
 
 	-- Hook saveConfig: every setting change in the UI ends in a saveConfig() call, so on
-	-- the master that is the exact moment to publish. The push itself runs on the next
+	-- the Leader that is the exact moment to publish. The push itself runs on the next
 	-- frame so several changes in one frame go out as a single revision.
 	local originalSaveConfig = saveConfig
 	saveConfig = function(...)
@@ -24267,7 +24289,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 	end
 	local function setMasterControlsLocked(locked)
 		for _, control in ipairs(fleet.masterControls) do
-			setControlLocked(control, locked, "This account is not the master")
+			setControlLocked(control, locked, "This account is not the Leader")
 		end
 	end
 
@@ -24282,7 +24304,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 				.. entry.name
 				.. (entry.id == myId and " (you)" or "")
 				.. "  ·  "
-				.. (isMaster and "MASTER" or "alt")
+				.. (isMaster and "Leader" or "alt")
 				.. "  ·  v"
 				.. shortVersion(entry.version)
 			if withSyncState and not isMaster then
@@ -24333,13 +24355,13 @@ activeStates.BGSI_Lite_FleetInit = function()
 		if ui.otherStatus then
 			local title, content
 			if fleet.role == "master" then
-				title = "This account is the MASTER"
+					title = "You are the Leader"
 				content = describeRoster(false)
 					.. "\n\nChanges you make on this account are sent to the other "
 					.. tostring(count - 1)
 					.. " account(s) automatically."
 			elseif fleet.role == "alt" then
-				title = "Following master: " .. masterName()
+				title = "Following Leader: " .. masterName()
 				content = describeRoster(false)
 				if fleet.lastApplyAt then
 					content = content
@@ -24359,23 +24381,12 @@ activeStates.BGSI_Lite_FleetInit = function()
 			setText("otherStatus", ui.otherStatus, title, content)
 		end
 		if ui.masterStatus then
+			local statusTitle = fleet.role == "master" and "Leader account" or ("Current Leader: " .. masterName())
+			local statusContent = describeRoster(true)
 			if fleet.role == "master" then
-				setText(
-					"masterStatus",
-					ui.masterStatus,
-					"You are the MASTER",
-					tostring(count - 1)
-						.. " other account(s) online. Everything you change here is applied to them live."
-				)
-			else
-				setText(
-					"masterStatus",
-					ui.masterStatus,
-					"Not the master right now",
-					"Master is " .. masterName() .. ". These controls unlock if this account becomes master again."
-				)
+				statusContent = tostring(count - 1) .. " other account(s) online.\n" .. statusContent
 			end
-			setText("masterRoster", ui.masterRoster, "Accounts online", describeRoster(true))
+			setText("masterStatus", ui.masterStatus, statusTitle, statusContent)
 		end
 		if ui.handover then
 			local names, signature = {}, ""
@@ -24418,39 +24429,39 @@ activeStates.BGSI_Lite_FleetInit = function()
 			Content = "Accounts on this PC find each other automatically.",
 		})
 		scriptStateAFW:AddToggle("FleetFollowMaster", {
-			Title = "Follow master's settings",
-			Description = "Apply the master account's settings to this account the moment they change.",
+			Title = "Follow Leader's settings",
+			Description = "Apply the Leader account's settings to this account the moment they change.",
 			Default = Config.fleetFollowMaster == true,
 			Callback = function(enabled)
 				Config.fleetFollowMaster = enabled == true
 				saveConfig()
 				if enabled then
 					lastSeenRevText = nil
-					fleet.appliedRev = 0 -- pull the master's current settings right now
+					fleet.appliedRev = 0 -- pull the Leader's current settings right now
 				end
 				writeHeartbeat()
 				updateUi()
 			end,
 		})
 		scriptStateAFW:AddButton({
-			Title = "Make this account master",
-			Description = "Pin the master role to this account.",
+			Title = "Make this account Leader",
+			Description = "Pin the Leader role to this account.",
 			Callback = function()
 				pinMaster(myId)
-				notify("This account will become master within a second.")
+				notify("This account will become Leader within a second.")
 			end,
 		})
 		scriptStateAFW:AddButton({
-			Title = "Pick master automatically",
-			Description = "Clear the pin: the account running the longest is master.",
+			Title = "Pick Leader automatically",
+			Description = "Clear the pin: the account running the longest becomes Leader.",
 			Callback = function()
 				clearPin()
-				notify("Master is picked automatically again.")
+				notify("Leader is picked automatically again.")
 			end,
 		})
 	end)
 
-	-- The Master tab only exists once this account has actually been master.
+	-- The Leader tab only exists once this account has actually been Leader.
 	local function buildMasterTab()
 		if fleet.tabBuilt then
 			return
@@ -24458,19 +24469,18 @@ activeStates.BGSI_Lite_FleetInit = function()
 		fleet.tabBuilt = true
 		local ok, err = pcall(function()
 			scriptStateOG:AddSection("Fleet")
-			local tab = scriptStateOG:AddTab({ Title = "Master", Icon = "crown" })
+			local tab = scriptStateOG:AddTab({ Title = "Leader", Icon = "crown" })
 			fleet.masterTab = tab
 			local controls = fleet.masterControls
 
-			fleet.ui.masterStatus = tab:AddText({ Title = "You are the MASTER", Content = "" })
-			fleet.ui.masterRoster = tab:AddText({ Title = "Accounts online", Content = "" })
+			fleet.ui.masterStatus = tab:AddText({ Title = "Accounts online", Content = "" })
 
-			tab:AddSection("Settings sync")
+			tab:AddSection("Settings")
 			table.insert(
 				controls,
 				tab:AddToggle("FleetAutoPush", {
-					Title = "Live sync to all accounts",
-					Description = "Every setting you change on this account is applied to the others instantly.",
+					Title = "Live sync",
+					Description = "Apply changes to the other accounts automatically.",
 					Default = Config.fleetAutoPush == true,
 					Callback = function(enabled)
 						if fleet.role ~= "master" then
@@ -24485,8 +24495,8 @@ activeStates.BGSI_Lite_FleetInit = function()
 				})
 			)
 			local pushButton = tab:AddButton({
-				Title = "Send all settings now",
-				Description = "Overwrite every other account's settings with the ones on this account.",
+				Title = "Sync now",
+				Description = "Send this account's settings to the others.",
 				Callback = function()
 					if fleet.role ~= "master" then
 						return
@@ -24499,16 +24509,12 @@ activeStates.BGSI_Lite_FleetInit = function()
 				end,
 			})
 			table.insert(controls, pushButton)
-			tab:AddText({
-				Title = "What is shared",
-				Content = "Every automation setting. Kept per account: Safe Mode, Account Role, dashboard and webhook links, and the fleet switches.",
-			})
 
-			tab:AddSection("Master role")
+			tab:AddSection("Handover")
 			local dropdownOk, handoverDropdown = pcall(function()
 				return tab:AddDropdown("FleetHandover", {
-					Title = "Hand over master to",
-					Description = "Pick another online account.",
+					Title = "Account",
+					Description = "Choose who becomes Leader.",
 					Values = { NO_OTHER_ACCOUNT },
 					Default = NO_OTHER_ACCOUNT,
 					Multi = false,
@@ -24524,8 +24530,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 			table.insert(
 				controls,
 				tab:AddButton({
-					Title = "Hand over master",
-					Description = "The selected account becomes master and this one turns into an alt.",
+					Title = "Hand over",
 					Callback = function()
 						if fleet.role ~= "master" then
 							return
@@ -24533,7 +24538,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 						for _, entry in ipairs(fleet.roster) do
 							if entry.name == fleet.handoverName and entry.id ~= myId then
 								pinMaster(entry.id)
-								notify(entry.name .. " is taking over as master.")
+								notify(entry.name .. " is taking over as Leader.")
 								return
 							end
 						end
@@ -24541,21 +24546,10 @@ activeStates.BGSI_Lite_FleetInit = function()
 					end,
 				})
 			)
-			table.insert(
-				controls,
-				tab:AddButton({
-					Title = "Pick master automatically",
-					Description = "Clear the pin: the account running the longest is master.",
-					Callback = function()
-						clearPin()
-						notify("Master is picked automatically again.")
-					end,
-				})
-			)
 		end)
 		if not ok then
 			-- Stay "built": retrying would stack a second half-built tab in the sidebar.
-			warn("[LarpLite Fleet] The Master tab only partly built: " .. tostring(err))
+			warn("[LarpLite Fleet] The Leader tab only partly built: " .. tostring(err))
 		end
 	end
 
@@ -24569,16 +24563,16 @@ activeStates.BGSI_Lite_FleetInit = function()
 			if Config.fleetAutoPush == true then
 				pushSettings(true)
 			end
-			notify("This account is now the MASTER. The Master tab is in the sidebar.", 6)
+			notify("This account is now the Leader. The Leader tab is in the sidebar.", 6)
 		else
 			setMasterTint(false)
 			setMasterControlsLocked(true)
 			if oldRole == "master" then
-				notify("This account is no longer the master.", 5)
+				notify("This account is no longer the Leader.", 5)
 			end
 			if newRole == "alt" then
 				lastSeenRevText = nil
-				fleet.appliedRev = 0 -- adopt the new master's settings
+				fleet.appliedRev = 0 -- adopt the new Leader's settings
 			end
 		end
 		print("[" .. LocalPlayer.Name .. "] Fleet role: " .. tostring(newRole))
