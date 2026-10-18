@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.04"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.05"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.05",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Account fleet with a master account",
+				description = "Accounts running the script on one PC now find each other. The longest-running one becomes MASTER, turns dark blue, gets a Master tab, and pushes every setting to the other accounts the moment it changes.",
+				icon = "crown",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.04",
 		releasedAt = "October 18, 2026",
@@ -2110,6 +2121,8 @@ local defaultConfig = {
 	dashboardIngestToken = "",
 	dashboardBestHatchName = "",
 	dashboardBestHatchChance = 0,
+	fleetFollowMaster = true,
+	fleetAutoPush = true,
 	autoCollectCarnivalCoins = false,
 	autoCarnivalChest = false,
 	autoBuyShops = false,
@@ -23643,6 +23656,1016 @@ activeStates.BGSI_Lite_ForceReloadScript = function()
 	task.defer(compiledScript)
 	return "queued"
 end
+
+-- ============================================================================
+-- Account Fleet
+--
+-- Every copy of the script running on this PC (one per Roblox account) drops a small
+-- heartbeat file into the executor workspace and reads everyone else's, so the accounts
+-- find each other without any server. From that roster one account is picked as MASTER:
+--   * automatically, the one that has been running the longest, or
+--   * manually, the one a player pinned with "Make this account master".
+-- The master gets a dark-blue window and a "Master" tab. Any setting changed on the
+-- master is written to a shared settings file the moment it is saved, and every other
+-- account picks it up within a fraction of a second and applies it live.
+--
+-- Everything lives inside one function so it adds no top-level locals to the script.
+-- ============================================================================
+activeStates.BGSI_Lite_FleetInit = function()
+	if type(writefile) ~= "function" or type(readfile) ~= "function" or type(isfile) ~= "function" then
+		warn("[LarpLite Fleet] This executor has no file access - fleet sync is disabled.")
+		return
+	end
+
+	local PREFIX = "LarpLiteFleet_"
+	local myId = tostring(LocalPlayer.UserId)
+	local myFile = PREFIX .. "acct_" .. myId .. ".json"
+	local settingsFile = PREFIX .. "settings.json"
+	local revFile = PREFIX .. "rev.txt"
+	local pinFile = PREFIX .. "pin.json"
+	local registryFile = PREFIX .. "registry.json"
+	local ALIVE_SECONDS = 20 -- a heartbeat older than this means the account is gone (a server hop takes a while)
+	local PULL_INTERVAL = 0.1 -- how often an alt checks for a new settings revision
+	local ROSTER_INTERVAL = 0.5
+	local HEARTBEAT_INTERVAL = 1
+
+	local fleet = {
+		role = "solo", -- "solo" (nobody else around), "master" or "alt"
+		masterId = nil,
+		roster = {},
+		rev = 0, -- last revision this account published as master
+		appliedRev = 0, -- last revision this account applied (or published)
+		dirty = false,
+		applying = false,
+		lastSignature = nil,
+		lastApplyAt = nil,
+		lastApplyCount = 0,
+		tabBuilt = false,
+		ui = {},
+		masterControls = {},
+		handoverName = nil,
+		stopped = false,
+	}
+	activeStates.BGSI_Lite_Fleet = fleet
+
+	-- Settings that must stay per-account: the safe-mode snapshot, each account's own
+	-- gameplay role, dashboard/webhook endpoints and anything that looks like a secret or
+	-- an id. Fleet switches themselves are also local to each account.
+	local excludedKeys = {
+		safeMode = true,
+		safeModeSavedConfig = true,
+		accountRole = true,
+		lastSeenScriptVersion = true,
+		LiveWebhookMessageIds = true,
+		dashboardSyncEnabled = true,
+		dashboardSyncAutoEnabled = true,
+		dashboardEndpoint = true,
+		dashboardIngestToken = true,
+		dashboardBestHatchName = true,
+		dashboardBestHatchChance = true,
+		fleetFollowMaster = true,
+		fleetAutoPush = true,
+	}
+	local function isSyncKey(key)
+		if type(key) ~= "string" or excludedKeys[key] then
+			return false
+		end
+		local lowered = string.lower(key)
+		if
+			string.find(lowered, "url", 1, true)
+			or string.find(lowered, "endpoint", 1, true)
+			or string.find(lowered, "token", 1, true)
+			or string.find(lowered, "userid", 1, true)
+			or string.find(lowered, "messageids", 1, true)
+		then
+			return false
+		end
+		local valueType = type(defaultConfig[key])
+		return valueType == "boolean" or valueType == "number" or valueType == "string" or valueType == "table"
+	end
+
+	-- ------------------------------------------------------------------ files --
+	local function fileExists(path)
+		local ok, exists = pcall(isfile, path)
+		return ok and exists == true
+	end
+	local function readJson(path)
+		if not fileExists(path) then
+			return nil
+		end
+		local ok, data = pcall(function()
+			return HttpService:JSONDecode(readfile(path))
+		end)
+		if ok and type(data) == "table" then
+			return data
+		end
+		return nil -- missing, or caught mid-write by another account: try again next tick
+	end
+	local function writeJson(path, value)
+		return pcall(function()
+			writefile(path, HttpService:JSONEncode(value))
+		end)
+	end
+
+	-- A reload (auto-update) must not send a long-running master to the back of the
+	-- queue, so a recent heartbeat from this same account keeps its original start time.
+	local startedAt = tick()
+	do
+		local previous = readJson(myFile)
+		if previous and tonumber(previous.startedAt) and tick() - (tonumber(previous.lastSeen) or 0) <= 60 then
+			startedAt = tonumber(previous.startedAt)
+		end
+	end
+
+	local function writeHeartbeat()
+		writeJson(myFile, {
+			id = myId,
+			name = LocalPlayer.Name,
+			startedAt = startedAt,
+			lastSeen = tick(),
+			version = tostring(activeStates.BGSI_Lite_ScriptVersion or "?"),
+			appliedRev = fleet.appliedRev,
+			follow = Config.fleetFollowMaster == true,
+			role = fleet.role,
+		})
+	end
+
+	-- ----------------------------------------------------------------- roster --
+	local function listAccountIds()
+		local ids, seen = {}, {}
+		local function add(id)
+			id = tostring(id)
+			if id:match("^%d+$") and not seen[id] then
+				seen[id] = true
+				table.insert(ids, id)
+			end
+		end
+		add(myId)
+		if type(listfiles) == "function" then
+			for _, root in ipairs({ "", "." }) do
+				local ok, files = pcall(listfiles, root)
+				if ok and type(files) == "table" then
+					for _, path in ipairs(files) do
+						local id = tostring(path):match(PREFIX .. "acct_(%d+)%.json$")
+						if id then
+							add(id)
+						end
+					end
+					if #files > 0 then
+						break
+					end
+				end
+			end
+		end
+		-- Executors without listfiles fall back to a shared list of every id ever seen.
+		local registry = readJson(registryFile)
+		for _, id in ipairs(registry and registry.ids or {}) do
+			add(id)
+		end
+		return ids
+	end
+	local function ensureRegistered()
+		local registry = readJson(registryFile) or { ids = {} }
+		if type(registry.ids) ~= "table" then
+			registry.ids = {}
+		end
+		for _, id in ipairs(registry.ids) do
+			if tostring(id) == myId then
+				return
+			end
+		end
+		table.insert(registry.ids, myId)
+		writeJson(registryFile, registry)
+	end
+
+	local function readRoster()
+		local now = tick()
+		local list = {}
+		for _, id in ipairs(listAccountIds()) do
+			local record
+			if id == myId then
+				record = {
+					name = LocalPlayer.Name,
+					startedAt = startedAt,
+					lastSeen = now,
+					version = activeStates.BGSI_Lite_ScriptVersion,
+					appliedRev = fleet.appliedRev,
+					follow = Config.fleetFollowMaster == true,
+				}
+			else
+				record = readJson(PREFIX .. "acct_" .. id .. ".json")
+			end
+			if record and now - (tonumber(record.lastSeen) or 0) <= ALIVE_SECONDS then
+				table.insert(list, {
+					id = id,
+					name = tostring(record.name or id),
+					startedAt = tonumber(record.startedAt) or now,
+					version = tostring(record.version or "?"),
+					appliedRev = tonumber(record.appliedRev) or 0,
+					follow = record.follow ~= false,
+				})
+			end
+		end
+		table.sort(list, function(a, b)
+			if a.startedAt ~= b.startedAt then
+				return a.startedAt < b.startedAt
+			end
+			return (tonumber(a.id) or 0) < (tonumber(b.id) or 0)
+		end)
+		return list
+	end
+
+	-- Every account runs this same function over the same files, so they all agree on the
+	-- answer without talking to each other. A pin wins while that account is online;
+	-- otherwise the longest-running account is master. A lone account is never master.
+	local function electMaster(list)
+		if #list < 2 then
+			return nil
+		end
+		local pin = readJson(pinFile)
+		if pin and pin.id ~= nil then
+			for _, entry in ipairs(list) do
+				if entry.id == tostring(pin.id) then
+					return entry.id
+				end
+			end
+		end
+		return list[1].id
+	end
+
+	-- --------------------------------------------------------------- settings --
+	-- While Safe Mode has everything switched off, the settings worth sharing are the
+	-- ones it saved, not the all-off values currently in Config.
+	local function getSourceConfig()
+		local source = {}
+		for key in pairs(defaultConfig) do
+			if isSyncKey(key) then
+				source[key] = Config[key]
+			end
+		end
+		if Config.safeMode == true and type(Config.safeModeSavedConfig) == "table" then
+			for key, value in pairs(Config.safeModeSavedConfig) do
+				if isSyncKey(key) and type(value) == type(defaultConfig[key]) then
+					source[key] = value
+				end
+			end
+		end
+		return source
+	end
+
+	-- Deterministic text form of the settings, used only to skip pushes that wouldn't
+	-- change anything (table iteration order is not stable, JSONEncode would not be).
+	local function stableEncode(value)
+		if type(value) == "table" then
+			local keys = {}
+			for key in pairs(value) do
+				table.insert(keys, key)
+			end
+			table.sort(keys, function(a, b)
+				return tostring(a) < tostring(b)
+			end)
+			local parts = {}
+			for _, key in ipairs(keys) do
+				table.insert(parts, tostring(key) .. ":" .. stableEncode(value[key]))
+			end
+			return "{" .. table.concat(parts, ",") .. "}"
+		end
+		return string.sub(type(value), 1, 1) .. tostring(value)
+	end
+
+	local updateUi -- assigned below
+
+	local function pushSettings(force)
+		if fleet.role ~= "master" then
+			return false
+		end
+		local source = getSourceConfig()
+		local signature = stableEncode(source)
+		if not force and signature == fleet.lastSignature then
+			return false
+		end
+		local rev = math.max(fleet.rev + 1, math.floor(tick() * 1000))
+		-- Settings first, revision second: an alt only reads the settings after it has
+		-- seen a new revision, so it never reads a half-published set.
+		local wroteSettings = writeJson(settingsFile, {
+			rev = rev,
+			from = myId,
+			fromName = LocalPlayer.Name,
+			at = tick(),
+			config = source,
+		})
+		if not wroteSettings then
+			return false
+		end
+		pcall(writefile, revFile, tostring(rev) .. ":" .. myId)
+		fleet.lastSignature = signature
+		fleet.rev = rev
+		fleet.appliedRev = rev
+		fleet.pushedAt = tick()
+		writeHeartbeat()
+		return true
+	end
+
+	-- Same follow-up work the Account Dashboard's "apply config" command does, so a
+	-- setting pushed from the master behaves exactly like one applied from the dashboard.
+	local function applyRemoteConfig(remoteConfig)
+		local applied = 0
+		fleet.applying = true
+		local ok, err = pcall(function()
+			for key, value in pairs(remoteConfig) do
+				if isSyncKey(key) and type(value) == type(defaultConfig[key]) then
+					if Config.safeMode == true and type(Config.safeModeSavedConfig) == "table" then
+						Config.safeModeSavedConfig[key] = value
+					else
+						Config[key] = value
+					end
+					applied += 1
+				end
+			end
+			saveConfig()
+			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
+			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
+			clearDisabledPriorityStates()
+			_G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
+			pcall(function()
+				RunService:Set3dRenderingEnabled(Config.safeMode == true or not Config.disableRendering)
+			end)
+			activeStates.BGSI_Lite_ApplyPerformanceSettings()
+			pcall(installChunkerRenderDistanceHook)
+			pcall(refreshChunkerAroundPlayer)
+		end)
+		fleet.applying = false
+		return ok, applied, err
+	end
+
+	local lastSeenRevText
+	local function pullFromMaster()
+		if fleet.role ~= "alt" or Config.fleetFollowMaster ~= true or not fileExists(revFile) then
+			return
+		end
+		local readOk, text = pcall(readfile, revFile)
+		if not readOk or type(text) ~= "string" or text == lastSeenRevText then
+			return
+		end
+		local revText, fromId = text:match("^(%d+):(%d+)$")
+		-- Only the current master is listened to; a stale revision left by a previous
+		-- master is ignored (and not marked as seen, in case that account takes over).
+		if not revText or fromId ~= fleet.masterId then
+			return
+		end
+		local rev = tonumber(revText)
+		if rev == fleet.appliedRev then
+			lastSeenRevText = text
+			return
+		end
+		local payload = readJson(settingsFile)
+		if
+			not payload
+			or tonumber(payload.rev) ~= rev
+			or tostring(payload.from) ~= fromId
+			or type(payload.config) ~= "table"
+		then
+			return -- caught mid-write; the next poll picks it up
+		end
+		lastSeenRevText = text
+		local ok, applied, err = applyRemoteConfig(payload.config)
+		if ok then
+			fleet.appliedRev = rev
+			fleet.lastApplyAt = tick()
+			fleet.lastApplyCount = applied
+			writeHeartbeat() -- tells the master this account is up to date, right away
+			print(
+				"["
+					.. LocalPlayer.Name
+					.. "] Fleet: applied "
+					.. tostring(applied)
+					.. " setting(s) from master "
+					.. tostring(payload.fromName or fromId)
+			)
+			updateUi()
+		else
+			warn("[LarpLite Fleet] Could not apply master settings: " .. tostring(err))
+		end
+	end
+
+	-- Hook saveConfig: every setting change in the UI ends in a saveConfig() call, so on
+	-- the master that is the exact moment to publish. The push itself runs on the next
+	-- frame so several changes in one frame go out as a single revision.
+	local originalSaveConfig = saveConfig
+	saveConfig = function(...)
+		originalSaveConfig(...)
+		if fleet.role == "master" and Config.fleetAutoPush == true and not fleet.applying then
+			fleet.dirty = true
+		end
+	end
+
+	-- ------------------------------------------------------------- dark blue --
+	local tint = {
+		root = nil,
+		active = false,
+		records = {},
+		rootConnections = {},
+	}
+	local function mapBackground(color)
+		local _, saturation, value = color:ToHSV()
+		if saturation > 0.45 or value > 0.55 then
+			return nil -- already a vivid/accent or light colour: leave it alone
+		end
+		return Color3.fromHSV(0.615, 0.80, math.clamp(0.13 + value * 1.1, 0.13, 0.6))
+	end
+	local function mapStroke(color)
+		local _, saturation, value = color:ToHSV()
+		if saturation > 0.45 or value > 0.85 then
+			return nil
+		end
+		return Color3.fromHSV(0.61, 0.65, math.clamp(0.25 + value * 0.9, 0.25, 0.85))
+	end
+
+	local function retint(instance, property, mapper)
+		local record = tint.records[instance]
+		local current = instance[property]
+		if record and record.applied == current then
+			return
+		end
+		local mapped = mapper(current)
+		if not mapped then
+			return
+		end
+		record = record or {}
+		record.property = property
+		record.original = current
+		record.applied = mapped
+		tint.records[instance] = record
+		instance[property] = mapped
+	end
+	local function watch(instance)
+		local record = tint.records[instance]
+		local property, mapper
+		if instance:IsA("GuiObject") then
+			property, mapper = "BackgroundColor3", mapBackground
+		elseif instance:IsA("UIStroke") then
+			property, mapper = "Color", mapStroke
+		else
+			return
+		end
+		if record and record.connection then
+			return
+		end
+		record = record or {}
+		tint.records[instance] = record
+		record.property = record.property or property
+		-- The UI library animates colours (hover, selection). Every step passes through
+		-- the same mapping, so animations stay smooth and stay blue.
+		record.connection = instance:GetPropertyChangedSignal(property):Connect(function()
+			if tint.active then
+				pcall(retint, instance, property, mapper)
+			end
+		end)
+		if instance:IsA("GuiObject") and instance.BackgroundTransparency >= 0.98 then
+			return
+		end
+		pcall(retint, instance, property, mapper)
+	end
+
+	local function findWindowRoot()
+		if tint.root and tint.root.Parent then
+			return tint.root
+		end
+		local containers = {}
+		pcall(function()
+			if type(gethui) == "function" then
+				table.insert(containers, gethui())
+			end
+		end)
+		table.insert(containers, CoreGui)
+		pcall(function()
+			table.insert(containers, LocalPlayer:FindFirstChildOfClass("PlayerGui"))
+		end)
+		for _, container in ipairs(containers) do
+			local okChildren, children = pcall(function()
+				return container:GetChildren()
+			end)
+			if okChildren then
+				for _, gui in ipairs(children) do
+					if gui:IsA("ScreenGui") and gui.Name ~= "OpenUI" then
+						for _, descendant in ipairs(gui:GetDescendants()) do
+							if
+								descendant:IsA("TextLabel")
+								and type(descendant.Text) == "string"
+								and string.find(descendant.Text, "LarpLite", 1, true)
+							then
+								tint.root = gui
+								return gui
+							end
+						end
+					end
+				end
+			end
+		end
+		return nil
+	end
+
+	local function restoreTint()
+		for instance, record in pairs(tint.records) do
+			if record.connection then
+				record.connection:Disconnect()
+			end
+			if record.original ~= nil then
+				pcall(function()
+					instance[record.property] = record.original
+				end)
+			end
+		end
+		tint.records = {}
+		for _, connection in ipairs(tint.rootConnections) do
+			connection:Disconnect()
+		end
+		tint.rootConnections = {}
+	end
+
+	local function setMasterTint(on)
+		if on == tint.active then
+			return
+		end
+		tint.active = on
+		if not on then
+			restoreTint()
+			return
+		end
+		task.spawn(function()
+			local root
+			for _ = 1, 10 do
+				root = findWindowRoot()
+				if root or not tint.active then
+					break
+				end
+				task.wait(0.5)
+			end
+			if not tint.active then
+				return
+			end
+			if not root then
+				tint.active = false
+				warn("[LarpLite Fleet] Could not find the window to tint dark blue.")
+				return
+			end
+			table.insert(
+				tint.rootConnections,
+				root.DescendantAdded:Connect(function(descendant)
+					task.defer(function()
+						if tint.active and descendant.Parent then
+							pcall(watch, descendant)
+						end
+					end)
+				end)
+			)
+			table.insert(
+				tint.rootConnections,
+				root.DescendantRemoving:Connect(function(descendant)
+					local record = tint.records[descendant]
+					if record then
+						if record.connection then
+							record.connection:Disconnect()
+						end
+						tint.records[descendant] = nil
+					end
+				end)
+			)
+			local scanned = 0
+			for _, descendant in ipairs(root:GetDescendants()) do
+				if not tint.active then
+					return
+				end
+				pcall(watch, descendant)
+				scanned += 1
+				if scanned % 250 == 0 then
+					task.wait() -- spread the first pass over a few frames
+				end
+			end
+		end)
+	end
+
+	-- --------------------------------------------------------------------- ui --
+	local function setControlLocked(control, locked, reason)
+		local ok = pcall(function()
+			if locked then
+				control:Lock(reason)
+			else
+				control:Unlock()
+			end
+		end)
+		if not ok then
+			pcall(function()
+				if locked then
+					control.Native:Lock(reason)
+				else
+					control.Native:Unlock()
+				end
+			end)
+		end
+	end
+	local function setMasterControlsLocked(locked)
+		for _, control in ipairs(fleet.masterControls) do
+			setControlLocked(control, locked, "This account is not the master")
+		end
+	end
+
+	local function shortVersion(version)
+		return tostring(version):gsub("^20", "")
+	end
+	local function describeRoster(withSyncState)
+		local lines = {}
+		for _, entry in ipairs(fleet.roster) do
+			local isMaster = entry.id == fleet.masterId
+			local line = (isMaster and "★ " or "• ")
+				.. entry.name
+				.. (entry.id == myId and " (you)" or "")
+				.. "  ·  "
+				.. (isMaster and "MASTER" or "alt")
+				.. "  ·  v"
+				.. shortVersion(entry.version)
+			if withSyncState and not isMaster then
+				if entry.follow == false then
+					line = line .. "  ·  not following"
+				elseif fleet.rev > 0 and entry.appliedRev >= fleet.rev then
+					line = line .. "  ·  synced"
+				else
+					line = line .. "  ·  syncing…"
+				end
+			end
+			table.insert(lines, line)
+		end
+		if #lines == 0 then
+			return "No accounts detected."
+		end
+		return table.concat(lines, "\n")
+	end
+	local function masterName()
+		for _, entry in ipairs(fleet.roster) do
+			if entry.id == fleet.masterId then
+				return entry.name
+			end
+		end
+		return "none"
+	end
+
+	local lastShown = {}
+	local function setText(key, element, title, content)
+		local signature = tostring(title) .. "\0" .. tostring(content)
+		if lastShown[key] == signature then
+			return
+		end
+		lastShown[key] = signature
+		pcall(function()
+			element:SetTitle(title)
+		end)
+		pcall(function()
+			element:Set(content)
+		end)
+	end
+
+	local NO_OTHER_ACCOUNT = "No other account online"
+	local lastHandoverSignature
+	updateUi = function()
+		local count = #fleet.roster
+		local ui = fleet.ui
+		if ui.otherStatus then
+			local title, content
+			if fleet.role == "master" then
+				title = "This account is the MASTER"
+				content = describeRoster(false)
+					.. "\n\nChanges you make on this account are sent to the other "
+					.. tostring(count - 1)
+					.. " account(s) automatically."
+			elseif fleet.role == "alt" then
+				title = "Following master: " .. masterName()
+				content = describeRoster(false)
+				if fleet.lastApplyAt then
+					content = content
+						.. "\n\nLast sync "
+						.. tostring(math.floor(tick() - fleet.lastApplyAt))
+						.. "s ago ("
+						.. tostring(fleet.lastApplyCount)
+						.. " settings)."
+				end
+				if Config.fleetFollowMaster ~= true then
+					content = content .. "\n\nFollowing is OFF - this account keeps its own settings."
+				end
+			else
+				title = "No other accounts detected"
+				content = "Open the script on another account on this PC and it will show up here."
+			end
+			setText("otherStatus", ui.otherStatus, title, content)
+		end
+		if ui.masterStatus then
+			if fleet.role == "master" then
+				setText(
+					"masterStatus",
+					ui.masterStatus,
+					"You are the MASTER",
+					tostring(count - 1)
+						.. " other account(s) online. Everything you change here is applied to them live."
+				)
+			else
+				setText(
+					"masterStatus",
+					ui.masterStatus,
+					"Not the master right now",
+					"Master is " .. masterName() .. ". These controls unlock if this account becomes master again."
+				)
+			end
+			setText("masterRoster", ui.masterRoster, "Accounts online", describeRoster(true))
+		end
+		if ui.handover then
+			local names, signature = {}, ""
+			for _, entry in ipairs(fleet.roster) do
+				if entry.id ~= myId then
+					table.insert(names, entry.name)
+					signature = signature .. entry.name .. "|"
+				end
+			end
+			if signature ~= lastHandoverSignature then
+				lastHandoverSignature = signature
+				pcall(function()
+					ui.handover:Refresh(#names > 0 and names or { NO_OTHER_ACCOUNT })
+				end)
+			end
+		end
+	end
+
+	local function pinMaster(accountId)
+		writeJson(pinFile, { id = tostring(accountId), by = myId, at = tick() })
+	end
+	local function clearPin()
+		if type(delfile) == "function" and fileExists(pinFile) then
+			pcall(delfile, pinFile)
+		else
+			writeJson(pinFile, {})
+		end
+	end
+	local function notify(content, duration)
+		pcall(function()
+			Interface:Notify({ Title = "Account Fleet", Content = content, Duration = duration or 4 })
+		end)
+	end
+
+	-- Always-present controls (every account, on the Other tab).
+	pcall(function()
+		scriptStateAFW:AddSection("Account Fleet")
+		fleet.ui.otherStatus = scriptStateAFW:AddText({
+			Title = "Looking for other accounts…",
+			Content = "Accounts on this PC find each other automatically.",
+		})
+		scriptStateAFW:AddToggle("FleetFollowMaster", {
+			Title = "Follow master's settings",
+			Description = "Apply the master account's settings to this account the moment they change.",
+			Default = Config.fleetFollowMaster == true,
+			Callback = function(enabled)
+				Config.fleetFollowMaster = enabled == true
+				saveConfig()
+				if enabled then
+					lastSeenRevText = nil
+					fleet.appliedRev = 0 -- pull the master's current settings right now
+				end
+				writeHeartbeat()
+				updateUi()
+			end,
+		})
+		scriptStateAFW:AddButton({
+			Title = "Make this account master",
+			Description = "Pin the master role to this account.",
+			Callback = function()
+				pinMaster(myId)
+				notify("This account will become master within a second.")
+			end,
+		})
+		scriptStateAFW:AddButton({
+			Title = "Pick master automatically",
+			Description = "Clear the pin: the account running the longest is master.",
+			Callback = function()
+				clearPin()
+				notify("Master is picked automatically again.")
+			end,
+		})
+	end)
+
+	-- The Master tab only exists once this account has actually been master.
+	local function buildMasterTab()
+		if fleet.tabBuilt then
+			return
+		end
+		fleet.tabBuilt = true
+		local ok, err = pcall(function()
+			scriptStateOG:AddSection("Fleet")
+			local tab = scriptStateOG:AddTab({ Title = "Master", Icon = "crown" })
+			fleet.masterTab = tab
+			local controls = fleet.masterControls
+
+			fleet.ui.masterStatus = tab:AddText({ Title = "You are the MASTER", Content = "" })
+			fleet.ui.masterRoster = tab:AddText({ Title = "Accounts online", Content = "" })
+
+			tab:AddSection("Settings sync")
+			table.insert(
+				controls,
+				tab:AddToggle("FleetAutoPush", {
+					Title = "Live sync to all accounts",
+					Description = "Every setting you change on this account is applied to the others instantly.",
+					Default = Config.fleetAutoPush == true,
+					Callback = function(enabled)
+						if fleet.role ~= "master" then
+							return
+						end
+						Config.fleetAutoPush = enabled == true
+						saveConfig()
+						if enabled then
+							pushSettings(true)
+						end
+					end,
+				})
+			)
+			local pushButton = tab:AddButton({
+				Title = "Send all settings now",
+				Description = "Overwrite every other account's settings with the ones on this account.",
+				Callback = function()
+					if fleet.role ~= "master" then
+						return
+					end
+					if pushSettings(true) then
+						notify("Settings sent to " .. tostring(#fleet.roster - 1) .. " account(s).", 3)
+					else
+						notify("Could not write the shared settings file.", 4)
+					end
+				end,
+			})
+			table.insert(controls, pushButton)
+			tab:AddText({
+				Title = "What is shared",
+				Content = "Every automation setting. Kept per account: Safe Mode, Account Role, dashboard and webhook links, and the fleet switches.",
+			})
+
+			tab:AddSection("Master role")
+			local dropdownOk, handoverDropdown = pcall(function()
+				return tab:AddDropdown("FleetHandover", {
+					Title = "Hand over master to",
+					Description = "Pick another online account.",
+					Values = { NO_OTHER_ACCOUNT },
+					Default = NO_OTHER_ACCOUNT,
+					Multi = false,
+					Callback = function(name)
+						fleet.handoverName = type(name) == "table" and name[1] or name
+					end,
+				})
+			end)
+			if dropdownOk and handoverDropdown then
+				fleet.ui.handover = handoverDropdown
+				table.insert(controls, handoverDropdown)
+			end
+			table.insert(
+				controls,
+				tab:AddButton({
+					Title = "Hand over master",
+					Description = "The selected account becomes master and this one turns into an alt.",
+					Callback = function()
+						if fleet.role ~= "master" then
+							return
+						end
+						for _, entry in ipairs(fleet.roster) do
+							if entry.name == fleet.handoverName and entry.id ~= myId then
+								pinMaster(entry.id)
+								notify(entry.name .. " is taking over as master.")
+								return
+							end
+						end
+						notify("Pick an online account first.")
+					end,
+				})
+			)
+			table.insert(
+				controls,
+				tab:AddButton({
+					Title = "Pick master automatically",
+					Description = "Clear the pin: the account running the longest is master.",
+					Callback = function()
+						clearPin()
+						notify("Master is picked automatically again.")
+					end,
+				})
+			)
+		end)
+		if not ok then
+			-- Stay "built": retrying would stack a second half-built tab in the sidebar.
+			warn("[LarpLite Fleet] The Master tab only partly built: " .. tostring(err))
+		end
+	end
+
+	-- ------------------------------------------------------------------ roles --
+	local function onRoleChanged(oldRole, newRole)
+		if newRole == "master" then
+			buildMasterTab()
+			setMasterControlsLocked(false)
+			setMasterTint(true)
+			fleet.lastSignature = nil
+			if Config.fleetAutoPush == true then
+				pushSettings(true)
+			end
+			notify("This account is now the MASTER. The Master tab is in the sidebar.", 6)
+		else
+			setMasterTint(false)
+			setMasterControlsLocked(true)
+			if oldRole == "master" then
+				notify("This account is no longer the master.", 5)
+			end
+			if newRole == "alt" then
+				lastSeenRevText = nil
+				fleet.appliedRev = 0 -- adopt the new master's settings
+			end
+		end
+		print("[" .. LocalPlayer.Name .. "] Fleet role: " .. tostring(newRole))
+	end
+
+	local function refreshFleet()
+		local roster = readRoster()
+		fleet.roster = roster
+		local masterId = electMaster(roster)
+		fleet.masterId = masterId
+		local newRole
+		if masterId == nil then
+			newRole = "solo"
+		elseif masterId == myId then
+			newRole = "master"
+		else
+			newRole = "alt"
+		end
+		if newRole ~= fleet.role then
+			local oldRole = fleet.role
+			fleet.role = newRole
+			writeHeartbeat()
+			onRoleChanged(oldRole, newRole)
+		end
+		updateUi()
+	end
+
+	-- ------------------------------------------------------------------ loops --
+	local connections = {}
+	table.insert(
+		connections,
+		RunService.Heartbeat:Connect(function()
+			if fleet.dirty and isCurrentRun() then
+				fleet.dirty = false
+				pcall(pushSettings, false)
+			end
+		end)
+	)
+
+	local function shutdown()
+		if fleet.stopped then
+			return
+		end
+		fleet.stopped = true
+		for _, connection in ipairs(connections) do
+			connection:Disconnect()
+		end
+		pcall(setMasterTint, false)
+	end
+	if type(getgenv) == "function" then
+		local previousCleanup = getgenv()._1rzHubLiteCleanup
+		getgenv()._1rzHubLiteCleanup = function()
+			pcall(shutdown)
+			if type(previousCleanup) == "function" then
+				previousCleanup()
+			end
+		end
+	end
+
+	writeHeartbeat()
+	pcall(ensureRegistered)
+	task.spawn(function()
+		local lastRoster, lastBeat, lastRegister = 0, tick(), tick()
+		while isCurrentRun() and not fleet.stopped do
+			local now = tick()
+			if now - lastRoster >= ROSTER_INTERVAL then
+				lastRoster = now
+				local ok, err = pcall(refreshFleet)
+				if not ok then
+					warn("[LarpLite Fleet] Roster refresh failed: " .. tostring(err))
+				end
+			end
+			pcall(pullFromMaster)
+			if now - lastBeat >= HEARTBEAT_INTERVAL then
+				lastBeat = now
+				pcall(writeHeartbeat)
+			end
+			if now - lastRegister >= 15 then
+				lastRegister = now
+				pcall(ensureRegistered)
+			end
+			task.wait(PULL_INTERVAL)
+		end
+		shutdown()
+	end)
+end
+pcall(activeStates.BGSI_Lite_FleetInit)
 
 task.spawn(function()
 	task.wait(30)
