@@ -40,10 +40,12 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 -- before creating the window, tabs, or callbacks.
 local hubPlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 WindUI:SetParent(hubPlayerGui)
-for _, name in ipairs({"ScreenGui", "NotificationGui", "DropdownGui", "TooltipGui"}) do
+for index, name in ipairs({"ScreenGui", "NotificationGui", "DropdownGui", "TooltipGui"}) do
     local root = assert(WindUI[name], "[Hub] Missing WindUI root: " .. name)
     assert(root.Parent == hubPlayerGui, "[Hub] WindUI root was not moved to PlayerGui: " .. name)
     root.ResetOnSpawn = false
+    -- WindUI's default order puts its window behind the game's menus.
+    root.DisplayOrder = 1000000 + index
 end
 
 
@@ -4027,25 +4029,6 @@ local EggsTab = Window:Tab({ Title = "Eggs", Icon = "egg" })
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
--- Input simulation is optional and may be unavailable in this thread.
--- Resolve it only when needed so it cannot abort the entire Eggs tab.
-local VirtualInputManager
-local inputUnavailable = false
-local function sendEggKeyEvent(isPressed, keyCode)
-    if inputUnavailable then return false end
-    local ok, err = pcall(function()
-        if not VirtualInputManager then
-            VirtualInputManager = game:GetService("VirtualInputManager")
-        end
-        VirtualInputManager:SendKeyEvent(isPressed, keyCode, false, game)
-    end)
-    if not ok then
-        inputUnavailable = true
-        VirtualInputManager = nil
-        warn("[Eggs] Auto Spam E unavailable: " .. tostring(err))
-    end
-    return ok
-end
 
 local player = Players.LocalPlayer
 
@@ -4354,32 +4337,34 @@ local function getTimeUntilReset()
     return "Unknown"
 end
 
-local function toggleAutoHatchR()
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if playerGui then
-        local screenGui = playerGui:FindFirstChild("ScreenGui")
-        if screenGui then
-            local hud = screenGui:FindFirstChild("HUD")
-            if hud then
-                local lootPool = hud:FindFirstChild("LootPoolViewer")
-                if lootPool then
-                    local keybinds = lootPool:FindFirstChild("Keybinds")
-                    if keybinds then
-                        local key2 = keybinds:FindFirstChild("2")
-                        if key2 then
-                            local btn = key2:FindFirstChild("Button")
-                            if btn then
-                                firesignal(btn.Activated)
-                            end
-                        end
-                    end
-                end
+-- Repeat the same hatch request used by Auto Hatch without simulating input.
+local function startSpamE()
+    if spamEThread then return end
+    spamEThread = task.spawn(function()
+        while spamEEnabled do
+            local eggToHatch
+            if getgenv().questActive and getgenv().questEgg then
+                eggToHatch = getgenv().questEgg
+            elseif bountyEnabled then
+                eggToHatch = currentBountyEgg
+            else
+                eggToHatch = selectedEgg
             end
+            if type(eggToHatch) == "string" and eggToHatch ~= "" and eggToHatch ~= "Unknown" then
+                pcall(function() Remote:FireServer("HatchEgg", eggToHatch, HATCH_AMOUNT) end)
+            end
+            task.wait(0.1)
         end
+        spamEThread = nil
+    end)
+end
+
+local function stopSpamE()
+    spamEEnabled = false
+    if spamEThread then
+        task.cancel(spamEThread)
+        spamEThread = nil
     end
-    if not sendEggKeyEvent(true, Enum.KeyCode.R) then return false end
-    task.wait(0.1)
-    return sendEggKeyEvent(false, Enum.KeyCode.R)
 end
 
 -- ======================================
@@ -4777,55 +4762,14 @@ EggsTab:Toggle({
 
 EggsTab:Toggle({
     Title = "Auto Spam E",
-    Desc = "Spams E key and hatches continuously",
+    Desc = "Repeatedly hatches the selected, bounty, or quest egg without simulating keypresses",
     Value = spamEEnabled,
     Callback = function(v)
-        if v then inputUnavailable = false end
         spamEEnabled = v
         eggSettings.autoSpamE = v
         getgenv().HubSettings.eggs = eggSettings
         saveHubSettings()
-        if v then
-            spamEThread = task.spawn(function()
-                local lastAutoHatchR = 0
-                while spamEEnabled do
-                    if not sendEggKeyEvent(true, Enum.KeyCode.E) then
-                        spamEEnabled = false
-                        break
-                    end
-                    task.wait(0.05)
-                    if not sendEggKeyEvent(false, Enum.KeyCode.E) then
-                        spamEEnabled = false
-                        break
-                    end
-                    
-                    local eggToHatch = nil
-                    if getgenv().questActive and getgenv().questEgg then
-                        eggToHatch = getgenv().questEgg
-                    elseif bountyEnabled then
-                        eggToHatch = currentBountyEgg
-                    else
-                        eggToHatch = selectedEgg
-                    end
-                    
-                    if eggToHatch then
-                        pcall(function() Remote:FireServer("HatchEgg", eggToHatch, HATCH_AMOUNT) end)
-                    end
-                    
-                    if tick() - lastAutoHatchR >= 60 then
-                        lastAutoHatchR = tick()
-                        if toggleAutoHatchR() == false then
-                            spamEEnabled = false
-                            break
-                        end
-                    end
-                    
-                    task.wait(0.05)
-                end
-            end)
-        else
-            if spamEThread then task.cancel(spamEThread) end
-        end
+        if v then startSpamE() else stopSpamE() end
     end,
 })
 
@@ -5319,45 +5263,7 @@ task.spawn(function()
         end)
     end
     
-    if spamEEnabled then
-        spamEThread = task.spawn(function()
-            local lastAutoHatchR = 0
-            while spamEEnabled do
-                if not sendEggKeyEvent(true, Enum.KeyCode.E) then
-                    spamEEnabled = false
-                    break
-                end
-                task.wait(0.05)
-                if not sendEggKeyEvent(false, Enum.KeyCode.E) then
-                    spamEEnabled = false
-                    break
-                end
-                
-                local eggToHatch = nil
-                if getgenv().questActive and getgenv().questEgg then
-                    eggToHatch = getgenv().questEgg
-                elseif bountyEnabled then
-                    eggToHatch = currentBountyEgg
-                else
-                    eggToHatch = selectedEgg
-                end
-                
-                if eggToHatch then
-                    pcall(function() Remote:FireServer("HatchEgg", eggToHatch, HATCH_AMOUNT) end)
-                end
-                
-                if tick() - lastAutoHatchR >= 60 then
-                    lastAutoHatchR = tick()
-                    if toggleAutoHatchR() == false then
-                        spamEEnabled = false
-                        break
-                    end
-                end
-                
-                task.wait(0.05)
-            end
-        end)
-    end
+    if spamEEnabled then startSpamE() end
     
     if hideAnimEnabled then
         getgenv().animationHidden = true
