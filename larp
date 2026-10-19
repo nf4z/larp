@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.09"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.11"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,28 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.11",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Cleaner hatch simulation",
+				description = "Removed the simulation status field; send results now appear as brief notifications.",
+				icon = "egg",
+			},
+		},
+	},
+	{
+		version = "2026.10.18.10",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Candycorn hatch icon",
+				description = "Fixed the Candycorn emoji in hatch messages, including simulated hatches.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.09",
 		releasedAt = "October 18, 2026",
@@ -22771,11 +22793,11 @@ local function buildSimulatedHatchPayload(pet, info)
 			.. runShrineDonation(math.floor(baseOneIn + 0.5)) .. "**",
 	}
 	local statEmojis = {
-		Bubbles = "<:purple_circle:1363755750828019774>",
-		Gems = "<:gem:1363755998401269854>",
-		Coins = "\240\159\170\153",
-		CarnivalCoins = "<:circus_tent:1520159699230785707>",
-		CandyCorn26 = ":CandyCorn26:",
+		bubbles = "<:purple_circle:1363755750828019774>",
+		gems = "<:gem:1363755998401269854>",
+		coins = "\240\159\170\153",
+		carnivalcoins = "<:circus_tent:1520159699230785707>",
+		candycorn26 = "<:CandyCorn26:1561526287476985887>",
 	}
 	local stats = type(info.Stats) == "table" and info.Stats or {}
 	local statNames = {}
@@ -22786,8 +22808,10 @@ local function buildSimulatedHatchPayload(pet, info)
 	end
 	table.sort(statNames)
 	for _, statName in ipairs(statNames) do
-		local emoji = statEmojis[statName] or scriptStateDX[statName] or ""
-		table.insert(petLines, emoji .. " " .. statName .. ": **"
+		local normalizedStatName = statName:lower():gsub("[^%w]", "")
+		local emoji = statEmojis[normalizedStatName] or scriptStateDX[statName] or ""
+		local displayStatName = normalizedStatName == "candycorn26" and "Candycorn" or statName
+		table.insert(petLines, emoji .. " " .. displayStatName .. ": **"
 			.. activeStates.BGSI_Lite_GetWebhookPetStatValue(stats[statName] * statMultiplier) .. "**")
 	end
 	table.insert(petLines, "")
@@ -22860,26 +22884,21 @@ do
 			simulatedPetName = value
 		end,
 	})
-	local simulationStatus = scriptStateKM:AddParagraph({
-		Title = "Simulation Status",
-		Content = "Enter a pet name, then send to your Hatch Webhook URL. Supports Shiny, Mythic, XL, and Super prefixes.",
-	})
 	scriptStateKM:AddButton({
 		Title = "Send Hatch Message",
 		Callback = function()
 			if simulationSending then return end
 			local urls = getShrineLevelValue(Config.webhookURL)
 			if #urls == 0 then
-				simulationStatus:SetDesc("Set your Webhook URL first.")
+				Interface:Notify({Title = "Hatch Simulation", Content = "Set your Webhook URL first.", Duration = 5})
 				return
 			end
 			local pet, info = makeSimulatedHatchPet(simulatedPetName)
 			if not pet then
-				simulationStatus:SetDesc(info)
+				Interface:Notify({Title = "Hatch Simulation", Content = info, Duration = 5})
 				return
 			end
 			simulationSending = true
-			simulationStatus:SetDesc("Fetching pet data and sending hatch message...")
 			task.spawn(function()
 				local ok, result = pcall(function()
 					local payload = buildSimulatedHatchPayload(pet, info)
@@ -22892,7 +22911,11 @@ do
 					return "Sent hatch message for " .. pet.Name .. "."
 				end)
 				simulationSending = false
-				simulationStatus:SetDesc(ok and result or "Could not build or send the hatch message. Try again.")
+				Interface:Notify({
+					Title = "Hatch Simulation",
+					Content = ok and result or "Could not build or send the hatch message. Try again.",
+					Duration = 5,
+				})
 				if not ok then warn("[Webhook] Hatch simulation failed: " .. tostring(result)) end
 			end)
 		end,
@@ -23488,11 +23511,11 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 						.. "**"
 				)
 				local webhookStatEmojis = {
-					Bubbles = "<:purple_circle:1363755750828019774>",
-					Gems = "<:gem:1363755998401269854>",
-					Coins = "\240\159\170\153",
-					CarnivalCoins = "<:circus_tent:1520159699230785707>",
-					CandyCorn26 = ":CandyCorn26:",
+					bubbles = "<:purple_circle:1363755750828019774>",
+					gems = "<:gem:1363755998401269854>",
+					coins = "\240\159\170\153",
+					carnivalcoins = "<:circus_tent:1520159699230785707>",
+					candycorn26 = "<:CandyCorn26:1561526287476985887>",
 				}
 				local webhookStatNames = {}
 				for statName, statValue in pairs(webhookStats) do
@@ -23502,11 +23525,13 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				end
 				table.sort(webhookStatNames)
 				for _, statName in ipairs(webhookStatNames) do
-					local statEmoji = webhookStatEmojis[statName] or scriptStateDX[statName] or ""
+					local normalizedStatName = statName:lower():gsub("[^%w]", "")
+					local statEmoji = webhookStatEmojis[normalizedStatName] or scriptStateDX[statName] or ""
 					local statValue = activeStates.BGSI_Lite_GetWebhookPetStatValue(
 						webhookStats[statName] * scriptStateAFP
 					)
-					table.insert(scriptStateAEO, statEmoji .. " " .. statName .. ": **" .. statValue .. "**")
+					local displayStatName = normalizedStatName == "candycorn26" and "Candycorn" or statName
+					table.insert(scriptStateAEO, statEmoji .. " " .. displayStatName .. ": **" .. statValue .. "**")
 				end
 				table.insert(scriptStateAEO, "")
 				table.insert(
