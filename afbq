@@ -1346,7 +1346,11 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isS
 		local enchantList = getSuperLegendaryWebhookEnchantList(source)
 		for enchantSlot = 1, #enchantList do
 			local enchantName = enchantList[enchantSlot]
-			local displayName = getWebhookEnchantDisplayName(enchantName)
+			local enchantId = type(enchantName) == "table" and enchantName.Id or enchantName
+			local enchantInfo = type(enchantData) == "table" and enchantData[enchantId]
+			local displayName = superEnchantNames[enchantId]
+				or (type(enchantInfo) == "table" and enchantInfo.DisplayName)
+				or getWebhookEnchantDisplayName(enchantName)
 			if displayName and not seenEnchantNames[displayName] then
 				seenEnchantNames[displayName] = true
 				table.insert(enchantNames, displayName)
@@ -1376,16 +1380,8 @@ local function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isS
 	if #enchantNames == 0 then
 		return nil, enchantNames
 	end
-	local enchantLines = {
-		"<:orange_book:1462135985759326370> **Enchantments**:",
-	}
-	for enchantIndex = 1, #enchantNames do
-		table.insert(
-			enchantLines,
-			"\t > **<:four_leaf_clover:1462133363182796810> " .. enchantNames[enchantIndex] .. "**"
-		)
-	end
-	return table.concat(enchantLines, "\n"), enchantNames
+	return "<:enchantments:1462135985759326370> Enchants: **"
+		.. table.concat(enchantNames, ", ") .. "**", enchantNames
 end
 
 local function getShrineAmountValue(scriptStateYW)
@@ -1425,7 +1421,7 @@ local scriptStateDX = {
 	CircusTickets = "\240\159\142\159\239\184\143",
 	GameTickets = "\240\159\142\171",
 	Tickets = "\240\159\142\171",
-	Pearls = "\226\154\170",
+	Pearls = "<:Pearl:1561761464866308219>",
 	Clovers = "\240\159\141\128",
 }
 
@@ -2205,6 +2201,7 @@ local function build(pet, options)
                 local webhookStatEmojis = {
                     bubbles = "<:purple_circle:1363755750828019774>",
                     gems = "<:gem:1363755998401269854>",
+                    pearls = "<:Pearl:1561761464866308219>",
                     coins = "🪙",
                     carnivalcoins = "<:circus_tent:1520159699230785707>",
                     candycorn26 = "<:CandyCorn26:1561526287476985887>",
