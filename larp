@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.19"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.20"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -104,12 +104,21 @@ do
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
 	{
+		version = "2026.10.19.20",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Rewards and eggs", description = "Fixed playtime claims, egg auto-delete, and Infinite Track checks.", icon = "egg" },
+			{ title = "Quests and shrines", description = "Ticket and Pearl quests are enabled; shrines donate when the blessing timer has room.", icon = "sparkles" },
+			{ title = "Rebirth and events", description = "Restored Rebirth controls, Halloween rebirth and chest claims, and Present Rain pickup.", icon = "repeat" },
+		},
+	},
+	{
 		version = "2026.10.19.19",
 		releasedAt = "October 19, 2026",
 		notes = {
 			{
-				title = "updated webhook message",
-				description = "embed changes",
+				title = "Compact hatch enchants",
+				description = "Super Legendary enchants now appear on one clean line in hatch messages.",
 				icon = "egg",
 			},
 		},
@@ -2179,6 +2188,7 @@ local defaultConfig = {
 	safeMode = false,
 	safeModeSavedConfig = {},
 	autoCollectPresentRain = false,
+	autoHalloweenChest = false,
 	autoFallRebirth = false,
 	autoFallLeaves = false,
 	autoFallUpgrades = false,
@@ -2305,7 +2315,7 @@ local defaultConfig = {
 	autoClaimChallengePassRewards = false,
 	autoResetChallengePass = false,
 	autoDailyHourlyChallenge = false,
-	skipTicketPearlQuests = true,
+	skipTicketPearlQuests = false,
 	skipBubblingQuests = false,
 	questStallTimeoutSeconds = 60,
 	autoShadowLeviathanQuest = false,
@@ -2339,11 +2349,11 @@ local defaultConfig = {
 	MaximumRejectedEventAttempts = 3,
 	AutoStartInfiniteTrack = true,
 	DreamerShrineEnabled = false,
-	DreamerShrineAmount = 1,
+	DreamerShrineAmount = 15,
 	shrineAuto = false,
 	shrineLevel = 1,
 	shrinePotion = "Lucky",
-	shrineAmount = 10,
+	shrineAmount = 500,
 	webhookEnabled = false,
 	webhookURL = "",
 	webhookMinimumChance = "",
@@ -2387,6 +2397,7 @@ local defaultConfig = {
 	SkyAltarEnabled = false,
 	AdminRebirthMachineEnabled = false,
 	AutoCarnivalRebirth = false,
+	autoHalloweenRebirth = false,
 
 	disableRendering = false,
 	setfps = 60,
@@ -2472,6 +2483,10 @@ function loadConfig()
 			end
 		end
 	end
+	-- Move the former default donations to the new full-capacity amounts while
+	-- leaving explicitly chosen non-default amounts alone.
+	if defaultConfig.DreamerShrineAmount == 1 then defaultConfig.DreamerShrineAmount = 15 end
+	if defaultConfig.shrineAmount == 10 then defaultConfig.shrineAmount = 500 end
 	return defaultConfig
 end
 -- Saves the current config when a setting changes.
@@ -4180,6 +4195,9 @@ do
 			task.defer(evaluateInfiniteTransition)
 		end
 		lastAutoStartInfiniteTrack = autoStartInfiniteEnabled
+		if autoStartInfiniteEnabled then
+			evaluateInfiniteTransition()
+		end
 		if
 			eventPurchaseState.Pending
 			and now - eventPurchaseState.Pending.SentAt >= PURCHASE_RESPONSE_TIMEOUT
@@ -4492,7 +4510,7 @@ activeStates.BGSI_Lite_ApplyLowRarityEggAutoDelete = function()
 				(rarity == "Common" or rarity == "Rare" or rarity == "Epic")
 				and (type(playerData.AutoDelete) ~= "table" or playerData.AutoDelete[petName] == nil)
 			then
-				pcall(remoteEvent.FireServer, remoteEvent, "ToggleAutoDelete", petName)
+				pcall(remoteEvent.FireServer, remoteEvent, "SetAutoDelete", petName, true)
 				changed = true
 				task.wait(0.08)
 			end
@@ -5533,6 +5551,12 @@ function getBountyCurrencyName(scriptStateADE)
 	if scriptStateAAW.Type == "Currency" and type(scriptStateN) == "string" then
 		return string.lower(scriptStateN)
 	end
+	-- Quest templates differ across Season, Guild, Genie, and event systems.
+	-- A nil first field stops ipairs over the optional fields below, so inspect
+	-- the shared recursive task text before falling back to generic collection.
+	local taskText = activeStates.BGSI_Lite_GetBountyTaskSearchText(scriptStateADE)
+	if taskText:find("ticket", 1, true) then return "tickets" end
+	if taskText:find("pearl", 1, true) then return "pearls" end
 	for _, scriptStateAAA in ipairs({
 		scriptStateADE.Type,
 		scriptStateADE.Name,
@@ -7820,6 +7844,85 @@ local scriptStateGB = scriptStateOG:AddTab({
 	Title = "Rebirth",
 	Icon = "repeat",
 })
+scriptStateGB:AddSection("Rebirth Machine")
+scriptStateGB:AddInput("RebirthMachinePetName", {
+	Title = "Pet Name",
+	Description = "Use five unlocked copies of this exact pet and variant per fusion.",
+	Default = Config.RebirthPetName,
+	Placeholder = "Man Face Lord",
+	Callback = function(value)
+		Config.RebirthPetName = tostring(value or ""):match("^%s*(.-)%s*$")
+		saveConfig()
+	end,
+})
+scriptStateGB:AddDropdown("RebirthMachineVariant", {
+	Title = "Variant",
+	Values = {"Normal", "Shiny", "Mythic", "Shiny Mythic"},
+	Default = type(Config.RebirthVariants) == "table" and Config.RebirthVariants[1] or "Normal",
+	Multi = false,
+	Callback = function(value)
+		Config.RebirthVariants = {value}
+		saveConfig()
+	end,
+})
+scriptStateGB:AddToggle("AutoRebirthMachine", {
+	Title = "Auto Rebirth Machine",
+	Default = Config.RebirthMachineEnabled,
+	Callback = function(value)
+		Config.RebirthMachineEnabled = value == true
+		saveConfig()
+	end,
+})
+scriptStateGB:AddSection("Halloween Rebirth")
+scriptStateGB:AddToggle("AutoHalloweenRebirth", {
+	Title = "Auto Halloween Rebirth",
+	Description = "Rebirths when Candycorn covers the game's next rebirth cost.",
+	Default = Config.autoHalloweenRebirth,
+	Callback = function(value)
+		Config.autoHalloweenRebirth = value == true
+		saveConfig()
+	end,
+})
+task.spawn(function()
+	local halloweenRebirthUtil
+	pcall(function()
+		halloweenRebirthUtil = require(ReplicatedStorage.Shared.Utils.HalloweenRebirthUtil)
+	end)
+	while isCurrentRun() do
+		task.wait(2.5)
+		if Config.safeMode ~= true and profileStore:IsReady() then
+			local playerData = profileStore:Get()
+			if type(playerData) ~= "table" then continue end
+			if Config.RebirthMachineEnabled == true and type(playerData.Pets) == "table" then
+				local targetName = tostring(Config.RebirthPetName or "")
+				local variant = type(Config.RebirthVariants) == "table" and Config.RebirthVariants[1] or "Normal"
+				local shiny = variant == "Shiny" or variant == "Shiny Mythic"
+				local mythic = variant == "Mythic" or variant == "Shiny Mythic"
+				local ids = {}
+				for _, pet in pairs(playerData.Pets) do
+					if type(pet) == "table" and pet.Name == targetName and not pet.Locked
+						and pet.Shiny == shiny and pet.Mythic == mythic and pet.XL ~= true
+						and pet.Super ~= true and pet.Id ~= nil then
+						table.insert(ids, tostring(pet.Id))
+						if #ids == 5 then break end
+					end
+				end
+				if #ids == 5 then
+					pcall(remoteFunction.InvokeServer, remoteFunction, "UseRebirthMachine", "RebirthMachine", ids)
+				end
+			end
+			if Config.autoHalloweenRebirth == true and type(halloweenRebirthUtil) == "table"
+				and type(halloweenRebirthUtil.GetRebirthCost) == "function"
+				and playerData.Halloween26AutoRebirthEnabled ~= true then
+				local ok, cost = pcall(halloweenRebirthUtil.GetRebirthCost,
+					halloweenRebirthUtil, (tonumber(playerData.Halloween26Rebirths) or 0) + 1)
+				if ok and tonumber(cost) and (tonumber(playerData.Candycorn26) or 0) >= cost then
+					pcall(remoteEvent.FireServer, remoteEvent, "HalloweenRebirth")
+				end
+			end
+		end
+	end
+end)
 
 scriptStateOG:AddSection("Integrations")
 local scriptStateKM = scriptStateOG:AddTab({
@@ -10875,41 +10978,61 @@ do
 			saveConfig()
 		end,
 	})
-end
-local scriptStateZK = {}
-function findPresentRainCollectables(scriptStateAFM)
-	if not Config.autoCollectPresentRain then
-		return
-	end
-	if not scriptStateAFM or typeof(scriptStateAFM) ~= "Instance" or not scriptStateAFM:IsA("Folder") then
-		return
-	end
-	local scriptStateQ = scriptStateAFM.Name
-	if type(scriptStateQ) ~= "string" or scriptStateQ == "" or scriptStateZK[scriptStateQ] then
-		return
-	end
-	scriptStateZK[scriptStateQ] = true
-	pcall(function()
-		remoteEvent:FireServer("CollectPresentRain", scriptStateQ)
-	end)
+	scriptStateCZ:AddSection("Halloween Chest")
+	scriptStateCZ:AddToggle("AutoHalloweenChest", {
+		Title = "Auto Claim Halloween Chest",
+		Description = "Claims the chest when its cooldown expires.",
+		Default = Config.autoHalloweenChest,
+		Callback = function(enabled)
+			Config.autoHalloweenChest = enabled == true
+			saveConfig()
+		end,
+	})
 end
 task.spawn(function()
-	local scriptStateAES = Workspace:WaitForChild("Markers", 600)
-	if not scriptStateAES then
-		return
+	while isCurrentRun() do
+		if Config.autoHalloweenChest and Config.safeMode ~= true then
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				local cooldowns = type(playerData) == "table" and playerData.Cooldowns
+				local nextClaim = type(cooldowns) == "table" and tonumber(cooldowns["Halloween Chest"])
+				if nextClaim and getCurrentTimestamp() >= nextClaim then
+					remoteEvent:FireServer("ClaimChest", "Halloween Chest")
+				end
+			end)
+		end
+		task.wait(5)
 	end
-	local scriptStateZE = scriptStateAES:WaitForChild("PresentRain", 600)
-	if not scriptStateZE then
-		return
+end)
+task.spawn(function()
+	local markers = Workspace:WaitForChild("Markers", 600)
+	local presentMarkers = markers and markers:WaitForChild("PresentRain", 600)
+	if not presentMarkers then return end
+	local lastAttempt = {}
+	while isCurrentRun() do
+		if Config.autoCollectPresentRain and Config.safeMode ~= true then
+			for _, marker in ipairs(presentMarkers:GetChildren()) do
+				if not Config.autoCollectPresentRain then break end
+				if tick() - (lastAttempt[marker] or 0) >= 1.5 then
+					local target = marker:GetAttribute("Target")
+					local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					if typeof(target) == "CFrame" and root then
+						lastAttempt[marker] = tick()
+						local previous = root.CFrame
+						root.CFrame = target * CFrame.new(0, 2, 0)
+						task.wait(0.15)
+						pcall(remoteEvent.FireServer, remoteEvent, "CollectPresentRain", marker.Name)
+						task.wait(0.15)
+						if root.Parent then root.CFrame = previous end
+					end
+				end
+			end
+		end
+		for marker in pairs(lastAttempt) do
+			if marker.Parent ~= presentMarkers then lastAttempt[marker] = nil end
+		end
+		task.wait(0.5)
 	end
-	for loopSlotL, scriptStateACL in ipairs(scriptStateZE:GetChildren()) do
-		findPresentRainCollectables(scriptStateACL)
-	end
-	scriptStateZE.ChildAdded:Connect(function(scriptStateDH)
-		task.defer(function()
-			findPresentRainCollectables(scriptStateDH)
-		end)
-	end)
 end)
 function getSelectedChestName()
 	local loopSlotBX, scriptStateBS = pcall(function()
@@ -14349,12 +14472,29 @@ do
 	xpcall(activeStates.BGSI_Lite_InstallBoxCondenser, function(installError)
 		warn("[1rzHub Lite] Box Condenser failed to load: " .. tostring(installError))
 	end)
+	local playtimeRewardsData
+	pcall(function()
+		playtimeRewardsData = require(ReplicatedStorage.Shared.Data.Playtime)
+	end)
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoPlaytime and 5 or 0.85)
 			if Config.autoPlaytime then
 				pcall(function()
-					remoteEvent:FireServer("ClaimAllPlaytime")
+					local playerData = profileStore:IsReady() and profileStore:Get() or nil
+					local rewards = type(playerData) == "table" and playerData.PlaytimeRewards
+					local gifts = type(playtimeRewardsData) == "table" and playtimeRewardsData.Gifts
+					if type(rewards) ~= "table" or type(gifts) ~= "table" then return end
+					local elapsed = getCurrentTimestamp() - (tonumber(rewards.Start) or math.huge)
+					for rewardIndex, gift in pairs(gifts) do
+						if type(rewardIndex) == "number" and type(gift) == "table"
+							and elapsed >= (tonumber(gift.Time) or math.huge)
+							and (type(rewards.Claimed) ~= "table" or rewards.Claimed[tostring(rewardIndex)] == nil)
+						then
+							remoteFunction:InvokeServer("ClaimPlaytime", rewardIndex)
+							break
+						end
+					end
 				end)
 			end
 		end
@@ -14643,6 +14783,7 @@ do
 			"autoGuessThatPet",
 			"autoCarnivalChest",
 			"autoCollectPresentRain",
+			"autoHalloweenChest",
 
 			-- Chests and potions
 			"selectedWorldChest",
@@ -14756,6 +14897,7 @@ do
 			"RebirthVariants",
 			"RebirthMachineEnabled",
 			"AdminRebirthMachineEnabled",
+			"autoHalloweenRebirth",
 			"disableRendering",
 			"renderDistance",
 			"chunkerRenderDistance",
@@ -20589,6 +20731,31 @@ activeStates.BGSI_Lite_InstallServerTab = function()
 			end)
 		end)
 	end)
+	pcall(function()
+		local promptGui = CoreGui:WaitForChild("RobloxPromptGui", 10)
+		local overlay = promptGui and promptGui:WaitForChild("promptOverlay", 10)
+		if overlay then
+			overlay.ChildAdded:Connect(function(prompt)
+				if Config.serverAutoRejoin ~= true or not isCurrentRun() then return end
+				task.delay(2, function()
+					if prompt.Parent and prompt.Name == "ErrorPrompt" and not rejoinQueued then
+						rejoinQueued = true
+						rejoinServer()
+						task.delay(15, function() rejoinQueued = false end)
+					end
+				end)
+			end)
+		end
+	end)
+	TeleportService.TeleportInitFailed:Connect(function(player)
+		if player == LocalPlayer and Config.serverAutoRejoin == true and isCurrentRun() and not rejoinQueued then
+			rejoinQueued = true
+			task.delay(5, function()
+				rejoinQueued = false
+				rejoinServer()
+			end)
+		end
+	end)
 
 	Players.PlayerAdded:Connect(function(player)
 		if not isCurrentRun() then
@@ -21430,16 +21597,13 @@ task.spawn(function()
 		end
 		local blessingRemaining =
 			math.max(0, (tonumber(dreamerShrine.ShrineBlessingEndTime) or 0) - currentTimestamp)
-		local configuredAmount = math.clamp(math.floor(tonumber(Config.DreamerShrineAmount) or 1), 1, 15)
+		local configuredAmount = math.clamp(math.floor(tonumber(Config.DreamerShrineAmount) or 15), 1, 15)
 		local ownedShards = type(activeStates.BGSI_Lite_GetInventoryItemAmount) == "function"
 				and activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
 			or 0
-		local minimumDurationOk, minimumDuration =
-			pcall(dreamerShrineUtil.GetBlessingDurationFromAmount, dreamerShrineUtil, 1)
 		if
 			ownedShards < configuredAmount
-			and minimumDurationOk
-			and blessingRemaining + (tonumber(minimumDuration) or 0) <= 86400
+			and blessingRemaining < 86400
 			and tick() >= (tonumber(activeStates.BGSI_Lite_NextDreamShardRestockAt) or 0)
 			and type(activeStates.BGSI_Lite_SmartShopRestock) == "function"
 		then
@@ -21453,18 +21617,7 @@ task.spawn(function()
 			playerData = profileStore:IsReady() and profileStore:Get() or playerData
 			ownedShards = activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
 		end
-		local donationAmount = 0
-		for amount = math.min(configuredAmount, ownedShards), 1, -1 do
-			local durationOk, blessingDuration =
-				pcall(dreamerShrineUtil.GetBlessingDurationFromAmount, dreamerShrineUtil, amount)
-			if
-				durationOk
-				and blessingRemaining + math.max(0, tonumber(blessingDuration) or 0) <= 86400
-			then
-				donationAmount = amount
-				break
-			end
-		end
+		local donationAmount = blessingRemaining < 86400 and math.min(configuredAmount, ownedShards) or 0
 		if donationAmount > 0 then
 			local donationOk, donationAccepted =
 				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToDreamerShrine", donationAmount)
@@ -21485,9 +21638,22 @@ task.spawn(function()
 	end
 end)
 task.spawn(function()
+	local bubbleShrineUtil
+	pcall(function()
+		bubbleShrineUtil = require(ReplicatedStorage.Shared.Utils.ShrineUtil)
+	end)
 	while isCurrentRun() do
 		if Config.shrineAuto then
 			local playerData = profileStore:IsReady() and profileStore:Get() or nil
+			local shrineState = type(playerData) == "table" and playerData.BubbleShrine
+			local now = getCurrentTimestamp()
+			local donationInterval = type(bubbleShrineUtil) == "table"
+				and tonumber(bubbleShrineUtil.DONATION_INTERVAL) or 3600
+			local blessingRemaining = type(shrineState) == "table"
+				and math.max(0, (tonumber(shrineState.ShrineBlessingEndTime) or 0) - now) or 86400
+			if type(shrineState) == "table"
+				and now >= (tonumber(shrineState.LastDonationTime) or 0) + donationInterval
+				and blessingRemaining < 86400 then
 			local potionItem = {
 				Level = Config.shrineLevel,
 				Type = "Potion",
@@ -21514,10 +21680,11 @@ task.spawn(function()
 			end
 			potionItem.Amount = math.min(
 				ownedAmount,
-				math.max(0, math.floor(tonumber(Config.shrineAmount) or 0))
+				math.max(0, math.floor(tonumber(Config.shrineAmount) or 500))
 			)
 			if potionItem.Amount > 0 then
 				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToShrine", potionItem)
+			end
 			end
 		end
 		task.wait(5)
