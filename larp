@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.24"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.25"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.25",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Fishing automation", description = "Added island progression, auto fishing, fish index rewards, rod upgrades, and inventory controls.", icon = "fish" },
+			{ title = "Rebirth Machine flow", description = "Machine automation now avoids activation popups when possible and closes them when opened.", icon = "refresh" },
+		},
+	},
 	{
 		version = "2026.10.19.24",
 		releasedAt = "October 19, 2026",
@@ -2429,6 +2437,13 @@ local defaultConfig = {
 		"Normal",
 	},
 	RebirthMachineEnabled = false,
+	fishingAuto = false,
+	fishingAutoProgress = true,
+	fishingInstantReel = false,
+	fishingAutoClaimIndex = true,
+	fishingIndexSweep = false,
+	fishingAutoEquipBestRod = true,
+	fishingAutoSellWhenFull = false,
 	CrystalAltarEnabled = false,
 	SkyAltarEnabled = false,
 	AdminRebirthMachineEnabled = false,
@@ -3774,15 +3789,17 @@ do
 		and type(gameGuiFrame.Changed.Connect) == "function"
 	then
 		activeStates.BGSI_Lite_GamePopupFrameConnection = gameGuiFrame.Changed:Connect(function(frameName)
+			local closeRebirthMachine = frameName == "RebirthMachine" and Config.RebirthMachineEnabled == true
+				or frameName == "AdminRebirthMachine" and Config.AdminRebirthMachineEnabled == true
 			if
-				Config.autoClosePopups == true
+				(Config.autoClosePopups == true or closeRebirthMachine)
 				and type(frameName) == "string"
-				and string.find(string.lower(frameName), "prompt", 1, true)
+				and (closeRebirthMachine or string.find(string.lower(frameName), "prompt", 1, true))
 			then
 				task.defer(function()
 					if
 						isCurrentRun()
-						and Config.autoClosePopups == true
+						and (Config.autoClosePopups == true or closeRebirthMachine)
 						and type(gameGuiFrame.GetCurrentlyOpen) == "function"
 						and gameGuiFrame:GetCurrentlyOpen() == frameName
 					then
@@ -7948,6 +7965,41 @@ task.spawn(function()
 	end)
 	local lastMachineAttempt = 0
 	local lastAdminAttempt = 0
+	local function invokeMachine(actionName, ...)
+		local ok, result = pcall(remoteFunction.InvokeServer, remoteFunction, actionName, ...)
+		return ok and result ~= nil and result ~= false
+	end
+	local function fuseAtMachine(activation, actionName, ...)
+		local arguments = table.pack(...)
+		if invokeMachine(actionName, table.unpack(arguments, 1, arguments.n)) then
+			return true
+		end
+		local root = activation and activation:FindFirstChild("Root")
+		local center = activeStates.BGSI_Lite_GetInstanceTargetCFrame(activation)
+		if not center then return false end
+		local character = LocalPlayer.Character
+		local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+		local original = playerRoot and playerRoot.CFrame
+		local targets = {}
+		if root and root:IsA("BasePart") then
+			local radius = root.Size.Y / 2 + 2
+			local position = root.Position + root.CFrame.RightVector * radius + Vector3.new(0, 2, 0)
+			table.insert(targets, CFrame.lookAt(position, Vector3.new(root.Position.X, position.Y, root.Position.Z)))
+		end
+		table.insert(targets, center * CFrame.new(0, 2, 0))
+		activeStates.BGSI_Lite_RebirthMachineBusy = true
+		local fused = false
+		for _, target in ipairs(targets) do
+			if teleportToCFrame(target) then
+				task.wait(0.3)
+				fused = invokeMachine(actionName, table.unpack(arguments, 1, arguments.n))
+				if fused then break end
+			end
+		end
+		if original then teleportToCFrame(original) end
+		activeStates.BGSI_Lite_RebirthMachineBusy = false
+		return fused
+	end
 	while isCurrentRun() do
 		task.wait(2.5)
 		if Config.safeMode ~= true and profileStore:IsReady() then
@@ -7985,11 +8037,7 @@ task.spawn(function()
 					local island = outerSpace and outerSpace:FindFirstChild("Island")
 					local machineModel = island and island:FindFirstChild("RebirthMachine")
 					local machineActivation = machineModel and machineModel:FindFirstChild("Activation")
-					local targetCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(machineActivation)
-					if targetCFrame and teleportToCFrame(targetCFrame * CFrame.new(0, 2, 0)) then
-						task.wait(0.3)
-						pcall(remoteFunction.InvokeServer, remoteFunction, "UseRebirthMachine", "RebirthMachine", ids)
-					end
+					fuseAtMachine(machineActivation, "UseRebirthMachine", "RebirthMachine", ids)
 				end
 			end
 			if Config.AdminRebirthMachineEnabled == true and type(playerData.Pets) == "table"
@@ -8021,11 +8069,7 @@ task.spawn(function()
 							break
 						end
 					end
-					local targetCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(activation)
-					if targetCFrame and teleportToCFrame(targetCFrame * CFrame.new(0, 2, 0)) then
-						task.wait(0.3)
-						pcall(remoteFunction.InvokeServer, remoteFunction, "UseAdminRebirthMachine", ids)
-					end
+					fuseAtMachine(activation, "UseAdminRebirthMachine", ids)
 				end
 			end
 			if Config.autoHalloweenRebirth == true and type(halloweenRebirthUtil) == "table"
@@ -8040,6 +8084,312 @@ task.spawn(function()
 		end
 	end
 end)
+
+do
+	local fishingTab = scriptStateOG:AddTab({Title = "Fishing", Icon = "fish"})
+	fishingTab:AddSection("Automatic Fishing")
+	local fishingStatus = fishingTab:AddText({Title = "Fishing Status", Content = "Waiting for fishing data..."})
+	local function addFishingToggle(flag, title, description, configKey)
+		return fishingTab:AddToggle(flag, {
+			Title = title,
+			Description = description,
+			Default = Config[configKey],
+			Callback = function(enabled)
+				Config[configKey] = enabled == true
+				saveConfig()
+			end,
+		})
+	end
+	addFishingToggle("AutoFishing", "Auto Fish", "Uses the game's fishing state machine for casts and the reel minigame.", "fishingAuto")
+	addFishingToggle("FishingAutoProgress", "Auto Progress Islands", "Travels to the highest fishing island as soon as its level requirement is met.", "fishingAutoProgress")
+	local instantReelToggle = addFishingToggle("FishingInstantReel", "Try Instant Reel", "Attempts an immediate catch at the bite event; turns itself off after repeated failures.", "fishingInstantReel")
+	fishingTab:AddSection("Fish Index and Inventory")
+	addFishingToggle("FishingAutoClaimIndex", "Auto Claim Fish Index", "Claims completed island rewards and the all-fish reward.", "fishingAutoClaimIndex")
+	addFishingToggle("FishingIndexSweep", "Sweep Earlier Islands", "After unlocking the final island, revisit incomplete islands once the final island index is done.", "fishingIndexSweep")
+	addFishingToggle("FishingAutoEquipBestRod", "Auto Equip Best Rod", "Selects the strongest owned rod using its game-defined attributes.", "fishingAutoEquipBestRod")
+	addFishingToggle("FishingAutoSellWhenFull", "Sell Unlocked Fish When Full", "Uses the game's Sell All Fish action only when inventory is full.", "fishingAutoSellWhenFull")
+	local fishingState = {forceTravel = false, forceClaim = false, areaId = nil, castPosition = nil, lastTravel = 0, lastClaim = 0,
+		lastRod = 0, lastSell = 0, lastInstant = 0, instantFailures = 0, instantPending = false}
+	fishingTab:AddButton({Title = "Travel to Best Island", Callback = function()
+		fishingState.forceTravel = true
+	end})
+	fishingTab:AddButton({Title = "Claim Available Fish Index Rewards", Callback = function()
+		fishingState.forceClaim = true
+	end})
+
+	task.spawn(function()
+		local fishingAreas, fishingAreasUtil, fishingUtil, experienceUtil, fishingRods, autoFishModule, fishingWorldUtil
+		local function loadFishingModules()
+			if fishingAreas and fishingAreasUtil and fishingUtil and experienceUtil and fishingRods
+				and autoFishModule and fishingWorldUtil then return true end
+			local ok = pcall(function()
+				fishingAreas = require(ReplicatedStorage.Shared.Data.FishingAreas)
+				fishingAreasUtil = require(ReplicatedStorage.Shared.Utils.FishingAreasUtil)
+				fishingUtil = require(ReplicatedStorage.Shared.Utils.FishingUtil)
+				experienceUtil = require(ReplicatedStorage.Shared.Utils.ExperienceUtil)
+				fishingRods = require(ReplicatedStorage.Shared.Data.FishingRods)
+				autoFishModule = require(ReplicatedStorage.Client.Gui.Frames.Fishing.FishingWorldAutoFish)
+				fishingWorldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
+			end)
+			return ok and fishingAreas and fishingAreasUtil and fishingUtil and experienceUtil
+				and fishingRods and autoFishModule and fishingWorldUtil
+		end
+		local function getFishingLevel(profile)
+			local ok, level = pcall(experienceUtil.GetLevel, experienceUtil,
+				tonumber(profile.FishingExperience) or 0, fishingUtil.XP_CONFIG)
+			return ok and tonumber(level) or 1
+		end
+		local function isIndexComplete(profile, area)
+			if type(area.Pool) ~= "table" or type(profile.CollectedFish) ~= "table" then return false, 0, 0 end
+			local found, total = 0, 0
+			for _, entry in ipairs(area.Pool) do
+				total += 1
+				if profile.CollectedFish[entry.Item] then found += 1 end
+			end
+			return total > 0 and found >= total, found, total
+		end
+		local function chooseFishingArea(profile)
+			local level = getFishingLevel(profile)
+			local bestId, bestData, bestOrder
+			local highestRequirement = 0
+			for id, area in pairs(fishingAreas) do
+				local required = tonumber(area.RequiredLevel) or 0
+				local order = tonumber(area.DisplayOrder) or 0
+				highestRequirement = math.max(highestRequirement, required)
+				if level >= required and (not bestOrder or order > bestOrder) then
+					bestId, bestData, bestOrder = id, area, order
+				end
+			end
+			if Config.fishingAutoProgress ~= true and fishingState.areaId and fishingAreas[fishingState.areaId]
+				and level >= (tonumber(fishingAreas[fishingState.areaId].RequiredLevel) or 0) then
+				bestId, bestData = fishingState.areaId, fishingAreas[fishingState.areaId]
+			end
+			if Config.fishingIndexSweep == true and level >= highestRequirement and bestData
+				and isIndexComplete(profile, bestData) then
+				local pendingOrder
+				for id, area in pairs(fishingAreas) do
+					local complete = isIndexComplete(profile, area)
+					local order = tonumber(area.DisplayOrder) or 0
+					if not complete and (not pendingOrder or order < pendingOrder) then
+						bestId, bestData, pendingOrder = id, area, order
+					end
+				end
+			end
+			return bestId, bestData, level
+		end
+		local function claimFishingIndex(profile)
+			if tick() - fishingState.lastClaim < 10 and not fishingState.forceClaim then return end
+			fishingState.lastClaim = tick()
+			fishingState.forceClaim = false
+			local claimed = type(profile.ClaimedFishIslandRewards) == "table" and profile.ClaimedFishIslandRewards or {}
+			local allComplete = true
+			for id, area in pairs(fishingAreas) do
+				local complete = isIndexComplete(profile, area)
+				if not complete then allComplete = false end
+				if complete and not table.find(claimed, id) then
+					pcall(remoteEvent.FireServer, remoteEvent, "ClaimFishingIndexRewards", id)
+				end
+			end
+			if allComplete and profile.FishIndexClaimedRewardV1 ~= true then
+				pcall(remoteEvent.FireServer, remoteEvent, "ClaimAllFishingIndexRewards")
+			end
+		end
+		local function equipBestRod(profile)
+			if tick() - fishingState.lastRod < 10 or type(profile.RodInventory) ~= "table" then return end
+			fishingState.lastRod = tick()
+			local bestName, bestScore
+			for name in pairs(profile.RodInventory) do
+				local data = fishingRods.Data and fishingRods.Data[name]
+				local attributes = data and data.Attributes
+				if attributes then
+					local score = (tonumber(attributes.RodPower) or 1) * (tonumber(attributes.CatchSpeed) or 1)
+						* (tonumber(attributes.ReelSpeed) or 1) * (tonumber(attributes.RodLuck) or 1)
+					if not bestScore or score > bestScore then bestName, bestScore = name, score end
+				end
+			end
+			if bestName and bestName ~= profile.EquippedRod then
+				pcall(remoteEvent.FireServer, remoteEvent, "SetEquippedRod", bestName, false)
+			end
+		end
+		local function getIslandAndSpawn(area)
+			local worlds = Workspace:FindFirstChild("Worlds")
+			local seas = worlds and worlds:FindFirstChild("Seven Seas")
+			local islands = seas and seas:FindFirstChild("Areas")
+			local island = islands and islands:FindFirstChild(area.DisplayName)
+			local teleport = island and island:FindFirstChild("IslandTeleport")
+			return island, teleport and teleport:FindFirstChild("Spawn")
+		end
+		local function moveToCastSpot(areaId, island, spawn)
+			local activeAreas = fishingAreasUtil:GetActiveAreas()
+			local candidates = {}
+			for _, entry in pairs(activeAreas) do
+				local instance = entry.Instance
+				local root = instance and instance:FindFirstChild("Root")
+				if entry.Id == areaId and root and root:IsA("BasePart") and instance:IsDescendantOf(island) then
+					table.insert(candidates, root)
+				end
+			end
+			table.sort(candidates, function(a, b)
+				return (a.Position - spawn.Position).Magnitude < (b.Position - spawn.Position).Magnitude
+			end)
+			local character = LocalPlayer.Character
+			local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+			if not playerRoot then return false end
+			for _, water in ipairs(candidates) do
+				local localSpawn = water.CFrame:PointToObjectSpace(spawn.Position)
+				local halfX = math.max(0, water.Size.X / 2 - 1)
+				local halfZ = math.max(0, water.Size.Z / 2 - 1)
+				local edge = water.CFrame:PointToWorldSpace(Vector3.new(
+					math.clamp(localSpawn.X, -halfX, halfX),
+					water.Size.Y / 2,
+					math.clamp(localSpawn.Z, -halfZ, halfZ)))
+				local toward = Vector3.new(water.Position.X - spawn.Position.X, 0, water.Position.Z - spawn.Position.Z)
+				if toward.Magnitude < 1 then toward = Vector3.new(edge.X - spawn.Position.X, 0, edge.Z - spawn.Position.Z) end
+				if toward.Magnitude < 1 then continue end
+				toward = toward.Unit
+				local stand = edge - toward * 11
+				local groundParams = RaycastParams.new()
+				groundParams.FilterType = Enum.RaycastFilterType.Exclude
+				groundParams.FilterDescendantsInstances = {water, character}
+				local ground = Workspace:Raycast(stand + Vector3.new(0, 30, 0), Vector3.new(0, -80, 0), groundParams)
+				if ground then stand = Vector3.new(stand.X, ground.Position.Y + 3, stand.Z)
+				else stand = spawn.Position + Vector3.new(0, 3, 0) end
+				local castParams = RaycastParams.new()
+				castParams.FilterType = Enum.RaycastFilterType.Include
+				castParams.FilterDescendantsInstances = {water}
+				local valid = false
+				for distance = fishingUtil.MIN_CAST_DISTANCE, fishingUtil.MAX_CAST_DISTANCE, 2 do
+					local hit = Workspace:Raycast(stand + toward * distance + Vector3.new(0, 2, 0),
+						Vector3.new(0, -50, 0), castParams)
+					if hit then valid = true break end
+				end
+				if valid then
+					if teleportToCFrame(CFrame.lookAt(stand, stand + toward)) then return stand end
+				end
+			end
+			return nil
+		end
+		local function travelToArea(id, area)
+			local island, spawn = getIslandAndSpawn(area)
+			if not island or not spawn then return false, "Island is not loaded" end
+			if tick() - fishingState.lastTravel < 4 then return false, "Traveling" end
+			fishingState.lastTravel = tick()
+			if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+			pcall(remoteEvent.FireServer, remoteEvent, "UnequipRod")
+			pcall(remoteEvent.FireServer, remoteEvent, "Teleport", spawn:GetFullName())
+			task.wait(0.9)
+			local worldOk, currentWorld = pcall(fishingWorldUtil.GetPlayerWorld, fishingWorldUtil, LocalPlayer)
+			if not worldOk or currentWorld ~= fishingUtil.WORLD_NAME then
+				return false, "Waiting for Seven Seas travel"
+			end
+			local castPosition = moveToCastSpot(id, island, spawn)
+			local ready = castPosition ~= nil
+			if ready then
+				fishingState.areaId = id
+				fishingState.castPosition = castPosition
+			end
+			return ready, ready and "Ready" or "No valid cast spot found"
+		end
+		if activeStates.BGSI_Lite_FishingEventConnection then
+			activeStates.BGSI_Lite_FishingEventConnection:Disconnect()
+		end
+		activeStates.BGSI_Lite_FishingEventConnection = remoteEvent.OnClientEvent:Connect(function(action, result)
+			if action == "ReelReady" and Config.fishingAuto == true and Config.fishingInstantReel == true
+				and isCurrentRun() and tick() - fishingState.lastInstant > 2 then
+				fishingState.lastInstant = tick()
+				fishingState.instantPending = true
+				task.delay(0.15, function()
+					if isCurrentRun() and Config.fishingAuto == true and Config.fishingInstantReel == true then
+						pcall(remoteEvent.FireServer, remoteEvent, "Reel", true)
+					end
+				end)
+			elseif action == "ReelFinished" and fishingState.instantPending and isCurrentRun() then
+				fishingState.instantPending = false
+				if type(result) == "table" and result.Success == true then
+					fishingState.instantFailures = 0
+				else
+					fishingState.instantFailures += 1
+					if fishingState.instantFailures >= 3 then
+						Config.fishingInstantReel = false
+						instantReelToggle:SetValue(false)
+						saveConfig()
+						Interface:Notify({Title = "Fishing", Content = "Instant Reel was turned off after three failed catches.", Duration = 5})
+					end
+				end
+			end
+		end)
+		while isCurrentRun() do
+			task.wait(1)
+			if not loadFishingModules() then fishingStatus:Set("Fishing modules are loading") continue end
+			if not profileStore:IsReady() then fishingStatus:Set("Waiting for account data") continue end
+			local profile = profileStore:Get()
+			if type(profile) ~= "table" then continue end
+			local areaId, area, level = chooseFishingArea(profile)
+			local found, total = 0, 0
+			if area then
+				local _, areaFound, areaTotal = isIndexComplete(profile, area)
+				found, total = areaFound, areaTotal
+			end
+			local areaName = area and area.DisplayName or "None"
+			local status = ("Level %d | %s | Index %d/%d | Rod: %s"):format(
+				level, areaName, found or 0, total or 0, tostring(profile.EquippedRod or "None"))
+			if Config.safeMode == true or activeStates.BGSI_Lite_RebirthMachineBusy == true then
+				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+				fishingStatus:Set(status .. " | Paused")
+				continue
+			end
+			if Config.fishingAutoClaimIndex == true or fishingState.forceClaim then claimFishingIndex(profile) end
+			if Config.fishingAutoEquipBestRod == true and Config.fishingAuto == true then equipBestRod(profile) end
+			local inventoryOk, inventoryFull = pcall(fishingUtil.IsInventoryFull, fishingUtil, profile)
+			if Config.fishingAutoSellWhenFull == true and Config.fishingAuto == true
+				and tick() - fishingState.lastSell >= 10 and inventoryOk and inventoryFull then
+				fishingState.lastSell = tick()
+				pcall(remoteEvent.FireServer, remoteEvent, "SellAllFish")
+			end
+			if Config.fishingAuto == true and inventoryOk and inventoryFull then
+				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+				fishingStatus:Set(status .. " | Inventory full")
+				continue
+			end
+			if not Config.fishingAuto and not fishingState.forceTravel then
+				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+				fishingState.areaId = nil
+				fishingState.castPosition = nil
+				fishingStatus:Set(status .. " | Auto Fish off")
+				continue
+			end
+			if not areaId then fishingStatus:Set("No unlocked fishing area") continue end
+			local worldOk, currentWorld = pcall(fishingWorldUtil.GetPlayerWorld, fishingWorldUtil, LocalPlayer)
+			if not worldOk or currentWorld ~= fishingUtil.WORLD_NAME then fishingState.areaId = nil end
+			local character = LocalPlayer.Character
+			local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+			if fishingState.castPosition and playerRoot
+				and (playerRoot.Position - fishingState.castPosition).Magnitude > 25 then
+				fishingState.areaId = nil
+			end
+			if fishingState.forceTravel or fishingState.areaId ~= areaId then
+				fishingState.forceTravel = false
+				local ready, reason = travelToArea(areaId, area)
+				fishingStatus:Set(status .. " | " .. reason)
+				if not ready then continue end
+			end
+			if Config.fishingAuto == true then
+				if LocalPlayer:GetAttribute("RodEquipped") ~= true then
+					pcall(remoteEvent.FireServer, remoteEvent, "EquipRod")
+					fishingStatus:Set(status .. " | Equipping rod")
+					continue
+				end
+				if not autoFishModule:IsEnabled() then autoFishModule:SetEnabled(true) end
+				fishingStatus:Set(status .. " | Fishing")
+			end
+		end
+		if autoFishModule and autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+		if activeStates.BGSI_Lite_FishingEventConnection then
+			activeStates.BGSI_Lite_FishingEventConnection:Disconnect()
+			activeStates.BGSI_Lite_FishingEventConnection = nil
+		end
+	end)
+end
 
 scriptStateOG:AddSection("Integrations")
 local scriptStateKM = scriptStateOG:AddTab({
@@ -14827,6 +15177,8 @@ do
 			"RebirthVariants",
 			"RebirthMachineEnabled",
 			"AdminRebirthMachineEnabled",
+			"fishingAuto", "fishingAutoProgress", "fishingInstantReel", "fishingAutoClaimIndex", "fishingIndexSweep",
+			"fishingAutoEquipBestRod", "fishingAutoSellWhenFull",
 			"autoHalloweenRebirth",
 			"disableRendering",
 			"renderDistance",
