@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.20"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.23"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,31 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.23",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Rebirth reward filter", description = "Send Easy Secrets now applies only to Rebirth Machine rewards.", icon = "filter" },
+		},
+	},
+	{
+		version = "2026.10.19.22",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Hatch embed controls", description = "User Info can be shown from Webhook settings and is hidden by default.", icon = "eye" },
+			{ title = "Easy Secret filter", description = "Rebirth settings can limit pet webhooks to Celestial, Infinity, and Void.", icon = "filter" },
+			{ title = "Pearl icon", description = "Pet stat lines now use the Pearl emoji.", icon = "gem" },
+		},
+	},
+	{
+		version = "2026.10.19.21",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Halloween tab", description = "Replaced Fall Event with Halloween rebirths, chest claims, and house-by-house trick or treat.", icon = "ghost" },
+			{ title = "Rebirth machines", description = "Normal and Admin fusions use their verified pet rules, cooldowns, and remotes.", icon = "repeat" },
+			{ title = "Hatch enchants", description = "Enchant names now appear in bold in hatch messages.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.19.20",
 		releasedAt = "October 19, 2026",
@@ -2189,6 +2214,7 @@ local defaultConfig = {
 	safeModeSavedConfig = {},
 	autoCollectPresentRain = false,
 	autoHalloweenChest = false,
+	autoTrickOrTreat = false,
 	autoFallRebirth = false,
 	autoFallLeaves = false,
 	autoFallUpgrades = false,
@@ -2357,6 +2383,8 @@ local defaultConfig = {
 	webhookEnabled = false,
 	webhookURL = "",
 	webhookMinimumChance = "",
+	webhookShowUserInfo = false,
+	webhookSendEasySecrets = true,
 	-- Optional user-authorized hatch telemetry endpoint. Keep the Discord webhook secret on the backend.
 	hatchTelemetryEnabled = true,
 	hatchTelemetryEndpoint = "",
@@ -2387,7 +2415,7 @@ local defaultConfig = {
 		Unique = false,
 		Common = false,
 	},
-	RebirthPetName = "Man Face Lord",
+	RebirthPetName = "Classic Overlord",
 	AdminRebirthPetName = "Man Face Lord",
 	RebirthVariants = {
 		"Normal",
@@ -2487,6 +2515,7 @@ function loadConfig()
 	-- leaving explicitly chosen non-default amounts alone.
 	if defaultConfig.DreamerShrineAmount == 1 then defaultConfig.DreamerShrineAmount = 15 end
 	if defaultConfig.shrineAmount == 10 then defaultConfig.shrineAmount = 500 end
+	if defaultConfig.RebirthPetName == "Man Face Lord" then defaultConfig.RebirthPetName = "Classic Overlord" end
 	return defaultConfig
 end
 -- Saves the current config when a setting changes.
@@ -6006,13 +6035,6 @@ end
 -- the character already was, which the server has no reason to accept, with nothing
 -- in the console to explain why.
 function runHatchBountyTask(scriptStateWT, scriptStateI, scriptStateDF, scriptStateAAJ)
-	-- Auto-Farm Leaves says "stay at the Autumn Leaves spot" - every hatch-type quest
-	-- (Season Pass, Challenge Pass, Global Incentive, Guild Quests, Shadow Leviathan,
-	-- Gem Genie) goes through this one function, so this is the single place needed to
-	-- stop any of them teleporting the character away to hatch an egg while it's on.
-	if Config.autoFallLeaves == true then
-		return false, "FarmingLeaves"
-	end
 	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "hatch")
 	local scriptStateUA = 0
 	local questProgressWatch
@@ -7518,6 +7540,7 @@ activeStates.BGSI_Lite_RiftEggActive = false
 activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 activeStates.BGSI_Lite_NormalAutomationPaused = false
+activeStates.BGSI_Lite_TrickOrTreatActive = false
 function isPriorityAutomationActive()
 	return activeStates.BGSI_Lite_GemGenieActive
 		or activeStates.BGSI_Lite_SeasonActive
@@ -7526,6 +7549,7 @@ function isPriorityAutomationActive()
 		or activeStates.BGSI_Lite_ObbyActive
 		or activeStates.BGSI_Lite_ObbyChestActive
 		or activeStates.BGSI_Lite_GuildQuestActive
+		or activeStates.BGSI_Lite_TrickOrTreatActive
 end
 activeStates.BGSI_Lite_IsEggAutomationActive = function()
 	return Config.autoHatch == true
@@ -7538,10 +7562,7 @@ activeStates.BGSI_Lite_IsEggAutomationActive = function()
 		or isPriorityAutomationActive()
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
-	-- Auto-Farm Leaves means "stay on the Leaves team" - Auto Hatch teleporting to an
-	-- egg and swapping the equipped team back out from under it would defeat that, so
-	-- Auto Hatch pauses for as long as Leaves farming is on.
-	return Config.autoHatch == true and Config.autoFallLeaves ~= true
+	return Config.autoHatch == true and activeStates.BGSI_Lite_TrickOrTreatActive ~= true
 end
 function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
@@ -7780,9 +7801,9 @@ local eggTab = scriptStateOG:AddTab({
 	Title = "Eggs",
 	Icon = "egg",
 })
-local fallEventTab = scriptStateOG:AddTab({
-	Title = "Fall Event",
-	Icon = "leaf",
+local halloweenTab = scriptStateOG:AddTab({
+	Title = "Halloween",
+	Icon = "ghost",
 })
 local scriptStateCZ = scriptStateOG:AddTab({
 	Title = "Event",
@@ -7847,9 +7868,9 @@ local scriptStateGB = scriptStateOG:AddTab({
 scriptStateGB:AddSection("Rebirth Machine")
 scriptStateGB:AddInput("RebirthMachinePetName", {
 	Title = "Pet Name",
-	Description = "Use five unlocked copies of this exact pet and variant per fusion.",
+	Description = "Fuse five eligible Secrets of this variant. Admin Abuse pets use the Admin machine; blank uses any names.",
 	Default = Config.RebirthPetName,
-	Placeholder = "Man Face Lord",
+	Placeholder = "Classic Overlord",
 	Callback = function(value)
 		Config.RebirthPetName = tostring(value or ""):match("^%s*(.-)%s*$")
 		saveConfig()
@@ -7873,42 +7894,130 @@ scriptStateGB:AddToggle("AutoRebirthMachine", {
 		saveConfig()
 	end,
 })
-scriptStateGB:AddSection("Halloween Rebirth")
-scriptStateGB:AddToggle("AutoHalloweenRebirth", {
-	Title = "Auto Halloween Rebirth",
-	Description = "Rebirths when Candycorn covers the game's next rebirth cost.",
-	Default = Config.autoHalloweenRebirth,
+scriptStateGB:AddToggle("WebhookSendEasySecrets", {
+	Title = "Send Easy Secrets",
+	Description = "When off, Rebirth Machine rewards send only Celestial, Infinity, and Void pet webhooks.",
+	Default = Config.webhookSendEasySecrets,
+	Callback = function(enabled)
+		Config.webhookSendEasySecrets = enabled == true
+		saveConfig()
+	end,
+})
+scriptStateGB:AddSection("Admin Rebirth Machine")
+scriptStateGB:AddInput("AdminRebirthMachinePetName", {
+	Title = "Admin Pet Name",
+	Description = "Fuse four eligible Admin Abuse Secrets of the selected variant. Leave blank to use any names.",
+	Default = Config.AdminRebirthPetName,
+	Placeholder = "Man Face Lord",
 	Callback = function(value)
-		Config.autoHalloweenRebirth = value == true
+		Config.AdminRebirthPetName = tostring(value or ""):match("^%s*(.-)%s*$")
+		saveConfig()
+	end,
+})
+scriptStateGB:AddToggle("AutoAdminRebirthMachine", {
+	Title = "Auto Admin Rebirth Machine",
+	Description = "Uses the Variant selected above when the Admin machine is available.",
+	Default = Config.AdminRebirthMachineEnabled,
+	Callback = function(enabled)
+		Config.AdminRebirthMachineEnabled = enabled == true
 		saveConfig()
 	end,
 })
 task.spawn(function()
 	local halloweenRebirthUtil
+	local rebirthMachineUtil
+	local adminRebirthMachineUtil
+	local petsData
 	pcall(function()
 		halloweenRebirthUtil = require(ReplicatedStorage.Shared.Utils.HalloweenRebirthUtil)
 	end)
+	pcall(function()
+		rebirthMachineUtil = require(ReplicatedStorage.Shared.Utils.RebirthMachineUtil)
+	end)
+	pcall(function()
+		adminRebirthMachineUtil = require(ReplicatedStorage.Shared.Utils.AdminRebirthMachineUtil)
+		petsData = require(ReplicatedStorage.Shared.Data.Pets)
+	end)
+	local lastMachineAttempt = 0
+	local lastAdminAttempt = 0
 	while isCurrentRun() do
 		task.wait(2.5)
 		if Config.safeMode ~= true and profileStore:IsReady() then
 			local playerData = profileStore:Get()
 			if type(playerData) ~= "table" then continue end
-			if Config.RebirthMachineEnabled == true and type(playerData.Pets) == "table" then
+			local machine = type(rebirthMachineUtil) == "table"
+				and rebirthMachineUtil:GetMachine("RebirthMachine")
+			if Config.RebirthMachineEnabled == true and type(playerData.Pets) == "table"
+				and type(machine) == "table" and machine.Enabled == true
+				and getCurrentTimestamp() >= (tonumber(playerData[machine.CooldownKey]) or 0)
+				and tick() - lastMachineAttempt >= 5 then
 				local targetName = tostring(Config.RebirthPetName or "")
 				local variant = type(Config.RebirthVariants) == "table" and Config.RebirthVariants[1] or "Normal"
 				local shiny = variant == "Shiny" or variant == "Shiny Mythic"
 				local mythic = variant == "Mythic" or variant == "Shiny Mythic"
 				local ids = {}
+				local selectedPets = {}
 				for _, pet in pairs(playerData.Pets) do
-					if type(pet) == "table" and pet.Name == targetName and not pet.Locked
-						and pet.Shiny == shiny and pet.Mythic == mythic and pet.XL ~= true
-						and pet.Super ~= true and pet.Id ~= nil then
-						table.insert(ids, tostring(pet.Id))
+					if type(pet) == "table" and (targetName == "" or pet.Name == targetName)
+						and pet.Locked ~= true
+						and (pet.Shiny == true) == shiny and (pet.Mythic == true) == mythic
+						and pet.XL ~= true and pet.Id ~= nil
+						and rebirthMachineUtil:IsPetEligible("RebirthMachine", pet) then
+						table.insert(ids, pet.Id)
+						table.insert(selectedPets, pet)
 						if #ids == 5 then break end
 					end
 				end
-				if #ids == 5 then
-					pcall(remoteFunction.InvokeServer, remoteFunction, "UseRebirthMachine", "RebirthMachine", ids)
+				if #ids == 5 and rebirthMachineUtil:CanFuse("RebirthMachine", selectedPets) then
+					lastMachineAttempt = tick()
+					local activation = Workspace:FindFirstChild("Worlds")
+					local overworld = activation and activation:FindFirstChild("The Overworld")
+					local islands = overworld and overworld:FindFirstChild("Islands")
+					local outerSpace = islands and islands:FindFirstChild("Outer Space")
+					local island = outerSpace and outerSpace:FindFirstChild("Island")
+					local machineModel = island and island:FindFirstChild("RebirthMachine")
+					local machineActivation = machineModel and machineModel:FindFirstChild("Activation")
+					local targetCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(machineActivation)
+					if targetCFrame and teleportToCFrame(targetCFrame * CFrame.new(0, 2, 0)) then
+						task.wait(0.3)
+						pcall(remoteFunction.InvokeServer, remoteFunction, "UseRebirthMachine", "RebirthMachine", ids)
+					end
+				end
+			end
+			if Config.AdminRebirthMachineEnabled == true and type(playerData.Pets) == "table"
+				and type(adminRebirthMachineUtil) == "table" and type(petsData) == "table"
+				and getCurrentTimestamp() >= (tonumber(playerData.NextAdminRebirthMachineUse) or 0)
+				and tick() - lastAdminAttempt >= 5 then
+				local targetName = tostring(Config.AdminRebirthPetName or "")
+				local variant = type(Config.RebirthVariants) == "table" and Config.RebirthVariants[1] or "Normal"
+				local shiny = variant == "Shiny" or variant == "Shiny Mythic"
+				local mythic = variant == "Mythic" or variant == "Shiny Mythic"
+				local ids = {}
+				for _, pet in pairs(playerData.Pets) do
+					local petInfo = type(pet) == "table" and petsData[pet.Name]
+					if type(petInfo) == "table" and (targetName == "" or pet.Name == targetName)
+						and pet.Locked ~= true and pet.XL ~= true and pet.Id ~= nil
+						and (pet.Shiny == true) == shiny and (pet.Mythic == true) == mythic
+						and petInfo.Rarity == "Secret" and petInfo.AdminAbuse == true
+						and not petInfo.Infinity and not petInfo.Celestial and not petInfo.Void then
+						table.insert(ids, pet.Id)
+						if #ids == adminRebirthMachineUtil.NUM_SECRETS_REQUIRED then break end
+					end
+				end
+				if #ids == adminRebirthMachineUtil.NUM_SECRETS_REQUIRED then
+					lastAdminAttempt = tick()
+					local activation
+					for _, candidate in ipairs(CollectionService:GetTagged("Activation")) do
+						if candidate.Parent and candidate.Parent.Name == "AdminRebirthMachine" then
+							activation = candidate
+							break
+						end
+					end
+					local targetCFrame = activeStates.BGSI_Lite_GetInstanceTargetCFrame(activation)
+					if targetCFrame and teleportToCFrame(targetCFrame * CFrame.new(0, 2, 0)) then
+						task.wait(0.3)
+						pcall(remoteFunction.InvokeServer, remoteFunction, "UseAdminRebirthMachine", ids)
+					end
 				end
 			end
 			if Config.autoHalloweenRebirth == true and type(halloweenRebirthUtil) == "table"
@@ -10596,273 +10705,95 @@ task.spawn(function()
 	end
 end)
 do
-	local autumnRebirthUtil
-	pcall(function()
-		autumnRebirthUtil = require(ReplicatedStorage.Shared.Utils.AutumnRebirthUtil)
-	end)
-
-	local fallUpgradeData = {
-		Currency = { name = "Extra Currency", type = "Multi", levels = 8, costs = { 1, 2, 4, 8, 12, 20, 30, 40 } },
-		Luck = { name = "Luck", type = "Multi", levels = 7, costs = { 1, 2, 4, 8, 16, 32, 64 } },
-		SecretLuck = { name = "Secret Luck", type = "Multi", levels = 5, costs = { 3, 6, 12, 24, 48 } },
-		InfinityLuck = { name = "Infinity Luck", type = "Multi", levels = 5, costs = { 5, 10, 20, 40, 80 } },
-		AutoRebirth = { name = "Auto Rebirth", type = "Single", levels = 1, costs = { 5 } },
-	}
-	local fallUpgradeOrder = { "Currency", "Luck", "SecretLuck", "InfinityLuck", "AutoRebirth" }
-	local fallUpgradeDisplay = {
-		Currency = "Extra Currency",
-		Luck = "Luck",
-		SecretLuck = "Secret Luck",
-		InfinityLuck = "Infinity Luck",
-		AutoRebirth = "Auto Rebirth",
-	}
-	local fallUpgradeByDisplay = {}
-	for key, label in pairs(fallUpgradeDisplay) do
-		fallUpgradeByDisplay[label] = key
-	end
-
-	fallEventTab:AddSection("Autumn Rebirths")
-	local fallRebirthText = fallEventTab:AddInput("AutumnRebirthsDisplay", {
-		Title = "Autumn Rebirths",
+	halloweenTab:AddSection("Halloween Rebirths")
+	local rebirthCount = halloweenTab:AddInput("HalloweenRebirthsDisplay", {
+		Title = "Rebirths",
 		Default = "Loading...",
-		Callback = function()
-		end,
+		Callback = function() end,
 	})
-	fallRebirthText:Lock("Read-only")
-	fallEventTab:AddToggle("AutoFallRebirth", {
-		Title = "Auto Rebirth",
-		Description = "Automatically rebirths when you have enough Autumn Leaves.",
-		Default = Config.autoFallRebirth,
+	rebirthCount:Lock("Read-only")
+	halloweenTab:AddToggle("AutoHalloweenRebirth", {
+		Title = "Auto Halloween Rebirth",
+		Description = "Rebirths when Candycorn covers the next cost.",
+		Default = Config.autoHalloweenRebirth,
 		Callback = function(enabled)
-			Config.autoFallRebirth = enabled == true
+			Config.autoHalloweenRebirth = enabled == true
 			saveConfig()
 		end,
 	})
-
-	fallEventTab:AddSection("Leaves Farming")
-	fallEventTab:AddToggle("AutoFallLeaves", {
-		Title = "Auto-Farm Leaves",
-		Description = "Equips the team named Leaves and pauses Auto Hatch for as long as this is on. Does not move the player anywhere.",
-		Default = Config.autoFallLeaves,
+	halloweenTab:AddSection("Trick or Treat")
+	halloweenTab:AddToggle("AutoTrickOrTreat", {
+		Title = "Auto Trick or Treat",
+		Description = "Visits ready houses, knocks, and waits for each house to register before moving on.",
+		Default = Config.autoTrickOrTreat,
 		Callback = function(enabled)
-			Config.autoFallLeaves = enabled == true
+			Config.autoTrickOrTreat = enabled == true
 			saveConfig()
 		end,
 	})
-
-	fallEventTab:AddSection("Autumn Upgrades")
-	fallEventTab:AddDropdown("FallUpgradePriority", {
-		Title = "First Upgrade Priority",
-		Description = "Maxes this upgrade first, then continues through the remaining upgrades.",
-		Values = {
-			"Extra Currency",
-			"Luck",
-			"Secret Luck",
-			"Infinity Luck",
-			"Auto Rebirth",
-		},
-		Default = fallUpgradeDisplay[Config.fallUpgradePriority] and Config.fallUpgradePriority == "Currency" and "Extra Currency" or fallUpgradeDisplay[Config.fallUpgradePriority] or "Extra Currency",
-		Multi = false,
-		Search = true,
-		Callback = function(selected)
-			Config.fallUpgradePriority = fallUpgradeByDisplay[selected] or "Currency"
-			saveConfig()
-		end,
-	})
-	fallEventTab:AddToggle("AutoFallUpgrades", {
-		Title = "Auto Upgrades",
-		Description = "Buys the selected priority upgrade until it is maxed, then moves to the next available upgrade.",
-		Default = Config.autoFallUpgrades,
+	halloweenTab:AddSection("Halloween Chest")
+	halloweenTab:AddToggle("AutoHalloweenChest", {
+		Title = "Auto Claim Halloween Chest",
+		Description = "Claims the chest when its cooldown expires.",
+		Default = Config.autoHalloweenChest,
 		Callback = function(enabled)
-			Config.autoFallUpgrades = enabled == true
+			Config.autoHalloweenChest = enabled == true
 			saveConfig()
 		end,
 	})
-
-	fallEventTab:AddSection("Fall Event Utilities")
-	fallEventTab:AddToggle("AutoFallElixir", {
-		Title = "Auto Use Autumn Elixir",
-		Description = "Automatically uses your highest owned Autumn Elixir level. Enabled by default.",
-		Default = Config.autoFallElixir,
-		Callback = function(enabled)
-			Config.autoFallElixir = enabled == true
-			saveConfig()
-		end,
-	})
-	fallEventTab:AddToggle("AutoFallChest", {
-		Title = "Auto Open Autumn Chest",
-		Description = "Automatically opens the Autumn Chest.",
-		Default = Config.autoFallChest,
-		Callback = function(enabled)
-			Config.autoFallChest = enabled == true
-			saveConfig()
-		end,
-	})
-
-	local function getFallData()
-		local data
-		pcall(function()
-			if profileStore:IsReady() then
-				data = profileStore:Get()
-			end
-		end)
-		return type(data) == "table" and data or nil
-	end
-
-	local function updateFallRebirthDisplay(data)
-		if not data then
-			return
-		end
-		local rebirths = math.floor(tonumber(data.AutumnRebirths) or 0)
-		local text = rebirths == 1 and "You have 1 Rebirth" or string.format("You have %d Rebirths", rebirths)
-		pcall(function()
-			fallRebirthText:SetValue(text)
-		end)
-	end
-
-	local function equipLeavesTeam()
-		if type(activeStates.BGSI_Lite_EquipPetTeamByKey) ~= "function" then
-			return false
-		end
-		return activeStates.BGSI_Lite_EquipPetTeamByKey("Leaves") == true
-	end
-
-	-- Farming leaves isn't a location, it's the equipped team - the game credits the
-	-- Leaves currency for having that team equipped anywhere, and a hardcoded CFrame
-	-- was just as likely to drop the player somewhere wrong as the right spot. Equip
-	-- the team and stop there; BGSI_Lite_ShouldMaintainHatching pauses Auto Hatch for
-	-- as long as this is on, so nothing else drags the player away either.
-	local function farmLeaves()
-		if Config.safeMode == true or Config.autoFallLeaves ~= true then
-			return
-		end
-		equipLeavesTeam()
-	end
-
-	local function autoFallRebirth()
-		if Config.safeMode == true or Config.autoFallRebirth ~= true then
-			return
-		end
-		local data = getFallData()
-		if not data then
-			return
-		end
-		local leaves = tonumber(data.Leaves26) or 0
-		local rebirths = tonumber(data.AutumnRebirths) or 0
-		local cost
-		pcall(function()
-			if autumnRebirthUtil and type(autumnRebirthUtil.GetRebirthCost) == "function" then
-				cost = tonumber(autumnRebirthUtil:GetRebirthCost(rebirths + 1))
-			end
-		end)
-		if cost and leaves >= cost then
-			activeStates.BGSI_Lite_FireGameRemote("AutumnRebirth")
-		end
-	end
-
-	local function buyFallUpgrade(upgradeKey)
-		local data = getFallData()
-		local info = fallUpgradeData[upgradeKey]
-		if not data or not info then
-			return false
-		end
-		local upgrades = type(data.AutumnUpgrades) == "table" and data.AutumnUpgrades or {}
-		local currentLevel = upgrades[upgradeKey]
-		local level = info.type == "Single" and (currentLevel == true and 1 or 0) or math.floor(tonumber(currentLevel) or 0)
-		if level >= info.levels then
-			return true
-		end
-		local cost = info.costs[level + 1]
-		if not cost then
-			return false
-		end
-		local shards = 0
-		pcall(function()
-			shards = tonumber(itemUtil:GetOwnedAmount(data, {
-				Type = "Currency",
-				Currency = "RebirthShards26",
-				Amount = 0,
-			})) or 0
-		end)
-		if shards < cost then
-			return false
-		end
-		local ok = pcall(function()
-			activeStates.BGSI_Lite_FireGameRemote("BuyAutumnUpgrade", upgradeKey)
-		end)
-		return ok
-	end
-
-	local function getFallUpgradePriority()
-		local first = fallUpgradeByDisplay[fallUpgradeDisplay[Config.fallUpgradePriority] or ""]
-		first = first or Config.fallUpgradePriority
-		local result = {}
-		if fallUpgradeData[first] then
-			table.insert(result, first)
-		end
-		for _, key in ipairs(fallUpgradeOrder) do
-			if key ~= first then
-				table.insert(result, key)
-			end
-		end
-		return result
-	end
-
-	local function autoFallUpgrades()
-		if Config.safeMode == true or Config.autoFallUpgrades ~= true then
-			return
-		end
-		for _, upgradeKey in ipairs(getFallUpgradePriority()) do
-			local data = getFallData()
-			local info = fallUpgradeData[upgradeKey]
-			if data and info then
-				local current = data.AutumnUpgrades and data.AutumnUpgrades[upgradeKey]
-				local level = info.type == "Single" and (current == true and 1 or 0) or math.floor(tonumber(current) or 0)
-				if level < info.levels then
-					if buyFallUpgrade(upgradeKey) then
-						task.wait(0.15)
-					end
-					return
-				end
-			end
-		end
-	end
-
-	-- Rebirth needs to fire the moment Leaves crosses the cost, not whenever the shared
-	-- upgrades/leaves/elixir/chest pass next comes around - that pass only runs once a
-	-- second, so a rebirth could otherwise sit ready for most of a second before firing.
 	task.spawn(function()
 		while isCurrentRun() do
-			if Config.safeMode ~= true then
-				autoFallRebirth()
-			end
-			task.wait(0.1)
+			pcall(function()
+				local data = profileStore:IsReady() and profileStore:Get() or nil
+				if type(data) == "table" then
+					rebirthCount:SetValue("You have " .. tostring(math.floor(tonumber(data.Halloween26Rebirths) or 0)) .. " rebirths")
+				end
+			end)
+			task.wait(3)
 		end
 	end)
 	task.spawn(function()
 		while isCurrentRun() do
-			local data = getFallData()
-			updateFallRebirthDisplay(data)
-			if Config.safeMode ~= true then
-				autoFallUpgrades()
-				farmLeaves()
-				if Config.autoFallElixir == true and type(activeStates.BGSI_Lite_GetHighestOwnedPotionLevel) == "function" then
-					local level = activeStates.BGSI_Lite_GetHighestOwnedPotionLevel(data, "Autumn Elixir")
-					if level then
-						local remaining = activeStates.BGSI_Lite_GetPotionRemainingSeconds(data, "Autumn Elixir", level)
-						if remaining <= 30 and type(activeStates.BGSI_Lite_UsePotionAmount) == "function" then
-							activeStates.BGSI_Lite_UsePotionAmount("Autumn Elixir", level, 1)
+			if Config.autoTrickOrTreat and Config.safeMode ~= true
+				and not isPriorityAutomationActive() then
+				local event = Workspace:FindFirstChild("HalloweenEvent")
+				local houses = event and event:FindFirstChild("Houses")
+				local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+				if houses and root then
+					local previousPosition = root.CFrame
+					activeStates.BGSI_Lite_TrickOrTreatActive = true
+					local routeOk, routeError = pcall(function()
+						for _, house in ipairs(houses:GetChildren()) do
+							if not isCurrentRun() or not Config.autoTrickOrTreat or Config.safeMode then break end
+							local activation = house:FindFirstChild("Activation")
+							local active = activation and activation:FindFirstChild("Active")
+							local target = activeStates.BGSI_Lite_GetInstanceTargetCFrame(activation, "Root")
+							if active and active:IsA("BoolValue") and active.Value and target then
+								for _ = 1, 3 do
+									if not active.Value or not Config.autoTrickOrTreat or Config.safeMode then break end
+									if LocalPlayer:GetAttribute("TrickOrTreatFreeze") then
+										local freezeDeadline = tick() + 15
+										repeat task.wait(0.25) until not LocalPlayer:GetAttribute("TrickOrTreatFreeze") or tick() >= freezeDeadline
+									end
+									if teleportToCFrame(target * CFrame.new(0, 2, 0)) then
+										task.wait(0.35)
+										pcall(activeStates.BGSI_Lite_FireGameRemote, "TrickOrTreat", house)
+										local claimDeadline = tick() + 3
+										repeat task.wait(0.2) until not active.Value or tick() >= claimDeadline
+									end
+								end
+							end
+							activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 						end
-					end
-				end
-				if Config.autoFallChest == true then
-					pcall(function()
-						activeStates.BGSI_Lite_FireGameRemote("UnlockEventChest", "Autumn Chest", false)
 					end)
+					if root.Parent then root.CFrame = previousPosition end
+					activeStates.BGSI_Lite_TrickOrTreatActive = false
+					if not routeOk then warn("[1rzHub Lite] Trick or Treat route failed:", tostring(routeError)) end
 				end
 			end
-			task.wait(1)
+			task.wait(3)
 		end
+		activeStates.BGSI_Lite_TrickOrTreatActive = false
 	end)
 end
 do
@@ -10975,16 +10906,6 @@ do
 		Default = Config.autoCollectPresentRain,
 		Callback = function(scriptStateQK)
 			Config.autoCollectPresentRain = scriptStateQK
-			saveConfig()
-		end,
-	})
-	scriptStateCZ:AddSection("Halloween Chest")
-	scriptStateCZ:AddToggle("AutoHalloweenChest", {
-		Title = "Auto Claim Halloween Chest",
-		Description = "Claims the chest when its cooldown expires.",
-		Default = Config.autoHalloweenChest,
-		Callback = function(enabled)
-			Config.autoHalloweenChest = enabled == true
 			saveConfig()
 		end,
 	})
@@ -14784,6 +14705,7 @@ do
 			"autoCarnivalChest",
 			"autoCollectPresentRain",
 			"autoHalloweenChest",
+			"autoTrickOrTreat",
 
 			-- Chests and potions
 			"selectedWorldChest",
@@ -14880,7 +14802,7 @@ do
 
 			-- Webhook preferences. The URL is accepted from authenticated
 			-- dashboard commands, but is never included in heartbeat telemetry.
-			"webhookEnabled", "webhookURL", "webhookHidePlayerName", "webhookMinimumChance",
+			"webhookEnabled", "webhookURL", "webhookHidePlayerName", "webhookMinimumChance", "webhookShowUserInfo", "webhookSendEasySecrets",
 			"webhookPingEnabled",
 			"webhookPingUserId",
 			"webhookLowCurrencyEnabled",
@@ -18175,8 +18097,8 @@ function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, 
 	if #enchantNames == 0 then
 		return nil, enchantNames
 	end
-	return "<:enchantments:1462135985759326370> Enchants: "
-		.. table.concat(enchantNames, ", "), enchantNames
+	return "<:enchantments:1462135985759326370> Enchants: **"
+		.. table.concat(enchantNames, ", ") .. "**", enchantNames
 end
 function isSpecialEnchant(scriptStateADR)
 	local scriptStateABZ = getEnchantData(scriptStateADR)
@@ -21786,7 +21708,7 @@ local scriptStateDX = {
 	CircusTickets = "\240\159\142\159\239\184\143",
 	GameTickets = "\240\159\142\171",
 	Tickets = "\240\159\142\171",
-	Pearls = "\226\154\170",
+	Pearls = "<:Pearl:1561761464866308219>",
 	Clovers = "\240\159\141\128",
 }
 local statsUtil, worldUtil, getEggPool, xlEggUtil
@@ -21814,6 +21736,7 @@ end
 function getWebhookRequestFunction()
 	local debugSecretLuck, debugInfinityLuck
 	local scriptStateUY = {
+		CurrentBubbles = 0,
 		Coins = 0,
 		Gems = 0,
 		Pearls = 0,
@@ -21838,6 +21761,8 @@ function getWebhookRequestFunction()
 			return
 		end
 		local scriptStateIL = profileStore:Get() or {}
+		scriptStateUY.CurrentBubbles = type(scriptStateIL.Bubble) == "table"
+			and (tonumber(scriptStateIL.Bubble.Amount) or 0) or 0
 		scriptStateUY.Coins = tonumber(scriptStateIL.Coins) or 0
 		scriptStateUY.Gems = tonumber(scriptStateIL.Gems) or 0
 		scriptStateUY.Pearls = tonumber(scriptStateIL.Pearls) or 0
@@ -21896,6 +21821,23 @@ function getDiscordTimestamp()
 		end
 	end
 	return scriptStateXG
+end
+local function buildWebhookUserInfoField()
+	local stats = getWebhookRequestFunction()
+	local totals = getDiscordTimestamp()
+	return {
+		name = "User Info",
+		value = table.concat({
+			"<:purple_circle:1363755750828019774> Current Bubbles: **" .. formatWebhookNumber(stats.CurrentBubbles) .. "**",
+			"\240\159\170\153 Coins: **" .. formatWebhookNumber(stats.Coins) .. "**",
+			"<:gem:1363755998401269854> Gems: **" .. formatWebhookNumber(stats.Gems) .. "**",
+			"<:egg:1377264232915013673> Total Eggs: **" .. formatWebhookNumber(totals.EggsHatched) .. "**",
+			"\240\159\141\128 Luck: **" .. tostring(stats.LuckDisplay) .. "**",
+			"\226\157\147 Secret luck: **" .. tostring(stats.SecretLuckDisplay) .. "**",
+			"\226\153\190 Infinity luck: **" .. tostring(stats.InfinityLuckDisplay) .. "**",
+		}, "\n"),
+		inline = false,
+	}
 end
 function getWebhookPingText()
 	return getDiscordTimestamp().EggsHatched
@@ -22084,6 +22026,21 @@ function getWebhookPetSource(petEntry, petInfo, eventName, hatchResult)
 	if eggName ~= "Unknown" then return eggName, true end
 	if origin then return origin, false end
 	return "Unknown", false
+end
+
+local function isWebhookRebirthMachineReward(petEntry, petInfo, sourceName)
+	if sourceName == "Rebirth Machine" then return true end
+	for _, data in pairs({entry = petEntry, info = petInfo}) do
+		if type(data) == "table" then
+			for _, key in ipairs({"Tag", "Origin", "Origins", "Source"}) do
+				local value = data[key]
+				if type(value) == "string" and value:lower():find("rebirth machine", 1, true) then
+					return true
+				end
+			end
+		end
+	end
+	return false
 end
 
 -- Match the game's LootPoolViewer: resolve the world, request the player's
@@ -23203,6 +23160,7 @@ local function buildSimulatedHatchPayload(pet, info)
 		bubbles = "<:purple_circle:1363755750828019774>",
 		gems = "<:gem:1363755998401269854>",
 		coins = "\240\159\170\153",
+		pearls = "<:Pearl:1561761464866308219>",
 		carnivalcoins = "<:circus_tent:1520159699230785707>",
 		candycorn26 = "<:CandyCorn26:1561526287476985887>",
 	}
@@ -23235,11 +23193,16 @@ local function buildSimulatedHatchPayload(pet, info)
 		or shiny and tonumber("FFFF00", 16)
 		or tonumber("FF0000", 16)
 	local iconUrl = sendPetWebhook(info, shiny, mythic)
+	local fields = {}
+	if Config.webhookShowUserInfo == true then
+		table.insert(fields, buildWebhookUserInfoField())
+	end
+	table.insert(fields, {name = "Pet Info", value = table.concat(petLines, "\n"), inline = false})
 	return {
 		embeds = {{
 			description = "# **" .. title .. "**",
 			color = color,
-			fields = {{name = "Pet Info", value = table.concat(petLines, "\n"), inline = false}},
+			fields = fields,
 			thumbnail = not xl and iconUrl and {url = iconUrl} or nil,
 			image = xl and iconUrl and {url = iconUrl} or nil,
 			footer = {text = ""},
@@ -23280,6 +23243,15 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateKM:AddToggle("WebhookShowUserInfo", {
+		Title = "Show User Info",
+		Description = "Adds currencies, bubbles, eggs, and luck above Pet Info in hatch embeds.",
+		Default = Config.webhookShowUserInfo,
+		Callback = function(enabled)
+			Config.webhookShowUserInfo = enabled == true
+			saveConfig()
+		end,
+	})
 	scriptStateKM:AddSection("Simulate Pet Hatch")
 	local simulatedPetName = ""
 	local simulationSending = false
@@ -23303,6 +23275,17 @@ do
 			local pet, info = makeSimulatedHatchPet(simulatedPetName)
 			if not pet then
 				Interface:Notify({Title = "Hatch Simulation", Content = info, Duration = 5})
+				return
+			end
+			local simulatedRarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, info)
+			local simulatedSourceName = getWebhookPetSource(pet, info)
+			if Config.webhookSendEasySecrets == false
+				and isWebhookRebirthMachineReward(pet, info, simulatedSourceName)
+				and simulatedRarity ~= "Celestial"
+				and simulatedRarity ~= "Infinity"
+				and simulatedRarity ~= "Void"
+			then
+				Interface:Notify({Title = "Hatch Simulation", Content = "Filtered by Send Easy Secrets.", Duration = 5})
 				return
 			end
 			simulationSending = true
@@ -23907,6 +23890,15 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local webhookSourceName, webhookSourceIsEgg = getWebhookPetSource(
 					scriptStateACH, scriptStateEQ, scriptStateKW, scriptStateNY
 				)
+				if Config.webhookSendEasySecrets == false
+					and scriptStateKW == "ItemsReceived"
+					and isWebhookRebirthMachineReward(scriptStateACH, scriptStateEQ, webhookSourceName)
+					and scriptStatePG ~= "Celestial"
+					and scriptStatePG ~= "Infinity"
+					and scriptStatePG ~= "Void"
+				then
+					continue
+				end
 				local webhookBasePercent, webhookFinalPercent = 0, 0
 				if webhookSourceIsEgg then
 					webhookBasePercent, webhookFinalPercent = getWebhookHatchChances(
@@ -23993,6 +23985,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					bubbles = "<:purple_circle:1363755750828019774>",
 					gems = "<:gem:1363755998401269854>",
 					coins = "\240\159\170\153",
+					pearls = "<:Pearl:1561761464866308219>",
 					carnivalcoins = "<:circus_tent:1520159699230785707>",
 					candycorn26 = "<:CandyCorn26:1561526287476985887>",
 				}
@@ -24034,9 +24027,11 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					.. (#titleVariants > 0 and table.concat(titleVariants, " ") .. " " or "")
 					.. scriptStateFL
 				local hatchDescription = "# **" .. hatchTitle .. "**"
-				local hatchFields = {
-					{name = "Pet Info", value = table.concat(scriptStateAEO, "\n"), inline = false},
-				}
+				local hatchFields = {}
+				if Config.webhookShowUserInfo == true then
+					table.insert(hatchFields, buildWebhookUserInfoField())
+				end
+				table.insert(hatchFields, {name = "Pet Info", value = table.concat(scriptStateAEO, "\n"), inline = false})
 				local hatchThumbnail = not scriptStateKK and scriptStateWG or nil
 				local hatchImage = scriptStateKK and scriptStateWG or nil
 				local hatchFooter = ""
