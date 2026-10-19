@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.27"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.28"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.28",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Doodle Rift only", description = "Auto Special Rift now targets only doodle-rift; the priority selectors were removed.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.19.27",
 		releasedAt = "October 19, 2026",
@@ -2279,18 +2286,6 @@ local defaultConfig = {
 	autoHopTargetRifts = false,
 	targetRiftIds = {},
 	autoSpecialRift = false,
-	-- Highest priority first. Reorder these rift IDs to change which special rift is
-	-- hatched. This is just a starting point - the actual selectable list is built
-	-- dynamically from Shared.Data.Rifts (see the Special Rift Priority UI), and any
-	-- id here that no longer exists in that data gets dropped automatically while any
-	-- new one gets appended, so this never needs manual upkeep when the game adds or
-	-- removes a special rift.
-	specialRiftPriority = {
-		"corruptshadow-rift",
-		"4xvoid-rift",
-		"shadow-rift",
-		"doodle-rift",
-	},
 	potionType = "Speed",
 	potionLevel = 1,
 	potionUseAmount = 10,
@@ -10052,7 +10047,8 @@ do
 		end,
 	})
 	eggTab:AddToggle("AutoSpecialRift", {
-		Title = "Auto Special Rift",
+		Title = "Auto Doodle Rift",
+		Description = "Hatches doodle-rift when it appears.",
 		Default = Config.autoSpecialRift,
 		Callback = function(isEnabled)
 			Config.autoSpecialRift = isEnabled
@@ -10062,127 +10058,6 @@ do
 			saveConfig()
 		end,
 	})
-	eggTab:AddSection("Special Rift Priority")
-	-- Built straight from Shared.Data.Rifts instead of a hardcoded id list. That list
-	-- used to be {"corruptshadow-rift", "shadow-rift", "cloudyegg-rift", "doodle-rift"}
-	-- - "cloudyegg-rift" was never a real id (the actual Cloudy egg is an event egg
-	-- with no World/Island, spawned through a totally different system, so its real
-	-- id in this table doesn't exist at all - that priority slot was always dead), and
-	-- the new Void Realm 4x rift ("4xvoid-rift") wasn't in it since it didn't exist
-	-- yet when that list was written. Both problems are the same root cause: a static
-	-- list drifts out of sync with the game's own data every time an update changes
-	-- what rifts exist.
-	--
-	-- What actually distinguishes these four from the dozens of other Type == "Egg"
-	-- entries in Rifts (every world's normal egg gets one, generated automatically at
-	-- Weight = 15) is that these are the rare, off-rotation world-wide ones: Weight
-	-- 0.5-3, not Ignore-flagged (that flag marks admin/dev-only ids like "dev-rift"),
-	-- and not one of the permanently-disabled Weight = 0 "wonderland-N" leftovers.
-	-- Filtering on that instead of naming specific ids means a future update adding a
-	-- fifth rare rift shows up here automatically too.
-	local function isSpecialEggRift(riftInfo)
-		return type(riftInfo) == "table"
-			and riftInfo.Type == "Egg"
-			and riftInfo.Ignore ~= true
-			and type(riftInfo.Weight) == "number"
-			and riftInfo.Weight > 0
-			and riftInfo.Weight < 10
-	end
-
-	-- Display name comes straight from the rift's own real Egg field (e.g.
-	-- "corruptshadow-rift" -> "Corrupt Dark Rift Egg") rather than guessing words out
-	-- of the id - "corruptshadow" and "shadow" don't actually share the word "Shadow"
-	-- in the real data (the corrupt one's real egg is "Corrupt Dark Rift Egg"), so
-	-- turning the id itself into a title-cased label would show something that isn't
-	-- true. Only ids with no matching Rifts entry at all (shouldn't normally happen,
-	-- kept as a safety net) fall back to a plain title-cased id.
-	local function getSpecialRiftDisplayName(riftId, riftInfo)
-		if type(riftInfo) == "table" and type(riftInfo.Egg) == "string" and riftInfo.Egg ~= "" then
-			return riftInfo.Egg
-		end
-		local words = {}
-		for word in tostring(riftId):gsub("%-rift$", ""):gmatch("[%a%d]+") do
-			table.insert(words, word:sub(1, 1):upper() .. word:sub(2))
-		end
-		table.insert(words, "Rift")
-		return table.concat(words, " ")
-	end
-
-	local specialRiftOptions = {}
-	if type(riftData) == "table" then
-		for riftId, riftInfo in pairs(riftData) do
-			if isSpecialEggRift(riftInfo) then
-				table.insert(specialRiftOptions, riftId)
-			end
-		end
-	end
-	table.sort(specialRiftOptions)
-	if #specialRiftOptions == 0 then
-		-- riftData failed to load for some reason - fall back to the last known-good
-		-- ids so the feature doesn't just disappear.
-		specialRiftOptions = { "corruptshadow-rift", "shadow-rift", "doodle-rift", "4xvoid-rift" }
-	end
-
-	local specialRiftDisplayById, specialRiftIdByDisplay = {}, {}
-	local specialRiftDisplayOptions = {}
-	for _, riftId in ipairs(specialRiftOptions) do
-		local displayName =
-			getSpecialRiftDisplayName(riftId, type(riftData) == "table" and riftData[riftId] or nil)
-		specialRiftDisplayById[riftId] = displayName
-		specialRiftIdByDisplay[displayName] = riftId
-		table.insert(specialRiftDisplayOptions, displayName)
-	end
-
-	local specialRiftOptionSet = {}
-	for _, riftId in ipairs(specialRiftOptions) do
-		specialRiftOptionSet[riftId] = true
-	end
-	local function normalizeSpecialRiftPriorities(priorities)
-		local normalized, seen = {}, {}
-		for _, riftId in ipairs(type(priorities) == "table" and priorities or {}) do
-			if specialRiftOptionSet[riftId] and not seen[riftId] then
-				seen[riftId] = true
-				table.insert(normalized, riftId)
-			end
-		end
-		for _, riftId in ipairs(specialRiftOptions) do
-			if not seen[riftId] then
-				table.insert(normalized, riftId)
-			end
-		end
-		return normalized
-	end
-	Config.specialRiftPriority = normalizeSpecialRiftPriorities(Config.specialRiftPriority)
-	local specialRiftPriorityDropdowns = {}
-	local updatingSpecialRiftPriorities = false
-	local function refreshSpecialRiftPriorityDropdowns()
-		updatingSpecialRiftPriorities = true
-		for index, dropdown in ipairs(specialRiftPriorityDropdowns) do
-			dropdown:SetValue(specialRiftDisplayById[Config.specialRiftPriority[index]])
-		end
-		updatingSpecialRiftPriorities = false
-	end
-	for index = 1, #specialRiftOptions do
-		specialRiftPriorityDropdowns[index] = eggTab:AddDropdown("SpecialRiftPriority" .. index, {
-			Title = "Priority " .. index,
-			Values = specialRiftDisplayOptions,
-			Default = specialRiftDisplayById[Config.specialRiftPriority[index]],
-			Multi = false,
-			Callback = function(selectedDisplayName)
-				local selectedRiftId = specialRiftIdByDisplay[selectedDisplayName]
-				if updatingSpecialRiftPriorities or not selectedRiftId then
-					return
-				end
-				local currentIndex = table.find(Config.specialRiftPriority, selectedRiftId)
-				if currentIndex and currentIndex ~= index then
-					table.remove(Config.specialRiftPriority, currentIndex)
-					table.insert(Config.specialRiftPriority, index, selectedRiftId)
-					refreshSpecialRiftPriorityDropdowns()
-				end
-				saveConfig()
-			end,
-		})
-	end
 end
 activeStates.BGSI_Lite_LuckEggActive = false
 activeStates.BGSI_Lite_SpecialRiftActive = false
@@ -11952,35 +11827,19 @@ do
 			fireHatchEgg(getRiftEggName(scriptStateON))
 		end
 	end)
-	local function normalizeSpecialRiftId(riftId)
-		return string.lower(tostring(riftId or "")):gsub("[^%w]", "")
-	end
 	local function findSpecialRift()
 		if Config.autoSpecialRift ~= true then
 			return nil
 		end
 		local riftsFolder = getPotionList("Rifts")
-		local priorities = type(Config.specialRiftPriority) == "table" and Config.specialRiftPriority or {}
 		if not riftsFolder then
 			return nil
 		end
-		for _, priorityRiftId in ipairs(priorities) do
-			local normalizedPriorityId = normalizeSpecialRiftId(priorityRiftId)
-			if normalizedPriorityId ~= "" then
-				local bestRift, bestLuck = nil, -1
-				for _, riftObject in ipairs(riftsFolder:GetChildren()) do
-					if normalizeSpecialRiftId(riftObject.Name) == normalizedPriorityId then
-						local riftInfoEntry = type(riftData) == "table" and riftData[riftObject.Name] or nil
-						if type(riftInfoEntry) ~= "table" or riftInfoEntry.Type == "Egg" then
-							local riftLuck = getRiftIconImage(riftObject)
-							if riftLuck > bestLuck then
-								bestRift, bestLuck = riftObject, riftLuck
-							end
-						end
-					end
-				end
-				if bestRift then
-					return bestRift
+		for _, riftObject in ipairs(riftsFolder:GetChildren()) do
+			if string.lower(riftObject.Name) == "doodle-rift" then
+				local riftInfoEntry = type(riftData) == "table" and riftData[riftObject.Name] or nil
+				if type(riftInfoEntry) ~= "table" or riftInfoEntry.Type == "Egg" then
+					return riftObject
 				end
 			end
 		end
@@ -15615,9 +15474,7 @@ do
 						if not string.lower(tostring(activeStates.BGSI_Lite_LuckEggName or "")):find(" golden$") then
 							addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
 						end
-						-- Same label rule the in-game Special Rift Priority dropdown uses: the
-						-- rift's own Egg field, because the id is not a reliable name (the
-						-- "corruptshadow" rift's real egg is "Corrupt Dark Rift Egg").
+						-- Use each rift's Egg field for dashboard target-rift labels.
 						local function riftOptionLabel(riftId, riftInfo)
 							if type(riftInfo) == "table" and type(riftInfo.Egg) == "string" and riftInfo.Egg ~= "" then
 								return riftInfo.Egg
@@ -15634,20 +15491,6 @@ do
 								addConfigOption("selectedRiftEgg", riftName, riftName, riftInfo)
 								-- Matches getTargetRiftHopOptions: every egg rift can be hopped to.
 								addConfigOption("targetRiftIds", riftName, riftOptionLabel(riftName, riftInfo), riftInfo)
-								-- Matches isSpecialEggRift: the weighted, non-ignored egg rifts.
-								if
-									riftInfo.Ignore ~= true
-									and type(riftInfo.Weight) == "number"
-									and riftInfo.Weight > 0
-									and riftInfo.Weight < 10
-								then
-									addConfigOption(
-										"specialRiftPriority",
-										riftName,
-										riftOptionLabel(riftName, riftInfo),
-										riftInfo
-									)
-								end
 							elseif type(riftInfo) == "table" and riftInfo.Type == "Chest" then
 								addConfigOption("selectedChest", riftName, riftName, riftInfo)
 							end
