@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.13"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,28 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.13",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Pet reward origins",
+				description = "Season Pass and other pet rewards now show their source, with a clean Discord footer time.",
+				icon = "egg",
+			},
+		},
+	},
+	{
+		version = "2026.10.18.12",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Hatch exist counts",
+				description = "Fixed exist-count lookups for live and simulated hatch messages.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.11",
 		releasedAt = "October 18, 2026",
@@ -21788,6 +21810,46 @@ function getWebhookHatchEggName(petEntry, petInfo, eventName, hatchResult)
 	return found or "Unknown"
 end
 
+-- Pets awarded by a season, bounty, shop, or event have a Tag rather than an egg.
+-- The game's Pets builder stores that source in petInfo.Tag.
+function getWebhookPetSource(petEntry, petInfo, eventName, hatchResult)
+	local isHatchEvent = eventName == "HatchEgg" or eventName == "HatchPowerupEgg"
+		or eventName == "ExclusiveHatch"
+	local function originValue(value)
+		if type(value) ~= "string" then return nil end
+		value = value:match("^%s*(.-)%s*$")
+		if value == "" or value == "Unknown" then return nil end
+		local lower = value:lower()
+		if lower:find("season", 1, true) or lower:find("mega shop", 1, true) then
+			return "Season Pass"
+		end
+		if lower:find("secret bounty", 1, true) then return "Bounty" end
+		if lower:find("rebirth machine", 1, true) then return "Rebirth Machine" end
+		if lower:find("leaderboard", 1, true) then return "Leaderboard" end
+		if lower:find("competitive", 1, true) or lower:find("comp", 1, true) then
+			return "Competitive"
+		end
+		if lower:find("global", 1, true) or lower:find("incentive", 1, true) then
+			return "Global Incentive"
+		end
+		if lower:find("admin", 1, true) then return "Admin Abuse Egg" end
+		return value
+	end
+	local origin = type(petInfo) == "table" and (originValue(petInfo.Origin)
+		or originValue(petInfo.Origins) or originValue(petInfo.Tag)) or nil
+	if not origin and type(petEntry) == "table" then
+		origin = originValue(petEntry.Origin) or originValue(petEntry.Source)
+	end
+	if not origin and type(petInfo) == "table" and petInfo.AdminAbuse then
+		origin = "Admin Abuse Egg"
+	end
+	local eggName = getWebhookHatchEggName(petEntry, petInfo, eventName, hatchResult)
+	if isHatchEvent and eggName ~= "Unknown" then return eggName, true end
+	if origin then return origin, false end
+	if eggName ~= "Unknown" then return eggName, true end
+	return "Unknown", false
+end
+
 -- Match the game's LootPoolViewer: resolve the world, request the player's
 -- current luck for this egg, then read its adjusted GetEggPool entry.
 function getWebhookHatchChances(petName, petInfo, eggName, shiny, mythic, xl, super)
@@ -21881,8 +21943,29 @@ function getWebhookHatchChances(petName, petInfo, eggName, shiny, mythic, xl, su
 end
 
 function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
-	if not remoteFunction or type(scriptStateSU) ~= "string" or scriptStateSU == "" then
+	if type(scriptStateSU) ~= "string" or scriptStateSU == "" then
 		return nil
+	end
+	-- The game's pet tooltip passes PetUtil:GetName(pet) to GetExisting.
+	local remotePetName = scriptStateSU
+	if type(webhookPetEntry) == "table" then
+		local petName = activeStates.BGSI_Lite_GetHatchPetName(webhookPetEntry)
+		if petName ~= "Unknown" then
+			local variantPet = {
+				Name = petName,
+				Super = activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "Super"),
+				XL = activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "XL"),
+				Shiny = activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "Shiny"),
+				Mythic = activeStates.BGSI_Lite_GetHatchPetFlag(webhookPetEntry, "Mythic"),
+			}
+			local nameOk, gameName = pcall(function()
+				local petUtil = require(ReplicatedStorage.Shared.Utils.PetUtil)
+				return petUtil:GetName(variantPet)
+			end)
+			if nameOk and type(gameName) == "string" and gameName ~= "" then
+				remotePetName = gameName
+			end
+		end
 	end
 
 	local function getExistingCount(existingValue)
@@ -21898,6 +21981,7 @@ function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
 			local zeroCount
 			for _, existingKey in ipairs({
 				scriptStateSU,
+				remotePetName,
 				"Existing",
 				"Exists",
 				"Exist",
@@ -21929,6 +22013,7 @@ function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
 	if type(webhookPetEntry) == "table" then
 		local nestedPet = type(webhookPetEntry.Pet) == "table" and webhookPetEntry.Pet or nil
 		for _, existingValue in pairs({
+			webhookPetEntry.BGSI_Lite_DashboardExistingCount,
 			webhookPetEntry.Existing,
 			webhookPetEntry.Exists,
 			webhookPetEntry.Exist,
@@ -21953,16 +22038,18 @@ function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
 		end
 	end
 
+	if not remoteFunction then
+		return localExistingCount or 0
+	end
 	local latestExistingCount
 	local attemptCount = math.min(8, math.max(1, math.floor(tonumber(maxAttempts) or 4)))
 	for existingAttempt = 1, attemptCount do
 		local requestSucceeded, existingResponse = pcall(function()
-			return remoteFunction:InvokeServer("GetExisting", scriptStateSU)
+			return remoteFunction:InvokeServer("GetExisting", remotePetName)
 		end)
 		local existingCount = requestSucceeded and getExistingCount(existingResponse) or nil
-		if existingCount and existingCount > 0
-			and (not latestExistingCount or existingCount > latestExistingCount) then
-			latestExistingCount = existingCount
+		if existingCount ~= nil then
+			latestExistingCount = math.max(latestExistingCount or 0, existingCount)
 		end
 		if latestExistingCount and latestExistingCount > 0 then
 			break
@@ -21974,7 +22061,7 @@ function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
 	if latestExistingCount or localExistingCount then
 		return math.max(latestExistingCount or 0, localExistingCount or 0)
 	end
-	return nil
+	return 0
 end
 function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH, scriptStateVT)
 	if type(scriptStateHC) ~= "string" or scriptStateHC == "" then
@@ -22186,8 +22273,15 @@ function buildDiscordV2WebhookPayload(scriptStateACW)
 		local footerText = type(sourceEmbed.footer) == "table" and sourceEmbed.footer.text or nil
 		local timestamp = sourceEmbed.timestamp
 		local footerLine = tostring(footerText or "")
-		if timestamp and tostring(timestamp) ~= "" then
-			footerLine = footerLine ~= "" and (footerLine .. " • " .. tostring(timestamp)) or tostring(timestamp)
+		if timestamp then
+			local unixTime = tonumber(timestamp)
+			if not unixTime and type(timestamp) == "string" then
+				unixTime = os.time()
+			end
+			if unixTime then
+				local discordTime = "<t:" .. tostring(math.floor(unixTime)) .. ":F>"
+				footerLine = footerLine ~= "" and (footerLine .. " • " .. discordTime) or discordTime
+			end
 		end
 		if footerLine ~= "" then
 			addSeparator()
@@ -22774,8 +22868,8 @@ local function buildSimulatedHatchPayload(pet, info)
 	local petName = pet.Name
 	local shiny, mythic, xl = pet.Shiny == true, pet.Mythic == true, pet.XL == true
 	local super = pet.Super == true
-	local eggName = getWebhookHatchEggName(pet, info)
-	local basePercent = getWebhookHatchChances(petName, info, eggName, shiny, mythic, xl, super)
+	local sourceName, sourceIsEgg = getWebhookPetSource(pet, info)
+	local basePercent = sourceIsEgg and getWebhookHatchChances(petName, info, sourceName, shiny, mythic, xl, super) or 0
 	local baseOneIn = basePercent > 0 and 100 / basePercent or 0
 	local variantName = (super and "Super " or "") .. buildPetWebhookEmbed(petName, shiny, mythic, xl)
 	local existCount = getPetVariantName(variantName, pet, 4)
@@ -22788,10 +22882,13 @@ local function buildSimulatedHatchPayload(pet, info)
 		statMultiplier *= 1.75
 	end
 	local petLines = {
-		"<:egg:1377264232915013673> Egg: **" .. eggName .. "**",
-		"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-			.. runShrineDonation(math.floor(baseOneIn + 0.5)) .. "**",
+		(sourceIsEgg and "<:egg:1377264232915013673> Egg: **" or "🏷️ Origin: **")
+			.. sourceName .. "**",
 	}
+	if sourceIsEgg then
+		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
+			.. runShrineDonation(math.floor(baseOneIn + 0.5)) .. "**")
+	end
 	local statEmojis = {
 		bubbles = "<:purple_circle:1363755750828019774>",
 		gems = "<:gem:1363755998401269854>",
@@ -22836,7 +22933,7 @@ local function buildSimulatedHatchPayload(pet, info)
 			thumbnail = not xl and iconUrl and {url = iconUrl} or nil,
 			image = xl and iconUrl and {url = iconUrl} or nil,
 			footer = {text = ""},
-			timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+			timestamp = os.time(),
 		}},
 	}
 end
@@ -23436,12 +23533,17 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local scriptStateLS = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Shiny")
 				local scriptStateNI = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "Mythic")
 				local scriptStateKK = activeStates.BGSI_Lite_GetHatchPetFlag(scriptStateACH, "XL")
-				local webhookEggName = getWebhookHatchEggName(scriptStateACH, scriptStateEQ, scriptStateKW, scriptStateNY)
-				local webhookBasePercent, webhookFinalPercent = getWebhookHatchChances(
-					scriptStateFL, scriptStateEQ, webhookEggName,
-					scriptStateLS, scriptStateNI, scriptStateKK, isSuperLegendaryPet
+				local webhookSourceName, webhookSourceIsEgg = getWebhookPetSource(
+					scriptStateACH, scriptStateEQ, scriptStateKW, scriptStateNY
 				)
-				if not meetsWebhookMinimumChance(
+				local webhookBasePercent, webhookFinalPercent = 0, 0
+				if webhookSourceIsEgg then
+					webhookBasePercent, webhookFinalPercent = getWebhookHatchChances(
+						scriptStateFL, scriptStateEQ, webhookSourceName,
+						scriptStateLS, scriptStateNI, scriptStateKK, isSuperLegendaryPet
+					)
+				end
+				if webhookSourceIsEgg and not meetsWebhookMinimumChance(
 					scriptStateFL, scriptStateEQ, scriptStateLS, scriptStateNI, scriptStateKK, webhookFinalPercent
 				) then
 					continue
@@ -23503,13 +23605,14 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local webhookPlayerName = Config.webhookHidePlayerName == true and "Player"
 					or (webhookPlayer and webhookPlayer.Name or LocalPlayer.Name)
 				local webhookStats = type(scriptStateEQ.Stats) == "table" and scriptStateEQ.Stats or {}
-				table.insert(scriptStateAEO, "<:egg:1377264232915013673> Egg: **" .. webhookEggName .. "**")
-				table.insert(
-					scriptStateAEO,
-					"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-						.. runShrineDonation(math.floor(scriptStateAEC + 0.5))
-						.. "**"
-				)
+				table.insert(scriptStateAEO,
+					(webhookSourceIsEgg and "<:egg:1377264232915013673> Egg: **" or "🏷️ Origin: **")
+						.. webhookSourceName .. "**")
+				if webhookSourceIsEgg then
+					table.insert(scriptStateAEO,
+						"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
+							.. runShrineDonation(math.floor(scriptStateAEC + 0.5)) .. "**")
+				end
 				local webhookStatEmojis = {
 					bubbles = "<:purple_circle:1363755750828019774>",
 					gems = "<:gem:1363755998401269854>",
@@ -23560,8 +23663,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				}
 				local hatchThumbnail = not scriptStateKK and scriptStateWG or nil
 				local hatchImage = scriptStateKK and scriptStateWG or nil
-				local hatchFooter = " " .. tostring(webhookPetId)
-				local hatchTimestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
+				local hatchFooter = ""
+				local hatchTimestamp = os.time()
 				sendHatchTelemetryLikeNormal(
 					scriptStatePG,
 					isSuperLegendaryPet,
