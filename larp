@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.18"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.19"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.19",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{
+				title = "updated webhook message",
+				description = "embed changes",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.18",
 		releasedAt = "October 18, 2026",
@@ -17972,13 +17983,27 @@ activeStates.BGSI_Lite_GetResolvedWebhookPetId = function(
 	end
 	return nil
 end
+local superWebhookEnchantNames = {
+	["super-luck"] = "Luck Boost", ["super-luck-plus"] = "Luck Boost+",
+	["super-burst"] = "Burst Blessing", ["super-burst-plus"] = "Burst Blessing+",
+	["super-shiny"] = "Shiny Blessing", ["super-shiny-plus"] = "Shiny Blessing+",
+	["super-speed"] = "Hatch Blessing", ["super-speed-plus"] = "Hatch Blessing+",
+	["super-bubble"] = "Bubble Machine", ["super-bubble-plus"] = "Bubble Machine+",
+	["super-mythic"] = "Mythic Blessing", ["super-mythic-plus"] = "Mythic Blessing+",
+	["super-infinity"] = "Infinity Blessing", ["super-infinity-plus"] = "Infinity Blessing+",
+	["super-duplication"] = "Duplication", ["super-duplication-plus"] = "Duplication+",
+}
 function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, isMythic, isXL)
 	local enchantNames, seenEnchantNames = {}, {}
 	local function addEnchantSource(source)
 		local enchantList = getSuperLegendaryWebhookEnchantList(source)
 		for enchantSlot = 1, #enchantList do
 			local enchantName = enchantList[enchantSlot]
-			local displayName = getWebhookEnchantDisplayName(enchantName)
+			local enchantId = type(enchantName) == "table" and enchantName.Id or enchantName
+			local enchantInfo = type(enchantData) == "table" and enchantData[enchantId]
+			local displayName = superWebhookEnchantNames[enchantId]
+				or (type(enchantInfo) == "table" and enchantInfo.DisplayName)
+				or getWebhookEnchantDisplayName(enchantName)
 			if displayName and not seenEnchantNames[displayName] then
 				seenEnchantNames[displayName] = true
 				table.insert(enchantNames, displayName)
@@ -18008,16 +18033,8 @@ function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, 
 	if #enchantNames == 0 then
 		return nil, enchantNames
 	end
-	local enchantLines = {
-		"<:orange_book:1462135985759326370> **Enchantments**:",
-	}
-	for enchantIndex = 1, #enchantNames do
-		table.insert(
-			enchantLines,
-			"\t > **<:four_leaf_clover:1462133363182796810> " .. enchantNames[enchantIndex] .. "**"
-		)
-	end
-	return table.concat(enchantLines, "\n"), enchantNames
+	return "<:enchantments:1462135985759326370> Enchants: "
+		.. table.concat(enchantNames, ", "), enchantNames
 end
 function isSpecialEnchant(scriptStateADR)
 	local scriptStateABZ = getEnchantData(scriptStateADR)
