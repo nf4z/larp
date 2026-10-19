@@ -917,6 +917,7 @@ local statsUtil = loadModule(findModule(shared, "StatsUtil"))
 local worldUtil = loadModule(findModule(shared, "WorldUtil"))
 local enchantModule = loadModule(findModule(shared, "EnchantUtil"))
 local enchantData = loadModule(findModule(shared.Data, "Enchants")) or {}
+local eggData = loadModule(findModule(shared.Data, "Eggs")) or {}
 
 
 local function getValue(data, keys, depth)
@@ -953,6 +954,45 @@ local function getName(pet)
         or (type(pet.Pet) == "string" and pet.Pet)
         or "Unknown"
     )
+end
+
+local function getWebhookHatchEggName(pet, petName, petInfo)
+    local function normalizeEggName(value)
+        if type(value) == "table" then
+            value = value.Name or value.EggName
+        end
+        if type(value) ~= "string" then
+            return nil
+        end
+        value = value:match("^%s*(.-)%s*$")
+        return value ~= "" and value ~= "Unknown" and value or nil
+    end
+
+    local explicitEgg = normalizeEggName(getValue(pet, { "Egg", "EggName", "SourceEgg" }, 0))
+    if explicitEgg then
+        return explicitEgg
+    end
+    local metadataEgg = normalizeEggName(type(petInfo) == "table" and petInfo.Egg)
+    if metadataEgg then
+        return metadataEgg
+    end
+
+    local foundEgg
+    for eggName, eggInfo in pairs(eggData) do
+        local pool = type(eggInfo) == "table" and (eggInfo.Pool or eggInfo.Pets)
+        if type(pool) == "table" then
+            for _, entry in pairs(pool) do
+                local item = type(entry) == "table" and entry.Item
+                if type(item) == "table" and item.Type == "Pet" and item.Name == petName then
+                    if foundEgg and foundEgg ~= eggName then
+                        return "Unknown"
+                    end
+                    foundEgg = eggName
+                end
+            end
+        end
+    end
+    return normalizeEggName(foundEgg) or "Unknown"
 end
 
 local function getFlag(pet, flag)
@@ -1394,9 +1434,17 @@ local function getWebhookAvatarUrl(scriptStateWL)
 	return "x" .. string.format("%.4g", scriptStateWL)
 end
 activeStates.BGSI_Lite_GetWebhookPetStatValue = function(webhookStatValue)
-	local formattedStatValue = string.format("%.4f", tonumber(webhookStatValue) or 0)
-	formattedStatValue = formattedStatValue:gsub("0+$", ""):gsub("%.$", "")
-	return "x" .. formattedStatValue
+    local number = tonumber(webhookStatValue) or 0
+    local formattedStatValue = string.format("%.4f", number)
+    formattedStatValue = formattedStatValue:gsub("0+$", ""):gsub("%.$", "")
+    local integer, fraction = formattedStatValue:match("^(-?%d+)(%.%d+)$")
+    if not integer then integer, fraction = formattedStatValue, "" end
+    repeat
+        local changed
+        integer, changed = integer:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        if changed == 0 then break end
+    until false
+    return "x" .. integer .. fraction
 end
 local function getWebhookRequestFunction()
 	local debugSecretLuck, debugInfinityLuck
@@ -1569,6 +1617,10 @@ local function getPetVariantName(scriptStateSU, webhookPetEntry)
 	if not remoteFunction or type(scriptStateSU) ~= "string" or scriptStateSU == "" then
 		return nil
 	end
+    local remotePetName = type(webhookPetEntry) == "table" and getName(webhookPetEntry) or nil
+    if type(remotePetName) ~= "string" or remotePetName == "" or remotePetName == "Unknown" then
+        remotePetName = scriptStateSU
+    end
 
 	local function getExistingCount(existingValue)
 		if type(existingValue) == "number" then
@@ -1636,7 +1688,7 @@ local function getPetVariantName(scriptStateSU, webhookPetEntry)
 	local latestExistingCount
 	for existingAttempt = 1, 4 do
 		local requestSucceeded, existingResponse = pcall(function()
-			return remoteFunction:InvokeServer("GetExisting", scriptStateSU)
+            return remoteFunction:InvokeServer("GetExisting", remotePetName)
 		end)
 		local existingCount = requestSucceeded and getExistingCount(existingResponse) or nil
 		if existingCount and (not latestExistingCount or existingCount > latestExistingCount) then
@@ -1859,8 +1911,17 @@ local function buildDiscordV2WebhookPayload(scriptStateACW)
 		local footerText = type(sourceEmbed.footer) == "table" and sourceEmbed.footer.text or nil
 		local timestamp = sourceEmbed.timestamp
 		local footerLine = tostring(footerText or "")
-		if timestamp and tostring(timestamp) ~= "" then
-			footerLine = footerLine ~= "" and (footerLine .. " • " .. tostring(timestamp)) or tostring(timestamp)
+		if timestamp then
+			-- Components V2 text displays support Discord's <t:UNIX:STYLE> markup.
+			local unixTime = tonumber(timestamp)
+			if not unixTime and type(timestamp) == "string" then
+				-- Existing ISO timestamps represent send time; use current Unix time.
+				unixTime = os.time()
+			end
+			if unixTime then
+				local discordTime = "<t:" .. tostring(math.floor(unixTime)) .. ":F>"
+				footerLine = footerLine ~= "" and (footerLine .. " • " .. discordTime) or discordTime
+			end
 		end
 		if footerLine ~= "" then
 			addSeparator()
@@ -1992,16 +2053,6 @@ local function build(pet, options)
 				elseif scriptStateNI then
 					scriptStateAFP = scriptStateAFP * 1.75
 				end
-				local webhookPetDisplayName =
-					buildPetWebhookEmbed(scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK)
-				local webhookPetTitleName = (isSuperLegendaryPet and "Super " or "") .. webhookPetDisplayName
-				local scriptStateBR = scriptStateACH.BGSI_Lite_DashboardExistingCount
-				if scriptStateBR == nil then
-					scriptStateBR = getPetVariantName(webhookPetTitleName, scriptStateACH)
-				end
-				local webhookHatchCount = options.simulated
-                    and ((tonumber(hatchCounts[webhookPetTitleName]) or 0) + 1)
-                    or incrementWebhookHatchTracker(webhookPetTitleName)
 				local webhookPetId = activeStates.BGSI_Lite_GetResolvedWebhookPetId(
 					scriptStateACH,
 					scriptStateFL,
@@ -2015,149 +2066,79 @@ local function build(pet, options)
 				end
 				local scriptStateMO = checkLowCurrencyWebhook(scriptStateFL, scriptStateEQ)
 				local scriptStateAEC = 100 / scriptStateMO
-				local scriptStateYS = 1
-				if scriptStateLS then
-					scriptStateYS = scriptStateYS * 40
-				end
-				if scriptStateNI then
-					scriptStateYS = scriptStateYS * 100
-				end
-				if scriptStateKK then
-					scriptStateYS = scriptStateYS * 400
-				end
-				local scriptStateDO = scriptStateAEC * scriptStateYS
 				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
-				local scriptStateAEB = isSuperLegendaryPet and "Super Legendary" or scriptStatePG
 				local scriptStateAEO = {}
 				local webhookPlayer = Players.LocalPlayer
 				local webhookPlayerName = Config.webhookHidePlayerName == true and "Player"
 					or (webhookPlayer and webhookPlayer.Name or LocalPlayer.Name)
-				local webhookUserStats = getWebhookRequestFunction()
-				local webhookUserTotals = getDiscordTimestamp()
-				local webhookUserInfoLines = {
-					"<:purple_circle:1363755750828019774> Current Bubbles: **" .. getShrineAmountValue(
-						webhookUserTotals.BubblesBlown
-					) .. "**",
-					"🪙 Coins: **" .. getShrineAmountValue(webhookUserStats.Coins) .. "**",
-					"<:gem:1363755998401269854> Gems: **" .. getShrineAmountValue(webhookUserStats.Gems) .. "**",
-					"<:egg:1377264232915013673> Total Eggs: **"
-						.. runShrineDonation(webhookUserTotals.EggsHatched)
-						.. "**",
-					"<:four_leaf_clover:1462133363182796810> Luck: **"
-						.. tostring(webhookUserStats.LuckDisplay)
-						.. "**",
-					"❓ Secret luck: **" .. tostring(webhookUserStats.SecretLuckDisplay) .. "**",
-					"♾️ Infinity luck: **" .. tostring(webhookUserStats.InfinityLuckDisplay) .. "**",
-				}
-				if isSuperLegendaryPet then
-					local superLegendaryEnchantText = getWebhookSuperLegendaryEnchantText(
-						scriptStateACH,
-						scriptStateFL,
-						scriptStateLS,
-						scriptStateNI,
-						scriptStateKK
-					)
-					if superLegendaryEnchantText then
-						table.insert(scriptStateAEO, superLegendaryEnchantText)
-					end
-				end
-				local webhookPetTier = tonumber(
-					activeStates.BGSI_Lite_GetHatchPetValue(scriptStateACH, { "Tier" }) or scriptStateEQ.Tier
-				)
-				if webhookPetTier then
-					table.insert(
-						scriptStateAEO,
-						"<:crossed_swords:1411581143114846318> Pet Tier: **"
-							.. runShrineDonation(webhookPetTier)
-							.. "**"
-					)
-				end
-				if scriptStateEQ.Tag and scriptStateEQ.Tag ~= "" then
-					table.insert(scriptStateAEO, "🏷️ Origins: **" .. tostring(scriptStateEQ.Tag) .. "**")
-				end
-				local webhookStatEmojis = {
-					Bubbles = "<:purple_circle:1363755750828019774>",
-					CarnivalCoins = "<:circus_tent:1520159699230785707>",
-					Gems = "<:gem:1363755998401269854>",
-				}
-				local addedWebhookStats = {}
-				if type(scriptStateEQ.Stats) == "table" then
-					for _, webhookStatName in ipairs({ "Bubbles", "CarnivalCoins", "Gems" }) do
-						local webhookStatValue = scriptStateEQ.Stats[webhookStatName]
-						if type(webhookStatValue) == "number" then
-							table.insert(
-								scriptStateAEO,
-								webhookStatEmojis[webhookStatName]
-									.. " "
-									.. webhookStatName
-									.. ": **"
-									.. activeStates.BGSI_Lite_GetWebhookPetStatValue(webhookStatValue * scriptStateAFP)
-									.. "**"
-							)
-							addedWebhookStats[webhookStatName] = true
-						end
-					end
-					for webhookStatName, webhookStatValue in pairs(scriptStateEQ.Stats) do
-						if type(webhookStatValue) == "number" and not addedWebhookStats[webhookStatName] then
-							local webhookStatEmoji = scriptStateDX[webhookStatName] or ""
-							table.insert(
-								scriptStateAEO,
-								webhookStatEmoji
-									.. " "
-									.. webhookStatName
-									.. ": **"
-									.. activeStates.BGSI_Lite_GetWebhookPetStatValue(webhookStatValue * scriptStateAFP)
-									.. "**"
-							)
-						end
-					end
-				end
-				table.insert(scriptStateAEO, "")
-				table.insert(
-					scriptStateAEO,
-					"Exist: **" .. (scriptStateBR and runShrineDonation(scriptStateBR) or "0") .. "**"
-				)
-				table.insert(
-					scriptStateAEO,
-					"You've hatched this pet **"
-						.. runShrineDonation(webhookHatchCount)
-						.. "** time"
-						.. (webhookHatchCount == 1 and "!" or "s!")
-				)
-				local webhookVariantLabel = scriptStateLS and scriptStateNI and "SM"
-					or (scriptStateLS and "S" or (scriptStateNI and "M" or ""))
-				if scriptStateKK then
-					webhookVariantLabel = webhookVariantLabel ~= "" and webhookVariantLabel .. " XL" or "XL"
-				end
-				if isSuperLegendaryPet then
-					webhookVariantLabel = webhookVariantLabel ~= "" and "Super " .. webhookVariantLabel or "Super"
-				end
-				local scriptStateXT = webhookPlayerName
-					.. " hatched a "
-					.. (webhookVariantLabel ~= "" and webhookVariantLabel .. " " or "")
-					.. '"'
-					.. scriptStateAEB
-					.. '" '
-					.. scriptStateFL
+                local webhookEggName = getWebhookHatchEggName(scriptStateACH, scriptStateFL, scriptStateEQ)
+                local webhookStats = type(scriptStateEQ.Stats) == "table" and scriptStateEQ.Stats or {}
+                table.insert(scriptStateAEO, "<:egg:1377264232915013673> Egg: **" .. webhookEggName .. "**")
+                table.insert(
+                    scriptStateAEO,
+                    "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
+                        .. runShrineDonation(math.floor(scriptStateAEC + 0.5))
+                        .. "**"
+                )
+                -- Use lowercase normalized keys: game stat names vary in capitalization.
+                -- Discord requires the webhook to have access to this custom emoji.
+                local webhookStatEmojis = {
+                    bubbles = "<:purple_circle:1363755750828019774>",
+                    gems = "<:gem:1363755998401269854>",
+                    coins = "🪙",
+                    carnivalcoins = "<:circus_tent:1520159699230785707>",
+                    candycorn26 = "<:CandyCorn26:1561526287476985887>",
+                }
+                local webhookStatNames = {}
+                for statName, statValue in pairs(webhookStats) do
+                    if type(statName) == "string" and type(statValue) == "number" then
+                        table.insert(webhookStatNames, statName)
+                    end
+                end
+                table.sort(webhookStatNames)
+                for _, statName in ipairs(webhookStatNames) do
+                    local normalizedStatName = statName:lower():gsub("[^%w]", "")
+                    local statEmoji = webhookStatEmojis[normalizedStatName] or scriptStateDX[statName] or ""
+                    local statValue = activeStates.BGSI_Lite_GetWebhookPetStatValue(
+                        webhookStats[statName] * scriptStateAFP
+                    )
+                    local displayStatName = normalizedStatName == "candycorn26" and "Candycorn" or statName
+                    table.insert(scriptStateAEO, statEmoji .. " " .. displayStatName .. ": **" .. statValue .. "**")
+                end
+                table.insert(scriptStateAEO, "")
+                local existingCount = getPetVariantName(scriptStateFL, scriptStateACH)
+                table.insert(
+                    scriptStateAEO,
+                    "Exist: **" .. (existingCount and runShrineDonation(existingCount) or "0") .. "**"
+                )
+                local titleVariants = {}
+                if scriptStateLS then
+                    table.insert(titleVariants, "Shiny")
+                end
+                if scriptStateNI then
+                    table.insert(titleVariants, "Mythic")
+                end
+                if isSuperLegendaryPet then
+                    table.insert(titleVariants, "Super")
+                end
+                if scriptStateKK then
+                    table.insert(titleVariants, "XL")
+                end
+                local scriptStateXT = webhookPlayerName .. " hatched a "
+                    .. (#titleVariants > 0 and table.concat(titleVariants, " ") .. " " or "")
+                    .. scriptStateFL
 				local scriptStateDescription = "# **" .. scriptStateXT .. "**"
 
     local embed = {
         description = scriptStateDescription,
         color = scriptStateKY,
         fields = {
-            {name = "User Info", value = table.concat(webhookUserInfoLines, "\n"), inline = false},
             {name = "Pet Info", value = table.concat(scriptStateAEO, "\n"), inline = false},
-            {name = "Chance", value = "Base: **1/"
-                .. runShrineDonation(math.floor(scriptStateAEC)) .. "** ("
-                .. formatWebhookChancePercent(scriptStateAEC) .. ") | "
-                .. (webhookVariantLabel ~= "" and webhookVariantLabel or "Final")
-                .. ": **1/" .. runShrineDonation(math.floor(scriptStateDO)) .. "** ("
-                .. formatWebhookChancePercent(scriptStateDO) .. ")", inline = false},
         },
         thumbnail = not scriptStateKK and scriptStateWG and {url = scriptStateWG} or nil,
         image = scriptStateKK and scriptStateWG and {url = scriptStateWG} or nil,
         footer = {text = options.simulated and "" or (" " .. tostring(webhookPetId))},
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
+        timestamp = os.time(),
     }
     local envelope = {embeds = {embed}}
     local userId = getRebirthMachineCost(options.userId)
