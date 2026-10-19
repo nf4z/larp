@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.23"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.24"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.24",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Visible User Info toggle", description = "Moved Show User Info to the top of the Webhook tab.", icon = "eye" },
+			{ title = "Auto Update version check", description = "Auto Update no longer replaces a newer local script with an older GitHub version.", icon = "refresh" },
+		},
+	},
 	{
 		version = "2026.10.19.23",
 		releasedAt = "October 19, 2026",
@@ -23212,6 +23220,17 @@ local function buildSimulatedHatchPayload(pet, info)
 end
 
 do
+	scriptStateKM:AddSection("Hatch Embed")
+	scriptStateKM:AddToggle("WebhookShowUserInfo", {
+		Title = "Show User Info",
+		Description = "Adds currencies, bubbles, eggs, and luck above Pet Info in hatch embeds.",
+		Default = Config.webhookShowUserInfo,
+		Callback = function(enabled)
+			Config.webhookShowUserInfo = enabled == true
+			saveConfig()
+		end,
+	})
+	scriptStateKM:AddSection("Hatch Webhook")
 	scriptStateKM:AddToggle("WebhookEnabled", {
 		Title = "Enable Webhook",
 		Default = Config.webhookEnabled,
@@ -23240,15 +23259,6 @@ do
 				return
 			end
 			Config.webhookMinimumChance = tostring(value or "")
-			saveConfig()
-		end,
-	})
-	scriptStateKM:AddToggle("WebhookShowUserInfo", {
-		Title = "Show User Info",
-		Description = "Adds currencies, bubbles, eggs, and luck above Pet Info in hatch embeds.",
-		Default = Config.webhookShowUserInfo,
-		Callback = function(enabled)
-			Config.webhookShowUserInfo = enabled == true
 			saveConfig()
 		end,
 	})
@@ -24112,6 +24122,21 @@ function fetchLatestScriptSourceForAutoUpdate()
 	return scriptSource, downloadedVersion
 end
 
+activeStates.BGSI_Lite_CompareScriptVersions = function(first, second)
+	local function parts(version)
+		local year, month, day, revision = tostring(version):match("^(%d+)%.(%d+)%.(%d+)%.(%d+)$")
+		if not year then return nil end
+		return {tonumber(year), tonumber(month), tonumber(day), tonumber(revision)}
+	end
+	local left, right = parts(first), parts(second)
+	if not left or not right then return nil end
+	for index = 1, 4 do
+		if left[index] < right[index] then return -1 end
+		if left[index] > right[index] then return 1 end
+	end
+	return 0
+end
+
 -- This flag must NOT live on `activeStates` (that table is stashed in getgenv()
 -- and survives a self-reload). A `local` here is reinitialized fresh every time
 -- the whole script chunk runs, so it can never get stuck "true" across reloads
@@ -24139,8 +24164,10 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 	if not downloadedVersion then
 		return "error", nil, "The downloaded script has no version marker"
 	end
-	if downloadedVersion == tostring(activeStates.BGSI_Lite_ScriptVersion) then
-		return "up-to-date", downloadedVersion
+	local currentVersion = tostring(activeStates.BGSI_Lite_ScriptVersion)
+	local versionOrder = activeStates.BGSI_Lite_CompareScriptVersions(downloadedVersion, currentVersion)
+	if downloadedVersion == currentVersion or (versionOrder and versionOrder <= 0) then
+		return "up-to-date", currentVersion
 	end
 
 	-- Circuit breaker: activeStates is getgenv() itself, so these two fields survive a
