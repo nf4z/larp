@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.16"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.17"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.17",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Hatch animation preview",
+				description = "Preview the game's hatch animation for any pet from the Webhooks tab.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.16",
 		releasedAt = "October 18, 2026",
@@ -23232,6 +23243,64 @@ do
 		Callback = function(scriptStateZP)
 			Config.webhookLowCurrencyCooldownMinutes = math.floor(scriptStateZP)
 			saveConfig()
+		end,
+	})
+	scriptStateKM:AddSection("Hatch Animation Preview")
+	local animationPetName = ""
+	local animationPlaying = false
+	scriptStateKM:AddInput("AnimationPetName", {
+		Title = "Pet Name",
+		Description = "Play a local hatch animation without receiving a pet or sending a webhook.",
+		Default = "",
+		Placeholder = "Classic Noob / Shiny Super Classic Noob",
+		Callback = function(value)
+			animationPetName = value
+		end,
+	})
+	scriptStateKM:AddButton({
+		Title = "Play Hatch Animation",
+		Callback = function()
+			if animationPlaying then return end
+			if not hatchEffectModule or type(scriptStateID) ~= "function" then
+				Interface:Notify({Title = "Hatch Preview", Content = "The game's hatch animation is unavailable.", Duration = 5})
+				return
+			end
+			local pet, info = makeSimulatedHatchPet(animationPetName)
+			if not pet then
+				Interface:Notify({Title = "Hatch Preview", Content = info, Duration = 5})
+				return
+			end
+			local isBusy, hatching = pcall(function() return hatchEffectModule:IsHatching() end)
+			if isBusy and hatching then
+				Interface:Notify({Title = "Hatch Preview", Content = "Wait for the current hatch animation to finish.", Duration = 5})
+				return
+			end
+			local eggName = getWebhookHatchEggName(pet, info)
+			local eggAssets = ReplicatedStorage:FindFirstChild("Assets")
+			local eggModels = eggAssets and eggAssets:FindFirstChild("Eggs")
+			if eggName == "Unknown" or (eggName ~= "Infinity Egg"
+				and (not eggModels or not eggModels:FindFirstChild(eggName))) then
+				eggName = "Common Egg"
+			end
+			if pet.Super then
+				pet.Enchants = rollSimulatedSuperEnchants(pet)
+				pet.Enchantments = nil
+			end
+			animationPlaying = true
+			task.spawn(function()
+				local ok, err = pcall(function()
+					scriptStateID(hatchEffectModule, {
+						Name = eggName,
+						Speed = 1,
+						Pets = {{Pet = pet, New = false, Deleted = false}},
+					})
+				end)
+				animationPlaying = false
+				if not ok then
+					warn("[Webhook] Hatch animation preview failed: " .. tostring(err))
+					Interface:Notify({Title = "Hatch Preview", Content = "The game could not play this pet's animation.", Duration = 5})
+				end
+			end)
 		end,
 	})
 end
