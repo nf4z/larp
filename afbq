@@ -107,19 +107,26 @@ local EggScanner = (function()
         end
     end
 
+    local chunkerModuleResolved = false
+    local cachedChunkerModule
     local function findChunkerModule()
+        if chunkerModuleResolved then return cachedChunkerModule end
+        chunkerModuleResolved = true
         local shared = storage:FindFirstChild("Shared")
         local framework = shared and shared:FindFirstChild("Framework")
         local classes = framework and framework:FindFirstChild("Classes")
         local utils = shared and shared:FindFirstChild("Utils")
         local module = (classes and classes:FindFirstChild("Chunker"))
             or (utils and utils:FindFirstChild("Chunker"))
-        if module and module:IsA("ModuleScript") then return module end
-        for _, descendant in ipairs(storage:GetDescendants()) do
-            if descendant:IsA("ModuleScript") and descendant.Name == "Chunker" then
-                return descendant
-            end
+        if module and module:IsA("ModuleScript") then
+            cachedChunkerModule = module
+            return module
         end
+        cachedChunkerModule = storage:FindFirstChild("Chunker", true)
+        if cachedChunkerModule and not cachedChunkerModule:IsA("ModuleScript") then
+            cachedChunkerModule = nil
+        end
+        return cachedChunkerModule
     end
 
     local function discoverChunkers()
@@ -151,7 +158,8 @@ local EggScanner = (function()
                 tracker.PatchedClass = class
             end
         end
-        if type(getgc) == "function" then
+        if not tracker.GcDiscoveryDone and type(getgc) == "function" then
+            tracker.GcDiscoveryDone = true
             pcall(function()
                 for _, object in pairs(getgc(true)) do
                     if type(object) == "table"
@@ -266,7 +274,6 @@ local EggScanner = (function()
                 local result = {name = name, position = position, instance = egg,
                     exact = exact ~= nil, loaded = loaded, world = worldFor(egg, name),
                     score = (exact and 1000 or 0) + (loaded and 100 or 0)}
-                table.insert(results, result)
                 if not best[name] or result.score > best[name].score then best[name] = result end
             end)
         end
@@ -292,10 +299,8 @@ local EggScanner = (function()
                 end
             end
         end
-        table.sort(results, function(a, b)
-            if a.name == b.name then return a.score > b.score end
-            return a.name:lower() < b.name:lower()
-        end)
+        for _, entry in pairs(best) do table.insert(results, entry) end
+        table.sort(results, function(a, b) return a.name:lower() < b.name:lower() end)
         cached, cachedList, cacheTime = best, results, tick()
         cacheRevision = tracker.Revision or 0
         return best, results
@@ -1604,6 +1609,45 @@ do
 		end
 	end
 end
+-- // Variant hatch odds \ --
+-- Uses game Constants percentage values for independent variant-roll odds.
+-- These are estimated combined roll odds, not guaranteed identical to server
+-- hatch odds if buffs, limited eggs, or special Super logic override rolls.
+local variantXLChanceDefaults = {
+    Unique = 0.00028571428571428574,
+    Common = 0.0002,
+    Epic = 0.004,
+    Secret = 0.4,
+    Legendary = 0.05,
+    Rare = 0.0013333333333333333,
+}
+
+local function getVariantHatchOdds(baseChancePercent, petInfo, shiny, mythic, xl)
+    local chance = tonumber(baseChancePercent)
+    if not chance or chance <= 0 then return nil, false end
+
+    local shinyChance = tonumber(sharedConstants and sharedConstants.ShinyChance)
+    local mythicChance = tonumber(sharedConstants and sharedConstants.MythicChance)
+    if shiny and (not shinyChance or shinyChance <= 0) then return nil, false end
+    if mythic and (not mythicChance or mythicChance <= 0) then return nil, false end
+    if shiny then chance = chance * (shinyChance / 100) end
+    if mythic then chance = chance * (mythicChance / 100) end
+
+    if xl then
+        local rarity = tostring(petInfo and petInfo.Rarity or "")
+        local gameXLChances = sharedConstants and sharedConstants.XLChances
+        local xlChance = (type(gameXLChances) == "table" and tonumber(gameXLChances[rarity]))
+            or variantXLChanceDefaults[rarity]
+        if not xlChance or xlChance <= 0 then
+            -- No XL probability defined for this rarity; never invent odds.
+            return nil, false
+        end
+        chance = chance * (xlChance / 100)
+    end
+    if chance <= 0 then return nil, false end
+    return 100 / chance, true
+end
+
 local function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
 	if type(scriptStateAFQ) == "string" and activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ] then
 		return activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ]
@@ -2065,7 +2109,9 @@ local function build(pet, options)
 					resolvedWebhookPetIds[tostring(webhookPetId)] = true
 				end
 				local scriptStateMO = checkLowCurrencyWebhook(scriptStateFL, scriptStateEQ)
-				local scriptStateAEC = 100 / scriptStateMO
+                local scriptStateAEC, chanceKnown = getVariantHatchOdds(
+                    scriptStateMO, scriptStateEQ, scriptStateLS, scriptStateNI, scriptStateKK
+                )
 				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
 				local scriptStateAEO = {}
 				local webhookPlayer = Players.LocalPlayer
@@ -2077,7 +2123,7 @@ local function build(pet, options)
                 table.insert(
                     scriptStateAEO,
                     "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-                        .. runShrineDonation(math.floor(scriptStateAEC + 0.5))
+                        .. (chanceKnown and runShrineDonation(math.floor(scriptStateAEC + 0.5)) or "N/A")
                         .. "**"
                 )
                 -- Use lowercase normalized keys: game stat names vary in capitalization.
@@ -2596,6 +2642,7 @@ end)
 -- FULL INVENTORY SCANNER
 -- ======================================
 local knownPets = {}
+local inventoryScanCount = 0
 local function inventoryPetId(pet, key)
     if type(pet) ~= "table" then return nil end
     return HatchWebhook.GetId(pet) or (type(key) == "string" and key) or nil
@@ -2614,6 +2661,19 @@ task.spawn(function()
         task.wait(5)
         local data = LocalData:Get()
         if data and data.Pets then
+            inventoryScanCount = inventoryScanCount + 1
+            -- Drop IDs of pets no longer in inventory; prevents unbounded tracking.
+            -- Refresh at most once per 5 minutes, not every 5-second poll.
+            if inventoryScanCount % 60 == 0 then
+                local currentIds = {}
+                for key, storedPet in pairs(data.Pets) do
+                    local storedId = inventoryPetId(storedPet, key)
+                    if storedId then currentIds[tostring(storedId)] = true end
+                end
+                for oldId in pairs(knownPets) do
+                    if not currentIds[oldId] then knownPets[oldId] = nil end
+                end
+            end
             for key, pet in pairs(data.Pets) do
                 local id = inventoryPetId(pet, key)
                 if not id or knownPets[tostring(id)] then continue end
@@ -2670,18 +2730,9 @@ task.spawn(function()
         task.wait(10)
         if not rareEggNotify then continue end
         
-        local fourXFound = false
-        local rendered = workspace:FindFirstChild("Rendered")
-        if rendered then
-            for _, obj in ipairs(rendered:GetDescendants()) do
-                if obj.Name == "4x Luck Plushie Egg" and obj:IsA("Model") then fourXFound = true; break end
-            end
-        end
-        if not fourXFound then
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj.Name == "4x Luck Plushie Egg" and obj:IsA("Model") then fourXFound = true; break end
-            end
-        end
+        -- FindFirstChild recursive avoids allocating workspace:GetDescendants() every poll.
+        local fourXObject = workspace:FindFirstChild("4x Luck Plushie Egg", true)
+        local fourXFound = fourXObject ~= nil and fourXObject:IsA("Model")
         
         if fourXFound and not was4xPlushieActive then
             was4xPlushieActive = true
