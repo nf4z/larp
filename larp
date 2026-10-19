@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.26"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.27"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.27",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Bubbling team toggle", description = "Bubbling quests can keep your current pet team instead of switching teams.", icon = "users" },
+		},
+	},
 	{
 		version = "2026.10.19.26",
 		releasedAt = "October 19, 2026",
@@ -2367,6 +2374,7 @@ local defaultConfig = {
 	autoDailyHourlyChallenge = false,
 	skipTicketPearlQuests = false,
 	skipBubblingQuests = false,
+	bubbleQuestSwitchTeams = true,
 	questStallTimeoutSeconds = 60,
 	autoShadowLeviathanQuest = false,
 	autoRerollShadowLeviathanQuest = false,
@@ -6363,6 +6371,7 @@ pcall(function()
 end)
 function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
 	if activeStates.BGSI_Lite_BubbleQuestActive == true then return false, "Busy" end
+	local switchTeams = Config.bubbleQuestSwitchTeams == true
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local previousTeam = type(playerData) == "table" and playerData.TeamEquipped or nil
 	local character = LocalPlayer.Character
@@ -6377,9 +6386,11 @@ function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, script
 	activeStates.BGSI_Lite_BubbleQuestOwner = questOwner
 	activeStates.BGSI_Lite_BubbleQuestActive = true
 	local ok, errorMessage = pcall(function()
-		local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
-		if type(equipTeam) == "function" and not equipTeam("Bubbles") then
-			pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "bubble")
+		if switchTeams then
+			local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
+			if type(equipTeam) == "function" and not equipTeam("Bubbles") then
+				pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "bubble")
+			end
 		end
 		while isCurrentRun() and scriptStateFF() and Config.safeMode ~= true do
 			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
@@ -6421,10 +6432,12 @@ function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, script
 	end
 	if isCurrentRun() then
 		pcall(activeStates.BGSI_Lite_SellBubble)
-		local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
-		if type(equipTeam) == "function" then
-			local restoredOk, restored = pcall(equipTeam, "Hatch")
-			if (not restoredOk or not restored) and previousTeam ~= nil then pcall(equipTeam, previousTeam) end
+		if switchTeams then
+			local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
+			if type(equipTeam) == "function" then
+				local restoredOk, restored = pcall(equipTeam, "Hatch")
+				if (not restoredOk or not restored) and previousTeam ~= nil then pcall(equipTeam, previousTeam) end
+			end
 		end
 		if previousCFrame then pcall(teleportToCFrame, previousCFrame) end
 	end
@@ -15181,6 +15194,7 @@ do
 			"autoDailyHourlyChallenge",
 			"skipTicketPearlQuests",
 			"skipBubblingQuests",
+			"bubbleQuestSwitchTeams",
 			"questStallTimeoutSeconds",
 			"autoShadowLeviathanQuest",
 			"autoRerollShadowLeviathanQuest",
@@ -19229,6 +19243,15 @@ do
 		Default = Config.skipBubblingQuests,
 		Callback = function(isEnabled)
 			Config.skipBubblingQuests = isEnabled == true
+			saveConfig()
+		end,
+	})
+	scriptStateUC:AddToggle("BubbleQuestSwitchTeams", {
+		Title = "Switch Teams for Bubbling Quests",
+		Description = "Equip Bubbles during bubbling tasks, then return to Hatch. Turn off to keep your current team.",
+		Default = Config.bubbleQuestSwitchTeams,
+		Callback = function(isEnabled)
+			Config.bubbleQuestSwitchTeams = isEnabled == true
 			saveConfig()
 		end,
 	})
