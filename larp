@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.13"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.14"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,17 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.14",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Egg source fallback",
+				description = "Hatch messages keep the Egg label and show a pet's tag when its egg cannot be found.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.13",
 		releasedAt = "October 18, 2026",
@@ -21813,8 +21824,6 @@ end
 -- Pets awarded by a season, bounty, shop, or event have a Tag rather than an egg.
 -- The game's Pets builder stores that source in petInfo.Tag.
 function getWebhookPetSource(petEntry, petInfo, eventName, hatchResult)
-	local isHatchEvent = eventName == "HatchEgg" or eventName == "HatchPowerupEgg"
-		or eventName == "ExclusiveHatch"
 	local function originValue(value)
 		if type(value) ~= "string" then return nil end
 		value = value:match("^%s*(.-)%s*$")
@@ -21844,9 +21853,8 @@ function getWebhookPetSource(petEntry, petInfo, eventName, hatchResult)
 		origin = "Admin Abuse Egg"
 	end
 	local eggName = getWebhookHatchEggName(petEntry, petInfo, eventName, hatchResult)
-	if isHatchEvent and eggName ~= "Unknown" then return eggName, true end
-	if origin then return origin, false end
 	if eggName ~= "Unknown" then return eggName, true end
+	if origin then return origin, false end
 	return "Unknown", false
 end
 
@@ -22882,8 +22890,7 @@ local function buildSimulatedHatchPayload(pet, info)
 		statMultiplier *= 1.75
 	end
 	local petLines = {
-		(sourceIsEgg and "<:egg:1377264232915013673> Egg: **" or "🏷️ Origin: **")
-			.. sourceName .. "**",
+		"<:egg:1377264232915013673> Egg: **" .. sourceName .. "**",
 	}
 	if sourceIsEgg then
 		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
@@ -23606,8 +23613,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					or (webhookPlayer and webhookPlayer.Name or LocalPlayer.Name)
 				local webhookStats = type(scriptStateEQ.Stats) == "table" and scriptStateEQ.Stats or {}
 				table.insert(scriptStateAEO,
-					(webhookSourceIsEgg and "<:egg:1377264232915013673> Egg: **" or "🏷️ Origin: **")
-						.. webhookSourceName .. "**")
+					"<:egg:1377264232915013673> Egg: **" .. webhookSourceName .. "**")
 				if webhookSourceIsEgg then
 					table.insert(scriptStateAEO,
 						"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
