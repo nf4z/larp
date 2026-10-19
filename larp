@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.14"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.18.16"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,28 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.18.16",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Simulated Super enchants",
+				description = "Simulated Super Legendary pets roll game-weighted enchants, with two slots when shiny.",
+				icon = "egg",
+			},
+		},
+	},
+	{
+		version = "2026.10.18.15",
+		releasedAt = "October 18, 2026",
+		notes = {
+			{
+				title = "Super Legendary enchants",
+				description = "Super Legendary hatch messages show their enchantments again.",
+				icon = "egg",
+			},
+		},
+	},
 	{
 		version = "2026.10.18.14",
 		releasedAt = "October 18, 2026",
@@ -22872,10 +22894,81 @@ local function makeSimulatedHatchPet(input)
 	return pet, info
 end
 
+-- The game's EnchantUtil:FillSuperEnchants rolls one slot, or two for Shiny.
+-- GetUnusedEnchant applies the live pool weights and excludes the other tier
+-- of an already-rolled enchant. These weights mirror the uploaded Enchants module
+-- only for the case where the live EnchantUtil cannot be called.
+local simulatedSuperEnchantWeights = {
+	["super-luck"] = 20, ["super-luck-plus"] = 5,
+	["super-burst"] = 45, ["super-burst-plus"] = 20,
+	["super-shiny"] = 10, ["super-shiny-plus"] = 4,
+	["super-speed"] = 10, ["super-speed-plus"] = 4,
+	["super-bubble"] = 5, ["super-bubble-plus"] = 2,
+	["super-mythic"] = 7.5, ["super-mythic-plus"] = 2.5,
+	["super-infinity"] = 2, ["super-infinity-plus"] = 0.5,
+	["super-duplication"] = 0.5, ["super-duplication-plus"] = 0.1,
+}
+local function rollSimulatedSuperEnchants(pet)
+	local rolled, usedFamilies = {}, {}
+	local profile
+	pcall(function()
+		if profileStore:IsReady() then profile = profileStore:Get() end
+	end)
+	local fallbackPool = simulatedSuperEnchantWeights
+	if type(enchantData) == "table" then
+		for _, entry in pairs(enchantData) do
+			if type(entry) == "table" and entry.IsSuperOnly == true
+				and (tonumber(entry.Weight) or 0) > 0 then
+				fallbackPool = enchantData
+				break
+			end
+		end
+	end
+	for _ = 1, pet.Shiny == true and 2 or 1 do
+		local enchantId
+		if type(profile) == "table" and type(enchantModule) == "table"
+			and type(enchantModule.GetUnusedEnchant) == "function" then
+			local ok, result = pcall(function()
+				return enchantModule:GetUnusedEnchant(profile, rolled, pet.Name, true)
+			end)
+			if ok and type(result) == "string" then enchantId = result end
+		end
+		if not enchantId then
+			local pool, totalWeight = {}, 0
+			for id, entry in pairs(fallbackPool) do
+				local weight = type(entry) == "table" and entry.IsSuperOnly == true
+					and tonumber(entry.Weight) or (type(entry) == "number" and entry or nil)
+				local family = type(id) == "string" and id:gsub("%-plus$", "")
+				if family and weight and weight > 0 and not usedFamilies[family] then
+					totalWeight += weight
+					table.insert(pool, {id = id, threshold = totalWeight})
+				end
+			end
+			if totalWeight > 0 then
+				local pick = math.random() * totalWeight
+				for _, candidate in ipairs(pool) do
+					if pick <= candidate.threshold then
+						enchantId = candidate.id
+						break
+					end
+				end
+			end
+		end
+		if not enchantId then break end
+		usedFamilies[enchantId:gsub("%-plus$", "")] = true
+		table.insert(rolled, {Id = enchantId, Level = 1})
+	end
+	return rolled
+end
+
 local function buildSimulatedHatchPayload(pet, info)
 	local petName = pet.Name
 	local shiny, mythic, xl = pet.Shiny == true, pet.Mythic == true, pet.XL == true
 	local super = pet.Super == true
+	if super then
+		pet.Enchants = rollSimulatedSuperEnchants(pet)
+		pet.Enchantments = nil
+	end
 	local sourceName, sourceIsEgg = getWebhookPetSource(pet, info)
 	local basePercent = sourceIsEgg and getWebhookHatchChances(petName, info, sourceName, shiny, mythic, xl, super) or 0
 	local baseOneIn = basePercent > 0 and 100 / basePercent or 0
@@ -22895,6 +22988,10 @@ local function buildSimulatedHatchPayload(pet, info)
 	if sourceIsEgg then
 		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
 			.. runShrineDonation(math.floor(baseOneIn + 0.5)) .. "**")
+	end
+	if super then
+		local enchantText = getWebhookSuperLegendaryEnchantText({Enchants = pet.Enchants}, petName, shiny, mythic, xl)
+		if enchantText then table.insert(petLines, enchantText) end
 	end
 	local statEmojis = {
 		bubbles = "<:purple_circle:1363755750828019774>",
@@ -23618,6 +23715,12 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					table.insert(scriptStateAEO,
 						"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
 							.. runShrineDonation(math.floor(scriptStateAEC + 0.5)) .. "**")
+				end
+				if isSuperLegendaryPet then
+					local enchantText = getWebhookSuperLegendaryEnchantText(
+						scriptStateACH, scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK
+					)
+					if enchantText then table.insert(scriptStateAEO, enchantText) end
 				end
 				local webhookStatEmojis = {
 					bubbles = "<:purple_circle:1363755750828019774>",
