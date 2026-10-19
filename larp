@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.25"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.26"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.26",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Fishing thread fix", description = "Fishing no longer stops when its background status update lacks UI access.", icon = "fish" },
+			{ title = "Bubbling quests", description = "Bubbling tasks use the Bubbles team and a sell station, then return to Hatch.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.19.25",
 		releasedAt = "October 19, 2026",
@@ -5230,7 +5238,8 @@ end
 -- the very first fire for a window still goes out the instant that window opens.
 local lastFiredForNextEggOpenAt = -1
 function fireHatchEgg(scriptStateQC)
-	if isAutomationBlocked() or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
+	if isAutomationBlocked() or activeStates.BGSI_Lite_BubbleQuestActive == true
+		or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
 	end
 
@@ -6353,50 +6362,79 @@ pcall(function()
 	profileStore:ConnectDataChanged("Bubble", activeStates.BGSI_Lite_ObserveBubbleAmount)
 end)
 function runBubbleBountyTask(scriptStateIO, scriptStatePW, scriptStateKN, scriptStateFF)
-	pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "bubble")
+	if activeStates.BGSI_Lite_BubbleQuestActive == true then return false, "Busy" end
+	local playerData = profileStore:IsReady() and profileStore:Get() or nil
+	local previousTeam = type(playerData) == "table" and playerData.TeamEquipped or nil
+	local character = LocalPlayer.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local previousCFrame = rootPart and rootPart.CFrame
 	local lastSellTime = 0
+	local lastStationTravel = 0
 	local questProgressWatch
-	local scriptStateStalled
 	local activeQuestData
-	while scriptStateFF() do
-		activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
-		local scriptStateABM = scriptStateIO()
-		if not scriptStateABM then
-			break
+	local failureReason
+	local questOwner = {}
+	activeStates.BGSI_Lite_BubbleQuestOwner = questOwner
+	activeStates.BGSI_Lite_BubbleQuestActive = true
+	local ok, errorMessage = pcall(function()
+		local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
+		if type(equipTeam) == "function" and not equipTeam("Bubbles") then
+			pcall(activeStates.BGSI_Lite_ApplyCurrencyTeam, "bubble")
 		end
-		activeQuestData = scriptStateABM
-		local selectedPotionCallback = scriptStateABM.Tasks and scriptStateABM.Tasks[scriptStatePW]
-		local bountyRequirement = scriptStateKN
-		if selectedPotionCallback then
-			bountyRequirement = getBountyTaskRequirement(selectedPotionCallback)
+		while isCurrentRun() and scriptStateFF() and Config.safeMode ~= true do
+			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+			local quest = scriptStateIO()
+			if not quest then break end
+			activeQuestData = quest
+			local taskData = quest.Tasks and quest.Tasks[scriptStatePW]
+			local requirement = taskData and getBountyTaskRequirement(taskData) or scriptStateKN
+			local progress = getBountyTaskProgress(quest, scriptStatePW)
+			questProgressWatch, failureReason = activeStates.BGSI_Lite_RecordQuestProgress(
+				questProgressWatch, quest, scriptStatePW, progress)
+			if failureReason then
+				failureReason = "NoProgress"
+				break
+			end
+			if type(requirement) == "number" and progress >= requirement then break end
+			local station = activeStates.BGSI_Lite_FindSellBubbleStation()
+			local stationCFrame = station and activeStates.BGSI_Lite_GetInstanceTargetCFrame(station, "Root")
+			if not stationCFrame then stationCFrame = CFrame.new(77.556, 6.216, -113.065) end
+			local currentRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			if stationCFrame and currentRoot and tick() - lastStationTravel >= 2
+				and (currentRoot.Position - stationCFrame.Position).Magnitude > 12 then
+				teleportToCFrame(stationCFrame * CFrame.new(0, 3, 0))
+				lastStationTravel = tick()
+			end
+			local bubbleState = activeStates.BGSI_Lite_GetBubbleState()
+			if bubbleState and bubbleState.Amount > 0
+				and (bubbleState.Amount >= bubbleState.Storage or tick() - lastSellTime >= 2) then
+				activeStates.BGSI_Lite_SellBubble()
+				lastSellTime = tick()
+			end
+			activeStates.BGSI_Lite_BlowBubble()
+			task.wait(0.5)
 		end
-		local bountyProgress = getBountyTaskProgress(scriptStateABM, scriptStatePW)
-		questProgressWatch, scriptStateStalled = activeStates.BGSI_Lite_RecordQuestProgress(
-			questProgressWatch,
-			scriptStateABM,
-			scriptStatePW,
-			bountyProgress
-		)
-		if scriptStateStalled then
-			activeStates.BGSI_Lite_SellBubble()
-			activeStates.BGSI_Lite_ClearActiveQuest(scriptStateABM, scriptStatePW)
-			return false, "NoProgress"
-		end
-		if type(bountyRequirement) == "number" and bountyProgress >= bountyRequirement then
-			break
-		end
-		if tick() - (tonumber(questProgressWatch.ChangedAt) or tick()) >= 3 and tick() - lastSellTime >= 0.75 then
-			activeStates.BGSI_Lite_SellBubble()
-			lastSellTime = tick()
-		end
-		if tick() - lastSellTime >= 2 then
-			activeStates.BGSI_Lite_SellBubble()
-			lastSellTime = tick()
-		end
-		activeStates.BGSI_Lite_BlowBubble()
-		task.wait(0.5)
+	end)
+	if not ok then
+		failureReason = "HandlerError"
+		warn("[LarpLite] Bubbling quest failed:", tostring(errorMessage))
 	end
+	if isCurrentRun() then
+		pcall(activeStates.BGSI_Lite_SellBubble)
+		local equipTeam = activeStates.BGSI_Lite_EquipPetTeamByKey
+		if type(equipTeam) == "function" then
+			local restoredOk, restored = pcall(equipTeam, "Hatch")
+			if (not restoredOk or not restored) and previousTeam ~= nil then pcall(equipTeam, previousTeam) end
+		end
+		if previousCFrame then pcall(teleportToCFrame, previousCFrame) end
+	end
+	if activeStates.BGSI_Lite_BubbleQuestOwner == questOwner then
+		activeStates.BGSI_Lite_BubbleQuestActive = false
+		activeStates.BGSI_Lite_BubbleQuestOwner = nil
+	end
+	if Config.autoHatch == true then activeStates.BGSI_Lite_ForceAutoHatchTeleport = true end
 	activeStates.BGSI_Lite_ClearActiveQuest(activeQuestData, scriptStatePW)
+	if failureReason then return false, failureReason end
 end
 activeStates.BGSI_Lite_GetNotificationText = function(notification)
 	if type(notification) == "string" then
@@ -7566,8 +7604,11 @@ activeStates.BGSI_Lite_TicketPickupActive = false
 activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 activeStates.BGSI_Lite_NormalAutomationPaused = false
 activeStates.BGSI_Lite_TrickOrTreatActive = false
+activeStates.BGSI_Lite_BubbleQuestActive = false
+activeStates.BGSI_Lite_BubbleQuestOwner = nil
 function isPriorityAutomationActive()
 	return activeStates.BGSI_Lite_GemGenieActive
+		or activeStates.BGSI_Lite_BubbleQuestActive
 		or activeStates.BGSI_Lite_SeasonActive
 		or activeStates.BGSI_Lite_GlobalIncentiveActive
 		or activeStates.BGSI_Lite_ChallengePassActive
@@ -7588,6 +7629,7 @@ activeStates.BGSI_Lite_IsEggAutomationActive = function()
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 	return Config.autoHatch == true and activeStates.BGSI_Lite_TrickOrTreatActive ~= true
+		and activeStates.BGSI_Lite_BubbleQuestActive ~= true
 end
 function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GemGenieActive and Config.autoGemGenie ~= true then
@@ -8002,7 +8044,8 @@ task.spawn(function()
 	end
 	while isCurrentRun() do
 		task.wait(2.5)
-		if Config.safeMode ~= true and profileStore:IsReady() then
+		if Config.safeMode ~= true and activeStates.BGSI_Lite_BubbleQuestActive ~= true
+			and profileStore:IsReady() then
 			local playerData = profileStore:Get()
 			if type(playerData) ~= "table" then continue end
 			local machine = type(rebirthMachineUtil) == "table"
@@ -8088,7 +8131,10 @@ end)
 do
 	local fishingTab = scriptStateOG:AddTab({Title = "Fishing", Icon = "fish"})
 	fishingTab:AddSection("Automatic Fishing")
-	local fishingStatus = fishingTab:AddText({Title = "Fishing Status", Content = "Waiting for fishing data..."})
+	fishingTab:AddText({Title = "Fishing", Content = "Auto Fish travels to your best unlocked island and tracks its index."})
+	local function setFishingStatus(message)
+		activeStates.BGSI_Lite_FishingStatus = tostring(message)
+	end
 	local function addFishingToggle(flag, title, description, configKey)
 		return fishingTab:AddToggle(flag, {
 			Title = title,
@@ -8119,6 +8165,9 @@ do
 
 	task.spawn(function()
 		local fishingAreas, fishingAreasUtil, fishingUtil, experienceUtil, fishingRods, autoFishModule, fishingWorldUtil
+		local function setAutoFishEnabled(enabled)
+			if autoFishModule then pcall(autoFishModule.SetEnabled, autoFishModule, enabled) end
+		end
 		local function loadFishingModules()
 			if fishingAreas and fishingAreasUtil and fishingUtil and experienceUtil and fishingRods
 				and autoFishModule and fishingWorldUtil then return true end
@@ -8274,7 +8323,7 @@ do
 			if not island or not spawn then return false, "Island is not loaded" end
 			if tick() - fishingState.lastTravel < 4 then return false, "Traveling" end
 			fishingState.lastTravel = tick()
-			if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+			if autoFishModule:IsEnabled() then setAutoFishEnabled(false) end
 			pcall(remoteEvent.FireServer, remoteEvent, "UnequipRod")
 			pcall(remoteEvent.FireServer, remoteEvent, "Teleport", spawn:GetFullName())
 			task.wait(0.9)
@@ -8311,17 +8360,17 @@ do
 					fishingState.instantFailures += 1
 					if fishingState.instantFailures >= 3 then
 						Config.fishingInstantReel = false
-						instantReelToggle:SetValue(false)
+						pcall(instantReelToggle.SetValue, instantReelToggle, false)
 						saveConfig()
-						Interface:Notify({Title = "Fishing", Content = "Instant Reel was turned off after three failed catches.", Duration = 5})
+						warn("[LarpLite] Instant Reel was turned off after three failed catches.")
 					end
 				end
 			end
 		end)
 		while isCurrentRun() do
 			task.wait(1)
-			if not loadFishingModules() then fishingStatus:Set("Fishing modules are loading") continue end
-			if not profileStore:IsReady() then fishingStatus:Set("Waiting for account data") continue end
+			if not loadFishingModules() then setFishingStatus("Fishing modules are loading") continue end
+			if not profileStore:IsReady() then setFishingStatus("Waiting for account data") continue end
 			local profile = profileStore:Get()
 			if type(profile) ~= "table" then continue end
 			local areaId, area, level = chooseFishingArea(profile)
@@ -8333,9 +8382,10 @@ do
 			local areaName = area and area.DisplayName or "None"
 			local status = ("Level %d | %s | Index %d/%d | Rod: %s"):format(
 				level, areaName, found or 0, total or 0, tostring(profile.EquippedRod or "None"))
-			if Config.safeMode == true or activeStates.BGSI_Lite_RebirthMachineBusy == true then
-				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
-				fishingStatus:Set(status .. " | Paused")
+			if Config.safeMode == true or activeStates.BGSI_Lite_RebirthMachineBusy == true
+				or activeStates.BGSI_Lite_BubbleQuestActive == true then
+				if autoFishModule:IsEnabled() then setAutoFishEnabled(false) end
+				setFishingStatus(status .. " | Paused")
 				continue
 			end
 			if Config.fishingAutoClaimIndex == true or fishingState.forceClaim then claimFishingIndex(profile) end
@@ -8347,18 +8397,18 @@ do
 				pcall(remoteEvent.FireServer, remoteEvent, "SellAllFish")
 			end
 			if Config.fishingAuto == true and inventoryOk and inventoryFull then
-				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
-				fishingStatus:Set(status .. " | Inventory full")
+				if autoFishModule:IsEnabled() then setAutoFishEnabled(false) end
+				setFishingStatus(status .. " | Inventory full")
 				continue
 			end
 			if not Config.fishingAuto and not fishingState.forceTravel then
-				if autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+				if autoFishModule:IsEnabled() then setAutoFishEnabled(false) end
 				fishingState.areaId = nil
 				fishingState.castPosition = nil
-				fishingStatus:Set(status .. " | Auto Fish off")
+				setFishingStatus(status .. " | Auto Fish off")
 				continue
 			end
-			if not areaId then fishingStatus:Set("No unlocked fishing area") continue end
+			if not areaId then setFishingStatus("No unlocked fishing area") continue end
 			local worldOk, currentWorld = pcall(fishingWorldUtil.GetPlayerWorld, fishingWorldUtil, LocalPlayer)
 			if not worldOk or currentWorld ~= fishingUtil.WORLD_NAME then fishingState.areaId = nil end
 			local character = LocalPlayer.Character
@@ -8370,20 +8420,20 @@ do
 			if fishingState.forceTravel or fishingState.areaId ~= areaId then
 				fishingState.forceTravel = false
 				local ready, reason = travelToArea(areaId, area)
-				fishingStatus:Set(status .. " | " .. reason)
+				setFishingStatus(status .. " | " .. reason)
 				if not ready then continue end
 			end
 			if Config.fishingAuto == true then
 				if LocalPlayer:GetAttribute("RodEquipped") ~= true then
 					pcall(remoteEvent.FireServer, remoteEvent, "EquipRod")
-					fishingStatus:Set(status .. " | Equipping rod")
+					setFishingStatus(status .. " | Equipping rod")
 					continue
 				end
-				if not autoFishModule:IsEnabled() then autoFishModule:SetEnabled(true) end
-				fishingStatus:Set(status .. " | Fishing")
+				if not autoFishModule:IsEnabled() then setAutoFishEnabled(true) end
+				setFishingStatus(status .. " | Fishing")
 			end
 		end
-		if autoFishModule and autoFishModule:IsEnabled() then autoFishModule:SetEnabled(false) end
+		if autoFishModule and autoFishModule:IsEnabled() then setAutoFishEnabled(false) end
 		if activeStates.BGSI_Lite_FishingEventConnection then
 			activeStates.BGSI_Lite_FishingEventConnection:Disconnect()
 			activeStates.BGSI_Lite_FishingEventConnection = nil
