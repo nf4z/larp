@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.28"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.29"
 -- Choice lists the in-game UI offers. They live here so the dropdowns below and the
 -- options reported to the Account Dashboard read the same source - the dashboard used
 -- to keep its own copy of each one, which went stale the moment a list changed here.
@@ -103,6 +103,15 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.29",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Potion controls", description = "Select multiple owned potions and use a quantity limited by your inventory.", icon = "sparkles" },
+			{ title = "Live shops", description = "Shop automation reads current stock, costs, unlocked slots, and confirmed free rerolls.", icon = "shop" },
+			{ title = "Event Board quantities", description = "Choose how many Boost Crystal event purchases to make in one request.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.19.28",
 		releasedAt = "October 19, 2026",
@@ -2288,6 +2297,8 @@ local defaultConfig = {
 	autoSpecialRift = false,
 	potionType = "Speed",
 	potionLevel = 1,
+	selectedPotions = {},
+	potionSelectionMigrated = false,
 	potionUseAmount = 10,
 	potionAuto = false,
 	potionMaintainSeconds = 30,
@@ -2396,6 +2407,7 @@ local defaultConfig = {
 		"Super Palooza",
 	},
 	MinimumCrystalReserve = 0,
+	EventPurchaseQuantity = 1,
 	MaximumEventPurchasesPerSession = 8,
 	EventPurchaseCooldown = 60,
 	ExtendAlreadyActiveEvents = false,
@@ -3329,7 +3341,7 @@ do
 		}))
 	end
 	function tabMethods:AddSlider(flag, properties)
-		return wrapValueElement(self.Native:CreateSlider({
+		local wrappedSlider = wrapValueElement(self.Native:CreateSlider({
 			name = properties.Title,
 			description = properties.Description,
 			range = { properties.Min or 0, properties.Max or 100 },
@@ -3340,6 +3352,19 @@ do
 			forgetState = true,
 			callback = properties.Callback,
 		}))
+		function wrappedSlider:SetRange(minimum, maximum)
+			if type(self.Native.SetRange) == "function" then
+				self.Native:SetRange(minimum, maximum)
+				return true
+			end
+			if type(self.Native.range) == "table" and type(self.Native.Set) == "function" then
+				self.Native.range = { minimum, maximum }
+				self.Native:Set(self.Native.value, true)
+				return true
+			end
+			return false
+		end
+		return wrappedSlider
 	end
 	function tabMethods:AddDropdown(flag, properties)
 		local dropdownOptions = normalizeDropdownOptions(properties.Values)
@@ -3998,13 +4023,15 @@ do
 		return math.max(0, expiration - serverTime)
 	end
 
-	function eventBoard.CanAffordEvent(player, eventName)
+	function eventBoard.CanAffordEvent(player, eventName, quantity)
 		if player ~= nil and player ~= LocalPlayer then
 			return false
 		end
 		local cost = getEventCost(eventName)
 		local balance = getBoostCrystalBalance(getPlayerData())
-		return cost ~= nil and balance ~= nil and balance >= cost
+		local count = tonumber(quantity) or 1
+		return cost ~= nil and cost > 0 and balance ~= nil
+			and count >= 1 and count == math.floor(count) and balance >= cost * count
 	end
 
 	local function rejectPendingPurchase(reason)
@@ -4029,7 +4056,7 @@ do
 		)
 	end
 
-	function eventBoard.PurchaseEvent(player, eventName)
+	function eventBoard.PurchaseEvent(player, eventName, quantity)
 		if player ~= nil and player ~= LocalPlayer then
 			return false, "invalid-player"
 		end
@@ -4042,6 +4069,10 @@ do
 		if not getEventDefinition(eventName) then
 			return false, "unknown-event"
 		end
+		quantity = tonumber(quantity) or 1
+		if quantity < 1 or quantity ~= math.floor(quantity) then
+			return false, "invalid-quantity"
+		end
 		if eventPurchaseState.Pending then
 			return false, "transaction-locked"
 		end
@@ -4049,27 +4080,28 @@ do
 		if now - eventPurchaseState.LastAttemptAt < 1 then
 			return false, "rate-limited"
 		end
-		if not eventBoard.CanAffordEvent(LocalPlayer, eventName) then
+		if not eventBoard.CanAffordEvent(LocalPlayer, eventName, quantity) then
 			return false, "insufficient-boost-crystals"
 		end
 
 		eventPurchaseState.LastAttemptAt = now
 		eventPurchaseState.Pending = {
 			EventName = eventName,
+			Quantity = quantity,
 			SentAt = now,
 		}
 		local sent, sendError = pcall(function()
 			if carnivalRemoteModule and type(carnivalRemoteModule.FireServer) == "function" then
-				carnivalRemoteModule:FireServer("PurchaseEventBoard", eventName)
+				carnivalRemoteModule:FireServer("PurchaseEventBoard", eventName, quantity)
 			else
-				remoteEvent:FireServer("PurchaseEventBoard", eventName)
+				remoteEvent:FireServer("PurchaseEventBoard", eventName, quantity)
 			end
 		end)
 		if not sent then
 			rejectPendingPurchase(sendError or "request-failed")
 			return false, "request-failed"
 		end
-		logAutomation(("Requested Event Board purchase: %s"):format(eventName), "info")
+		logAutomation(("Requested Event Board purchase: %s x%d"):format(eventName, quantity), "info")
 		return true
 	end
 
@@ -4216,6 +4248,7 @@ do
 			return
 		end
 		local reserve = math.max(0, math.floor(tonumber(Config.MinimumCrystalReserve) or 0))
+		local requestedQuantity = math.max(1, math.floor(tonumber(Config.EventPurchaseQuantity) or 1))
 		local priorities = type(Config.PriorityEvents) == "table" and Config.PriorityEvents or {}
 		local seen = {}
 		for _, eventName in ipairs(priorities) do
@@ -4223,12 +4256,9 @@ do
 				seen[eventName] = true
 				local cost = getEventCost(eventName)
 				local active = eventBoard.IsEventActive(eventName)
-				if
-					cost
-					and balance - cost >= reserve
-					and (not active or Config.ExtendAlreadyActiveEvents == true)
-				then
-					eventBoard.PurchaseEvent(LocalPlayer, eventName)
+				local affordableQuantity = cost and cost > 0 and math.floor((balance - reserve) / cost) or 0
+				if affordableQuantity >= 1 and (not active or Config.ExtendAlreadyActiveEvents == true) then
+					eventBoard.PurchaseEvent(LocalPlayer, eventName, math.min(requestedQuantity, affordableQuantity))
 					return
 				end
 			end
@@ -4285,7 +4315,7 @@ do
 
 	if carnivalRemoteModule and type(carnivalRemoteModule.Event) == "function" then
 		pcall(function()
-			eventPurchaseSuccessConnection = carnivalRemoteModule.Event("EventPurchaseSuccess"):Connect(function(player, eventName)
+			eventPurchaseSuccessConnection = carnivalRemoteModule.Event("EventPurchaseSuccess"):Connect(function(player, eventName, quantity)
 				if not isCurrentRun() or player ~= LocalPlayer then
 					return
 				end
@@ -4297,7 +4327,7 @@ do
 				eventPurchaseState.AcceptedPurchases += 1
 				eventPurchaseState.ConsecutiveRejections = 0
 				eventPurchaseState.DisabledAfterRejections = false
-				logAutomation(("Event Board purchase accepted: %s"):format(eventName), "success")
+			logAutomation(("Event Board purchase accepted: %s x%d"):format(eventName, tonumber(quantity) or pending.Quantity or 1), "success")
 			end)
 		end)
 	end
@@ -11138,6 +11168,16 @@ do
 			saveConfig()
 		end,
 	})
+	scriptStateCZ:AddInput("EventPurchaseQuantity", {
+		Title = "Event Purchase Quantity",
+		Description = "Number of event durations to buy per request; capped by your Boost Crystals and reserve.",
+		Default = tostring(math.max(1, math.floor(tonumber(Config.EventPurchaseQuantity) or 1))),
+		Numeric = true,
+		Callback = function(amount)
+			Config.EventPurchaseQuantity = math.max(1, math.floor(tonumber(amount) or 1))
+			saveConfig()
+		end,
+	})
 	scriptStateCZ:AddSlider("MinimumCrystalReserve", {
 		Title = "Minimum Boost Crystal Reserve",
 		Description = "Event purchases will never spend below this amount.",
@@ -12075,56 +12115,134 @@ do
 			"7",
 		}
 	end
-	local scriptStateWI = getPotionNames()
-	if not table.find(scriptStateWI, Config.potionType) then
-		Config.potionType = scriptStateWI[1]
-	end
-	local scriptStateMW = getPotionLevels(Config.potionType)
-	if not table.find(scriptStateMW, tostring(Config.potionLevel)) then
-		Config.potionLevel = tonumber(scriptStateMW[1]) or 1
-	end
-	scriptStateYT:AddSection("Auto Use")
-	local potionLevelDropdown
-	scriptStateYT:AddDropdown("PotionType", {
-		Title = "Potion Type",
-		Values = scriptStateWI,
-		Default = Config.potionType,
-		Multi = false,
-		Search = true,
-		Callback = function(selectedPotionTypeCallback)
-			Config.potionType = selectedPotionTypeCallback
-			local scriptStateIN = getPotionLevels(selectedPotionTypeCallback)
-			fireRemoteEventRepeatedly(potionLevelDropdown, scriptStateIN)
-			if not table.find(scriptStateIN, tostring(Config.potionLevel)) then
-				Config.potionLevel = tonumber(scriptStateIN[1]) or 1
-				if potionLevelDropdown and potionLevelDropdown.SetValue then
-					pcall(function()
-						potionLevelDropdown:SetValue(tostring(Config.potionLevel))
-					end)
+	local function getSelectedPotions()
+		local selected = {}
+		for key, value in pairs(type(Config.selectedPotions) == "table" and Config.selectedPotions or {}) do
+			local label = type(key) == "number" and value or (value == true and key or nil)
+			if type(label) == "string" then
+				local name, levelText = label:match("^(.-) | Level (%d+)$")
+				name = name or label
+				if type(potionData) == "table" and type(potionData[name]) == "table" then
+					table.insert(selected, { Name = name, Level = tonumber(levelText), Label = label })
 				end
 			end
+		end
+		table.sort(selected, function(left, right) return left.Label < right.Label end)
+		return selected
+	end
+	local function getPotionStock(potion, playerData)
+		if type(playerData) ~= "table" then return 0 end
+		local ok, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, {
+			Type = "Potion", Name = potion.Name, Level = potion.Level,
+		})
+		return ok and math.max(0, math.floor(tonumber(amount) or 0)) or 0
+	end
+	local function getPotionQuantityCap()
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		local selected = getSelectedPotions()
+		if #selected == 0 then return 0 end
+		local cap = math.huge
+		for _, potion in ipairs(selected) do
+			cap = math.min(cap, getPotionStock(potion, playerData))
+		end
+		return cap
+	end
+	local potionDropdown
+	local potionQuantitySlider
+	local potionStockText
+	local lastPotionCap
+	local function refreshPotionQuantity()
+		local cap = getPotionQuantityCap()
+		local previousAmount = Config.potionUseAmount
+		Config.potionUseAmount = math.clamp(math.floor(tonumber(Config.potionUseAmount) or 1), 1, math.max(1, cap))
+		if cap == lastPotionCap and Config.potionUseAmount == previousAmount then return cap end
+		lastPotionCap = cap
+		if potionQuantitySlider then
+			pcall(function()
+				potionQuantitySlider:SetRange(1, math.max(1, cap))
+				potionQuantitySlider:SetValue(Config.potionUseAmount)
+			end)
+		end
+		if potionStockText then
+			pcall(function()
+				potionStockText:SetDesc("Available for every selected potion: " .. tostring(cap))
+			end)
+		end
+		return cap
+	end
+	local function getOwnedPotionOptions()
+		local playerData = profileStore:IsReady() and profileStore:Get() or nil
+		local options = {}
+		for _, name in ipairs(getPotionNames()) do
+			local oneLevel = type(potionData) == "table" and type(potionData[name]) == "table"
+				and potionData[name].OneLevel == true
+			for _, levelText in ipairs(getPotionLevels(name)) do
+				local level
+				if not oneLevel then level = tonumber(levelText) end
+				local label = oneLevel and name or (name .. " | Level " .. levelText)
+				if getPotionStock({ Name = name, Level = level }, playerData) > 0 then
+					table.insert(options, label)
+				end
+			end
+		end
+		return options
+	end
+	if type(Config.selectedPotions) ~= "table" then Config.selectedPotions = {} end
+	if Config.potionSelectionMigrated ~= true and type(Config.potionType) == "string" then
+		local oneLevel = type(potionData) == "table" and type(potionData[Config.potionType]) == "table"
+			and potionData[Config.potionType].OneLevel == true
+		Config.selectedPotions = { oneLevel and Config.potionType or (Config.potionType .. " | Level " .. tostring(Config.potionLevel or 1)) }
+		Config.potionSelectionMigrated = true
+		saveConfig()
+	end
+	scriptStateYT:AddSection("Use Potions")
+	potionDropdown = scriptStateYT:AddDropdown("SelectedPotions", {
+		Title = "Potions to Use",
+		Description = "Select several owned potions. Each receives the same quantity.",
+		Values = getOwnedPotionOptions(),
+		Default = Config.selectedPotions,
+		Multi = true,
+		Search = true,
+		Callback = function(selected)
+			Config.selectedPotions = type(selected) == "table" and selected or {}
+			refreshPotionQuantity()
 			saveConfig()
 		end,
 	})
-	potionLevelDropdown = scriptStateYT:AddDropdown("PotionLevel", {
-		Title = "Level",
-		Values = scriptStateMW,
-		Default = tostring(Config.potionLevel),
-		Multi = false,
-		Callback = function(scriptStateKQ)
-			Config.potionLevel = tonumber(scriptStateKQ) or 1
-			saveConfig()
+	potionStockText = scriptStateYT:AddParagraph({
+		Title = "Potion Stock", Content = "Select potions to see how many you can use.",
+	})
+	scriptStateYT:AddButton({
+		Title = "Refresh Potion Stock",
+		Callback = function()
+			fireRemoteEventRepeatedly(potionDropdown, getOwnedPotionOptions())
+			refreshPotionQuantity()
 		end,
 	})
-	scriptStateYT:AddSlider("PotionUseAmount", {
-		Title = "Potions Per Use",
+	potionQuantitySlider = scriptStateYT:AddSlider("PotionUseAmount", {
+		Title = "Quantity Per Potion",
+		Description = "Capped by the least-owned selected potion; refreshes as stock changes.",
 		Min = 1,
-		Max = 250,
-		Default = Config.potionUseAmount,
+		Max = math.max(1, getPotionQuantityCap()),
+		Default = math.clamp(tonumber(Config.potionUseAmount) or 1, 1, math.max(1, getPotionQuantityCap())),
 		Rounding = 0,
-		Callback = function(scriptStateAFB)
-			Config.potionUseAmount = math.clamp(math.floor(tonumber(scriptStateAFB) or 1), 1, 250)
+		Callback = function(amount)
+			Config.potionUseAmount = math.clamp(math.floor(tonumber(amount) or 1), 1, math.max(1, getPotionQuantityCap()))
 			saveConfig()
+		end,
+	})
+	refreshPotionQuantity()
+	scriptStateYT:AddButton({
+		Title = "Use Selected Now",
+		Callback = function()
+			local quantity = math.min(getPotionQuantityCap(), Config.potionUseAmount)
+			if quantity < 1 then return end
+			task.spawn(function()
+				for _, potion in ipairs(getSelectedPotions()) do
+					activeStates.BGSI_Lite_UsePotionAmount(potion.Name, potion.Level, quantity)
+				end
+				refreshPotionQuantity()
+			end)
 		end,
 	})
 	scriptStateYT:AddSlider("PotionMaintainSeconds", {
@@ -12374,7 +12492,7 @@ do
 			local stalledAttempts = 0
 			-- One request per potion, so the budget has to scale with how many were
 			-- asked for. 250 is a normal request and needs well over the old 90s cap.
-			local useDeadline = tick() + math.clamp(6 + (amountBefore - targetAmount) * 0.3, 8, 240)
+			local useDeadline = tick() + math.max(8, 6 + (amountBefore - targetAmount) * 0.9)
 			while
 				isCurrentRun()
 				and currentAmount > targetAmount
@@ -12476,42 +12594,30 @@ do
 			end
 			if Config.potionAuto then
 				local playerData = profileStore:IsReady() and profileStore:Get() or nil
-				local remainingSeconds =
-					activeStates.BGSI_Lite_GetPotionRemainingSeconds(playerData, Config.potionType, Config.potionLevel)
 				local maintainSeconds = math.max(5, tonumber(Config.potionMaintainSeconds) or 30)
-				local potionAmount = math.max(1, math.floor(tonumber(Config.potionUseAmount) or 1))
-				local potionDuration = type(sharedConstants) == "table"
-						and type(sharedConstants.PotionDuration) == "table"
-						and tonumber(sharedConstants.PotionDuration[tonumber(Config.potionLevel) or 1])
-					or 120
-				if
-					remainingSeconds <= maintainSeconds
-					and tick() >= (tonumber(activeStates.BGSI_Lite_NextAutoPotionUseAt) or 0)
-				then
-					local usedAmount = activeStates.BGSI_Lite_UsePotionAmount(
-						Config.potionType,
-						Config.potionLevel,
-						potionAmount
-					)
-					activeStates.BGSI_Lite_NextAutoPotionUseAt = tick()
-						+ (
-							usedAmount > 0
-									and math.max(5, potionDuration * usedAmount - maintainSeconds)
-								or 5
-						)
-					if usedAmount > 0 and type(activeStates.BGSI_Lite_LogDashboardAction) == "function" then
-						activeStates.BGSI_Lite_LogDashboardAction(
-							"Using "
-								.. tostring(usedAmount)
-								.. "x "
-								.. tostring(Config.potionType)
-								.. " "
-								.. tostring(Config.potionLevel),
-							"collect"
-						)
+				for _, potion in ipairs(getSelectedPotions()) do
+					local stock = getPotionStock(potion, playerData)
+					local nextUses = activeStates.BGSI_Lite_NextAutoPotionUseAt
+					if type(nextUses) ~= "table" then
+						nextUses = {}
+						activeStates.BGSI_Lite_NextAutoPotionUseAt = nextUses
+					end
+					local potionInfo = potionData[potion.Name]
+					local buffName = type(potionInfo) == "table" and type(potionInfo.Buff) == "table"
+						and potionInfo.Buff.Name or potion.Name
+					local remaining = activeStates.BGSI_Lite_GetPotionRemainingSeconds(playerData, buffName, potion.Level)
+					if stock > 0 and remaining <= maintainSeconds and tick() >= (nextUses[potion.Label] or 0) then
+						local quantity = math.min(stock, math.max(1, math.floor(tonumber(Config.potionUseAmount) or 1)))
+						local used = activeStates.BGSI_Lite_UsePotionAmount(potion.Name, potion.Level, quantity)
+						local expiry = type(potionInfo) == "table" and type(potionInfo.Buff) == "table"
+							and type(potionInfo.Buff.Expiry) == "table"
+							and tonumber(potionInfo.Buff.Expiry[potion.Level or 1])
+							or 120
+						nextUses[potion.Label] = tick() + (used > 0 and math.max(5, expiry * used - maintainSeconds) or 5)
 					end
 				end
 			end
+			refreshPotionQuantity()
 		end
 	end)
 end
@@ -14103,6 +14209,57 @@ do
 		table.sort(fragmentNames)
 		return fragmentNames
 	end
+	local function getLiveShopSlots(shopName, playerData)
+		local shopUtil = activeStates.BGSI_Lite_ShopUtil
+		if not shopUtil then
+			local ok, loaded = pcall(require, ReplicatedStorage.Shared.Utils.ShopUtil)
+			if ok then shopUtil = loaded; activeStates.BGSI_Lite_ShopUtil = loaded end
+		end
+		local shopState = type(playerData) == "table" and type(playerData.Shops) == "table"
+			and playerData.Shops[shopName] or nil
+		if type(shopUtil) ~= "table" or type(shopState) ~= "table" then return {} end
+		local ok, items, stocks = pcall(shopUtil.GetItemsData, shopUtil, shopName, LocalPlayer, playerData)
+		if not ok or type(items) ~= "table" or type(stocks) ~= "table" then return {} end
+		local unlockOk, unlocked = pcall(shopUtil.GetUnlockedSlots, shopUtil, playerData, #items)
+		unlocked = unlockOk and tonumber(unlocked) or #items
+		local slots = {}
+		for slot, item in ipairs(items) do
+			local bought = type(shopState.Bought) == "table" and tonumber(shopState.Bought[slot]) or 0
+			local available = math.max(0, (tonumber(stocks[slot]) or 0) - (bought or 0))
+			if slot <= unlocked and available > 0 and type(item) == "table" then
+				table.insert(slots, { Shop = shopName, Slot = slot, Item = item,
+					Name = getShopItemName(item.Product), Available = available })
+			end
+		end
+		return slots
+	end
+	local function tryFreeShopReroll(shopName, playerData)
+		local shopData = getShopData()[shopName]
+		local shopUtil = activeStates.BGSI_Lite_ShopUtil
+		if type(shopData) ~= "table" or shopData.Rerollable ~= true
+			or type(shopUtil) ~= "table" or type(playerData) ~= "table" then return false end
+		local oldState = type(playerData.Shops) == "table" and playerData.Shops[shopName] or nil
+		if type(oldState) ~= "table" then return false end
+		local ok, maxRerolls = pcall(shopUtil.GetMaxFreeRerolls, shopUtil, playerData)
+		local used = type(playerData.ShopFreeRerolls) == "table"
+			and tonumber(playerData.ShopFreeRerolls.Used) or 0
+		if not ok or used >= (tonumber(maxRerolls) or 0) then return false end
+		local previousPeriod, previousBegan = oldState.Period, oldState.Began
+		local sent = pcall(function() remoteEvent:FireServer("ShopFreeReroll", shopName) end)
+		if not sent then return false end
+		local deadline = tick() + 2
+		repeat
+			task.wait(0.1)
+			local updated = profileStore:IsReady() and profileStore:Get() or nil
+			local state = type(updated) == "table" and type(updated.Shops) == "table"
+				and updated.Shops[shopName] or nil
+			local newUsed = type(updated) == "table" and type(updated.ShopFreeRerolls) == "table"
+				and tonumber(updated.ShopFreeRerolls.Used) or used
+			if type(state) == "table" and (state.Period ~= previousPeriod
+				or state.Began ~= previousBegan or newUsed > used) then return true end
+		until tick() >= deadline or not isCurrentRun()
+		return false
+	end
 	activeStates.BGSI_Lite_SmartShopRestock = function(itemType, itemName, itemLevel, allowFreeReroll)
 		if type(itemName) ~= "string" or itemName == "" then
 			return 0
@@ -14192,7 +14349,7 @@ do
 							)
 							if not canAffordOk or canAfford then
 								local amountBefore = getOwnedAmount()
-								remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, true)
+								remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, false)
 								task.wait(0.35)
 								playerData = profileStore:IsReady() and profileStore:Get() or playerData
 								purchasedAmount += math.max(0, getOwnedAmount() - amountBefore)
@@ -14222,8 +14379,9 @@ do
 			then
 				continue
 			end
-			remoteEvent:FireServer("ShopFreeReroll", shopName)
-			task.wait(0.75)
+			if not tryFreeShopReroll(shopName, playerData) then
+				continue
+			end
 			local rerollPurchases, rerollTargetVisible = buyCurrentStock()
 			purchasedAmount += rerollPurchases
 			if rerollPurchases > 0 or rerollTargetVisible then
@@ -14325,7 +14483,7 @@ do
 
 	gameTab:AddToggle("AutoBuyShops", {
 		Title = "Auto Buy Shops",
-		Description = "Buys selected shop items. If no item is selected, it buys random slots from selected shops.",
+		Description = "Buys affordable live stock from selected shops. Selected items may use available free rerolls.",
 		Default = Config.autoBuyShops == true,
 		Callback = function(enabled)
 			Config.autoBuyShops = enabled == true
@@ -14333,93 +14491,94 @@ do
 		end,
 	})
 
+	local lastShopBuyAttempt = {}
+	local lastShopRerollAttempt = {}
 	task.spawn(function()
 		while isCurrentRun() do
-			if Config.autoBuyShops ~= true then
-				task.wait(0.85)
-				continue
-			end
-
-			task.wait(tonumber(Config.shopInterval) or 1)
-
-			local selectedItems = getSelectedValues(Config.selectedShopItems or {})
-			if #selectedItems > 0 then
-				local selectedItem = selectedItems[math.random(1, #selectedItems)]
-				local shopName, slotIndex = resolveShopItemSelection(selectedItem)
-				if shopName and slotIndex ~= nil then
-					pcall(function()
-						remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, true)
-					end)
-				end
-			else
+			task.wait(Config.autoBuyShops == true and math.max(0.1, tonumber(Config.shopInterval) or 1) or 0.85)
+			if Config.autoBuyShops ~= true or Config.safeMode == true then continue end
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				if type(playerData) ~= "table" then return end
 				local selectedShops = getSelectedValues(Config.selectedShops or {})
-				if #selectedShops == 0 then
-					selectedShops = getSortedShopNames()
-				end
-
-				if #selectedShops > 0 then
-					local shopName = selectedShops[math.random(1, #selectedShops)]
-					if getShopData()[shopName] then
-						local slotIndex = math.random(1, getShopSlotCount(shopName))
-						pcall(function()
-							remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, true)
-						end)
+				if #selectedShops == 0 then selectedShops = getSortedShopNames() end
+				local selectedItems = getSelectedValues(Config.selectedShopItems or {})
+				local wanted = {}
+				for _, name in ipairs(selectedItems) do wanted[string.lower(name)] = true end
+				local candidates = {}
+				local rerollShops = {}
+				for _, shopName in ipairs(selectedShops) do
+					if type(getShopData()[shopName]) == "table" then
+						local targetVisible = false
+						for _, slot in ipairs(getLiveShopSlots(shopName, playerData)) do
+							if #selectedItems == 0 or (slot.Name and wanted[string.lower(slot.Name)]) then
+								targetVisible = true
+								local affordOk, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
+								if affordOk and canAfford then table.insert(candidates, slot) end
+							end
+						end
+						if #selectedItems > 0 and not targetVisible then
+							local canStockTarget = false
+							eachShopSlot(shopName, getShopData()[shopName], function(_, _, item)
+								local name = getShopItemName(item)
+								if name and wanted[string.lower(name)] then canStockTarget = true end
+							end)
+							if canStockTarget then table.insert(rerollShops, shopName) end
+						end
 					end
 				end
-			end
+				if #candidates > 0 then
+					table.sort(candidates, function(left, right)
+						return left.Shop .. "|" .. left.Slot < right.Shop .. "|" .. right.Slot
+					end)
+					for _, slot in ipairs(candidates) do
+						local key = slot.Shop .. "|" .. slot.Slot
+						if tick() - (lastShopBuyAttempt[key] or 0) >= 2 then
+							lastShopBuyAttempt[key] = tick()
+							remoteEvent:FireServer("BuyShopItem", slot.Shop, slot.Slot, false)
+							break
+						end
+					end
+				elseif #rerollShops > 0 then
+					for _, shopName in ipairs(rerollShops) do
+						if tick() - (lastShopRerollAttempt[shopName] or 0) >= 5 then
+							lastShopRerollAttempt[shopName] = tick()
+							if tryFreeShopReroll(shopName, playerData) then break end
+						end
+					end
+				end
+			end)
 		end
 	end)
 
 	task.spawn(function()
-		local nextTargetIndex = 1
-		local lastPurchaseBySlot = {}
-		local cachedTargets = {}
-		local cachedSelectionKey = ""
-		local targetsUpdatedAt = 0
 		while isCurrentRun() do
 			task.wait(Config.autoBuyFragments ~= false and math.max(0.75, tonumber(Config.shopInterval) or 1) or 0.85)
-			if Config.autoBuyFragments == false then
+			if Config.autoBuyFragments == false or Config.safeMode == true then
 				continue
 			end
-
-			local selectedFragments = getSelectedValues(Config.selectedFragments or {})
-			if #selectedFragments == 0 then
-				selectedFragments = getSortedFragmentNames()
-			end
-			if #selectedFragments == 0 then
-				continue
-			end
-
-			local selectionKey = table.concat(selectedFragments, "\0")
-			if selectionKey ~= cachedSelectionKey or os.clock() - targetsUpdatedAt >= 30 then
-				refreshShopData()
-				cachedTargets = resolveAllShopItemSelections(selectedFragments)
-				cachedSelectionKey = selectionKey
-				targetsUpdatedAt = os.clock()
-				nextTargetIndex = 1
-			end
-			if #cachedTargets == 0 then
-				continue
-			end
-			if nextTargetIndex > #cachedTargets then
-				nextTargetIndex = 1
-			end
-
-			local target = cachedTargets[nextTargetIndex]
-			nextTargetIndex += 1
-			local slotKey = tostring(target.shop) .. "|" .. tostring(target.slot)
-			local now = os.clock()
-			if now - (lastPurchaseBySlot[slotKey] or 0) >= 2 then
-				local amountBefore = getInventoryItemAmount(target.item)
-				lastPurchaseBySlot[slotKey] = now
-				pcall(function()
-					remoteEvent:FireServer("BuyShopItem", target.shop, target.slot, true)
-				end)
-				task.wait(0.25)
-				if getInventoryItemAmount(target.item) <= amountBefore then
-					lastPurchaseBySlot[slotKey] = os.clock() + 8
+			pcall(function()
+				local playerData = profileStore:IsReady() and profileStore:Get() or nil
+				if type(playerData) ~= "table" then return end
+				local selected = getSelectedValues(Config.selectedFragments or {})
+				local wanted = {}
+				for _, name in ipairs(selected) do wanted[string.lower(name)] = true end
+				for _, shopName in ipairs(getSortedShopNames()) do
+					for _, slot in ipairs(getLiveShopSlots(shopName, playerData)) do
+						local name = slot.Name
+						if name and string.find(string.lower(name), "fragment", 1, true)
+							and (#selected == 0 or wanted[string.lower(name)]) then
+							local key = shopName .. "|" .. slot.Slot
+							local affordable, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
+							if affordable and canAfford and tick() - (lastShopBuyAttempt[key] or 0) >= 2 then
+								lastShopBuyAttempt[key] = tick()
+								remoteEvent:FireServer("BuyShopItem", shopName, slot.Slot, false)
+								return
+							end
+						end
+					end
 				end
-			end
+			end)
 		end
 	end)
 	gameTab:AddSection("Mystery Boxes")
@@ -14996,6 +15155,8 @@ do
 			"autoChest",
 			"potionType",
 			"potionLevel",
+			"selectedPotions",
+			"potionSelectionMigrated",
 			"potionUseAmount",
 			"potionMaintainSeconds",
 			"potionAuto",
