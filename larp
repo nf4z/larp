@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.30"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.31"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.31",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Variant hatch chance", description = "Hatch embeds show the final chance for the hatched variant, including luck and variant bonuses.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.19.30",
 		releasedAt = "October 19, 2026",
@@ -21481,8 +21488,12 @@ local function buildSimulatedHatchPayload(pet, info)
 		pet.Enchantments = nil
 	end
 	local sourceName, sourceIsEgg = getWebhookPetSource(pet, info)
-	local basePercent = sourceIsEgg and getWebhookHatchChances(petName, info, sourceName, shiny, mythic, xl, super) or 0
-	local baseOneIn = basePercent > 0 and 100 / basePercent or 0
+	local finalPercent = 0
+	if sourceIsEgg then
+		local _, calculatedPercent = getWebhookHatchChances(petName, info, sourceName, shiny, mythic, xl, super)
+		finalPercent = calculatedPercent
+	end
+	local finalOneIn = sourceIsEgg and finalPercent > 0 and 100 / finalPercent or 0
 	local variantName = (super and "Super " or "") .. buildPetWebhookEmbed(petName, shiny, mythic, xl)
 	local existCount = getPetVariantName(variantName, pet, 4)
 	local statMultiplier = xl and (tonumber(sharedConstants and sharedConstants.XLMultiplier) or 2.5) or 1
@@ -21498,7 +21509,7 @@ local function buildSimulatedHatchPayload(pet, info)
 	}
 	if sourceIsEgg then
 		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-			.. runShrineDonation(math.floor(baseOneIn + 0.5)) .. "**")
+			.. runShrineDonation(math.floor(finalOneIn + 0.5)) .. "**")
 	end
 	if super then
 		local enchantText = getWebhookSuperLegendaryEnchantText({Enchants = pet.Enchants}, petName, shiny, mythic, xl)
@@ -22137,12 +22148,13 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				then
 					continue
 				end
-				local webhookBasePercent, webhookFinalPercent = 0, 0
+				local webhookFinalPercent = 0
 				if webhookSourceIsEgg then
-					webhookBasePercent, webhookFinalPercent = getWebhookHatchChances(
+					local _, calculatedPercent = getWebhookHatchChances(
 						scriptStateFL, scriptStateEQ, webhookSourceName,
 						scriptStateLS, scriptStateNI, scriptStateKK, isSuperLegendaryPet
 					)
+					webhookFinalPercent = calculatedPercent
 				end
 				if webhookSourceIsEgg and not meetsWebhookMinimumChance(
 					scriptStateFL, scriptStateEQ, scriptStateLS, scriptStateNI, scriptStateKK, webhookFinalPercent
@@ -22198,7 +22210,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				if webhookPetId ~= "Unknown" then
 					resolvedWebhookPetIds[tostring(webhookPetId)] = true
 				end
-				local scriptStateAEC = webhookBasePercent > 0 and 100 / webhookBasePercent or 0
+				local scriptStateAEC = webhookFinalPercent > 0 and 100 / webhookFinalPercent or 0
 				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
 				local scriptStateAEO = {}
 				local webhookPlayer = Players.LocalPlayer
