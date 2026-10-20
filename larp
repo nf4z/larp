@@ -66,10 +66,8 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.29"
--- Choice lists the in-game UI offers. They live here so the dropdowns below and the
--- options reported to the Account Dashboard read the same source - the dashboard used
--- to keep its own copy of each one, which went stale the moment a list changed here.
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.30"
+-- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
 	"Luck Event",
@@ -88,21 +86,21 @@ activeStates.BGSI_Lite_FallUpgradeOptions = {
 	{ value = "InfinityLuck", label = "Infinity Luck" },
 	{ value = "AutoRebirth", label = "Auto Rebirth" },
 }
-activeStates.BGSI_Lite_DashboardLogSequence = tonumber(activeStates.BGSI_Lite_DashboardLogSequence) or 0
-activeStates.BGSI_Lite_LogDashboardAction = function(message, level)
-	activeStates.BGSI_Lite_DashboardLogSequence += 1
-	activeStates.BGSI_Lite_PendingDashboardLog = {
-		id = activeStates.BGSI_Lite_DashboardLogSequence,
-		message = tostring(message),
-		level = tostring(level or "info"),
-	}
-end
+activeStates.BGSI_Lite_LogDashboardAction = function() end
 
 do
 -- Changelog style: newest release first. A note is a short title and ONE short
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.30",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Hatch team updates", description = "New priority Super Legendaries refresh the Hatch team automatically, up to three equipped.", icon = "users" },
+			{ title = "Dashboard backend removed", description = "Removed the unused account reporting worker and its connection control.", icon = "server" },
+		},
+	},
 	{
 		version = "2026.10.19.29",
 		releasedAt = "October 19, 2026",
@@ -2342,12 +2340,6 @@ local defaultConfig = {
 	autoDeleteLowRarityEggPets = true,
 	autoBuyFragments = true,
 	selectedFragments = {},
-	dashboardSyncEnabled = true,
-	dashboardSyncAutoEnabled = false,
-	dashboardEndpoint = "https://larplite.xyz",
-	dashboardIngestToken = "",
-	dashboardBestHatchName = "",
-	dashboardBestHatchChance = 0,
 	fleetFollowMaster = true,
 	fleetAutoPush = true,
 	autoCollectCarnivalCoins = false,
@@ -2493,8 +2485,6 @@ local defaultConfig = {
 activeStates.BGSI_Lite_SafeModePreservedKeys = {
 	safeMode = true,
 	safeModeSavedConfig = true,
-	dashboardSyncEnabled = true,
-	dashboardSyncAutoEnabled = true,
 	autoSetupTeamEnabled = true,
 	autoSetupTeamIncludeSupers = true,
 	autoSetupTeamSuperCounts = true,
@@ -2703,6 +2693,12 @@ function refreshChunkerAroundPlayer()
 end
 
 Config = loadConfig()
+Config.dashboardSyncEnabled = nil
+Config.dashboardSyncAutoEnabled = nil
+Config.dashboardEndpoint = nil
+Config.dashboardIngestToken = nil
+Config.dashboardBestHatchName = nil
+Config.dashboardBestHatchChance = nil
 -- Persist the per-account config immediately so a migrated shared config becomes isolated.
 pcall(function()
 	if writefile then
@@ -2710,28 +2706,6 @@ pcall(function()
 	end
 end)
 
--- Normalise the Account Dashboard host. An unset endpoint falls back to the default,
--- and any spelling of the default host (no scheme, http://, a trailing slash) is
--- rewritten to the canonical https:// form. A custom host is left alone. The saved
--- ingest token is never touched here.
-do
-	local dashboardDefaultHost = "https://larplite.xyz"
-	local configuredDashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
-	local isDefaultHost = configuredDashboardEndpoint:gsub("/+$", ""):lower():match("^https?://larplite%.xyz$")
-		or configuredDashboardEndpoint:gsub("/+$", ""):lower() == "larplite.xyz"
-	if configuredDashboardEndpoint == "" or isDefaultHost then
-		if Config.dashboardEndpoint ~= dashboardDefaultHost then
-			Config.dashboardEndpoint = dashboardDefaultHost
-			saveConfig()
-		end
-	end
-end
-
-if Config.dashboardSyncAutoEnabled ~= true then
-	Config.dashboardSyncEnabled = true
-	Config.dashboardSyncAutoEnabled = true
-	saveConfig()
-end
 Config.SkyAltarEnabled = Config.SkyAltarEnabled == true
 Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 4))
 Config.setfps = math.max(1, math.floor(tonumber(Config.setfps) or 60))
@@ -13886,17 +13860,6 @@ do
 			saveConfig()
 		end,
 	})
-	gameTab:AddSection("Account Dashboard")
-	gameTab:AddToggle("DashboardSyncEnabled", {
-		Title = "Connect to Account Dashboard",
-		Description = "Sends this account's live game status and pet inventory to your private Account Grid.",
-		Default = Config.dashboardSyncEnabled,
-		Callback = function(isEnabled)
-			Config.dashboardSyncEnabled = isEnabled
-			saveConfig()
-		end,
-	})
-
 	gameTab:AddSection("Shops")
 
 	local cachedShopData = nil
@@ -14873,13 +14836,8 @@ do
 		while isCurrentRun() do
 			task.wait(Config.autoHopLuckEgg and 2 or 0.85)
 			if not Config.autoHopLuckEgg then
-				activeStates.BGSI_Lite_DashboardJoinTarget = nil
 				activeStates.BGSI_Lite_LuckEggHopTarget = nil
 				activeStates.BGSI_Lite_LuckEggHopInProgress = false
-				searchStartedAt = tick()
-				continue
-			end
-			if activeStates.BGSI_Lite_DashboardJoinTarget then
 				searchStartedAt = tick()
 				continue
 			end
@@ -14912,7 +14870,7 @@ do
 			local selectionKey = type(activeStates.BGSI_Lite_GetTargetRiftSelectionKey) == "function"
 					and activeStates.BGSI_Lite_GetTargetRiftSelectionKey()
 				or ""
-			if selectionKey == "" or Config.autoHopLuckEgg == true or activeStates.BGSI_Lite_DashboardJoinTarget then
+			if selectionKey == "" or Config.autoHopLuckEgg == true then
 				lastDetectedRiftName = nil
 				searchStartedAt = tick()
 				continue
@@ -14941,8 +14899,7 @@ do
 		local previousSampleTime = tick()
 		while isCurrentRun() do
 			task.wait(5)
-			-- Keep live telemetry independent from Account Dashboard connectivity.
-			-- A dashboard outage must never stop the local hatch monitor.
+			-- Keep local hatch telemetry current for the live Discord webhook.
 			local playerData
 			pcall(function()
 				if profileStore and profileStore:IsReady() then
@@ -15003,2084 +14960,6 @@ do
 			previousSampleTime = currentSampleTime
 		end
 	end)
-	activeStates.BGSI_Lite_SafeDashboardBuild = function(builder, fallbackValue)
-		local buildOk, builtValue = pcall(builder)
-		return buildOk and type(builtValue) == "table" and builtValue or fallbackValue
-	end
-	task.spawn(function()
-		local dashboardEndpoint = tostring(Config.dashboardEndpoint or "")
-		local dashboardIngestToken = tostring(Config.dashboardIngestToken or "")
-		local dashboardInventoryEnabled = true
-		local dashboardStatsUtil = safeRequireTable(function()
-			return require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
-		end)
-		local dashboardWorldUtil = safeRequireTable(function()
-			return require(ReplicatedStorage.Shared.Utils.WorldUtil)
-		end)
-		local dashboardStartedAt = tick()
-		activeStates.BGSI_Lite_DashboardBestHatchName = ""
-		activeStates.BGSI_Lite_DashboardBestHatchChance = 0
-		activeStates.BGSI_Lite_DashboardHandledCommands = {}
-		activeStates.BGSI_Lite_DashboardPendingHatches = {}
-		activeStates.BGSI_Lite_DashboardEggDiscoveries = {}
-		activeStates.BGSI_Lite_RecordEggDiscovery = function(
-			eggName,
-			petName,
-			rarity,
-			imageAssetId,
-			shiny,
-			mythic,
-			xl,
-			super,
-			enchantments,
-			existingCount
-		)
-			local discoveryKey = table.concat(
-				{ eggName, petName, tostring(shiny), tostring(mythic), tostring(xl), tostring(super) },
-				"|"
-			)
-			local discovery = activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey]
-			if not discovery then
-				discovery = {
-					eggName = eggName,
-					petName = petName,
-					rarity = rarity,
-					imageAssetId = imageAssetId,
-					shiny = shiny,
-					mythic = mythic,
-					xl = xl,
-					super = super,
-					enchantments = enchantments,
-					existingCount = existingCount,
-					quantity = 0,
-				}
-				activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey] = discovery
-			end
-			discovery.imageAssetId = imageAssetId or discovery.imageAssetId
-			discovery.enchantments = enchantments
-			discovery.existingCount = existingCount or discovery.existingCount
-			discovery.quantity = discovery.quantity + 1
-		end
-		local dashboardRequest = request
-			or http_request
-			or (type(syn) == "table" and rawget(syn, "request"))
-			or rawget(activeStates, "http_request")
-		if type(dashboardRequest) ~= "function" then
-			local httpTable = rawget(activeStates, "http")
-			dashboardRequest = type(httpTable) == "table" and rawget(httpTable, "request") or nil
-		end
-		local function sendDashboardHeartbeat(encodedPayload, useRelay)
-			local requestOk, response = pcall(dashboardRequest, {
-				Url = useRelay and "http://127.0.0.1:17676/v1/heartbeat" or dashboardEndpoint,
-				Method = "POST",
-				Headers = {
-					["Content-Type"] = "application/json",
-					["Authorization"] = "Bearer " .. dashboardIngestToken,
-					["X-Larplite-Protocol"] = "2",
-					["X-Larplite-Upstream"] = dashboardEndpoint,
-				},
-				Body = encodedPayload,
-				Timeout = useRelay and 1 or 15,
-			})
-			local statusCode = requestOk
-					and type(response) == "table"
-					and tonumber(response.StatusCode or response.Status or response.status_code)
-				or nil
-			local responseBody = requestOk
-					and type(response) == "table"
-					and tostring(response.Body or response.body or "")
-				or ""
-			local responsePayload
-			pcall(function()
-				responsePayload = HttpService:JSONDecode(responseBody)
-			end)
-			local syncSucceeded = requestOk
-				and (not statusCode or (statusCode >= 200 and statusCode < 300))
-				and type(responsePayload) == "table"
-				and responsePayload.ok == true
-			return syncSucceeded, response, statusCode, responseBody, responsePayload
-		end
-		local lastInventorySync = tick() - 110 + (LocalPlayer.UserId % 20)
-		activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick() - 50 + (LocalPlayer.UserId % 15)
-		local lastDashboardState
-		local dashboardConnected
-		local dashboardFailureLogAt = 0
-		local dashboardSyncDelay = 1 + ((LocalPlayer.UserId % 100) / 100)
-		local pendingDashboardCommandResults = {}
-		local carriedReloadConfirmation = activeStates.BGSI_Lite_PendingReloadConfirmation
-		if type(carriedReloadConfirmation) == "table" and tonumber(carriedReloadConfirmation.id) then
-			table.insert(pendingDashboardCommandResults, {
-				id = tonumber(carriedReloadConfirmation.id),
-				success = true,
-			})
-			activeStates.BGSI_Lite_PendingReloadConfirmation = nil
-		end
-		activeStates.BGSI_Lite_PendingDashboardReload = nil
-		activeStates.BGSI_Lite_DashboardRelayAvailable = false
-		activeStates.BGSI_Lite_DashboardRelayProbeAt = 0
-		local lastInventorySignature
-		activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
-		local dashboardConfigKeys = {
-			"safeMode",
-			-- Eggs
-			"selectedEgg",
-			"selectedEggLocationPriorities",
-			"autoHatch",
-			"noHatchAnim",
-			"autoSpamR",
-			"autoBounty",
-			"spawnRift",
-			"autoLuckEgg",
-			"autoHopLuckEgg",
-			"autoSpecialRift",
-			"selectedRiftEgg",
-			"autoRiftEgg",
-			"autoRiftEggSpawn",
-
-			-- Carnival and events
-			"autoCollectCarnivalCoins",
-			"AutoCarnivalRebirth",
-			"autoGuessThatPet",
-			"autoCarnivalChest",
-			"autoCollectPresentRain",
-			"autoHalloweenChest",
-			"autoTrickOrTreat",
-
-			-- Chests and potions
-			"selectedWorldChest",
-			"selectedWorldChests",
-			"autoClaimWorldChest",
-			"selectedChest",
-			"autoChestSummon",
-			"autoChest",
-			"potionType",
-			"potionLevel",
-			"selectedPotions",
-			"potionSelectionMigrated",
-			"potionUseAmount",
-			"potionMaintainSeconds",
-			"potionAuto",
-			"autoEventPotions",
-
-			-- General game automation
-			"accountRole",
-			"adaptiveHatch",
-			"healthRecoveryEnabled",
-			"autoPlaytime",
-			"autoClaimPrizes",
-			"autoDailyRewards",
-			"autoWheelSpin",
-			"autoInventoryCleanup",
-			"inventoryCleanupMinCopies",
-			"autoDeleteLowRarityEggPets",
-			"autoUpgradeMastery",
-			"autoPowerOrbEquipped",
-			"autoCollectCoins",
-			"autoBubble",
-			"autoSell",
-			"selectedObby",
-			"autoObby",
-			"autoObbyCycle",
-			"autoObbyChest",
-			"obbyChestUseThreeKeys",
-			"autoUseFragments",
-			"autoBuyFragments",
-			"selectedFragments",
-			"selectedShops",
-			"selectedShopItems",
-			"shopInterval",
-			"autoBuyShops",
-			"selectedMysteryBox",
-			"selectedMysteryBoxes",
-			"autoOpenMystery",
-			"autoOpenMysteryDelay",
-			"autoCondenseMysteryBoxes",
-			"condenserGemReserve",
-
-			-- Enchants and quests
-			"autoEnchant",
-			"equippedTargetEnchant",
-			"equippedTargetEnchant2",
-			"equippedTargetEnchantLevel",
-			"equippedReenchantThreshold",
-			"equippedEnchantCurrency",
-			"gemGenieTargetItem",
-			"autoGemGenie",
-			"optimisedGemGenie",
-			"autoSeason",
-			"autoChallengePassQuests",
-			"autoClaimChallengePassRewards",
-			"autoResetChallengePass",
-			"autoDailyHourlyChallenge",
-			"skipTicketPearlQuests",
-			"skipBubblingQuests",
-			"bubbleQuestSwitchTeams",
-			"questStallTimeoutSeconds",
-			"autoShadowLeviathanQuest",
-			"autoRerollShadowLeviathanQuest",
-			"shadowLeviathanTargetItem",
-			"optimisedShadowLeviathanQuest",
-			"autoGuildQuests",
-			"autoClaimGuildRewards",
-			"autoAcceptGuildInvites",
-			"serverAntiAfk",
-			"serverAutoRejoin",
-			"serverJoinLeaveAlerts",
-			"autoCurrencyTeams",
-			"selectedTicketTeam",
-			"selectedTicketReturnTeam",
-			"selectedPearlTeam",
-			"selectedPearlReturnTeam",
-			"autoGlobalIncentive",
-			"autoClaimGlobalIncentive",
-
-			-- Shrines
-			"DreamerShrineEnabled",
-			"DreamerShrineAmount",
-			"shrineAuto",
-			"shrineLevel",
-			"shrinePotion",
-			"shrineAmount",
-
-			-- Webhook preferences. The URL is accepted from authenticated
-			-- dashboard commands, but is never included in heartbeat telemetry.
-			"webhookEnabled", "webhookURL", "webhookHidePlayerName", "webhookMinimumChance", "webhookShowUserInfo", "webhookSendEasySecrets",
-			"webhookPingEnabled",
-			"webhookPingUserId",
-			"webhookLowCurrencyEnabled",
-			"webhookLowCoinsBelow",
-			"webhookLowGemsBelow",
-			"webhookLowPearlsBelow",
-			"webhookLowTicketsBelow",
-			"webhookLowCurrencyCooldownMinutes",
-			"webhookRarities",
-
-			-- Rebirth and performance
-			"RebirthPetName",
-			"AdminRebirthPetName",
-			"RebirthVariants",
-			"RebirthMachineEnabled",
-			"AdminRebirthMachineEnabled",
-			"fishingAuto", "fishingAutoProgress", "fishingInstantReel", "fishingAutoClaimIndex", "fishingIndexSweep",
-			"fishingAutoEquipBestRod", "fishingAutoSellWhenFull",
-			"autoHalloweenRebirth",
-			"disableRendering",
-			"renderDistance",
-			"chunkerRenderDistance",
-
-			-- Auto update
-			"autoUpdateScript",
-			"autoUpdateIntervalSeconds",
-
-			-- Safe dashboard preference; endpoint/token/runtime state stay local.
-			"dashboardSyncEnabled",
-		}
-		local dashboardConfigKeySet = {}
-		local dashboardPrivateConfigKeys = {
-			safeModeSavedConfig = true,
-			dashboardEndpoint = true,
-			dashboardIngestToken = true,
-			dashboardSyncAutoEnabled = true,
-			dashboardBestHatchName = true,
-			dashboardBestHatchChance = true,
-			lastSeenScriptVersion = true,
-			LiveWebhookMessageIds = true,
-		}
-		for _, configKey in ipairs(dashboardConfigKeys) do
-			if not dashboardPrivateConfigKeys[configKey] then
-				dashboardConfigKeySet[configKey] = true
-			end
-		end
-		for configKey in pairs(defaultConfig) do
-			if not dashboardPrivateConfigKeys[configKey] then
-				dashboardConfigKeySet[configKey] = true
-				if not table.find(dashboardConfigKeys, configKey) then
-					table.insert(dashboardConfigKeys, configKey)
-				end
-			end
-		end
-
-		activeStates.BGSI_Lite_GetDashboardPetAssetId = function(pet, petInfo)
-			local images = petInfo and petInfo.Images
-			if type(images) ~= "table" then
-				return nil
-			end
-			local image
-			local shiny = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Shiny")
-			local mythic = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Mythic")
-			if shiny and mythic then
-				image = images[4] or images.MythicShiny or images["Shiny Mythic"] or images.ShinyMythic
-			elseif shiny then
-				image = images[2] or images.Shiny
-			elseif mythic then
-				image = images[3] or images.Mythic
-			else
-				image = images[1] or images.Normal
-			end
-			return string.match(tostring(image or ""), "rbxassetid://(%d+)")
-				or string.match(tostring(image or ""), "^(%d+)$")
-		end
-		activeStates.BGSI_Lite_DashboardItemIconCache = type(activeStates.BGSI_Lite_DashboardItemIconCache) == "table"
-			and activeStates.BGSI_Lite_DashboardItemIconCache
-			or {}
-		if activeStates.BGSI_Lite_DashboardConfigOptionsVersion ~= 2 then
-			activeStates.BGSI_Lite_DashboardConfigOptions = nil
-			activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt = 0
-			activeStates.BGSI_Lite_DashboardConfigOptionsVersion = 2
-		end
-		activeStates.BGSI_Lite_GetDashboardItemIcon = function(item)
-			if type(item) ~= "table" or not item.Type then
-				return nil
-			end
-			local cacheKey = table.concat({ tostring(item.Type), tostring(item.Name or item.Currency or ""), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
-			local cachedIcon = activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey]
-			if type(cachedIcon) == "table" then
-				return cachedIcon
-			end
-			local icon
-			if itemUtil and type(itemUtil.UpdateIcon) == "function" then
-				local iconContainer = Instance.new("Frame")
-				iconContainer.Size = UDim2.fromScale(1, 1)
-				iconContainer.BackgroundTransparency = 1
-				local iconLabel = Instance.new("ImageLabel")
-				iconLabel.Name = "Label"
-				iconLabel.Size = UDim2.fromScale(1, 1)
-				iconLabel.BackgroundTransparency = 1
-				iconLabel.Parent = iconContainer
-				pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, item)
-				local imageLayers = {}
-				for _, descendant in ipairs(iconContainer:GetDescendants()) do
-					if (descendant:IsA("ImageLabel") or descendant:IsA("ImageButton")) and descendant.Visible then
-						local imageAssetId = string.match(tostring(descendant.Image or ""), "rbxassetid://(%d+)")
-							or string.match(tostring(descendant.Image or ""), "[?&]id=(%d+)")
-							or string.match(tostring(descendant.Image or ""), "^(%d+)$")
-						if imageAssetId and imageAssetId ~= "0" then
-							local scale = math.max(descendant.Size.X.Scale, descendant.Size.Y.Scale)
-							local ancestor = descendant.Parent
-							while ancestor and ancestor ~= iconContainer do
-								if ancestor:IsA("GuiObject") then
-									scale *= math.max(ancestor.Size.X.Scale, ancestor.Size.Y.Scale)
-								end
-								ancestor = ancestor.Parent
-							end
-							table.insert(imageLayers, {
-								imageAssetId = imageAssetId,
-								name = descendant.Name,
-								zIndex = descendant.ZIndex,
-								scale = scale > 0 and scale or 1,
-							})
-						end
-					end
-				end
-				table.sort(imageLayers, function(left, right)
-					return left.zIndex < right.zIndex
-				end)
-				if #imageLayers > 0 then
-					icon = {
-						imageAssetId = imageLayers[#imageLayers].imageAssetId,
-						imageLayers = imageLayers,
-					}
-				end
-				iconContainer:Destroy()
-			end
-			if icon then
-				activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey] = icon
-			end
-			return icon
-		end
-		task.spawn(function()
-			while isCurrentRun() do
-				local dashboardWorkerOk, dashboardWorkerError = pcall(function()
-					local function getDashboardLuckPercent()
-						local luckMultiplier = 1
-						pcall(function()
-							local playerData = profileStore:IsReady() and profileStore:Get() or nil
-							local playerWorld = dashboardWorldUtil and dashboardWorldUtil:GetPlayerWorld(LocalPlayer)
-								or "The Overworld"
-							if
-								playerData
-								and dashboardStatsUtil
-								and type(dashboardStatsUtil.GetLuckMultiplier) == "function"
-							then
-								luckMultiplier = tonumber(
-									dashboardStatsUtil:GetLuckMultiplier(LocalPlayer, playerData, playerWorld, true)
-								) or 1
-							end
-						end)
-						return math.max(0, (luckMultiplier - 1) * 100)
-					end
-
-					local function buildDashboardServerPlayers()
-						local serverPlayers = {}
-						for _, serverPlayer in ipairs(Players:GetPlayers()) do
-							local leaderstats = {}
-							local leaderstatsFolder = serverPlayer:FindFirstChild("leaderstats")
-							for _, leaderstat in ipairs(leaderstatsFolder and leaderstatsFolder:GetChildren() or {}) do
-								if leaderstat:IsA("ValueBase") then
-									leaderstats[tostring(leaderstat.Name)] = tostring(leaderstat.Value)
-								end
-							end
-							table.insert(serverPlayers, {
-								userId = tostring(serverPlayer.UserId),
-								username = serverPlayer.Name,
-								displayName = serverPlayer.DisplayName,
-								leaderstats = leaderstats,
-							})
-						end
-						return serverPlayers
-					end
-
-					local function getDashboardServerCapacity()
-						local serverCapacity = 10
-						pcall(function()
-							serverCapacity = math.max(
-								#Players:GetPlayers(),
-								math.floor(tonumber(Players.MaxPlayers) or serverCapacity)
-							)
-						end)
-						return serverCapacity
-					end
-
-					local function buildDashboardInventory()
-						local inventory = {}
-						local inventoryStacks = {}
-						local playerData = profileStore:IsReady() and profileStore:Get() or nil
-						for _, pet in ipairs(playerData and playerData.Pets or {}) do
-							if type(pet) ~= "table" then
-								continue
-							end
-							local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
-							local petId = tostring(pet.Id or "")
-							local petName = tostring(pet.Name or "Unknown Pet")
-							local petRarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
-							local imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
-							local stackKey = table.concat(
-								{
-									petName,
-									petRarity,
-									tostring(imageAssetId or ""),
-									tostring(pet.Shiny == true),
-									tostring(pet.Mythic == true),
-									tostring(pet.XL == true),
-									tostring(pet.Super == true),
-								},
-								"|"
-							)
-							local stack = inventoryStacks[stackKey]
-							if not stack then
-								stack = {
-									id = petId,
-									ids = {},
-									name = petName,
-									amount = 0,
-									rarity = petRarity,
-									imageAssetId = imageAssetId,
-									shiny = pet.Shiny == true,
-									mythic = pet.Mythic == true,
-									xl = pet.XL == true,
-									super = pet.Super == true,
-								}
-								inventoryStacks[stackKey] = stack
-								table.insert(inventory, stack)
-							end
-							if petId ~= "" then
-								table.insert(stack.ids, petId)
-							end
-							stack.amount = stack.amount
-								+ math.max(1, math.floor(tonumber(pet.Amount or pet.Count) or 1))
-							if #inventory >= 1000 then
-								break
-							end
-						end
-						return inventory
-					end
-
-					activeStates.BGSI_Lite_BuildDashboardPlayerDetails = function()
-						local playerData = profileStore:IsReady() and profileStore:Get() or nil
-						if type(playerData) ~= "table" then
-							return nil
-						end
-
-						local function getAssetId(value, depth, seen)
-							if type(value) == "string" or type(value) == "number" then
-								return string.match(tostring(value), "rbxassetid://(%d+)")
-									or string.match(tostring(value), "^(%d+)$")
-							end
-							if type(value) ~= "table" or depth >= 3 or seen[value] then
-								return nil
-							end
-							seen[value] = true
-							for _, key in ipairs({ "Image", "Icon", "ImageId", "IconId", "AssetId", "ImageAssetId", "Thumbnail", "Texture" }) do
-								local assetId = getAssetId(value[key], depth + 1, seen)
-								if assetId then
-									return assetId
-								end
-							end
-							-- Last resort: anything nested that looks like an asset. pairs() has no
-							-- defined order, so without sorting two clients walking the same record
-							-- could each settle on a different image - which is exactly what made
-							-- the dashboard show a different icon per account for the same egg.
-							local childKeys = {}
-							for childKey in pairs(value) do
-								if type(childKey) == "string" or type(childKey) == "number" then
-									table.insert(childKeys, childKey)
-								end
-							end
-							table.sort(childKeys, function(left, right)
-								return tostring(left) < tostring(right)
-							end)
-							for _, childKey in ipairs(childKeys) do
-								local assetId = getAssetId(value[childKey], depth + 1, seen)
-								if assetId then
-									return assetId
-								end
-							end
-							return nil
-						end
-
-						local function getItemAmount(item)
-							if not itemUtil or type(itemUtil.GetOwnedAmount) ~= "function" then
-								return 0
-							end
-							local ok, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
-							return ok and math.max(0, math.floor(tonumber(amount) or 0)) or 0
-						end
-
-						local function getItemText(methodName, item, fallback)
-							if itemUtil and type(itemUtil[methodName]) == "function" then
-								local ok, value = pcall(itemUtil[methodName], itemUtil, item)
-								if ok and value ~= nil then
-									return tostring(value)
-								end
-							end
-							return tostring(fallback or "")
-						end
-
-						local details = {
-							leaderstats = {},
-							currencies = {},
-							debugStats = {},
-							inventory = {},
-							prizes = {},
-							quests = { completedTotal = 0, completed = {}, active = {} },
-							configOptions = {},
-						}
-						local cachedConfigOptions = activeStates.BGSI_Lite_DashboardConfigOptions
-						if type(cachedConfigOptions) == "table"
-							and tick() - (tonumber(activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt) or 0) < 30
-						then
-							details.configOptions = cachedConfigOptions
-						else
-						local configOptionSeen = {}
-						local function addConfigOption(configKey, value, label, optionData, optionItem)
-							if value == nil then
-								return
-							end
-							local optionKey = tostring(value)
-							configOptionSeen[configKey] = configOptionSeen[configKey] or {}
-							if configOptionSeen[configKey][optionKey] then
-								return
-							end
-							configOptionSeen[configKey][optionKey] = true
-							details.configOptions[configKey] = details.configOptions[configKey] or {}
-							local option = {
-								value = value,
-								label = tostring(label or value),
-							}
-							local itemIcon = type(optionItem) == "table"
-								and activeStates.BGSI_Lite_GetDashboardItemIcon(optionItem)
-							local imageAssetId = itemIcon and itemIcon.imageAssetId
-								or type(optionData) == "table" and getAssetId(optionData, 0, {})
-							if imageAssetId then
-								option.imageAssetId = imageAssetId
-							end
-							if itemIcon and #itemIcon.imageLayers > 0 then
-								option.imageLayers = itemIcon.imageLayers
-							end
-							table.insert(details.configOptions[configKey], option)
-						end
-
-						-- getEggDataLookup returns name -> true, so passing its value through as
-						-- the option's data meant every egg option came back with no icon, and
-						-- the dashboard fell back to a generic egg for all of them. The real
-						-- record lives in the Eggs data module.
-						-- An egg keeps its icon in Image, the same field the in-game egg list
-						-- reads. Handing the whole record to the generic resolver instead let
-						-- it fall through to the egg's pet list and pick a pet's image, so
-						-- narrow it to the one field that is actually the egg.
-						local function eggIconData(eggName)
-							local record = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
-							local image = type(record) == "table" and record.Image or nil
-							return image and { Image = image } or nil
-						end
-						activeStates.BGSI_Lite_GetDashboardEggAssetId = function(eggName)
-							if type(eggName) ~= "string" or eggName == "" then
-								return nil
-							end
-							local ok, assetId = pcall(function()
-								local record = type(eggDataModule) == "table" and eggDataModule[eggName] or nil
-								local image = type(record) == "table" and record.Image or nil
-								return image and tostring(image):match("%d+") or nil
-							end)
-							return ok and assetId or nil
-						end
-						for eggName in pairs(getEggDataLookup()) do
-							if not string.lower(tostring(eggName)):find(" golden$") then
-								addConfigOption("selectedEgg", eggName, eggName, eggIconData(eggName))
-							end
-						end
-						if not string.lower(tostring(activeStates.BGSI_Lite_CurrentEggName or "")):find(" golden$") then
-							addConfigOption("selectedEgg", activeStates.BGSI_Lite_CurrentEggName)
-						end
-						if not string.lower(tostring(activeStates.BGSI_Lite_LuckEggName or "")):find(" golden$") then
-							addConfigOption("selectedEgg", activeStates.BGSI_Lite_LuckEggName)
-						end
-						-- Use each rift's Egg field for dashboard target-rift labels.
-						local function riftOptionLabel(riftId, riftInfo)
-							if type(riftInfo) == "table" and type(riftInfo.Egg) == "string" and riftInfo.Egg ~= "" then
-								return riftInfo.Egg
-							end
-							local words = {}
-							for word in tostring(riftId):gsub("%-rift$", ""):gmatch("[%a%d]+") do
-								table.insert(words, word:sub(1, 1):upper() .. word:sub(2))
-							end
-							table.insert(words, "Rift")
-							return table.concat(words, " ")
-						end
-						for riftName, riftInfo in pairs(type(riftData) == "table" and riftData or {}) do
-							if type(riftInfo) == "table" and riftInfo.Type == "Egg" then
-								addConfigOption("selectedRiftEgg", riftName, riftName, riftInfo)
-								-- Matches getTargetRiftHopOptions: every egg rift can be hopped to.
-								addConfigOption("targetRiftIds", riftName, riftOptionLabel(riftName, riftInfo), riftInfo)
-							elseif type(riftInfo) == "table" and riftInfo.Type == "Chest" then
-								addConfigOption("selectedChest", riftName, riftName, riftInfo)
-							end
-						end
-						-- selectedWorldChests is the multi-select that superseded the single
-						-- selectedWorldChest; both are still live config keys, so feed both.
-						local function addWorldChestOption(chestName, chestInfo)
-							addConfigOption("selectedWorldChest", chestName, chestName, chestInfo)
-							addConfigOption("selectedWorldChests", chestName, chestName, chestInfo)
-						end
-						local rendered = Workspace:FindFirstChild("Rendered")
-						local renderedChests = rendered and rendered:FindFirstChild("Chests")
-						for _, chest in ipairs(renderedChests and renderedChests:GetChildren() or {}) do
-							addWorldChestOption(chest.Name)
-						end
-						local chestData = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Data.Chests)
-						end) or {}
-						for chestName, chestInfo in pairs(chestData) do
-							addWorldChestOption(chestName, chestInfo)
-						end
-						for _, chestName in ipairs({ "Giant Chest", "Infinity Chest", "Ticket Chest", "Void Chest" }) do
-							addWorldChestOption(chestName)
-						end
-						for enchantName, enchantInfo in pairs(type(enchantData) == "table" and enchantData or {}) do
-							if type(enchantName) == "string" and not string.lower(enchantName):find("^super%-") then
-								addConfigOption("equippedTargetEnchant", enchantName, enchantName, enchantInfo)
-								addConfigOption("equippedTargetEnchant2", enchantName, enchantName, enchantInfo)
-							end
-						end
-						addConfigOption("equippedTargetEnchant2", "", "None")
-						for potionName, potion in pairs(type(potionData) == "table" and potionData or {}) do
-							if type(potionName) == "string" and type(potion) == "table" then
-								local potionItem = { Type = "Potion", Name = potionName, Level = 1 }
-								local potionLabel = getItemText("GetName", potionItem, potionName)
-								addConfigOption("potionType", potionName, potionLabel, potion, potionItem)
-								addConfigOption("shrinePotion", potionName, potionLabel, potion, potionItem)
-								addConfigOption("gemGenieTargetItem", potionName, potionLabel, potion, potionItem)
-							end
-						end
-						for level = 1, 7 do
-							addConfigOption("potionLevel", level)
-							if level <= 5 then
-								addConfigOption("shrineLevel", level)
-							end
-						end
-						for powerupName, powerup in pairs(type(giftData) == "table" and giftData or {}) do
-							if type(powerupName) == "string" then
-								local powerupItem = { Type = "Powerup", Name = powerupName }
-								local powerupLabel = getItemText("GetName", powerupItem, powerupName)
-								addConfigOption("gemGenieTargetItem", powerupName, powerupLabel, powerup, powerupItem)
-								if type(powerup) == "table" and powerup.Type == "Gift" then
-									addConfigOption("selectedMysteryBox", powerupName, powerupLabel, powerup, powerupItem)
-									addConfigOption("selectedMysteryBoxes", powerupName, powerupLabel, powerup, powerupItem)
-								elseif type(powerup) == "table" and powerup.Type == "Fragment" then
-									addConfigOption("selectedFragments", powerupName, powerupLabel, powerup, powerupItem)
-								elseif type(powerup) == "table" and powerup.Type == "Egg" then
-									-- Same source getInventoryEggNames reads for the in-game dropdown.
-									addConfigOption("selectedInventoryEgg", powerupName, powerupLabel, powerup, powerupItem)
-								end
-							end
-						end
-						local shops = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Data.Shops)
-						end) or {}
-						local function addShopItem(shopItem, depth)
-							if depth > 4 or shopItem == nil then
-								return
-							end
-							if type(shopItem) == "string" then
-								local shopItemData = { Type = "Powerup", Name = shopItem }
-								local shopItemLabel = getItemText("GetName", shopItemData, shopItem)
-								addConfigOption("selectedShopItems", shopItem, shopItemLabel, giftData and giftData[shopItem], shopItemData)
-								if string.find(string.lower(shopItem), "fragment", 1, true) then
-									addConfigOption("selectedFragments", shopItem, shopItemLabel, giftData and giftData[shopItem], shopItemData)
-								end
-								return
-							end
-							if type(shopItem) ~= "table" then
-								return
-							end
-							local item = shopItem.Item or shopItem.Product or shopItem
-							local itemName = type(item) == "table" and (item.Name or item.Item or item.ItemName or item.Id)
-								or type(item) == "string" and item
-							if itemName then
-								local shopItemDescriptor = type(item) == "table" and item or { Type = "Powerup", Name = itemName }
-								if not shopItemDescriptor.Type then
-									shopItemDescriptor = { Type = "Powerup", Name = itemName }
-								end
-								local itemOptionData = type(item) == "table" and item or nil
-								if not itemOptionData or not getAssetId(itemOptionData, 0, {}) then
-									itemOptionData = giftData and giftData[itemName]
-								end
-								local itemLabel = getItemText("GetName", shopItemDescriptor, itemName)
-								addConfigOption("selectedShopItems", itemName, itemLabel, itemOptionData, shopItemDescriptor)
-								if string.find(string.lower(tostring(itemName)), "fragment", 1, true) then
-									addConfigOption(
-										"selectedFragments",
-										itemName,
-										itemLabel,
-										itemOptionData,
-										shopItemDescriptor
-									)
-								end
-							end
-							if type(item) == "table" and item.Product then
-								addShopItem(item.Product, depth + 1)
-							end
-						end
-						for shopName, shop in pairs(shops) do
-							addConfigOption("selectedShops", shopName)
-							if type(shop) == "table" then
-								for _, listName in ipairs({ "PermanentItems", "RandomItems", "Items", "Slots" }) do
-									for _, shopItem in pairs(type(shop[listName]) == "table" and shop[listName] or {}) do
-										addShopItem(shopItem, 0)
-									end
-								end
-							end
-						end
-						local ownedPetNames = {}
-						for _, pet in ipairs(type(playerData.Pets) == "table" and playerData.Pets or {}) do
-							if type(pet) == "table" and type(pet.Name) == "string" and not ownedPetNames[pet.Name] then
-								ownedPetNames[pet.Name] = true
-								local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
-								local petAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
-								local petOptionData = petAssetId and { ImageAssetId = petAssetId } or petInfo
-								addConfigOption("RebirthPetName", pet.Name, pet.Name, petOptionData)
-								addConfigOption("AdminRebirthPetName", pet.Name, pet.Name, petOptionData)
-							end
-						end
-						for teamKey, team in pairs(type(playerData.Teams) == "table" and playerData.Teams or {}) do
-							local teamName = type(team) == "table" and (team.Name or team.TeamName) or nil
-							local teamLabel = string.format("%s [%s]", tostring(teamName or "Team"), tostring(teamKey))
-							for _, configKey in ipairs({ "selectedPearlTeam", "selectedTicketTeam", "selectedPearlReturnTeam", "selectedTicketReturnTeam" }) do
-								addConfigOption(configKey, teamKey, teamLabel)
-							end
-						end
-						addConfigOption("selectedPearlReturnTeam", "", "Restore previous team")
-						addConfigOption("selectedTicketReturnTeam", "", "Restore previous team")
-						-- Fixed choice lists the in-game UI offers. Reporting them means the
-						-- dashboard shows exactly what this build supports instead of relying
-						-- on its own copy, which silently goes stale when a list changes here.
-						for _, difficulty in ipairs(activeStates.BGSI_Lite_ObbyDifficultyOptions or {}) do
-							addConfigOption("selectedObby", difficulty)
-						end
-						for _, eventName in ipairs(activeStates.BGSI_Lite_PriorityEventOptions or {}) do
-							addConfigOption("PriorityEvents", eventName)
-						end
-						for _, upgrade in ipairs(activeStates.BGSI_Lite_FallUpgradeOptions or {}) do
-							addConfigOption("fallUpgradePriority", upgrade.value, upgrade.label)
-						end
-						for _, currency in ipairs(activeStates.BGSI_Lite_EnchantCurrencyOptions or {}) do
-							addConfigOption("equippedEnchantCurrency", currency)
-						end
-						for _, options in pairs(details.configOptions) do
-							table.sort(options, function(left, right)
-								return string.lower(left.label) < string.lower(right.label)
-							end)
-						end
-						activeStates.BGSI_Lite_DashboardConfigOptions = details.configOptions
-						activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt = tick()
-						end
-
-						local leaderstatsFolder = LocalPlayer:FindFirstChild("leaderstats")
-						for _, leaderstat in ipairs(leaderstatsFolder and leaderstatsFolder:GetChildren() or {}) do
-							if leaderstat:IsA("ValueBase") then
-								details.leaderstats[tostring(leaderstat.Name)] = tostring(leaderstat.Value)
-							end
-						end
-
-						local currencyData = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Data.Currency)
-						end) or {}
-						local currencyUtil = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Utils.CurrencyUtil)
-						end)
-						local reportedCurrencies = {}
-						for currencyName, currencyInfo in pairs(currencyData) do
-							local balanceOk, amount = pcall(currencyUtil.GetBalance, currencyUtil, playerData, currencyName)
-							if balanceOk and type(amount) == "number" and amount ~= 0 then
-								local imageAssetId = getAssetId(currencyInfo, 0, {})
-								if not imageAssetId and itemUtil and type(itemUtil.UpdateIcon) == "function" then
-									local iconContainer = Instance.new("Frame")
-									local iconLabel = Instance.new("ImageLabel")
-									iconLabel.Name = "Label"
-									iconLabel.Parent = iconContainer
-									pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, {
-										Type = "Currency",
-										Currency = currencyName,
-									})
-									imageAssetId = getAssetId(iconContainer:FindFirstChild("Border", true), 0, {})
-										or getAssetId(iconContainer:FindFirstChild("Icon", true), 0, {})
-										or getAssetId(iconLabel.Image, 0, {})
-									iconContainer:Destroy()
-								end
-								table.insert(details.currencies, {
-									key = tostring(currencyName),
-									name = tostring(currencyInfo.Display or currencyName),
-									amount = tostring(amount),
-									imageAssetId = imageAssetId,
-								})
-								reportedCurrencies[string.lower(tostring(currencyName))] = true
-							end
-						end
-						local bubbles = tonumber(playerData.Bubbles)
-							or (type(playerData.Stats) == "table" and tonumber(playerData.Stats.Bubbles))
-						if bubbles and bubbles ~= 0 and not reportedCurrencies.bubbles then
-							table.insert(details.currencies, { key = "Bubbles", name = "Bubbles", amount = tostring(bubbles) })
-						end
-						table.sort(details.currencies, function(left, right)
-							return left.name < right.name
-						end)
-
-						for statName, statValue in pairs(type(playerData.Stats) == "table" and playerData.Stats or {}) do
-							if type(statValue) == "number" or type(statValue) == "string" or type(statValue) == "boolean" then
-								table.insert(details.debugStats, {
-									name = tostring(statName),
-									value = tostring(statValue),
-									category = "Profile stats",
-								})
-							end
-						end
-						for _, statName in ipairs({ "SecretsHatched", "GemGenieCompletions", "RebirthMachineFuses", "TotalFishCaught" }) do
-							if type(playerData[statName]) == "number" then
-								table.insert(details.debugStats, {
-									name = statName,
-									value = tostring(playerData[statName]),
-									category = "Progress",
-								})
-							end
-						end
-						local debugGui = LocalPlayer:FindFirstChild("PlayerGui")
-						debugGui = debugGui and debugGui:FindFirstChild("ScreenGui")
-						debugGui = debugGui and debugGui:FindFirstChild("_debug")
-						local debugTags = debugGui and debugGui:FindFirstChild("Tags")
-						for _, debugTag in ipairs(debugTags and debugTags:GetChildren() or {}) do
-							local debugLabel = debugTag:FindFirstChild("Label")
-							if debugLabel and (debugLabel:IsA("TextLabel") or debugLabel:IsA("TextButton")) then
-								local debugText = tostring(debugLabel.Text or ""):gsub("<.->", ""):gsub("&nbsp;", " ")
-								if debugText ~= "" then
-									table.insert(details.debugStats, {
-										name = tostring(debugTag.Name):gsub("^BGSI_Lite_", ""),
-										value = debugText,
-										category = "Debug panel",
-									})
-								end
-							end
-						end
-
-						local function addInventoryItem(item, source, usable)
-							local amount = getItemAmount(item)
-							if amount <= 0 then
-								return
-							end
-							-- A potion icon is several stacked images - bottle, liquid, border,
-							-- level pip - and this used to pick out only the two named "Border"
-							-- and "Liquid", so anything drawn differently came through blank.
-							-- GetDashboardItemIcon renders the item the way the game does and
-							-- keeps every visible layer with its z-order and scale, which is
-							-- what the config pickers already use.
-							local itemIcon = activeStates.BGSI_Lite_GetDashboardItemIcon(item)
-							local imageLayers = itemIcon and itemIcon.imageLayers or nil
-							local imageAssetId = itemIcon and itemIcon.imageAssetId
-								or getAssetId(source, 0, {})
-							local itemName = getItemText("GetName", item, item.Name)
-							local itemKey = table.concat({ tostring(item.Type), tostring(item.Name), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
-							table.insert(details.inventory, {
-								key = itemKey,
-								type = tostring(item.Type),
-								rawName = tostring(item.Name),
-								name = itemName,
-								level = tonumber(item.Level),
-								tier = tonumber(item.Tier),
-								amount = amount,
-								description = getItemText("GetDescription", item, source and source.Description),
-								imageAssetId = imageAssetId,
-								imageLayers = imageLayers,
-								usable = usable == true,
-							})
-						end
-
-						for potionName, potion in pairs(type(potionData) == "table" and potionData or {}) do
-							local levelCount = potion.OneLevel == true and 1
-								or math.max(1, type(potion.Buff) == "table" and type(potion.Buff.Expiry) == "table" and #potion.Buff.Expiry or 0)
-							for level = 1, levelCount do
-								addInventoryItem({ Type = "Potion", Name = potionName, Level = level }, potion, true)
-							end
-						end
-						for powerupName, powerup in pairs(type(giftData) == "table" and giftData or {}) do
-							local usable = powerup.Type == "Gift"
-								or powerup.Type == "Egg"
-								or powerup.Type == "Fragment"
-								or powerupName == "Golden Orb"
-							addInventoryItem({ Type = "Powerup", Name = powerupName }, powerup, usable)
-						end
-						local runeData = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Data.Runes)
-						end) or {}
-						for runeName, rune in pairs(runeData) do
-							for tier = 1, type(rune.Tiers) == "table" and #rune.Tiers or 0 do
-								addInventoryItem({ Type = "Rune", Name = runeName, Tier = tier }, rune, true)
-							end
-						end
-						table.sort(details.inventory, function(left, right)
-							return left.type == right.type and left.name < right.name or left.type < right.type
-						end)
-
-						local prizesData = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Data.Prizes)
-						end)
-						local prizesUtil = safeRequireTable(function()
-							return require(ReplicatedStorage.Shared.Utils.PrizesUtil)
-						end)
-						for _, prize in ipairs(prizesData and prizesData.data or {}) do
-							local progressOk, progress = pcall(prizesUtil.GetProgress, prizesUtil, playerData, prize.Type)
-							local reward = prize.Reward or {}
-							local rewardName = getItemText("GetName", reward, reward.Name or reward.Currency or reward.Type)
-							local rewardSource = reward.Type == "Potion" and potionData and potionData[reward.Name]
-								or reward.Type == "Powerup" and giftData and giftData[reward.Name]
-								or reward.Type == "Currency" and currencyData[reward.Currency]
-								or reward.Type == "Rune" and runeData[reward.Name]
-							local prizeDescription = tostring(prize.Type or "")
-							pcall(function()
-								prizeDescription = prizesUtil:GetDescription(prize)
-							end)
-							table.insert(details.prizes, {
-								key = tostring(prize.Key or ""),
-								type = tostring(prize.Type or ""),
-								progress = progressOk and tonumber(progress) or 0,
-								requirement = tonumber(prize.Requirement) or 0,
-								claimed = type(playerData.ClaimedPrizes) == "table" and playerData.ClaimedPrizes[prize.Key] ~= nil,
-								claimable = progressOk and tonumber(progress) >= (tonumber(prize.Requirement) or math.huge),
-								description = prizeDescription,
-								imageAssetId = getAssetId(rewardSource, 0, {})
-									or getAssetId(prizesData and prizesData.meta and prizesData.meta[prize.Type], 0, {}),
-								reward = (tonumber(reward.Amount) and ("x" .. tostring(reward.Amount) .. " ") or "") .. rewardName,
-							})
-						end
-
-						for questId, completedCount in pairs(type(playerData.QuestsCompleted) == "table" and playerData.QuestsCompleted or {}) do
-							if type(completedCount) == "number" then
-								details.quests.completed[tostring(questId)] = completedCount
-								details.quests.completedTotal = details.quests.completedTotal + completedCount
-							end
-						end
-						for questKey, quest in pairs(type(playerData.Quests) == "table" and playerData.Quests or {}) do
-							for taskIndex, questTask in ipairs(type(quest.Tasks) == "table" and quest.Tasks or {}) do
-								local title = tostring(questTask.Type or quest.Name or questKey)
-								pcall(function()
-									title = questModule:FormatTask(questTask)
-								end)
-								local requirement = tonumber(questTask.Requirement) or 0
-								pcall(function()
-									requirement = tonumber(questModule:GetRequirement(questTask)) or requirement
-								end)
-								local progress = type(quest.Progress) == "table" and tonumber(quest.Progress[taskIndex]) or 0
-								table.insert(details.quests.active, {
-									id = tostring(quest.Id or questKey) .. ":" .. tostring(taskIndex),
-									title = title,
-									progress = progress or 0,
-									requirement = requirement,
-									completed = requirement > 0 and (progress or 0) >= requirement,
-								})
-								if #details.quests.active >= 100 then
-									break
-								end
-							end
-							if #details.quests.active >= 100 then
-								break
-							end
-						end
-						return details
-					end
-
-					-- Destinations the dashboard lets you set but must never read back: it
-					-- shows them as write-only fields, so reporting the saved value would
-					-- hand every viewer of the dashboard a working webhook URL.
-					local dashboardWriteOnlyConfigKeys = {
-						webhookURL = true,
-						LiveWebhookURL = true,
-						hatchTelemetryEndpoint = true,
-					}
-
-					local function buildDashboardConfig()
-						local dashboardConfig = {}
-						for _, configKey in ipairs(dashboardConfigKeys) do
-							if not dashboardWriteOnlyConfigKeys[configKey] then
-								if
-									Config.safeMode == true
-									and configKey ~= "safeMode"
-									and type(Config.safeModeSavedConfig) == "table"
-									and Config.safeModeSavedConfig[configKey] ~= nil
-								then
-									dashboardConfig[configKey] = Config.safeModeSavedConfig[configKey]
-								else
-									dashboardConfig[configKey] = Config[configKey]
-								end
-							end
-						end
-						local playerData = profileStore:IsReady() and profileStore:Get() or nil
-						dashboardConfig.dashboardPetStorageUsed = activeStates.BGSI_Lite_GetPetInventoryUsage(playerData)
-						dashboardConfig.dashboardPetStorageCapacity =
-							activeStates.BGSI_Lite_GetPetInventoryCapacity(playerData) or 0
-						pcall(function()
-							dashboardConfig.dashboardEggsPerHatch = dashboardStatsUtil:GetMaxEggHatches(playerData)
-							dashboardConfig.dashboardHatchSpeedMultiplier =
-								dashboardStatsUtil:GetHatchSpeed(LocalPlayer, playerData)
-						end)
-						-- The dashboard's egg icons come from a third-party catalog that lags
-						-- behind the game, so a newly added egg shows a generic placeholder.
-						-- The game already knows the real asset; send it.
-						pcall(function()
-							local currentEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "")
-							if
-								currentEggName ~= ""
-								and type(activeStates.BGSI_Lite_GetDashboardEggAssetId) == "function"
-							then
-								local eggAssetId = activeStates.BGSI_Lite_GetDashboardEggAssetId(currentEggName)
-								if eggAssetId then
-									dashboardConfig.dashboardCurrentEggIcon = tostring(eggAssetId)
-								end
-							end
-						end)
-						return dashboardConfig
-					end
-
-					local function getDashboardActivity(currentEggName, isHatching)
-						if Config.safeMode == true then
-							return "Safe Mode", "idle"
-						end
-						local activeQuest = activeStates.BGSI_Lite_ActiveQuest
-						if type(activeQuest) == "table" and activeQuest.state ~= "complete" then
-							local progress = math.max(0, tonumber(activeQuest.progress) or 0)
-							local requirement = math.max(0, tonumber(activeQuest.requirement) or 0)
-							local progressText = requirement > 0
-								and (" (" .. tostring(math.floor(progress)) .. "/" .. tostring(math.floor(requirement)) .. ")")
-								or ""
-							return tostring(activeQuest.title or "Working on a quest") .. progressText, "quest"
-						end
-						if activeStates.BGSI_Lite_SeasonActive then
-							return "Working on a seasonal quest", "quest"
-						end
-						if activeStates.BGSI_Lite_ChallengePassActive then
-							return "Working on a challenge quest", "quest"
-						end
-						if activeStates.BGSI_Lite_GlobalIncentiveActive then
-							return "Working on a global quest", "quest"
-						end
-						if activeStates.BGSI_Lite_GemGenieActive then
-							return "Running Gem Genie", "collect"
-						end
-						if activeStates.BGSI_Lite_PetInventoryCleanupActive then
-							return "Clearing duplicate pets from full storage", "collect"
-						end
-						if activeStates.BGSI_Lite_TicketPickupActive then
-							return "Collecting Tickets", "collect"
-						end
-						if activeStates.BGSI_Lite_CarnivalPickupActive then
-							return "Collecting Carnival Coins", "collect"
-						end
-						if activeStates.BGSI_Lite_RiftEggActive then
-							return "Working on a rift egg", "quest"
-						end
-						if Config.autoHopLuckEgg and activeStates.BGSI_Lite_LuckEggActive ~= true then
-							return "Searching for a 4x Luck egg", "search"
-						end
-						if isHatching then
-							return "Hatching " .. tostring(currentEggName), "hatch"
-						end
-						if activeStates.BGSI_Lite_IdleHatchFallbackActive then
-							return "Starting " .. tostring(Config.selectedEgg or "the selected egg"), "hatch"
-						end
-						if Config.autoEnchant then
-							return "Monitoring the enchant team", "enchant"
-						end
-						if Config.autoBuyShops then
-							return "Checking selected shops", "collect"
-						end
-						if Config.autoUseFragments then
-							return "Using available fragments", "collect"
-						end
-						if Config.autoClaimPrizes then
-							return "Checking prize milestones", "collect"
-						end
-						return "Idle", "idle"
-					end
-
-					while isCurrentRun() do
-						task.wait(Config.dashboardSyncEnabled and dashboardSyncDelay or 0.85)
-						dashboardEndpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
-						dashboardIngestToken = tostring(Config.dashboardIngestToken or ""):match("^%s*(.-)%s*$") or ""
-						dashboardEndpoint = string.gsub(dashboardEndpoint, "/+$", "")
-						if dashboardEndpoint ~= "" and not string.match(dashboardEndpoint, "^https?://") then
-							dashboardEndpoint = "https://" .. dashboardEndpoint
-						end
-						if dashboardEndpoint ~= "" and not string.find(dashboardEndpoint, "/api/", 1, true) then
-							dashboardEndpoint = dashboardEndpoint .. "/api/proxy/heartbeat"
-						end
-						if Config.dashboardSyncEnabled and dashboardEndpoint ~= "" and dashboardIngestToken ~= "" then
-							if type(dashboardRequest) ~= "function" then
-								local runtimeSyn = type(syn) == "table" and syn or rawget(activeStates, "syn")
-								dashboardRequest = request
-									or http_request
-									or rawget(activeStates, "request")
-									or rawget(activeStates, "http_request")
-									or (type(runtimeSyn) == "table" and rawget(runtimeSyn, "request"))
-								if type(dashboardRequest) ~= "function" then
-									local httpTable = rawget(activeStates, "http")
-									dashboardRequest = type(httpTable) == "table" and rawget(httpTable, "request")
-										or nil
-								end
-							end
-							if type(dashboardRequest) ~= "function" then
-								if dashboardConnected ~= false then
-									print(
-										"[" .. LocalPlayer.Name .. "] Account Dashboard request function unavailable."
-									)
-								end
-								dashboardConnected = false
-								dashboardSyncDelay = math.min(12, math.max(3, dashboardSyncDelay * 2))
-								continue
-							end
-
-							local currentEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "None")
-							local isHatching = activeStates.BGSI_Lite_IsHatching == true
-							local hatchRate =
-								math.max(0, math.floor(tonumber(activeStates.BGSI_Lite_CurrentHatchRate) or 0))
-							local dashboardActivity, dashboardActivityLevel =
-								getDashboardActivity(currentEggName, isHatching)
-							local activeQuest = activeStates.BGSI_Lite_ActiveQuest
-							local currentState = type(activeQuest) == "table"
-								and table.concat({
-									"quest",
-									tostring(activeQuest.kind or "quest"),
-									tostring(activeQuest.id or ""),
-									tostring(activeQuest.state or "active"),
-								}, "|")
-								or dashboardActivity .. "|" .. dashboardActivityLevel
-							local currentInventory
-							local inventorySignature
-							local includeInventory = false
-							if dashboardInventoryEnabled and tick() - lastInventorySync >= 120
-							then
-								currentInventory = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardInventory)
-								if currentInventory then
-									inventorySignature = HttpService:JSONEncode(currentInventory)
-									includeInventory = inventorySignature ~= lastInventorySignature
-										or tick() - lastInventorySync >= 120
-								else
-									lastInventorySync = tick()
-								end
-							end
-							activeStates.BGSI_Lite_DashboardIncludePlayerDetails = false
-							if tick() - activeStates.BGSI_Lite_DashboardPlayerDetailsSync >= 60
-							then
-								activeStates.BGSI_Lite_DashboardPlayerDetails = activeStates.BGSI_Lite_SafeDashboardBuild(
-									activeStates.BGSI_Lite_BuildDashboardPlayerDetails,
-									nil
-								)
-								if activeStates.BGSI_Lite_DashboardPlayerDetails then
-									activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature = HttpService:JSONEncode(
-										activeStates.BGSI_Lite_DashboardPlayerDetails
-									)
-									activeStates.BGSI_Lite_DashboardIncludePlayerDetails = true
-								else
-									activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
-								end
-							end
-							local pendingDashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
-							local sentDashboardHatchCount = math.min(#pendingDashboardHatches, 100)
-							local dashboardEggDiscoveries = activeStates.BGSI_Lite_DashboardEggDiscoveries
-							local sentDashboardEggDiscoveries = {}
-							local payload = {
-								protocolVersion = 2,
-								scriptVersion = activeStates.BGSI_Lite_ScriptVersion,
-								userId = tostring(LocalPlayer.UserId),
-								username = LocalPlayer.Name,
-								displayName = LocalPlayer.DisplayName,
-								status = dashboardActivity,
-								gameName = tostring(game.Name),
-								placeId = tostring(game.PlaceId),
-								jobId = tostring(game.JobId),
-								isHatching = isHatching,
-								hatchRate = hatchRate,
-								luckPercent = getDashboardLuckPercent(),
-								currentEgg = currentEggName ~= "None" and currentEggName or "",
-								bestHatchName = tostring(activeStates.BGSI_Lite_DashboardBestHatchName or ""),
-								bestHatchChance = math.max(
-									0,
-									tonumber(activeStates.BGSI_Lite_DashboardBestHatchChance) or 0
-								),
-								uptimeSeconds = math.max(0, math.floor(tick() - dashboardStartedAt)),
-								serverCapacity = getDashboardServerCapacity(),
-								luckEggName = activeStates.BGSI_Lite_FindLuckEggName
-										and activeStates.BGSI_Lite_FindLuckEggName()
-									or nil,
-								serverPlayers = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardServerPlayers, {}),
-								config = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardConfig, {}),
-								rifts = activeStates.BGSI_Lite_SafeDashboardBuild(function()
-									return activeStates.BGSI_Lite_DashboardRifts or {}
-								end, {}),
-								gameEvents = activeStates.BGSI_Lite_SafeDashboardBuild(
-									activeStates.BGSI_Lite_BuildGlobalEventSnapshot,
-									{}
-								),
-								fourXEgg = activeStates.BGSI_Lite_SafeDashboardBuild(
-									activeStates.BGSI_Lite_BuildFourXEggSnapshot,
-									nil
-								),
-							}
-							if type(activeQuest) == "table" then
-								payload.activeQuest = {
-									kind = tostring(activeQuest.kind or "quest"),
-									id = tostring(activeQuest.id or ""),
-									title = tostring(activeQuest.title or "Quest task"),
-									progress = math.max(0, tonumber(activeQuest.progress) or 0),
-									requirement = math.max(0, tonumber(activeQuest.requirement) or 0),
-									state = tostring(activeQuest.state or "active"),
-								}
-							end
-							if sentDashboardHatchCount > 0 then
-								payload.hatches = {}
-								for hatchIndex = 1, sentDashboardHatchCount do
-									table.insert(payload.hatches, pendingDashboardHatches[hatchIndex])
-								end
-							end
-							for discoveryKey, discovery in pairs(dashboardEggDiscoveries) do
-								if payload.eggDiscoveries and #payload.eggDiscoveries >= 20 then
-									break
-								end
-								local sentQuantity = math.max(0, math.floor(tonumber(discovery.quantity) or 0))
-								if sentQuantity > 0 then
-									payload.eggDiscoveries = payload.eggDiscoveries or {}
-									table.insert(payload.eggDiscoveries, {
-										eggName = discovery.eggName,
-										petName = discovery.petName,
-										rarity = discovery.rarity,
-										imageAssetId = discovery.imageAssetId,
-										shiny = discovery.shiny,
-										mythic = discovery.mythic,
-										xl = discovery.xl,
-										super = discovery.super,
-										enchantments = discovery.enchantments,
-										existingCount = discovery.existingCount,
-										quantity = sentQuantity,
-									})
-									sentDashboardEggDiscoveries[discoveryKey] = sentQuantity
-								end
-							end
-							activeStates.BGSI_Lite_SentDashboardCommandResultCount = #pendingDashboardCommandResults
-							if activeStates.BGSI_Lite_SentDashboardCommandResultCount > 0 then
-								payload.commandResults = pendingDashboardCommandResults
-							end
-							if includeInventory then
-								payload.inventory = currentInventory
-								lastInventorySync = tick()
-								lastInventorySignature = inventorySignature
-							end
-							if activeStates.BGSI_Lite_DashboardIncludePlayerDetails then
-								payload.playerDetails = activeStates.BGSI_Lite_DashboardPlayerDetails
-								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
-								activeStates.BGSI_Lite_DashboardPlayerDetailsSignature =
-									activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature
-							end
-							if type(activeStates.BGSI_Lite_PendingDashboardLog) == "table" then
-								payload.log = tostring(activeStates.BGSI_Lite_PendingDashboardLog.message or "")
-								payload.logLevel = tostring(activeStates.BGSI_Lite_PendingDashboardLog.level or "info")
-								activeStates.BGSI_Lite_SentDashboardLogId =
-									tonumber(activeStates.BGSI_Lite_PendingDashboardLog.id)
-							elseif currentState ~= lastDashboardState then
-								payload.log = dashboardActivity
-								payload.logLevel = dashboardActivityLevel
-								lastDashboardState = currentState
-								activeStates.BGSI_Lite_SentDashboardLogId = nil
-							end
-
-							local encodedPayload = HttpService:JSONEncode(payload)
-							if #encodedPayload > 700000 and payload.inventory then
-								payload.inventory = nil
-								encodedPayload = HttpService:JSONEncode(payload)
-								includeInventory = false
-								lastInventorySync = 0
-								lastInventorySignature = nil
-								print(
-									"["
-										.. LocalPlayer.Name
-										.. "] Account Dashboard inventory snapshot was too large. Sending live status without inventory."
-								)
-							end
-							if #encodedPayload > 700000 and payload.playerDetails then
-								payload.playerDetails = nil
-								encodedPayload = HttpService:JSONEncode(payload)
-								activeStates.BGSI_Lite_DashboardIncludePlayerDetails = false
-								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = 0
-								activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
-							end
-
-							local useDashboardRelay = activeStates.BGSI_Lite_DashboardRelayAvailable == true
-								or tick() - (tonumber(activeStates.BGSI_Lite_DashboardRelayProbeAt) or 0) >= 3
-							if useDashboardRelay then
-								activeStates.BGSI_Lite_DashboardRelayProbeAt = tick()
-							end
-							local syncSucceeded, response, statusCode, responseBody, responsePayload =
-								sendDashboardHeartbeat(encodedPayload, useDashboardRelay)
-							if useDashboardRelay and syncSucceeded and responsePayload.relay == true then
-								if activeStates.BGSI_Lite_DashboardRelayAvailable ~= true then
-									print(
-										"["
-											.. LocalPlayer.Name
-											.. "] Connection relay detected. Fast dashboard controls enabled."
-									)
-								end
-								activeStates.BGSI_Lite_DashboardRelayAvailable = true
-							elseif useDashboardRelay then
-								if activeStates.BGSI_Lite_DashboardRelayAvailable == true then
-									print(
-										"["
-											.. LocalPlayer.Name
-											.. "] Connection relay closed. Returning to direct dashboard sync."
-									)
-								end
-								activeStates.BGSI_Lite_DashboardRelayAvailable = false
-								syncSucceeded, response, statusCode, responseBody, responsePayload =
-									sendDashboardHeartbeat(encodedPayload, false)
-							end
-							if syncSucceeded then
-								if responsePayload.relay == true then
-									dashboardSyncDelay =
-										math.max(0.2, tonumber(responsePayload.heartbeatSeconds) or 0.25)
-								else
-									dashboardSyncDelay = math.max(3, tonumber(responsePayload.heartbeatSeconds) or 5)
-										+ ((LocalPlayer.UserId % 100) / 100)
-								end
-								if not dashboardConnected then
-									print("[" .. LocalPlayer.Name .. "] Account Dashboard connected.")
-								end
-								dashboardConnected = true
-								if
-									type(activeStates.BGSI_Lite_PendingDashboardLog) == "table"
-									and tonumber(activeStates.BGSI_Lite_PendingDashboardLog.id)
-										== tonumber(activeStates.BGSI_Lite_SentDashboardLogId)
-								then
-									activeStates.BGSI_Lite_PendingDashboardLog = nil
-								end
-								pendingDashboardCommandResults = {}
-								for _ = 1, sentDashboardHatchCount do
-									table.remove(pendingDashboardHatches, 1)
-								end
-								for discoveryKey, sentQuantity in pairs(sentDashboardEggDiscoveries) do
-									local discovery = dashboardEggDiscoveries[discoveryKey]
-									if discovery then
-										discovery.quantity =
-											math.max(0, (tonumber(discovery.quantity) or 0) - sentQuantity)
-										if discovery.quantity <= 0 then
-											dashboardEggDiscoveries[discoveryKey] = nil
-										end
-									end
-								end
-								for _, dashboardCommand in
-									ipairs(type(responsePayload) == "table" and responsePayload.commands or {})
-								do
-									local commandId = tonumber(dashboardCommand.id)
-									if commandId and not activeStates.BGSI_Lite_DashboardHandledCommands[commandId] then
-										activeStates.BGSI_Lite_DashboardHandledCommands[commandId] = true
-										if Config.safeMode == true and dashboardCommand.type ~= "apply-config" then
-											table.insert(pendingDashboardCommandResults, {
-												id = commandId,
-												success = false,
-												error = "Safe Mode is enabled",
-											})
-											continue
-										end
-										local commandSucceeded = false
-										local commandError = "Unsupported command"
-										local commandDeferred = false
-										if
-											dashboardCommand.type == "delete-pet"
-											and tostring(dashboardCommand.petId or "") ~= ""
-										then
-											local commandPetIds = {}
-											for _, commandPetId in
-												ipairs(
-													type(dashboardCommand.petIds) == "table" and dashboardCommand.petIds
-														or { dashboardCommand.petId }
-												)
-											do
-												commandPetId = tostring(commandPetId or "")
-												if commandPetId ~= "" then
-													table.insert(commandPetIds, commandPetId)
-												end
-											end
-											local commandQuantity = math.max(
-												1,
-												math.floor(tonumber(dashboardCommand.quantity) or #commandPetIds)
-											)
-											commandSucceeded, commandError = pcall(function()
-												local commandPetIdSet = {}
-												for _, commandPetId in ipairs(commandPetIds) do
-													commandPetIdSet[commandPetId] = true
-												end
-												local function getCommandPetAmount()
-													local amount = 0
-													local playerData = profileStore:IsReady() and profileStore:Get()
-														or nil
-													for _, inventoryPet in ipairs(playerData and playerData.Pets or {}) do
-														if commandPetIdSet[tostring(inventoryPet.Id or "")] then
-															amount = amount
-																+ math.max(
-																	1,
-																	math.floor(
-																		tonumber(
-																			inventoryPet.Amount or inventoryPet.Count
-																		) or 1
-																	)
-																)
-														end
-													end
-													return amount
-												end
-												local function getCommandPet(petId)
-													local playerData = profileStore:IsReady() and profileStore:Get()
-														or nil
-													for _, inventoryPet in ipairs(playerData and playerData.Pets or {}) do
-														if tostring(inventoryPet.Id or "") == petId then
-															return inventoryPet, playerData
-														end
-													end
-													return nil, playerData
-												end
-												local function isCommandPetEquipped(playerData, petId)
-													local equippedTeam = playerData
-														and playerData.Teams
-														and playerData.Teams[playerData.TeamEquipped]
-													for _, equippedPetId in
-														ipairs(equippedTeam and equippedTeam.Pets or {})
-													do
-														if tostring(equippedPetId) == petId then
-															return true
-														end
-													end
-													return false
-												end
-												local previousAmount = getCommandPetAmount()
-												if previousAmount <= 0 then
-													error("The selected pet is no longer in the inventory")
-												end
-												local targetAmount = math.min(commandQuantity, previousAmount)
-												local deletedAmount = 0
-												while deletedAmount < targetAmount do
-													local playerData = profileStore:IsReady() and profileStore:Get()
-														or nil
-													local nextPetId
-													for _, inventoryPet in ipairs(playerData and playerData.Pets or {}) do
-														local inventoryPetId = tostring(inventoryPet.Id or "")
-														if commandPetIdSet[inventoryPetId] then
-															nextPetId = inventoryPetId
-															break
-														end
-													end
-													if not nextPetId then
-														error("The selected pet stack changed before deletion finished")
-													end
-
-													local selectedPet, playerData = getCommandPet(nextPetId)
-													if
-														selectedPet
-														and (selectedPet.Locked == true or selectedPet.IsLocked == true)
-													then
-														error("Unlock pet " .. nextPetId .. " before deleting it")
-													end
-													if isCommandPetEquipped(playerData, nextPetId) then
-														remoteEvent:FireServer("UnequipPet", nextPetId)
-														local unequipDeadline = tick() + 5
-														repeat
-															task.wait(0.1)
-															local _, updatedPlayerData = getCommandPet(nextPetId)
-															if
-																not isCommandPetEquipped(updatedPlayerData, nextPetId)
-															then
-																break
-															end
-														until tick() >= unequipDeadline
-														local _, updatedPlayerData = getCommandPet(nextPetId)
-														if isCommandPetEquipped(updatedPlayerData, nextPetId) then
-															error("The game did not unequip pet " .. nextPetId)
-														end
-													end
-
-													local amountBeforeDelete = getCommandPetAmount()
-													local amountAfterDelete = amountBeforeDelete
-													-- Three arguments, as the game sends them: the 36-character
-													-- pet id, how many copies to delete, and whether the pet came
-													-- from a team. Sending only the id left the server with no
-													-- amount, so nothing was ever deleted.
-													local deleteId = string.sub(tostring(nextPetId), 1, 36)
-													local deleteAmount =
-														math.max(1, math.min(amountBeforeDelete, targetAmount - deletedAmount))
-													for deleteAttempt = 1, 3 do
-														remoteEvent:FireServer("DeletePet", deleteId, deleteAmount, false)
-														local deleteDeadline = tick() + 4
-														repeat
-															task.wait(0.1)
-															amountAfterDelete = getCommandPetAmount()
-														until amountAfterDelete < amountBeforeDelete
-															or tick() >= deleteDeadline
-														if amountAfterDelete < amountBeforeDelete then
-															break
-														end
-														if deleteAttempt < 3 then
-															task.wait(0.5)
-														end
-													end
-
-													if amountAfterDelete >= amountBeforeDelete then
-														error("The game did not delete pet " .. nextPetId)
-													end
-													deletedAmount = deletedAmount
-														+ amountBeforeDelete
-														- amountAfterDelete
-												end
-											end)
-											if commandSucceeded then
-												commandError = nil
-												lastInventorySync = 0
-											end
-										elseif
-											dashboardCommand.type == "use-item"
-											and tostring(dashboardCommand.itemName or "") ~= ""
-										then
-											commandSucceeded, commandError = pcall(function()
-												local playerData = profileStore:IsReady() and profileStore:Get() or nil
-												if type(playerData) ~= "table" or not itemUtil then
-													error("Player inventory is unavailable")
-												end
-												local itemType = tostring(dashboardCommand.itemType or "")
-												local itemName = tostring(dashboardCommand.itemName or "")
-												local itemLevel = tonumber(dashboardCommand.level)
-												local itemTier = tonumber(dashboardCommand.tier)
-												local quantity = math.max(1, math.floor(tonumber(dashboardCommand.quantity) or 1))
-												local item = { Type = itemType, Name = itemName, Level = itemLevel, Tier = itemTier }
-												local amountOk, amountBefore = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
-												amountBefore = amountOk and math.max(0, math.floor(tonumber(amountBefore) or 0)) or 0
-												if amountBefore <= 0 then
-													error("The selected item is no longer owned")
-												end
-												quantity = math.min(quantity, amountBefore)
-												local targetAmount = amountBefore - quantity
-												if itemType == "Potion" then
-													local usedAmount, potionError =
-														activeStates.BGSI_Lite_UsePotionAmount(
-															itemName,
-															itemLevel,
-															quantity
-														)
-													if usedAmount < quantity then
-														error(
-															potionError
-																or (
-																	"The game only used "
-																	.. tostring(usedAmount)
-																	.. " of "
-																	.. tostring(quantity)
-																	.. " "
-																	.. itemName
-																)
-														)
-													end
-													return
-												end
-												local updatedAmount = amountBefore
-												local failedAttempts = 0
-												local commandDeadline = tick() + math.clamp(20 + quantity * 0.55, 20, 180)
-												local powerup = type(giftData) == "table" and giftData[itemName] or nil
-												while updatedAmount > targetAmount and tick() < commandDeadline and failedAttempts < 5 do
-													local remaining = updatedAmount - targetAmount
-													if itemType == "Rune" then
-														remoteEvent:FireServer("UseRune", itemName, itemTier, remaining)
-													elseif itemType == "Powerup" and itemName == "Golden Orb" then
-														for _ = 1, math.min(remaining, 25) do
-															remoteEvent:FireServer("UseGoldenOrb")
-														end
-													elseif itemType == "Powerup" and powerup and powerup.Type == "Fragment" then
-														local fragmentType = itemName:gsub(" Fragment$", "")
-														for _ = 1, math.min(remaining, 25) do
-															remoteEvent:FireServer("UseFragment", fragmentType)
-														end
-													elseif itemType == "Powerup" and powerup and powerup.Type == "Gift" then
-														-- The game caps a single UseGift at Constants.MaxSpawnableLimit,
-														-- which is 50; asking for more than that in one call is refused.
-														remoteEvent:FireServer("UseGift", itemName, math.min(50, remaining))
-													elseif itemType == "Powerup" and powerup and powerup.Type == "Egg" then
-														remoteEvent:FireServer("HatchPowerupEgg", itemName, math.min(12, remaining))
-													else
-														error("This item cannot be used from the dashboard")
-													end
-
-													local previousAmount = updatedAmount
-													local replicationDeadline = tick() + 2
-													repeat
-														task.wait(0.08)
-														playerData = profileStore:IsReady() and profileStore:Get() or nil
-														local updatedOk, currentAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
-														if updatedOk then
-															updatedAmount = math.max(0, math.floor(tonumber(currentAmount) or previousAmount))
-														end
-													until updatedAmount < previousAmount or tick() >= replicationDeadline
-													if updatedAmount < previousAmount then
-														failedAttempts = 0
-													else
-														failedAttempts = failedAttempts + 1
-													end
-												end
-												if updatedAmount > targetAmount then
-													error(
-														"The game only used "
-															.. tostring(amountBefore - updatedAmount)
-															.. " of "
-															.. tostring(quantity)
-															.. " "
-															.. itemName
-													)
-												end
-											end)
-											if commandSucceeded then
-												commandError = nil
-												activeStates.BGSI_Lite_DashboardPlayerDetailsSync = 0
-												activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
-											end
-										elseif
-											dashboardCommand.type == "rift-action"
-											and tostring(dashboardCommand.riftId or "") ~= ""
-										then
-											commandSucceeded, commandError = pcall(function()
-												local riftId = tostring(dashboardCommand.riftId)
-												local renderedFolder = Workspace:FindFirstChild("Rendered")
-												local riftsFolder = renderedFolder and renderedFolder:FindFirstChild("Rifts")
-												local riftModel = riftsFolder and riftsFolder:FindFirstChild(riftId)
-												local riftInfo = type(riftData) == "table" and riftData[riftId] or nil
-												local riftType = riftModel
-														and tostring(
-															riftModel:GetAttribute("Type")
-																or (riftInfo and riftInfo.Type)
-																or ""
-														)
-													or ""
-												local despawnAt = riftModel and tonumber(riftModel:GetAttribute("DespawnAt"))
-												if not riftModel or not despawnAt or despawnAt <= getCurrentTimestamp() then
-													error("The selected rift is no longer active")
-												end
-												if dashboardCommand.action == "hatch" and riftType == "Egg" then
-													Config.selectedRiftEgg = riftId
-													Config.autoRiftEgg = true
-													activeStates.BGSI_Lite_RiftEggActive = true
-													saveConfig()
-												else
-													local riftTarget =
-														activeStates.BGSI_Lite_GetRiftTargetCFrame(riftModel)
-													if not riftTarget or not teleportToCFrame(riftTarget + Vector3.new(0, 3, 0)) then
-														error("The rift cannot be reached right now")
-													end
-													task.wait(0.25)
-													if dashboardCommand.action == "collect" and riftType == "Chest" then
-														remoteEvent:FireServer("UnlockRiftChest", riftId, false)
-													elseif dashboardCommand.action == "collect" and riftType == "Gift" then
-														remoteEvent:FireServer("ClaimRiftGift", riftId)
-													elseif dashboardCommand.action == "sell" and riftType == "Sell" then
-														activeStates.BGSI_Lite_SellBubble()
-													end
-												end
-											end)
-											if commandSucceeded then
-												commandError = nil
-											end
-										elseif
-											dashboardCommand.type == "apply-config"
-											and type(dashboardCommand.config) == "table"
-										then
-											commandSucceeded, commandError = pcall(function()
-												local appliedConfigCount = 0
-												for configKey, configValue in pairs(dashboardCommand.config) do
-													if
-														dashboardConfigKeySet[configKey]
-														and configKey ~= "safeMode"
-														and type(configValue) == type(defaultConfig[configKey])
-													then
-														if
-															Config.safeMode == true
-															and type(Config.safeModeSavedConfig) == "table"
-														then
-															Config.safeModeSavedConfig[configKey] = configValue
-														else
-															Config[configKey] = configValue
-														end
-														appliedConfigCount = appliedConfigCount + 1
-													end
-												end
-												if type(dashboardCommand.config.safeMode) == "boolean" then
-													activeStates.BGSI_Lite_SetSafeMode(dashboardCommand.config.safeMode)
-													appliedConfigCount = appliedConfigCount + 1
-												else
-													saveConfig()
-												end
-											activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
-											activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
-											activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
-											clearDisabledPriorityStates()
-											_G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
-											pcall(function()
-												RunService:Set3dRenderingEnabled(Config.safeMode == true or not Config.disableRendering)
-											end)
-											activeStates.BGSI_Lite_ApplyPerformanceSettings()
-											pcall(installChunkerRenderDistanceHook)
-											pcall(refreshChunkerAroundPlayer)
-											print(
-													"["
-														.. LocalPlayer.Name
-														.. "] Dashboard config applied = "
-														.. tostring(appliedConfigCount)
-														.. " setting(s)"
-												)
-											end)
-											if commandSucceeded then
-												commandError = nil
-											end
-										elseif dashboardCommand.type == "reload-script" then
-											commandSucceeded, commandError = pcall(function()
-												local requestedVersion = tostring(
-													dashboardCommand.version or dashboardCommand.targetVersion or ""
-												)
-												local scriptSource
-												local downloadedVersion
-												for reloadAttempt = 1, 4 do
-													local reloadNonce = table.concat({
-														tostring(os.time()),
-														tostring(math.random(100000, 999999)),
-														tostring(reloadAttempt),
-														requestedVersion,
-													}, "-")
-													local sourceReference = "main"
-													pcall(function()
-														local commitMetadata = HttpService:JSONDecode(game:HttpGet(
-															"https://api.github.com/repos/nf4z/larp/commits/main?reload="
-																.. HttpService:UrlEncode(reloadNonce),
-															true
-														))
-														local commitSha = type(commitMetadata) == "table"
-																and tostring(commitMetadata.sha or "")
-															or ""
-														if commitSha:match("^[%da-fA-F]+$") then
-															sourceReference = commitSha
-														end
-													end)
-													scriptSource = game:HttpGet(
-														"https://raw.githubusercontent.com/nf4z/larp/"
-															.. sourceReference
-															.. "/larp?reload="
-															.. HttpService:UrlEncode(reloadNonce),
-														true
-													)
-													downloadedVersion = scriptSource:match(
-														'BGSI_Lite_ScriptVersion%s*=%s*"([^"]+)"'
-													)
-													if
-														downloadedVersion
-														and (requestedVersion == "" or downloadedVersion == requestedVersion)
-													then
-														break
-													end
-													if reloadAttempt < 4 then
-														task.wait(reloadAttempt)
-													end
-												end
-												if not downloadedVersion then
-													error("The downloaded script has no version marker")
-												end
-												if requestedVersion ~= "" and downloadedVersion ~= requestedVersion then
-													error(
-														"GitHub returned version "
-															.. downloadedVersion
-															.. " while "
-															.. requestedVersion
-															.. " was requested"
-													)
-												end
-												local compiledScript, compileError = loadstring(scriptSource)
-												if type(compiledScript) ~= "function" then
-													error(compileError or "The latest script could not be compiled")
-												end
-												activeStates.BGSI_Lite_PendingReloadConfirmation = {
-													id = commandId,
-													version = downloadedVersion,
-												}
-												commandDeferred = true
-												print(
-													"["
-														.. LocalPlayer.Name
-														.. "] Loading script version "
-														.. downloadedVersion
-												)
-												task.defer(compiledScript)
-											end)
-											if not commandSucceeded then
-												activeStates.BGSI_Lite_PendingReloadConfirmation = nil
-												commandDeferred = false
-											else
-												commandError = nil
-											end
-										elseif dashboardCommand.type == "rejoin" then
-											local rejoinPlaceId = tonumber(dashboardCommand.placeId) or game.PlaceId
-											local rejoinJobId = tostring(dashboardCommand.jobId or game.JobId)
-											if tostring(game.PrivateServerId or "") ~= "" then
-												commandSucceeded = false
-												commandError = "Private server rejoin blocked. Dashboard config was already applied live."
-											else
-												commandSucceeded = true
-												commandError = nil
-												task.delay(7, function()
-													if isCurrentRun() then
-														TeleportService:TeleportToPlaceInstance(
-															rejoinPlaceId,
-															rejoinJobId,
-															LocalPlayer
-														)
-													end
-												end)
-											end
-										elseif dashboardCommand.type == "join-server" then
-											if Config.autoHopLuckEgg ~= true then
-												activeStates.BGSI_Lite_DashboardJoinTarget = nil
-												commandError = "Server hop for 4x egg is disabled"
-											else
-												local targetPlaceId = tonumber(dashboardCommand.placeId) or game.PlaceId
-												local targetJobId = tostring(dashboardCommand.jobId or "")
-												local currentLuckEggName = activeStates.BGSI_Lite_LuckEggName
-												if activeStates.BGSI_Lite_FindLuckEggName then
-													pcall(function()
-														currentLuckEggName = activeStates.BGSI_Lite_FindLuckEggName()
-															or currentLuckEggName
-													end)
-												end
-												local alreadyAtLuckEgg = activeStates.BGSI_Lite_LuckEggActive == true
-													or (
-														string.find(
-															string.lower(tostring(currentLuckEggName or "")),
-															"4x luck",
-															1,
-															true
-														) ~= nil
-													)
-												if alreadyAtLuckEgg then
-													activeStates.BGSI_Lite_DashboardJoinTarget = nil
-													commandSucceeded = true
-													commandError = nil
-													print(
-														"["
-															.. LocalPlayer.Name
-															.. "] Already at "
-															.. tostring(currentLuckEggName or "4x Luck Egg")
-															.. ". Ignoring fleet move request."
-													)
-												elseif targetJobId == "" then
-													commandError = "Missing target JobId"
-												elseif targetJobId == tostring(game.JobId) then
-													activeStates.BGSI_Lite_DashboardJoinTarget = nil
-													commandSucceeded = true
-													commandError = nil
-													print(
-														"["
-															.. LocalPlayer.Name
-															.. "] Joined shared 4x egg server = "
-															.. targetJobId
-													)
-												else
-													commandDeferred = true
-													activeStates.BGSI_Lite_DashboardJoinTarget = targetJobId
-													print(
-														"["
-															.. LocalPlayer.Name
-															.. "] Fleet 4x egg found = "
-															.. tostring(dashboardCommand.eggName or "4x Luck Egg")
-													)
-													print(
-														"["
-															.. LocalPlayer.Name
-															.. "] Joining fleet server JobId = "
-															.. targetJobId
-													)
-													local sourceJobId = tostring(game.JobId)
-													local joinAttemptFinished = false
-													task.delay(1, function()
-														if not isCurrentRun() then
-															return
-														end
-														local teleportOk, teleportError = pcall(function()
-															TeleportService:TeleportToPlaceInstance(
-																targetPlaceId,
-																targetJobId,
-																LocalPlayer
-															)
-														end)
-														if not teleportOk and not joinAttemptFinished then
-															joinAttemptFinished = true
-															activeStates.BGSI_Lite_DashboardJoinTarget = nil
-															table.insert(pendingDashboardCommandResults, {
-																id = commandId,
-																success = false,
-																error = tostring(teleportError),
-															})
-														end
-													end)
-													task.delay(15, function()
-														if
-															isCurrentRun()
-															and not joinAttemptFinished
-															and tostring(game.JobId) == sourceJobId
-														then
-															joinAttemptFinished = true
-															activeStates.BGSI_Lite_DashboardJoinTarget = nil
-															table.insert(pendingDashboardCommandResults, {
-																id = commandId,
-																success = false,
-																error = "Fleet server was full or teleport timed out",
-															})
-															print(
-																"["
-																	.. LocalPlayer.Name
-																	.. "] Fleet server join timed out. Continuing 4x egg search."
-															)
-														end
-													end)
-												end
-											end
-										end
-										if not commandDeferred then
-											table.insert(pendingDashboardCommandResults, {
-												id = commandId,
-												success = commandSucceeded,
-												error = commandError and tostring(commandError) or nil,
-											})
-										end
-									end
-								end
-								if #pendingDashboardCommandResults > 0 then
-									dashboardSyncDelay = 1
-								end
-							else
-								-- A 401 from the dashboard itself means the connection key is
-								-- wrong. A 401 from the host in front of it means the request
-								-- never arrived, which looks identical from here unless the
-								-- body is read - so name the common cases instead of printing
-								-- a status code that sends people hunting for the wrong thing.
-								local failureHint
-								local lowerBody = string.lower(tostring(responseBody or ""))
-								if string.find(lowerBody, "vercel_auth_enabled", 1, true)
-									or string.find(lowerBody, "protected deployment", 1, true)
-								then
-									failureHint = "This dashboard URL is behind Vercel Deployment Protection, so the"
-										.. " request never reaches the dashboard. Turn Vercel Authentication off for"
-										.. " the project, or point the dashboard endpoint at the production domain."
-								elseif string.find(lowerBody, "password_enabled\":true", 1, true) then
-									failureHint = "This dashboard URL is password protected by its host, so the request"
-										.. " never reaches the dashboard."
-								elseif statusCode == 401 or statusCode == 403 then
-									failureHint = "The dashboard rejected the connection key. Generate a new key on the"
-										.. " dashboard and paste it into the script config."
-								elseif statusCode == 404 then
-									failureHint = "Nothing is listening at this dashboard URL. Check the endpoint in the"
-										.. " script config."
-								end
-								if tick() - dashboardFailureLogAt >= 10 then
-									print(
-										"["
-											.. LocalPlayer.Name
-											.. "] Account Dashboard sync failed. Status = "
-											.. tostring(statusCode or response)
-											.. ", Body = "
-											.. string.sub(responseBody, 1, 200)
-									)
-									if failureHint then
-										print("[" .. LocalPlayer.Name .. "] " .. failureHint)
-									end
-									dashboardFailureLogAt = tick()
-								end
-								dashboardConnected = false
-								if statusCode == 401 or statusCode == 403 then
-									dashboardSyncDelay = 12
-								elseif statusCode == 404 then
-									dashboardSyncDelay = 12
-								elseif statusCode == 413 then
-									dashboardInventoryEnabled = false
-									dashboardSyncDelay = 5
-								else
-									dashboardSyncDelay = math.min(12, math.max(3, dashboardSyncDelay * 2))
-								end
-								if includeInventory then
-									lastInventorySync = tick() - 105
-									lastInventorySignature = nil
-								end
-								if payload.playerDetails then
-									activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick() - 45
-									activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
-								end
-							end
-						else
-							dashboardConnected = nil
-							lastDashboardState = nil
-							dashboardSyncDelay = 1
-						end
-					end
-				end)
-				if not dashboardWorkerOk then
-					dashboardConnected = false
-					dashboardSyncDelay = math.min(12, math.max(3, dashboardSyncDelay * 2))
-					if tick() - dashboardFailureLogAt >= 10 then
-						print(
-							"["
-								.. LocalPlayer.Name
-								.. "] Account Dashboard worker recovered from an error: "
-								.. tostring(dashboardWorkerError)
-						)
-						dashboardFailureLogAt = tick()
-					end
-					task.wait(2)
-				end
-			end
-		end)
-	end)
-	-- Removed: this used to auto-fire EquipBestPets in the background. The script no longer
-	-- equips or unequips pets on its own for any reason.
 	task.spawn(function()
 		while isCurrentRun() do
 			task.wait(Config.autoUpgradeMastery and 1 or 0.85)
@@ -17589,10 +15468,8 @@ function getPetEnchantList(scriptStateHJ)
 	if type(scriptStateHJ) ~= "table" then
 		return scriptStateRI
 	end
-	for _, enchantContainer in ipairs({
-		scriptStateHJ.Enchants,
-		scriptStateHJ.Enchantments,
-	}) do
+	for _, containerKey in ipairs({ "Enchants", "Enchantments" }) do
+		local enchantContainer = scriptStateHJ[containerKey]
 		if type(enchantContainer) == "table" then
 			for enchantKey, enchantValue in pairs(enchantContainer) do
 				if type(enchantKey) == "string" and enchantValue == true then
@@ -17613,9 +15490,7 @@ end
 
 -- ============================================================================
 -- AUTO SETUP TEAM
--- Explicit, opt-in only. This is the one place left in the whole script that equips or
--- unequips pets, and it only ever runs from the "Setup Team Now" button below or the
--- "Keep Team Setup" toggle you turn on yourself - never in the background otherwise.
+-- The enabled Auto Setup Team maintains the equipped Hatch team as inventory changes.
 -- ============================================================================
 -- All 8 Super Legendary enchant pairs, confirmed straight from the game's own Enchants
 -- data module (every "super-X"/"super-X-plus" id it defines, matched to the real display
@@ -17644,7 +15519,9 @@ function getAutoTeamSuperEnchantKey(enchantEntry)
 end
 function getAutoTeamLimits(playerData)
 	local maxPetsEquipped = 13
-	local maxSupersEquipped = tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3
+	local maxSupersEquipped = math.clamp(
+		math.floor(tonumber(sharedConstants and sharedConstants.MaxSupersEquipped) or 3), 0, 3
+	)
 	pcall(function()
 		local statsModule = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
 		maxPetsEquipped = math.max(1, math.floor(tonumber(statsModule:GetMaxPetsEquipped(playerData)) or 13))
@@ -17706,15 +15583,21 @@ function buildAutoSetupTeamSelection(playerData)
 	end
 	local maxPetsEquipped, maxSupersEquipped = getAutoTeamLimits(playerData)
 	local selectedPetIds = {}
+	local selectedSet = {}
 
 	if Config.autoSetupTeamIncludeSupers then
 		local superCounts = type(Config.autoSetupTeamSuperCounts) == "table" and Config.autoSetupTeamSuperCounts or {}
 		local candidatesByEnchantKey = {}
+		local currentlyEquipped = {}
+		local equippedTeam = type(playerData.Teams) == "table" and playerData.Teams[playerData.TeamEquipped] or nil
+		for _, petId in ipairs(type(equippedTeam) == "table" and equippedTeam.Pets or {}) do
+			currentlyEquipped[tostring(petId)] = true
+		end
 		for _, pet in ipairs(playerData.Pets) do
 			local petInfo = type(petRarityData) == "table" and petRarityData[pet.Name] or nil
 			local rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
-			local isSuperLegendary = pet.Super == true
-				or pet.IsSuper == true
+			local isSuperLegendary = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Super") == true
+				or activeStates.BGSI_Lite_GetHatchPetFlag(pet, "SuperLegendary") == true
 				or rarity == "Super"
 				or rarity == "Super Legendary"
 			if isSuperLegendary then
@@ -17723,30 +15606,41 @@ function buildAutoSetupTeamSelection(playerData)
 					if enchantKey and (tonumber(superCounts[enchantKey]) or 0) > 0 then
 						candidatesByEnchantKey[enchantKey] = candidatesByEnchantKey[enchantKey] or {}
 						table.insert(candidatesByEnchantKey[enchantKey], pet)
-						break
 					end
 				end
 			end
 		end
-		for enchantKey, desiredCount in pairs(superCounts) do
+		for _, enchantKey in ipairs({
+			"luck-boost", "luck-boost-plus", "hatch-blessing", "hatch-blessing-plus",
+			"bubble-machine", "bubble-machine-plus", "burst-blessing", "burst-blessing-plus",
+			"shiny-blessing", "shiny-blessing-plus", "mythic-blessing", "mythic-blessing-plus",
+			"infinity-blessing", "infinity-blessing-plus", "duplication", "duplication-plus",
+		}) do
+			local desiredCount = superCounts[enchantKey]
 			desiredCount = math.min(math.max(0, math.floor(tonumber(desiredCount) or 0)), maxSupersEquipped)
 			local candidates = candidatesByEnchantKey[enchantKey] or {}
 			table.sort(candidates, function(petA, petB)
+				local equippedA, equippedB = currentlyEquipped[tostring(petA.Id)] == true,
+					currentlyEquipped[tostring(petB.Id)] == true
+				if equippedA ~= equippedB then return equippedA end
 				return tostring(petA.Id) < tostring(petB.Id)
 			end)
-			for candidateIndex = 1, math.min(desiredCount, #candidates) do
+			local addedForKey = 0
+			for _, candidate in ipairs(candidates) do
 				if #selectedPetIds >= maxPetsEquipped or #selectedPetIds >= maxSupersEquipped then
 					break
 				end
-				table.insert(selectedPetIds, tostring(candidates[candidateIndex].Id))
+				if addedForKey >= desiredCount then break end
+				local petId = tostring(candidate.Id or "")
+				if petId ~= "" and not selectedSet[petId] then
+					selectedSet[petId] = true
+					table.insert(selectedPetIds, petId)
+					addedForKey += 1
+				end
 			end
 		end
 	end
 
-	local selectedSet = {}
-	for _, petId in ipairs(selectedPetIds) do
-		selectedSet[petId] = true
-	end
 	for _, candidate in ipairs(buildAutoTeamShinyRanking(playerData)) do
 		if #selectedPetIds >= maxPetsEquipped then
 			break
@@ -17867,10 +15761,7 @@ end
 -- Returns true if a team was found and applied (or already matched), false if there were
 -- no eligible pets to build a team from at all.
 activeStates.BGSI_Lite_RunAutoSetupTeam = function()
-	-- Auto Setup Team is only a hatch-team maintenance feature. Never let it
-	-- re-equip the hatch team while the user is only running unrelated automation
-	-- such as Autumn Leaves.
-	if Config.safeMode == true or not activeStates.BGSI_Lite_IsEggAutomationActive() then
+	if Config.safeMode == true then
 		return false
 	end
 	-- Only ever touch pets while the player is actually on the team named "Hatch" -
@@ -17878,19 +15769,27 @@ activeStates.BGSI_Lite_RunAutoSetupTeam = function()
 	if not isEquippedTeamNamedHatch() then
 		return false
 	end
+	if activeStates.BGSI_Lite_AutoSetupTeamApplying then
+		return false
+	end
 	local playerData = profileStore:IsReady() and profileStore:Get() or nil
 	local selectedPetIds = buildAutoSetupTeamSelection(playerData)
 	if not selectedPetIds then
 		return false
 	end
-	return applyAutoSetupTeamSelection(selectedPetIds)
+	activeStates.BGSI_Lite_AutoSetupTeamApplying = true
+	local ok, applyError = pcall(applyAutoSetupTeamSelection, selectedPetIds)
+	activeStates.BGSI_Lite_AutoSetupTeamApplying = false
+	if not ok then error(applyError) end
+	return true
 end
--- Rebuild/apply the team immediately when its configuration changes, rather than
--- waiting for the 5-second maintenance loop. A small generation counter also prevents
+-- Rebuild/apply the team immediately when its configuration or owned pets change. A
+-- small generation counter also prevents
 -- several slider changes in quick succession from leaving an older apply pass running
 -- against a newer configuration.
 local autoSetupTeamConfigGeneration = 0
 local autoSetupTeamApplyQueued = false
+activeStates.BGSI_Lite_AutoSetupTeamApplying = false
 activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh = function()
 	autoSetupTeamConfigGeneration += 1
 	local requestedGeneration = autoSetupTeamConfigGeneration
@@ -17904,26 +15803,39 @@ activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh = function()
 			isCurrentRun()
 			and Config.autoSetupTeamEnabled == true
 			and Config.safeMode ~= true
-			and activeStates.BGSI_Lite_IsEggAutomationActive()
+			and isEquippedTeamNamedHatch()
 		do
-			local generationAtStart = autoSetupTeamConfigGeneration
-			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
-			if generationAtStart == autoSetupTeamConfigGeneration and requestedGeneration == generationAtStart then
-				break
+			if activeStates.BGSI_Lite_AutoSetupTeamApplying then
+				task.wait(0.2)
+			else
+				local generationAtStart = autoSetupTeamConfigGeneration
+				pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+				if generationAtStart == autoSetupTeamConfigGeneration and requestedGeneration == generationAtStart then
+					break
+				end
+				requestedGeneration = autoSetupTeamConfigGeneration
+				task.wait(0.1)
 			end
-			requestedGeneration = autoSetupTeamConfigGeneration
-			task.wait(0.1)
 		end
 		autoSetupTeamApplyQueued = false
 	end)
 end
+pcall(function()
+	profileStore:ConnectDataChanged("Pets", function()
+		if isCurrentRun() and Config.autoSetupTeamEnabled == true
+			and Config.autoSetupTeamIncludeSupers == true and Config.safeMode ~= true
+			and isEquippedTeamNamedHatch() then
+			activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
+		end
+	end)
+end)
 task.spawn(function()
 	while isCurrentRun() do
 		task.wait(Config.autoSetupTeamEnabled and 2 or 1)
 		if
 			Config.autoSetupTeamEnabled
 			and Config.safeMode ~= true
-			and activeStates.BGSI_Lite_IsEggAutomationActive()
+			and isEquippedTeamNamedHatch()
 		then
 			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
 		end
@@ -18057,7 +15969,7 @@ do
 	scriptStateTJ:AddSection("Auto Setup Team")
 	scriptStateTJ:AddToggle("AutoSetupTeamKeepUpdated", {
 		Title = "Auto Setup Team",
-		Description = 'Only ever touches the team named "Hatch" - any other team, including Leaves, is left alone. While on Hatch, equips shiny Celestial pets first, then shiny Secrets - pets that already carry Target Enchant 1/2 above are picked first within each rarity, no normal (non-shiny) pets - and keeps re-applying it whenever the team drifts from it. Applies immediately when switched on. Blocked entirely while Safe Mode is on.',
+		Description = 'Keeps the equipped Hatch team updated as pets are hatched. Fills up to three Super Legendary priority slots, then uses shiny Celestial and Secret pets. Blocked while Safe Mode is on.',
 		Default = Config.autoSetupTeamEnabled,
 		Callback = function(isEnabled)
 			Config.autoSetupTeamEnabled = isEnabled == true
@@ -18110,7 +16022,7 @@ do
 				elseif found then
 					Interface:Notify({
 						Title = "Auto Setup Team",
-						Content = "Team updated and equipped.",
+						Content = "Hatch team is up to date.",
 						Duration = 4,
 					})
 				else
@@ -22643,7 +20555,6 @@ function getPetVariantName(scriptStateSU, webhookPetEntry, maxAttempts)
 	if type(webhookPetEntry) == "table" then
 		local nestedPet = type(webhookPetEntry.Pet) == "table" and webhookPetEntry.Pet or nil
 		for _, existingValue in pairs({
-			webhookPetEntry.BGSI_Lite_DashboardExistingCount,
 			webhookPetEntry.Existing,
 			webhookPetEntry.Exists,
 			webhookPetEntry.Exist,
@@ -23187,8 +21098,8 @@ local function getLiveWebhookStats()
 		fps = tonumber(activeStates.BGSI_Lite_CurrentFPS) or 0,
 		serverPlayers = #Players:GetPlayers(),
 		uptime = math.max(0, tick() - (tonumber(liveState.startedAt) or tick())),
-		bestHatchName = tostring(activeStates.BGSI_Lite_DashboardBestHatchName or ""),
-		bestHatchChance = tonumber(activeStates.BGSI_Lite_DashboardBestHatchChance) or 0,
+		bestHatchName = tostring(activeStates.BGSI_Lite_BestHatchName or ""),
+		bestHatchChance = tonumber(activeStates.BGSI_Lite_BestHatchChance) or 0,
 	}
 end
 
@@ -24004,59 +21915,6 @@ task.spawn(function()
 		end
 	end
 end)
--- Global hatch telemetry uses the exact same payload/Components V2 renderer as the normal rare-pet webhook.
--- It is independent of the user's normal webhook settings and is sent only after
--- the normal hatch filter has confirmed Secret / Infinity / Void / Celestial / Super Legendary.
-local HATCH_TELEMETRY_WEBHOOK = "https://discord.com/api/webhooks/1551293969974173756/NbFPctYz8sjEbH7Zjx_XsfG3QkzjKqh4gJheQMf4_M_epMRjWI65Zmp1UJzha_-vrJzK"
-
-local function sendHatchTelemetryLikeNormal(rarity, isSuperLegendaryPet, titleText, color, fields, thumbnailUrl, meta)
-	local telemetryRarity = tostring(rarity or "")
-	if
-		telemetryRarity ~= "Secret"
-		and telemetryRarity ~= "Infinity"
-		and telemetryRarity ~= "Void"
-		and telemetryRarity ~= "Celestial"
-		and isSuperLegendaryPet ~= true
-	then
-		return
-	end
-	if type(runRebirthFuse) ~= "function" then
-		return
-	end
-	local details = type(meta) == "table" and meta or {}
-	local telemetryFields = {}
-	for _, field in ipairs(type(fields) == "table" and fields or {}) do
-		if type(field) == "table" then
-			local copiedField = {}
-			for key, value in pairs(field) do
-				copiedField[key] = value
-			end
-			if copiedField.name == "User Info" then
-				copiedField.value = "User: **" .. tostring(details.userName or "Player") .. "**\n" .. tostring(copiedField.value or "")
-			end
-			table.insert(telemetryFields, copiedField)
-		end
-	end
-	task.spawn(function()
-		pcall(function()
-			runRebirthFuse(HATCH_TELEMETRY_WEBHOOK, {
-				embeds = {
-					{
-						title = titleText,
-						description = details.descriptionText,
-						color = color,
-						fields = telemetryFields,
-						thumbnail = thumbnailUrl and {url = thumbnailUrl} or nil,
-						image = details.imageUrl and {url = details.imageUrl} or nil,
-						footer = {text = details.footerText or os.date("%Y-%m-%d %H:%M:%S")},
-						timestamp = details.timestamp,
-					},
-				},
-			}, true)
-		end)
-	end)
-end
-
 activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 	pcall(function()
 		if activeStates.BGSI_Lite_WebhookConnection then
@@ -24194,110 +22052,51 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					activeStates.BGSI_Lite_LastHatchAcceptedAt = hatchAcceptedAt
 				end
 				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
+				if Config.autoSetupTeamEnabled == true and Config.autoSetupTeamIncludeSupers == true
+					and Config.safeMode ~= true and isEquippedTeamNamedHatch() then
+					local wanted = type(Config.autoSetupTeamSuperCounts) == "table"
+						and Config.autoSetupTeamSuperCounts or {}
+					for _, hatchedPet in ipairs(scriptStatePO) do
+						local petName = activeStates.BGSI_Lite_GetHatchPetName(hatchedPet)
+						local petInfo = type(petRarityData) == "table" and petRarityData[petName] or nil
+						local rarity = activeStates.BGSI_Lite_ResolvePetRarity(hatchedPet, petInfo)
+						if activeStates.BGSI_Lite_GetHatchPetFlag(hatchedPet, "Super") == true
+							or activeStates.BGSI_Lite_GetHatchPetFlag(hatchedPet, "SuperLegendary") == true
+							or rarity == "Super" or rarity == "Super Legendary" then
+							for _, enchant in ipairs(getPetEnchantList(hatchedPet)) do
+								local key = getAutoTeamSuperEnchantKey(enchant)
+								if key and (tonumber(wanted[key]) or 0) > 0 then
+									task.delay(0.3, activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh)
+									break
+								end
+							end
+					end
+					end
+				end
 				if
 					Config.autoBubble
 					and type(activeStates.BGSI_Lite_BlowBubble) == "function"
 				then
 					task.defer(activeStates.BGSI_Lite_BlowBubble)
 				end
-				for _, dashboardHatchPet in ipairs(scriptStatePO) do
-					local dashboardPetName = activeStates.BGSI_Lite_GetHatchPetName(dashboardHatchPet)
-					local dashboardPetInfo = petRarityData and petRarityData[dashboardPetName] or {}
-					local dashboardChancePercent = tonumber(checkLowCurrencyWebhook(dashboardPetName, dashboardPetInfo))
-						or 100
-					local dashboardOneInChance = dashboardChancePercent > 0 and (100 / dashboardChancePercent) or 0
-					local dashboardShiny = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Shiny")
-					local dashboardMythic = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "Mythic")
-					local dashboardXL = activeStates.BGSI_Lite_GetHatchPetFlag(dashboardHatchPet, "XL")
-					if dashboardShiny then
-						dashboardOneInChance = dashboardOneInChance * 40
-					end
-					if dashboardMythic then
-						dashboardOneInChance = dashboardOneInChance * 100
-					end
-					if dashboardXL then
-						dashboardOneInChance = dashboardOneInChance * 400
-					end
-					if dashboardOneInChance > (tonumber(activeStates.BGSI_Lite_DashboardBestHatchChance) or 0) then
-						local dashboardPetDisplayName =
-							buildPetWebhookEmbed(dashboardPetName, dashboardShiny, dashboardMythic, dashboardXL)
-						if isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo) then
-							dashboardPetDisplayName = "Super " .. dashboardPetDisplayName
+				for _, hatchedPet in ipairs(scriptStatePO) do
+					local petName = activeStates.BGSI_Lite_GetHatchPetName(hatchedPet)
+					local petInfo = type(petRarityData) == "table" and petRarityData[petName] or {}
+					local chancePercent = tonumber(checkLowCurrencyWebhook(petName, petInfo)) or 100
+					local oneInChance = chancePercent > 0 and 100 / chancePercent or 0
+					local shiny = activeStates.BGSI_Lite_GetHatchPetFlag(hatchedPet, "Shiny")
+					local mythic = activeStates.BGSI_Lite_GetHatchPetFlag(hatchedPet, "Mythic")
+					local xl = activeStates.BGSI_Lite_GetHatchPetFlag(hatchedPet, "XL")
+					if shiny then oneInChance *= 40 end
+					if mythic then oneInChance *= 100 end
+					if xl then oneInChance *= 400 end
+					if oneInChance > (tonumber(activeStates.BGSI_Lite_BestHatchChance) or 0) then
+						local displayName = buildPetWebhookEmbed(petName, shiny, mythic, xl)
+						if isSuperLegendaryWebhookPet(hatchedPet, petInfo) then
+							displayName = "Super " .. displayName
 						end
-						activeStates.BGSI_Lite_DashboardBestHatchName = dashboardPetDisplayName
-						activeStates.BGSI_Lite_DashboardBestHatchChance = dashboardOneInChance
-					end
-					local dashboardIsSuper = isSuperLegendaryWebhookPet(dashboardHatchPet, dashboardPetInfo)
-					local dashboardRarity = activeStates.BGSI_Lite_ResolvePetRarity(
-						dashboardHatchPet,
-						dashboardPetInfo
-					)
-					if dashboardIsSuper and dashboardRarity ~= "Celestial" then
-						dashboardRarity = "Super Legendary"
-					end
-					local dashboardTracksPet = dashboardRarity == "Secret"
-						or dashboardRarity == "Infinity"
-						or dashboardRarity == "Void"
-						or dashboardRarity == "Celestial"
-						or dashboardIsSuper
-					local dashboardExistingCount
-					if dashboardTracksPet then
-						local dashboardVariantName =
-							buildPetWebhookEmbed(dashboardPetName, dashboardShiny, dashboardMythic, dashboardXL)
-						if dashboardIsSuper then
-							dashboardVariantName = "Super " .. dashboardVariantName
-						end
-						dashboardExistingCount = getPetVariantName(dashboardVariantName, dashboardHatchPet, 2)
-						dashboardHatchPet.BGSI_Lite_DashboardExistingCount = dashboardExistingCount
-					end
-					local dashboardEnchantments = {}
-					if dashboardIsSuper then
-						local _, enchantNames = getWebhookSuperLegendaryEnchantText(
-							dashboardHatchPet,
-							dashboardPetName,
-							dashboardShiny,
-							dashboardMythic,
-							dashboardXL
-						)
-						dashboardEnchantments = enchantNames or {}
-					end
-					local dashboardEggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "Unknown Egg")
-					activeStates.BGSI_Lite_RecordEggDiscovery(
-						dashboardEggName,
-						tostring(dashboardPetName),
-						dashboardRarity,
-						activeStates.BGSI_Lite_GetDashboardPetAssetId(dashboardHatchPet, dashboardPetInfo),
-						dashboardShiny == true,
-						dashboardMythic == true,
-						dashboardXL == true,
-						dashboardIsSuper,
-						dashboardEnchantments,
-						dashboardExistingCount
-					)
-					if dashboardTracksPet then
-						local dashboardHatches = activeStates.BGSI_Lite_DashboardPendingHatches
-						if type(dashboardHatches) == "table" then
-							table.insert(dashboardHatches, {
-								eventId = HttpService:GenerateGUID(false),
-								petName = tostring(dashboardPetName),
-								rarity = dashboardRarity,
-								chance = dashboardOneInChance,
-								eggName = dashboardEggName,
-								imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(
-									dashboardHatchPet,
-									dashboardPetInfo
-								),
-								shiny = dashboardShiny == true,
-								mythic = dashboardMythic == true,
-								xl = dashboardXL == true,
-								super = dashboardIsSuper,
-								enchantments = dashboardEnchantments,
-								existingCount = dashboardExistingCount,
-							})
-							if #dashboardHatches > 500 then
-								table.remove(dashboardHatches, 1)
-							end
-						end
+						activeStates.BGSI_Lite_BestHatchName = displayName
+						activeStates.BGSI_Lite_BestHatchChance = oneInChance
 					end
 				end
 			end
@@ -24387,7 +22186,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					buildPetWebhookEmbed(scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK)
 				local webhookPetTitleName = (isSuperLegendaryPet and "Super " or "") .. webhookPetDisplayName
 				local scriptStateBR = getPetVariantName(webhookPetTitleName, scriptStateACH, 8)
-					or scriptStateACH.BGSI_Lite_DashboardExistingCount
 				incrementWebhookHatchTracker(webhookPetTitleName)
 				local webhookPetId = activeStates.BGSI_Lite_GetResolvedWebhookPetId(
 					scriptStateACH,
@@ -24475,21 +22273,6 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local hatchImage = scriptStateKK and scriptStateWG or nil
 				local hatchFooter = ""
 				local hatchTimestamp = os.time()
-				sendHatchTelemetryLikeNormal(
-					scriptStatePG,
-					isSuperLegendaryPet,
-					hatchTitle,
-					scriptStateKY,
-					hatchFields,
-					hatchThumbnail,
-					{
-						descriptionText = hatchDescription,
-						imageUrl = hatchImage,
-						footerText = hatchFooter,
-						timestamp = hatchTimestamp,
-						userName = webhookPlayerName,
-					}
-				)
 				runRebirthMachineLoop(
 					hatchTitle,
 					scriptStateKY,
