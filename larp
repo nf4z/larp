@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.31"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.32"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.19.32",
+		releasedAt = "October 19, 2026",
+		notes = {
+			{ title = "Fleet teleport", description = "The Leader can move every online account to the same server and exact position.", icon = "map-pin" },
+		},
+	},
 	{
 		version = "2026.10.19.31",
 		releasedAt = "October 19, 2026",
@@ -22524,6 +22531,8 @@ activeStates.BGSI_Lite_FleetInit = function()
 	local revFile = PREFIX .. "rev.txt"
 	local pinFile = PREFIX .. "pin.json"
 	local registryFile = PREFIX .. "registry.json"
+	local teleportFile = PREFIX .. "teleport.json"
+	local teleportAckFile = PREFIX .. "teleport_ack_" .. myId .. ".json"
 	local ALIVE_SECONDS = 20 -- a heartbeat older than this means the account is gone (a server hop takes a while)
 	local PULL_INTERVAL = 0.1 -- how often an alt checks for a new settings revision
 	local ROSTER_INTERVAL = 0.5
@@ -23239,6 +23248,110 @@ activeStates.BGSI_Lite_FleetInit = function()
 		end)
 	end
 
+	local lastAppliedTeleportId
+	local lastJoinTeleportId, lastJoinAttemptAt
+	local function pullLeaderTeleport()
+		if fleet.role ~= "alt" then return end
+		local command = readJson(teleportFile)
+		if type(command) ~= "table" or tostring(command.from or "") ~= fleet.masterId then return end
+		local commandId = tostring(command.id or "")
+		local issuedAt = tonumber(command.issuedAt) or 0
+		if commandId == "" or math.abs(os.time() - issuedAt) > 180 then return end
+		local targeted = false
+		for _, targetId in ipairs(type(command.targets) == "table" and command.targets or {}) do
+			if tostring(targetId) == myId then targeted = true break end
+		end
+		if not targeted or lastAppliedTeleportId == commandId then return end
+		local ack = readJson(teleportAckFile)
+		if ack and tostring(ack.id or "") == commandId then
+			lastAppliedTeleportId = commandId
+			return
+		end
+		local placeId = tonumber(command.placeId)
+		local jobId = tostring(command.jobId or "")
+		local components = command.cframe
+		if not placeId or jobId == "" or type(components) ~= "table" or #components ~= 12 then return end
+		for index = 1, 12 do
+			local value = tonumber(components[index])
+			if not value or value ~= value or math.abs(value) > 1e8 then return end
+			components[index] = value
+		end
+		if game.PlaceId ~= placeId or game.JobId ~= jobId then
+			if lastJoinTeleportId == commandId and tick() - (lastJoinAttemptAt or 0) < 15 then return end
+			lastJoinTeleportId, lastJoinAttemptAt = commandId, tick()
+			local queueTeleport = queue_on_teleport or queueonteleport
+				or (type(syn) == "table" and syn.queue_on_teleport)
+			if type(queueTeleport) == "function" then
+				local numbers = {}
+				for _, value in ipairs(components) do table.insert(numbers, string.format("%.17g", value)) end
+				local queuedSource = string.format([[
+task.spawn(function()
+	if not game:IsLoaded() then game.Loaded:Wait() end
+	if game.PlaceId ~= %d or game.JobId ~= %q then return end
+	local player = game:GetService("Players").LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local root = character:WaitForChild("HumanoidRootPart", 30)
+	if root then root.CFrame = CFrame.new(%s) end
+end)
+]], placeId, jobId, table.concat(numbers, ", "))
+				pcall(queueTeleport, queuedSource)
+			end
+			local ok, err = pcall(function()
+				TeleportService:TeleportToPlaceInstance(placeId, jobId, LocalPlayer)
+			end)
+			if not ok then warn("[LarpLite Fleet] Could not join Leader server: " .. tostring(err)) end
+			return
+		end
+		local character = LocalPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if not root then return end
+		local target = CFrame.new(table.unpack(components, 1, 12))
+		local ok, err = pcall(function()
+			root.CFrame = target
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
+		end)
+		if not ok then
+			warn("[LarpLite Fleet] Could not move to Leader: " .. tostring(err))
+			return
+		end
+		lastAppliedTeleportId = commandId
+		writeJson(teleportAckFile, { id = commandId, at = os.time() })
+		notify("Moved to the Leader's location.", 3)
+	end
+
+	local function sendLeaderTeleport()
+		if fleet.role ~= "master" then return end
+		local character = LocalPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if not root then
+			notify("Wait for the Leader's character to load, then try again.")
+			return
+		end
+		local targets = {}
+		for _, entry in ipairs(fleet.roster) do
+			if entry.id ~= myId then table.insert(targets, entry.id) end
+		end
+		if #targets == 0 then
+			notify("No other accounts are online.")
+			return
+		end
+		local command = {
+			id = myId .. ":" .. tostring(os.time()) .. ":" .. tostring(math.random(100000, 999999)),
+			from = myId,
+			issuedAt = os.time(),
+			placeId = game.PlaceId,
+			jobId = game.JobId,
+			cframe = { root.CFrame:GetComponents() },
+			targets = targets,
+		}
+		if writeJson(teleportFile, command) then
+			notify("Sent your location to " .. tostring(#targets) .. " account(s).", 4)
+		else
+			notify("Could not write the shared teleport command.", 5)
+		end
+	end
+
 	-- Always-present controls (every account, on the Other tab).
 	pcall(function()
 		scriptStateAFW:AddSection("Account Fleet")
@@ -23327,6 +23440,13 @@ activeStates.BGSI_Lite_FleetInit = function()
 				end,
 			})
 			table.insert(controls, pushButton)
+
+			tab:AddSection("Movement")
+			table.insert(controls, tab:AddButton({
+				Title = "Teleport Accounts to Me",
+				Description = "Move all online accounts to your exact position. Accounts in another server join yours first.",
+				Callback = sendLeaderTeleport,
+			}))
 
 			tab:AddSection("Handover")
 			local dropdownOk, handoverDropdown = pcall(function()
@@ -23464,6 +23584,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 				end
 			end
 			pcall(pullFromMaster)
+			pcall(pullLeaderTeleport)
 			if now - lastBeat >= HEARTBEAT_INTERVAL then
 				lastBeat = now
 				pcall(writeHeartbeat)
