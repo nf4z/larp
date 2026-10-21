@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.19.32"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.20.33"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.20.33",
+		releasedAt = "October 20, 2026",
+		notes = {
+			{ title = "Trick or Treat no longer stalls", description = "Visits one ready house at a time and lets other automation resume between visits.", icon = "ghost" },
+			{ title = "Automation settings preserved", description = "Quest pauses no longer save Auto Hatch or Auto Bounty as disabled.", icon = "settings" },
+		},
+	},
 	{
 		version = "2026.10.19.32",
 		releasedAt = "October 19, 2026",
@@ -2570,7 +2578,7 @@ function loadConfig()
 end
 -- Saves the current config when a setting changes.
 function saveConfig()
-	if not writefile then
+	if not writefile or activeStates.BGSI_Lite_ConfigResetPending == true then
 		return
 	end
 	if Config and Config.safeMode == true and type(Config.safeModeSavedConfig) == "table" then
@@ -2707,6 +2715,7 @@ function refreshChunkerAroundPlayer()
 end
 
 Config = loadConfig()
+activeStates.BGSI_Lite_ConfigResetPending = false
 Config.dashboardSyncEnabled = nil
 Config.dashboardSyncAutoEnabled = nil
 Config.dashboardEndpoint = nil
@@ -5260,6 +5269,7 @@ end
 local lastFiredForNextEggOpenAt = -1
 function fireHatchEgg(scriptStateQC)
 	if isAutomationBlocked() or activeStates.BGSI_Lite_BubbleQuestActive == true
+		or activeStates.BGSI_Lite_TrickOrTreatActive == true
 		or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
 	end
@@ -7655,6 +7665,7 @@ activeStates.BGSI_Lite_IsEggAutomationActive = function()
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 	return Config.autoHatch == true and activeStates.BGSI_Lite_TrickOrTreatActive ~= true
+		and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
 		and activeStates.BGSI_Lite_BubbleQuestActive ~= true
 end
 function clearDisabledPriorityStates()
@@ -7694,21 +7705,21 @@ function clearDisabledPriorityStates()
 	if activeStates.BGSI_Lite_GuildQuestActive and Config.autoGuildQuests ~= true then
 		activeStates.BGSI_Lite_GuildQuestActive = false
 	end
+	if activeStates.BGSI_Lite_TrickOrTreatActive
+		and (Config.autoTrickOrTreat ~= true
+			or tick() - (tonumber(activeStates.BGSI_Lite_TrickOrTreatStartedAt) or 0) > 20) then
+		activeStates.BGSI_Lite_TrickOrTreatActive = false
+	end
 	if not isPriorityAutomationActive() then
 		activeStates.BGSI_Lite_ClearActiveQuest()
 	end
 end
-local scriptStateGV, scriptStateSR = nil, nil
 local pauseInProgress = false
 function pauseNormalAutomation()
 	if pauseInProgress then
 		return
 	end
 	pauseInProgress = true
-	scriptStateGV = Config.autoHatch
-	scriptStateSR = Config.autoBounty
-	Config.autoHatch = false
-	Config.autoBounty = false
 	activeStates.BGSI_Lite_NormalAutomationPaused = true
 end
 function resumeNormalAutomation()
@@ -7717,12 +7728,9 @@ function resumeNormalAutomation()
 		return
 	end
 	pauseInProgress = false
-	Config.autoHatch = scriptStateGV or Config.autoHatch
-	Config.autoBounty = scriptStateSR or Config.autoBounty
 	if Config.autoHatch then
 		activeStates.BGSI_Lite_ForceAutoHatchTeleport = true
 	end
-	scriptStateGV, scriptStateSR = nil, nil
 	activeStates.BGSI_Lite_NormalAutomationPaused = false
 end
 task.spawn(function()
@@ -8613,6 +8621,9 @@ scriptStateAFW:AddButton({
 	Title = "Reset Config & Restart",
 	Description = "Delete all saved settings and restart LarpLite with a completely fresh configuration.",
 	Callback = function()
+		activeStates.BGSI_Lite_ConfigResetPending = true
+		Config.autoTrickOrTreat = false
+		activeStates.BGSI_Lite_TrickOrTreatActive = false
 		local resetFiles = {
 			configFile,
 			sharedConfigFile,
@@ -8633,6 +8644,7 @@ scriptStateAFW:AddButton({
 			if status == "queued" then
 				return
 			end
+			activeStates.BGSI_Lite_ConfigResetPending = false
 			Interface:Notify({
 				Title = "Reset failed",
 				Content = tostring(err or "Could not restart the script."),
@@ -8640,6 +8652,7 @@ scriptStateAFW:AddButton({
 			})
 			return
 		end
+		activeStates.BGSI_Lite_ConfigResetPending = false
 		Interface:Notify({
 			Title = "Reset failed",
 			Content = "The script reload function is not ready yet.",
@@ -10756,7 +10769,7 @@ task.spawn(function()
 	local scriptStatePN = 0
 	while isCurrentRun() do
 		task.wait(Config.autoBounty and 0.1 or 0.85)
-		if Config.autoBounty ~= true then
+		if Config.autoBounty ~= true or activeStates.BGSI_Lite_NormalAutomationPaused == true then
 			continue
 		end
 		if
@@ -11038,7 +11051,7 @@ do
 	halloweenTab:AddSection("Trick or Treat")
 	halloweenTab:AddToggle("AutoTrickOrTreat", {
 		Title = "Auto Trick or Treat",
-		Description = "Visits ready houses, knocks, and waits for each house to register before moving on.",
+		Description = "Visits one ready house at a time, then lets your other automation resume between visits.",
 		Default = Config.autoTrickOrTreat,
 		Callback = function(enabled)
 			Config.autoTrickOrTreat = enabled == true
@@ -11067,6 +11080,8 @@ do
 		end
 	end)
 	task.spawn(function()
+		local nextHouseIndex = 1
+		local retryHouseAt = {}
 		while isCurrentRun() do
 			if Config.autoTrickOrTreat and Config.safeMode ~= true
 				and not isPriorityAutomationActive() then
@@ -11074,38 +11089,57 @@ do
 				local houses = event and event:FindFirstChild("Houses")
 				local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 				if houses and root then
-					local previousPosition = root.CFrame
-					activeStates.BGSI_Lite_TrickOrTreatActive = true
-					local routeOk, routeError = pcall(function()
-						for _, house in ipairs(houses:GetChildren()) do
-							if not isCurrentRun() or not Config.autoTrickOrTreat or Config.safeMode then break end
-							local activation = house:FindFirstChild("Activation")
-							local active = activation and activation:FindFirstChild("Active")
+					local availableHouses = houses:GetChildren()
+					local selectedHouse, selectedActive, selectedTarget
+					for offset = 0, #availableHouses - 1 do
+						local index = ((nextHouseIndex + offset - 1) % #availableHouses) + 1
+						local house = availableHouses[index]
+						local activation = house:FindFirstChild("Activation")
+						local active = activation and activation:FindFirstChild("Active")
+						if active and active:IsA("BoolValue") and active.Value
+							and tick() >= (retryHouseAt[house] or 0) then
 							local target = activeStates.BGSI_Lite_GetInstanceTargetCFrame(activation, "Root")
-							if active and active:IsA("BoolValue") and active.Value and target then
-								for _ = 1, 3 do
-									if not active.Value or not Config.autoTrickOrTreat or Config.safeMode then break end
-									if LocalPlayer:GetAttribute("TrickOrTreatFreeze") then
-										local freezeDeadline = tick() + 15
-										repeat task.wait(0.25) until not LocalPlayer:GetAttribute("TrickOrTreatFreeze") or tick() >= freezeDeadline
-									end
-									if teleportToCFrame(target * CFrame.new(0, 2, 0)) then
-										task.wait(0.35)
-										pcall(activeStates.BGSI_Lite_FireGameRemote, "TrickOrTreat", house)
-										local claimDeadline = tick() + 3
-										repeat task.wait(0.2) until not active.Value or tick() >= claimDeadline
-									end
-								end
+							if target then
+								selectedHouse, selectedActive, selectedTarget = house, active, target
+								nextHouseIndex = index % #availableHouses + 1
+								break
 							end
-							activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 						end
-					end)
-					if root.Parent then root.CFrame = previousPosition end
-					activeStates.BGSI_Lite_TrickOrTreatActive = false
-					if not routeOk then warn("[1rzHub Lite] Trick or Treat route failed:", tostring(routeError)) end
+					end
+					if selectedHouse then
+						local previousPosition = root.CFrame
+						local attempted = false
+						activeStates.BGSI_Lite_TrickOrTreatActive = true
+						activeStates.BGSI_Lite_TrickOrTreatStartedAt = tick()
+						local routeOk, routeError = pcall(function()
+							local freezeDeadline = tick() + 15
+							while LocalPlayer:GetAttribute("TrickOrTreatFreeze") and tick() < freezeDeadline
+								and Config.autoTrickOrTreat and Config.safeMode ~= true do
+								task.wait(0.25)
+							end
+							if not isCurrentRun() or not Config.autoTrickOrTreat or Config.safeMode
+								or LocalPlayer:GetAttribute("TrickOrTreatFreeze") then return end
+							if teleportToCFrame(selectedTarget * CFrame.new(0, 2, 0)) then
+								attempted = true
+								task.wait(0.35)
+								if not Config.autoTrickOrTreat or Config.safeMode then return end
+								pcall(activeStates.BGSI_Lite_FireGameRemote, "TrickOrTreat", selectedHouse)
+								local claimDeadline = tick() + 3
+								repeat task.wait(0.2) until not selectedActive.Value or tick() >= claimDeadline
+							end
+						end)
+						pcall(function()
+							if root.Parent then root.CFrame = previousPosition end
+						end)
+						activeStates.BGSI_Lite_TrickOrTreatActive = false
+						retryHouseAt[selectedHouse] = tick()
+							+ (attempted and (selectedActive.Value and 30 or 2) or 15)
+						activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
+						if not routeOk then warn("[1rzHub Lite] Trick or Treat route failed:", tostring(routeError)) end
+					end
 				end
 			end
-			task.wait(3)
+			task.wait(2)
 		end
 		activeStates.BGSI_Lite_TrickOrTreatActive = false
 	end)
