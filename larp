@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.20.33"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.20.34"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.20.34",
+		releasedAt = "October 20, 2026",
+		notes = {
+			{ title = "AA hatch team", description = "Optionally equips Hatch Blessing supers for 4x eggs, falling back to Luck Boost supers.", icon = "sparkles" },
+			{ title = "Full Fleet sync", description = "Sync now copies all configurable settings, including sliders, and refreshes the other accounts' controls.", icon = "users" },
+		},
+	},
 	{
 		version = "2026.10.20.33",
 		releasedAt = "October 20, 2026",
@@ -2332,6 +2340,7 @@ local defaultConfig = {
 	equippedEnchantCurrency = "Auto (Secret = Crystals,Normal = Gems)",
 	autoSetupTeamEnabled = false,
 	autoSetupTeamIncludeSupers = false,
+	autoSetupTeamAABlessingSupers = false,
 	autoSetupTeamSuperCounts = {
 		["luck-boost"] = 0,
 		["luck-boost-plus"] = 0,
@@ -2509,6 +2518,7 @@ activeStates.BGSI_Lite_SafeModePreservedKeys = {
 	safeModeSavedConfig = true,
 	autoSetupTeamEnabled = true,
 	autoSetupTeamIncludeSupers = true,
+	autoSetupTeamAABlessingSupers = true,
 	autoSetupTeamSuperCounts = true,
 }
 local legacyConfigFile = "1rzHubConfig.json"
@@ -2990,6 +3000,89 @@ for loopSlotBI, scriptStateAAX in pairs(defaultConfig) do
 	end
 end
 activeStates.AutoGuessThatPet = Config.autoGuessThatPet
+activeStates.BGSI_Lite_FleetUiControls = {}
+activeStates.BGSI_Lite_RegisterFleetUiControl = function(flag, control, properties, kind)
+	if type(flag) == "string" and type(control) == "table" then
+		control.FleetMulti = type(properties) == "table" and properties.Multi == true
+		control.FleetInput = kind == "input"
+		activeStates.BGSI_Lite_FleetUiControls[flag] = control
+	end
+	return control
+end
+activeStates.BGSI_Lite_RefreshFleetUiControls = function(source)
+	if type(source) ~= "table" then return end
+	local keysByLowerName = {}
+	for configKey in pairs(defaultConfig) do
+		keysByLowerName[string.lower(configKey)] = configKey
+	end
+	local alternateKeys = {
+		AdminRebirthMachinePetName = "AdminRebirthPetName",
+		AutoAdminRebirthMachine = "AdminRebirthMachineEnabled",
+		AutoDailyHourly = "autoDailyHourlyChallenge",
+		AutoRebirthMachine = "RebirthMachineEnabled",
+		AutoSellBubble = "autoSell",
+		AutoSetupTeamKeepUpdated = "autoSetupTeamEnabled",
+		AutoShrine = "shrineAuto",
+		AutoUsePotions = "potionAuto",
+		DreamShrine = "DreamerShrineEnabled",
+		DreamShrineAmount = "DreamerShrineAmount",
+		EnchantCurrency = "equippedEnchantCurrency",
+		GemGenieTarget = "gemGenieTargetItem",
+		LowCoins = "webhookLowCoinsBelow",
+		LowCurrencyCooldown = "webhookLowCurrencyCooldownMinutes",
+		LowCurrencyEnabled = "webhookLowCurrencyEnabled",
+		LowGems = "webhookLowGemsBelow",
+		LowPearls = "webhookLowPearlsBelow",
+		LowTickets = "webhookLowTicketsBelow",
+		PearlPetTeam = "selectedPearlTeam",
+		PearlReturnPetTeam = "selectedPearlReturnTeam",
+		QuestStallTimeout = "questStallTimeoutSeconds",
+		RebirthMachinePetName = "RebirthPetName",
+		ReenchantThreshold = "equippedReenchantThreshold",
+		SelectedRiftChest = "selectedChest",
+		SelectEgg = "selectedEgg",
+		SelectInventoryEgg = "selectedInventoryEgg",
+		SelectRiftEgg = "selectedRiftEgg",
+		ShadowLeviathanTarget = "shadowLeviathanTargetItem",
+		ShopBuyInterval = "shopInterval",
+		TargetEnchant1 = "equippedTargetEnchant",
+		TargetEnchant2 = "equippedTargetEnchant2",
+		TargetEnchantLevel = "equippedTargetEnchantLevel",
+		TargetRiftHopIds = "targetRiftIds",
+		TicketPetTeam = "selectedTicketTeam",
+		TicketReturnPetTeam = "selectedTicketReturnTeam",
+		WebhookHideName = "webhookHidePlayerName",
+	}
+	for flag, control in pairs(activeStates.BGSI_Lite_FleetUiControls) do
+		local value
+		local superKey = flag:match("^AutoSetupTeamSuperCount_(.+)$")
+		if superKey then
+			local counts = source.autoSetupTeamSuperCounts
+			value = type(counts) == "table" and counts[superKey] or nil
+		elseif flag == "RebirthMachineVariant" then
+			value = type(source.RebirthVariants) == "table" and source.RebirthVariants[1] or nil
+		else
+			local configKey = alternateKeys[flag] or keysByLowerName[string.lower(flag)]
+			value = configKey and source[configKey] or nil
+		end
+		if control.FleetMulti and type(value) == "table" then
+			local selectedValues = {}
+			for key, selected in pairs(value) do
+				if type(key) == "number" and type(selected) == "string" then
+					table.insert(selectedValues, selected)
+				elseif type(key) == "string" and selected == true then
+					table.insert(selectedValues, key)
+				end
+			end
+			value = selectedValues
+		elseif control.FleetInput and value ~= nil then
+			value = tostring(value)
+		end
+		if value ~= nil and control.Native and type(control.Native.Set) == "function" then
+			pcall(control.Native.Set, control.Native, value, true)
+		end
+	end
+end
 local Interface
 do
 	local rayfieldFile = "RayfieldGen2.lua"
@@ -3328,14 +3421,14 @@ do
 		})
 	end
 	function tabMethods:AddToggle(flag, properties)
-		return wrapValueElement(self.Native:CreateToggle({
+		return activeStates.BGSI_Lite_RegisterFleetUiControl(flag, wrapValueElement(self.Native:CreateToggle({
 			name = properties.Title,
 			description = properties.Description,
 			value = properties.Default == true,
 			flag = flag,
 			forgetState = true,
 			callback = properties.Callback,
-		}))
+		})), properties)
 	end
 	function tabMethods:AddSlider(flag, properties)
 		local wrappedSlider = wrapValueElement(self.Native:CreateSlider({
@@ -3361,7 +3454,7 @@ do
 			end
 			return false
 		end
-		return wrappedSlider
+		return activeStates.BGSI_Lite_RegisterFleetUiControl(flag, wrappedSlider, properties)
 	end
 	function tabMethods:AddDropdown(flag, properties)
 		local dropdownOptions = normalizeDropdownOptions(properties.Values)
@@ -3378,10 +3471,10 @@ do
 		})
 		pcall(activeStates.BGSI_Lite_PatchDropdownRebindForIcons, nativeDropdown)
 		activeStates.BGSI_Lite_RefreshDropdownIcons(nativeDropdown)
-		return wrapDropdown(nativeDropdown)
+		return activeStates.BGSI_Lite_RegisterFleetUiControl(flag, wrapDropdown(nativeDropdown), properties)
 	end
 	function tabMethods:AddInput(flag, properties)
-		return wrapValueElement(self.Native:CreateInput({
+		return activeStates.BGSI_Lite_RegisterFleetUiControl(flag, wrapValueElement(self.Native:CreateInput({
 			name = properties.Title,
 			description = properties.Description,
 			value = tostring(properties.Default or ""),
@@ -3390,7 +3483,7 @@ do
 			flag = flag,
 			forgetState = true,
 			callback = properties.Callback,
-		}))
+		})), properties, "input")
 	end
 	function tabMethods:AddParagraph(properties)
 		local paragraphContent = tostring(properties.Content or "")
@@ -9967,6 +10060,7 @@ do
 			saveConfig()
 		end,
 	})
+	activeStates.BGSI_Lite_RefreshEggLocationDropdown = refreshEggLocationDropdown
 	eggTab:AddButton({
 		Title = "Load egg list",
 		Callback = function()
@@ -10092,6 +10186,15 @@ do
 end
 activeStates.BGSI_Lite_LuckEggActive = false
 activeStates.BGSI_Lite_SpecialRiftActive = false
+local function setLuckEggActive(isActive)
+	isActive = isActive == true
+	if activeStates.BGSI_Lite_LuckEggActive == isActive then return end
+	activeStates.BGSI_Lite_LuckEggActive = isActive
+	if Config.autoSetupTeamEnabled == true and Config.autoSetupTeamAABlessingSupers == true
+		and type(activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh) == "function" then
+		activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
+	end
+end
 activeStates.BGSI_Lite_HasLiveFourXLuckEgg = function()
 	if Config.autoLuckEgg ~= true then
 		return false
@@ -10106,7 +10209,7 @@ task.spawn(function()
 		task.wait(Config.autoLuckEgg and 0.1 or 0.85)
 		if Config.autoLuckEgg ~= true then
 			if activeStates.BGSI_Lite_LuckEggActive then
-				activeStates.BGSI_Lite_LuckEggActive = false
+				setLuckEggActive(false)
 			end
 			continue
 		end
@@ -10115,13 +10218,13 @@ task.spawn(function()
 		local luckEggName = activeStates.BGSI_Lite_FindLuckEggName and activeStates.BGSI_Lite_FindLuckEggName()
 			or "4x Luck Ultra Carnival Egg"
 		if isPriorityAutomationActive() or Config.safeMode == true then
-			activeStates.BGSI_Lite_LuckEggActive = false
+			setLuckEggActive(false)
 			task.wait(0.25)
 			continue
 		end
 		if not scriptStateTL then
 			if activeStates.BGSI_Lite_LuckEggActive then
-				activeStates.BGSI_Lite_LuckEggActive = false
+				setLuckEggActive(false)
 				luckEggCooldown = 0
 			end
 			task.wait(1)
@@ -10133,7 +10236,7 @@ task.spawn(function()
 		local scriptStateDA = LocalPlayer and LocalPlayer.Character
 		local scriptStateFV = scriptStateDA and scriptStateDA:FindFirstChild("HumanoidRootPart")
 		if not playerDataReady or not screenGui or not scriptStateFV then
-			activeStates.BGSI_Lite_LuckEggActive = false
+			setLuckEggActive(false)
 			if tick() - luckEggReadinessLogAt >= 5 then
 				print(
 					"["
@@ -10155,7 +10258,20 @@ task.spawn(function()
 		if not activeStates.BGSI_Lite_LuckEggActive then
 			print("[" .. LocalPlayer.Name .. "] 4x egg client ready. Starting hatch: " .. tostring(luckEggName))
 		end
-		activeStates.BGSI_Lite_LuckEggActive = true
+		local firstFourXHatch = activeStates.BGSI_Lite_LuckEggActive ~= true
+		setLuckEggActive(true)
+		if firstFourXHatch and Config.autoSetupTeamEnabled == true
+			and Config.autoSetupTeamAABlessingSupers == true
+			and type(activeStates.BGSI_Lite_RunAutoSetupTeam) == "function" then
+			local teamWaitDeadline = tick() + 10
+			while activeStates.BGSI_Lite_AutoSetupTeamApplying and tick() < teamWaitDeadline do
+				task.wait(0.1)
+			end
+			pcall(activeStates.BGSI_Lite_RunAutoSetupTeam)
+			scriptStateDA = LocalPlayer and LocalPlayer.Character
+			scriptStateFV = scriptStateDA and scriptStateDA:FindFirstChild("HumanoidRootPart")
+			if not scriptStateFV then continue end
+		end
 		if tick() - luckEggCooldown >= 5 then
 			local rebirthPetVariant = scriptStateTL:IsA("BasePart") and scriptStateTL
 				or scriptStateTL:FindFirstChildWhichIsA("BasePart", true)
@@ -15632,8 +15748,10 @@ function buildAutoSetupTeamSelection(playerData)
 	local maxPetsEquipped, maxSupersEquipped = getAutoTeamLimits(playerData)
 	local selectedPetIds = {}
 	local selectedSet = {}
+	local aaBlessingMode = Config.autoSetupTeamAABlessingSupers == true
+		and activeStates.BGSI_Lite_LuckEggActive == true
 
-	if Config.autoSetupTeamIncludeSupers then
+	if Config.autoSetupTeamIncludeSupers or aaBlessingMode then
 		local superCounts = type(Config.autoSetupTeamSuperCounts) == "table" and Config.autoSetupTeamSuperCounts or {}
 		local candidatesByEnchantKey = {}
 		local currentlyEquipped = {}
@@ -15651,20 +15769,33 @@ function buildAutoSetupTeamSelection(playerData)
 			if isSuperLegendary then
 				for _, enchantEntry in ipairs(getPetEnchantList(pet)) do
 					local enchantKey = getAutoTeamSuperEnchantKey(enchantEntry)
-					if enchantKey and (tonumber(superCounts[enchantKey]) or 0) > 0 then
+					local wantedForCurrentEgg = aaBlessingMode
+						and (enchantKey == "hatch-blessing-plus" or enchantKey == "hatch-blessing"
+							or enchantKey == "luck-boost-plus" or enchantKey == "luck-boost")
+						or (not aaBlessingMode and (tonumber(superCounts[enchantKey]) or 0) > 0)
+					if enchantKey and wantedForCurrentEgg then
 						candidatesByEnchantKey[enchantKey] = candidatesByEnchantKey[enchantKey] or {}
 						table.insert(candidatesByEnchantKey[enchantKey], pet)
 					end
 				end
 			end
 		end
-		for _, enchantKey in ipairs({
+		local normalPriority = {
 			"luck-boost", "luck-boost-plus", "hatch-blessing", "hatch-blessing-plus",
 			"bubble-machine", "bubble-machine-plus", "burst-blessing", "burst-blessing-plus",
 			"shiny-blessing", "shiny-blessing-plus", "mythic-blessing", "mythic-blessing-plus",
 			"infinity-blessing", "infinity-blessing-plus", "duplication", "duplication-plus",
-		}) do
-			local desiredCount = superCounts[enchantKey]
+		}
+		local priority = normalPriority
+		if aaBlessingMode then
+			local hasHatchBlessing = #(candidatesByEnchantKey["hatch-blessing-plus"] or {}) > 0
+				or #(candidatesByEnchantKey["hatch-blessing"] or {}) > 0
+			priority = hasHatchBlessing
+				and { "hatch-blessing-plus", "hatch-blessing" }
+				or { "luck-boost-plus", "luck-boost" }
+		end
+		for _, enchantKey in ipairs(priority) do
+			local desiredCount = aaBlessingMode and maxSupersEquipped or superCounts[enchantKey]
 			desiredCount = math.min(math.max(0, math.floor(tonumber(desiredCount) or 0)), maxSupersEquipped)
 			local candidates = candidatesByEnchantKey[enchantKey] or {}
 			table.sort(candidates, function(petA, petB)
@@ -15871,7 +16002,9 @@ end
 pcall(function()
 	profileStore:ConnectDataChanged("Pets", function()
 		if isCurrentRun() and Config.autoSetupTeamEnabled == true
-			and Config.autoSetupTeamIncludeSupers == true and Config.safeMode ~= true
+			and (Config.autoSetupTeamIncludeSupers == true
+				or Config.autoSetupTeamAABlessingSupers == true)
+			and Config.safeMode ~= true
 			and isEquippedTeamNamedHatch() then
 			activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
 		end
@@ -16033,6 +16166,18 @@ do
 		Default = Config.autoSetupTeamIncludeSupers,
 		Callback = function(isEnabled)
 			Config.autoSetupTeamIncludeSupers = isEnabled == true
+			saveConfig()
+			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
+				activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
+			end
+		end,
+	})
+	scriptStateTJ:AddToggle("AutoSetupTeamAABlessingSupers", {
+		Title = "4x Egg: Hatch Blessing Supers",
+		Description = "While auto-hatching the 4x AA egg, equip up to three Hatch Blessing+ supers, then Hatch Blessing. If none are owned, use Luck Boost+ then Luck Boost. Overrides the Super count sliders only while at that egg.",
+		Default = Config.autoSetupTeamAABlessingSupers,
+		Callback = function(isEnabled)
+			Config.autoSetupTeamAABlessingSupers = isEnabled == true
 			saveConfig()
 			if Config.autoSetupTeamEnabled and Config.safeMode ~= true then
 				activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh()
@@ -22104,7 +22249,10 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					activeStates.BGSI_Lite_LastHatchAcceptedAt = hatchAcceptedAt
 				end
 				activeStates.BGSI_Lite_LastHatchEventAt = hatchAcceptedAt
-				if Config.autoSetupTeamEnabled == true and Config.autoSetupTeamIncludeSupers == true
+				local aaBlessingMode = Config.autoSetupTeamAABlessingSupers == true
+					and activeStates.BGSI_Lite_LuckEggActive == true
+				if Config.autoSetupTeamEnabled == true
+					and (Config.autoSetupTeamIncludeSupers == true or aaBlessingMode)
 					and Config.safeMode ~= true and isEquippedTeamNamedHatch() then
 					local wanted = type(Config.autoSetupTeamSuperCounts) == "table"
 						and Config.autoSetupTeamSuperCounts or {}
@@ -22117,7 +22265,11 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 							or rarity == "Super" or rarity == "Super Legendary" then
 							for _, enchant in ipairs(getPetEnchantList(hatchedPet)) do
 								local key = getAutoTeamSuperEnchantKey(enchant)
-								if key and (tonumber(wanted[key]) or 0) > 0 then
+								local wantedForCurrentEgg = aaBlessingMode
+									and (key == "hatch-blessing-plus" or key == "hatch-blessing"
+										or key == "luck-boost-plus" or key == "luck-boost")
+									or (not aaBlessingMode and (tonumber(wanted[key]) or 0) > 0)
+								if key and wantedForCurrentEgg then
 									task.delay(0.3, activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh)
 									break
 								end
@@ -22591,36 +22743,18 @@ activeStates.BGSI_Lite_FleetInit = function()
 	}
 	activeStates.BGSI_Lite_Fleet = fleet
 
-	-- Settings that must stay per-account: the safe-mode snapshot, each account's own
-	-- gameplay role, dashboard/webhook endpoints and anything that looks like a secret or
-	-- an id. Fleet switches themselves are also local to each account.
+	-- Keep runtime state and Fleet transport controls local. All user-configurable
+	-- gameplay, webhook, dropdown, and slider settings are part of a Fleet snapshot.
 	local excludedKeys = {
 		safeMode = true,
 		safeModeSavedConfig = true,
-		accountRole = true,
 		lastSeenScriptVersion = true,
 		LiveWebhookMessageIds = true,
-		dashboardSyncEnabled = true,
-		dashboardSyncAutoEnabled = true,
-		dashboardEndpoint = true,
-		dashboardIngestToken = true,
-		dashboardBestHatchName = true,
-		dashboardBestHatchChance = true,
 		fleetFollowMaster = true,
 		fleetAutoPush = true,
 	}
 	local function isSyncKey(key)
 		if type(key) ~= "string" or excludedKeys[key] then
-			return false
-		end
-		local lowered = string.lower(key)
-		if
-			string.find(lowered, "url", 1, true)
-			or string.find(lowered, "endpoint", 1, true)
-			or string.find(lowered, "token", 1, true)
-			or string.find(lowered, "userid", 1, true)
-			or string.find(lowered, "messageids", 1, true)
-		then
 			return false
 		end
 		local valueType = type(defaultConfig[key])
@@ -22818,7 +22952,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 
 	local updateUi -- assigned below
 
-	local function pushSettings(force)
+	local function pushSettings(force, applyToAll)
 		if fleet.role ~= "master" then
 			return false
 		end
@@ -22835,12 +22969,14 @@ activeStates.BGSI_Lite_FleetInit = function()
 			from = myId,
 			fromName = LocalPlayer.Name,
 			at = tick(),
+			forceApply = applyToAll == true,
 			config = source,
 		})
 		if not wroteSettings then
 			return false
 		end
-		pcall(writefile, revFile, tostring(rev) .. ":" .. myId)
+		local wroteRevision = pcall(writefile, revFile, tostring(rev) .. ":" .. myId)
+		if not wroteRevision then return false end
 		fleet.lastSignature = signature
 		fleet.rev = rev
 		fleet.appliedRev = rev
@@ -22853,23 +22989,43 @@ activeStates.BGSI_Lite_FleetInit = function()
 	-- setting pushed from the Leader behaves exactly like one applied from the dashboard.
 	local function applyRemoteConfig(remoteConfig)
 		local applied = 0
+		local previousLiveEnabled = Config.LiveWebhookEnabled
+		local previousLiveUrl = Config.LiveWebhookURL
 		fleet.applying = true
 		local ok, err = pcall(function()
-			for key, value in pairs(remoteConfig) do
-				if isSyncKey(key) and type(value) == type(defaultConfig[key]) then
-					if Config.safeMode == true and type(Config.safeModeSavedConfig) == "table" then
-						Config.safeModeSavedConfig[key] = value
-					else
-						Config[key] = value
+			local function assignSettings(countApplied)
+				for key, value in pairs(remoteConfig) do
+					if isSyncKey(key) and type(value) == type(defaultConfig[key]) then
+						if Config.safeMode == true and type(Config.safeModeSavedConfig) == "table" then
+							Config.safeModeSavedConfig[key] = value
+						else
+							Config[key] = value
+						end
+						if countApplied then applied += 1 end
 					end
-					applied += 1
 				end
 			end
+			assignSettings(true)
+			pcall(activeStates.BGSI_Lite_RefreshFleetUiControls, remoteConfig)
+			pcall(activeStates.BGSI_Lite_RefreshEggLocationDropdown, true)
+			assignSettings(false)
 			saveConfig()
 			activeStates.BGSI_Lite_LastQuestAutomationAt = tick()
 			activeStates.BGSI_Lite_LastAutoEnchantTeamAttempt = 0
 			activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
+			activeStates.BGSI_Lite_ForceAutoHatchTeleport = Config.autoHatch == true
+			activeStates.AutoGuessThatPet = Config.autoGuessThatPet
+			activeStates.BGSI_Lite_QuestNoProgressTimeout = Config.questStallTimeoutSeconds
 			clearDisabledPriorityStates()
+			pcall(activeStates.BGSI_Lite_ApplyHatchAnimationSetting)
+			pcall(activeStates.BGSI_Lite_RequestAutoSetupTeamRefresh)
+			if previousLiveEnabled ~= Config.LiveWebhookEnabled or previousLiveUrl ~= Config.LiveWebhookURL then
+				if Config.LiveWebhookEnabled == true and tostring(Config.LiveWebhookURL or "") ~= "" then
+					pcall(activeStates.BGSI_Lite_StartLiveWebhook)
+				else
+					pcall(activeStates.BGSI_Lite_StopLiveWebhook)
+				end
+			end
 			_G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
 			pcall(function()
 				RunService:Set3dRenderingEnabled(Config.safeMode == true or not Config.disableRendering)
@@ -22884,7 +23040,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 
 	local lastSeenRevText
 	local function pullFromMaster()
-		if fleet.role ~= "alt" or Config.fleetFollowMaster ~= true or not fileExists(revFile) then
+		if fleet.role ~= "alt" or not fileExists(revFile) then
 			return
 		end
 		local readOk, text = pcall(readfile, revFile)
@@ -22911,9 +23067,13 @@ activeStates.BGSI_Lite_FleetInit = function()
 		then
 			return -- caught mid-write; the next poll picks it up
 		end
-		lastSeenRevText = text
+		if Config.fleetFollowMaster ~= true and payload.forceApply ~= true then
+			lastSeenRevText = text
+			return
+		end
 		local ok, applied, err = applyRemoteConfig(payload.config)
 		if ok then
+			lastSeenRevText = text
 			fleet.appliedRev = rev
 			fleet.lastApplyAt = tick()
 			fleet.lastApplyCount = applied
@@ -23461,12 +23621,12 @@ end)
 			)
 			local pushButton = tab:AddButton({
 				Title = "Sync now",
-				Description = "Send this account's settings to the others.",
+				Description = "Copy all configurable settings, including sliders and selections, to every online account.",
 				Callback = function()
 					if fleet.role ~= "master" then
 						return
 					end
-					if pushSettings(true) then
+					if pushSettings(true, true) then
 						notify("Settings sent to " .. tostring(#fleet.roster - 1) .. " account(s).", 3)
 					else
 						notify("Could not write the shared settings file.", 4)
