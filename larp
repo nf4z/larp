@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.20.34"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.21.35"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.21.35",
+		releasedAt = "October 21, 2026",
+		notes = {
+			{ title = "Enchanted Super icons", description = "Super Legendary hatch icons show their enchant badges in the lower-left corner.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.20.34",
 		releasedAt = "October 20, 2026",
@@ -16633,6 +16640,167 @@ function getWebhookSuperLegendaryEnchantText(webhookPetEntry, petName, isShiny, 
 	return "<:enchantments:1462135985759326370> Enchants: **"
 		.. table.concat(enchantNames, ", ") .. "**", enchantNames
 end
+-- The transparent badge art is hosted with this script. The image proxy combines
+-- one badge with the game's variant-specific 420x420 pet icon for Discord.
+local superEnchantBadgeFiles = {
+	["Bubble Machine & Burst Blessing+"] = true,
+	["Bubble Machine & Burst Blessing"] = true,
+	["Bubble Machine & Duplication+"] = true,
+	["Bubble Machine & Duplication"] = true,
+	["Bubble Machine & Hatch Blessing+"] = true,
+	["Bubble Machine & Hatch Blessing"] = true,
+	["Bubble Machine & Infinity Blessing+"] = true,
+	["Bubble Machine & Infinity Blessing"] = true,
+	["Bubble Machine & Luck Boost+"] = true,
+	["Bubble Machine & Luck Boost"] = true,
+	["Bubble Machine & Mythic Blessing+"] = true,
+	["Bubble Machine & Mythic Blessing"] = true,
+	["Bubble Machine & Shiny Blessing+"] = true,
+	["Bubble Machine & Shiny Blessing"] = true,
+	["Bubble Machine+ & Burst Blessing+"] = true,
+	["Bubble Machine+ & Burst Blessing"] = true,
+	["Bubble Machine+ & Duplication+"] = true,
+	["Bubble Machine+ & Duplication"] = true,
+	["Bubble Machine+ & Hatch Blessing+"] = true,
+	["Bubble Machine+ & Hatch Blessing"] = true,
+	["Bubble Machine+ & Infinity Blessing+"] = true,
+	["Bubble Machine+ & Infinity Blessing"] = true,
+	["Bubble Machine+ & Luck Boost+"] = true,
+	["Bubble Machine+ & Luck Boost"] = true,
+	["Bubble Machine+ & Mythic Blessing+"] = true,
+	["Bubble Machine+ & Mythic Blessing"] = true,
+	["Bubble Machine+ & Shiny Blessing+"] = true,
+	["Bubble Machine+ & Shiny Blessing"] = true,
+	["Bubble Machine+"] = true,
+	["Bubble Machine"] = true,
+	["Burst Blessing & Duplication+"] = true,
+	["Burst Blessing & Duplication"] = true,
+	["Burst Blessing & Hatch Blessing+"] = true,
+	["Burst Blessing & Hatch Blessing"] = true,
+	["Burst Blessing & Infinity Blessing+"] = true,
+	["Burst Blessing & Infinity Blessing"] = true,
+	["Burst Blessing & Luck Boost+"] = true,
+	["Burst Blessing & Luck Boost"] = true,
+	["Burst Blessing & Mythic Blessing+"] = true,
+	["Burst Blessing & Mythic Blessing"] = true,
+	["Burst Blessing & Shiny Blessing+"] = true,
+	["Burst Blessing & Shiny Blessing"] = true,
+	["Burst Blessing+ & Duplication+"] = true,
+	["Burst Blessing+ & Duplication"] = true,
+	["Burst Blessing+ & Hatch Blessing+"] = true,
+	["Burst Blessing+ & Hatch Blessing"] = true,
+	["Burst Blessing+ & Infinity Blessing+"] = true,
+	["Burst Blessing+ & Infinity Blessing"] = true,
+	["Burst Blessing+ & Luck Boost+"] = true,
+	["Burst Blessing+ & Luck Boost"] = true,
+	["Burst Blessing+ & Mythic Blessing+"] = true,
+	["Burst Blessing+ & Mythic Blessing"] = true,
+	["Burst Blessing+ & Shiny Blessing+"] = true,
+	["Burst Blessing+ & Shiny Blessing"] = true,
+	["Burst Blessing+"] = true,
+	["Burst Blessing"] = true,
+	["Duplication & Hatch Blessing+"] = true,
+	["Duplication & Hatch Blessing"] = true,
+	["Duplication & Infinity Blessing+"] = true,
+	["Duplication & Infinity Blessing"] = true,
+	["Duplication & Luck Boost+"] = true,
+	["Duplication & Luck Boost"] = true,
+	["Duplication & Mythic Blessing+"] = true,
+	["Duplication & Mythic Blessing"] = true,
+	["Duplication & Shiny Blessing+"] = true,
+	["Duplication & Shiny Blessing"] = true,
+	["Duplication+ & Hatch Blessing+"] = true,
+	["Duplication+ & Hatch Blessing"] = true,
+	["Duplication+ & Infinity Blessing+"] = true,
+	["Duplication+ & Infinity Blessing"] = true,
+	["Duplication+ & Luck Boost+"] = true,
+	["Duplication+ & Luck Boost"] = true,
+	["Duplication+ & Mythic Blessing+"] = true,
+	["Duplication+ & Mythic Blessing"] = true,
+	["Duplication+ & Shiny Blessing+"] = true,
+	["Duplication+ & Shiny Blessing"] = true,
+	["Duplication+"] = true,
+	["Duplication"] = true,
+	["Faster Bubbling+"] = true,
+	["Faster Bubbling"] = true,
+	["Hatch Blessing+"] = true,
+	["Hatch Blessing"] = true,
+	["Infinity Blessing & Hatch Blessing+"] = true,
+	["Infinity Blessing & Hatch Blessing"] = true,
+	["Infinity Blessing & Luck Boost+"] = true,
+	["Infinity Blessing & Luck Boost"] = true,
+	["Infinity Blessing & Mythic Blessing+"] = true,
+	["Infinity Blessing & Mythic Blessing"] = true,
+	["Infinity Blessing & Shiny Blessing+"] = true,
+	["Infinity Blessing & Shiny Blessing"] = true,
+	["Infinity Blessing+ & Hatch Blessing+"] = true,
+	["Infinity Blessing+ & Hatch Blessing"] = true,
+	["Infinity Blessing+ & Luck Boost+"] = true,
+	["Infinity Blessing+ & Luck Boost"] = true,
+	["Infinity Blessing+ & Mythic Blessing+"] = true,
+	["Infinity Blessing+ & Mythic Blessing"] = true,
+	["Infinity Blessing+ & Shiny Blessing+"] = true,
+	["Infinity Blessing+ & Shiny Blessing"] = true,
+	["Infinity Blessing+"] = true,
+	["Infinity Blessing"] = true,
+	["Luck Boost & Hatch Blessing+"] = true,
+	["Luck Boost & Hatch Blessing"] = true,
+	["Luck Boost & Mythic Blessing+"] = true,
+	["Luck Boost & Mythic Blessing"] = true,
+	["Luck Boost & Shiny Blessing+"] = true,
+	["Luck Boost & Shiny Blessing"] = true,
+	["Luck Boost+ & Hatch Blessing+"] = true,
+	["Luck Boost+ & Hatch Blessing"] = true,
+	["Luck Boost+ & Mythic Blessing+"] = true,
+	["Luck Boost+ & Mythic Blessing"] = true,
+	["Luck Boost+ & Shiny Blessing+"] = true,
+	["Luck Boost+ & Shiny Blessing"] = true,
+	["Luck Boost+"] = true,
+	["Luck Boost"] = true,
+	["Mythic Blessing & Hatch Blessing+"] = true,
+	["Mythic Blessing & Hatch Blessing"] = true,
+	["Mythic Blessing & Shiny Blessing+"] = true,
+	["Mythic Blessing & Shiny Blessing"] = true,
+	["Mythic Blessing+ & Hatch Blessing+"] = true,
+	["Mythic Blessing+ & Hatch Blessing"] = true,
+	["Mythic Blessing+ & Shiny Blessing+"] = true,
+	["Mythic Blessing+ & Shiny Blessing"] = true,
+	["Mythic Blessing+"] = true,
+	["Mythic Blessing"] = true,
+	["Shiny Blessing & Hatch Blessing+"] = true,
+	["Shiny Blessing & Hatch Blessing"] = true,
+	["Shiny Blessing+ & Hatch Blessing+"] = true,
+	["Shiny Blessing+ & Hatch Blessing"] = true,
+	["Shiny Blessing+"] = true,
+	["Shiny Blessing"] = true,
+	["Void Luck+"] = true,
+	["Void Luck"] = true,
+	["XL Luck+"] = true,
+	["XL Luck"] = true,
+}
+local function getEnchantedSuperWebhookIcon(iconUrl, enchantNames)
+	if type(iconUrl) ~= "string" or not iconUrl:match("^https://") or type(enchantNames) ~= "table" then
+		return iconUrl
+	end
+	if #enchantNames < 1 or #enchantNames > 2 then
+		return iconUrl
+	end
+	local badgeName = enchantNames[1]
+	if #enchantNames == 2 then
+		local forward = enchantNames[1] .. " & " .. enchantNames[2]
+		local reverse = enchantNames[2] .. " & " .. enchantNames[1]
+		badgeName = superEnchantBadgeFiles[forward] and forward or reverse
+	end
+	if not superEnchantBadgeFiles[badgeName] then
+		return iconUrl
+	end
+	local badgePath = (badgeName .. ".png"):gsub(" ", "%%20"):gsub("&", "%%26"):gsub("%+", "%%2B")
+	local badgeUrl = "https://raw.githubusercontent.com/nf4z/larp/main/enchants/"
+		.. badgePath
+	return "https://images.hsingh.app/?url=" .. HttpService:UrlEncode(iconUrl)
+		.. "&ol=" .. HttpService:UrlEncode(badgeUrl)
+		.. "&olw=32&olg=southwest&w=420&h=420&fit=fill&output=png"
+end
 function isSpecialEnchant(scriptStateADR)
 	local scriptStateABZ = getEnchantData(scriptStateADR)
 	if type(scriptStateABZ) ~= "table" then
@@ -21697,8 +21865,10 @@ local function buildSimulatedHatchPayload(pet, info)
 		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
 			.. runShrineDonation(math.floor(finalOneIn + 0.5)) .. "**")
 	end
+	local simulatedEnchantNames
 	if super then
-		local enchantText = getWebhookSuperLegendaryEnchantText({Enchants = pet.Enchants}, petName, shiny, mythic, xl)
+		local enchantText, enchantNames = getWebhookSuperLegendaryEnchantText({Enchants = pet.Enchants}, petName, shiny, mythic, xl)
+		simulatedEnchantNames = enchantNames
 		if enchantText then table.insert(petLines, enchantText) end
 	end
 	local statEmojis = {
@@ -21738,6 +21908,9 @@ local function buildSimulatedHatchPayload(pet, info)
 		or shiny and tonumber("FFFF00", 16)
 		or tonumber("FF0000", 16)
 	local iconUrl = sendPetWebhook(info, shiny, mythic)
+	if super then
+		iconUrl = getEnchantedSuperWebhookIcon(iconUrl, simulatedEnchantNames)
+	end
 	local fields = {}
 	if Config.webhookShowUserInfo == true then
 		table.insert(fields, buildWebhookUserInfoField())
@@ -22406,6 +22579,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 				local scriptStateAEC = webhookFinalPercent > 0 and 100 / webhookFinalPercent or 0
 				local scriptStateWG = sendPetWebhook(scriptStateEQ, scriptStateLS, scriptStateNI)
 				local scriptStateAEO = {}
+				local webhookEnchantNames
 				local webhookPlayer = Players.LocalPlayer
 				local webhookPlayerName = Config.webhookHidePlayerName == true and "Player"
 					or (webhookPlayer and webhookPlayer.Name or LocalPlayer.Name)
@@ -22418,10 +22592,14 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 							.. runShrineDonation(math.floor(scriptStateAEC + 0.5)) .. "**")
 				end
 				if isSuperLegendaryPet then
-					local enchantText = getWebhookSuperLegendaryEnchantText(
+					local enchantText, enchantNames = getWebhookSuperLegendaryEnchantText(
 						scriptStateACH, scriptStateFL, scriptStateLS, scriptStateNI, scriptStateKK
 					)
+					webhookEnchantNames = enchantNames
 					if enchantText then table.insert(scriptStateAEO, enchantText) end
+				end
+				if isSuperLegendaryPet then
+					scriptStateWG = getEnchantedSuperWebhookIcon(scriptStateWG, webhookEnchantNames)
 				end
 				local webhookStatEmojis = {
 					bubbles = "<:purple_circle:1363755750828019774>",
