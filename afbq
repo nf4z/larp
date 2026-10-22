@@ -1664,6 +1664,12 @@ local function getEnchantedSuperWebhookIcon(iconUrl, enchantNames)
 		.. "&ol=" .. HttpService:UrlEncode(badgeUrl)
 		.. "&olw=32&olg=southwest&w=420&h=420&fit=fill&output=png"
 end
+local function getSuperEnchantIconDescription(enchantNames)
+	if type(enchantNames) == "table" and #enchantNames > 0 then
+		return "Enchants: " .. table.concat(enchantNames, ", ")
+	end
+	return nil
+end
 local function getShrineAmountValue(scriptStateYW)
 	scriptStateYW = tonumber(scriptStateYW) or 0
 	local scriptStateABQ = {
@@ -2432,24 +2438,21 @@ local function build(pet, options)
     local variants = {}
     if shiny then table.insert(variants, "Shiny") end
     if mythic then table.insert(variants, "Mythic") end
+    if super then table.insert(variants, "Super") end
     if xl then table.insert(variants, "XL") end
-    local variantLabel = #variants > 0 and table.concat(variants, " ") or "Normal"
-    local title = "Congrats You Hatched A " .. variantLabel .. " "
-        .. (super and "Super Legendary" or rarity) .. " " .. name .. "!"
     local displayName = options.hideUsername and "Hidden" or player.Name
-    local fields = {{name = "* User Info", value = "Name : " .. displayName, inline = false}}
+    local title = displayName .. " hatched a "
+        .. (#variants > 0 and table.concat(variants, " ") .. " " or "") .. name
+    local fields = {{name = "**User Info**", value = "Name : " .. displayName, inline = false}}
     local thumbnail = getRenoaPetIcon(name, gameIcon, shiny, mythic, xl)
+    local iconDescription
     if super then
         local enchantSource = options.simulated and {Enchants = pet.Enchants} or pet
         local _, enchantNames = getWebhookSuperLegendaryEnchantText(
             enchantSource, name, shiny, mythic, xl
         )
-        table.insert(fields, {
-            name = "Ultra Legendary Enchant",
-            value = #enchantNames > 0 and table.concat(enchantNames, ", ") or "N/A",
-            inline = false,
-        })
         thumbnail = getEnchantedSuperWebhookIcon(gameIcon, enchantNames)
+        iconDescription = getSuperEnchantIconDescription(enchantNames)
     else
         local baseChance = checkLowCurrencyWebhook(name, info)
         local oneIn, chanceKnown = getVariantHatchOdds(baseChance, info, shiny, mythic, xl)
@@ -2479,12 +2482,13 @@ local function build(pet, options)
     })
     local color = super and 0x1E90FF or (rarity == "Secret" and 0x808080 or 0xFF0000)
     local embed = {
-        title = title,
+        description = "# **" .. title .. "**",
         color = color,
         fields = fields,
-        thumbnail = not xl and thumbnail and {url = thumbnail} or nil,
-        image = xl and thumbnail and {url = thumbnail} or nil,
-        footer = {text = "Renoa The Finest has Blessed You! * " .. os.date("%Y-%m-%d %H:%M:%S")},
+        thumbnail = not xl and thumbnail and {url = thumbnail, description = iconDescription} or nil,
+        image = xl and thumbnail and {url = thumbnail, description = iconDescription} or nil,
+        footer = {text = "Renoa The Finest has Blessed You!"},
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
     }
     local envelope = {embeds = {embed}}
     local userId = getRebirthMachineCost(options.userId)
@@ -3013,6 +3017,12 @@ task.spawn(function()
                     publicEmbed.fields = table.clone(embed.fields)
                     publicEmbed.fields[1] = table.clone(embed.fields[1])
                     publicEmbed.fields[1].value = "Name : Hidden"
+                    local visibleName = hideUsername and "Hidden" or player.Name
+                    local titlePrefix = "# **" .. visibleName
+                    if type(publicEmbed.description) == "string"
+                        and publicEmbed.description:sub(1, #titlePrefix) == titlePrefix then
+                        publicEmbed.description = "# **Hidden" .. publicEmbed.description:sub(#titlePrefix + 1)
+                    end
                     table.insert(publicQueue, HatchWebhook.Render({embeds = {publicEmbed}}))
                     processPublic()
                 end

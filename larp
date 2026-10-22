@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.22.38"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.22.39"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.22.39",
+		releasedAt = "October 22, 2026",
+		notes = {
+			{ title = "Super icon descriptions", description = "Super Legendary pet images now carry their raw enchant names as Discord image descriptions.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.22.38",
 		releasedAt = "October 22, 2026",
@@ -16942,6 +16949,12 @@ local function getEnchantedSuperWebhookIcon(iconUrl, enchantNames)
 		.. "&ol=" .. HttpService:UrlEncode(badgeUrl)
 		.. "&olw=32&olg=southwest&w=420&h=420&fit=fill&output=png"
 end
+local function getSuperEnchantIconDescription(enchantNames)
+	if type(enchantNames) == "table" and #enchantNames > 0 then
+		return "Enchants: " .. table.concat(enchantNames, ", ")
+	end
+	return nil
+end
 function isSpecialEnchant(scriptStateADR)
 	local scriptStateABZ = getEnchantData(scriptStateADR)
 	if type(scriptStateABZ) ~= "table" then
@@ -21854,9 +21867,11 @@ function runRebirthMachineLoop(
 					fields = scriptStateXO,
 					thumbnail = scriptStateBZ and {
 						url = scriptStateBZ,
+						description = scriptStateQV.imageDescription,
 					} or nil,
 					image = scriptStateQV.imageUrl and {
 						url = scriptStateQV.imageUrl,
+						description = scriptStateQV.imageDescription,
 					} or nil,
 					footer = {
 						text = scriptStateQV.footerText or os.date("%Y-%m-%d %H:%M:%S"),
@@ -22053,6 +22068,7 @@ local function buildSimulatedHatchPayload(pet, info)
 	if super then
 		iconUrl = getEnchantedSuperWebhookIcon(iconUrl, simulatedEnchantNames)
 	end
+	local iconDescription = super and getSuperEnchantIconDescription(simulatedEnchantNames) or nil
 	local fields = {}
 	if Config.webhookShowUserInfo == true then
 		table.insert(fields, buildWebhookUserInfoField())
@@ -22063,8 +22079,8 @@ local function buildSimulatedHatchPayload(pet, info)
 			description = "# **" .. title .. "**",
 			color = color,
 			fields = fields,
-			thumbnail = not xl and iconUrl and {url = iconUrl} or nil,
-			image = xl and iconUrl and {url = iconUrl} or nil,
+			thumbnail = not xl and iconUrl and {url = iconUrl, description = iconDescription} or nil,
+			image = xl and iconUrl and {url = iconUrl, description = iconDescription} or nil,
 			footer = {text = ""},
 			timestamp = os.time(),
 		}},
@@ -22817,6 +22833,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 						titleText = nil,
 						descriptionText = hatchDescription,
 						imageUrl = hatchImage,
+						imageDescription = isSuperLegendaryPet and getSuperEnchantIconDescription(webhookEnchantNames) or nil,
 						footerText = hatchFooter,
 						timestamp = hatchTimestamp,
 					}
