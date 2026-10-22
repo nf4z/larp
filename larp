@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.21.35"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.21.36"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.21.36",
+		releasedAt = "October 21, 2026",
+		notes = {
+			{ title = "Super hatch simulation", description = "A Super Legendary toggle lets hatch tests roll enchants and show their badge on the pet icon.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.21.35",
 		releasedAt = "October 21, 2026",
@@ -2453,6 +2460,7 @@ local defaultConfig = {
 	webhookURL = "",
 	webhookMinimumChance = "",
 	webhookShowUserInfo = false,
+	webhookSimulateSuperLegendary = false,
 	webhookSendEasySecrets = true,
 	-- Optional user-authorized hatch telemetry endpoint. Keep the Discord webhook secret on the backend.
 	hatchTelemetryEnabled = true,
@@ -21730,7 +21738,7 @@ end
 activeStates.LiteSendWebhook = runRebirthMachineLoop
 
 -- Build a test pet from the same game data and optional stored variant that live hatches use.
-local function makeSimulatedHatchPet(input)
+local function makeSimulatedHatchPet(input, forceSuper)
 	local name = tostring(input or ""):match("^%s*(.-)%s*$"):gsub("%s+", " ")
 	local flags = {}
 	local function lookup(value)
@@ -21756,7 +21764,7 @@ local function makeSimulatedHatchPet(input)
 	local pet = stored and table.clone(stored) or {}
 	pet.Name, pet.Id = canonical, "Simulation"
 	pet.Shiny, pet.Mythic, pet.XL = flags.Shiny == true, flags.Mythic == true, flags.XL == true
-	pet.Super = flags.Super == true or info.Super == true or info.SuperLegendary == true
+	pet.Super = forceSuper == true or flags.Super == true or info.Super == true or info.SuperLegendary == true
 		or info.Rarity == "Super Legendary"
 		or (stored and (activeStates.BGSI_Lite_GetHatchPetFlag(stored, "Super")
 			or activeStates.BGSI_Lite_GetHatchPetFlag(stored, "SuperLegendary"))) or false
@@ -21978,9 +21986,18 @@ do
 	scriptStateKM:AddInput("SimulatedPetName", {
 		Title = "Pet Name",
 		Default = "",
-		Placeholder = "Shadow Squire / Shiny Mythic XL pet name",
+		Placeholder = "Classic Noob / Super Classic Noob",
 		Callback = function(value)
 			simulatedPetName = value
+		end,
+	})
+	scriptStateKM:AddToggle("WebhookSimulateSuperLegendary", {
+		Title = "Simulate Super Legendary",
+		Description = "Send the named pet as a Super Legendary with rolled enchants and an enchanted icon.",
+		Default = Config.webhookSimulateSuperLegendary == true,
+		Callback = function(enabled)
+			Config.webhookSimulateSuperLegendary = enabled == true
+			saveConfig()
 		end,
 	})
 	scriptStateKM:AddButton({
@@ -21992,7 +22009,7 @@ do
 				Interface:Notify({Title = "Hatch Simulation", Content = "Set your Webhook URL first.", Duration = 5})
 				return
 			end
-			local pet, info = makeSimulatedHatchPet(simulatedPetName)
+			local pet, info = makeSimulatedHatchPet(simulatedPetName, Config.webhookSimulateSuperLegendary)
 			if not pet then
 				Interface:Notify({Title = "Hatch Simulation", Content = info, Duration = 5})
 				return
