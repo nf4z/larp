@@ -1086,16 +1086,21 @@ function buildMarketplaceCountMap(items) {
 
 // Components V2 cannot use message.content. Place the mention inside a
 // Text Display so Discord can notify the selected role.
-function enqueueHighDemandAlert(payload) {
-  const mentionedPayload = {
-    ...payload,
-    components: [
-      { type: 10, content: `<@&${DEMAND_ALERT_ROLE_ID}>` },
-      ...payload.components,
-    ],
-  };
-  enqueueChannelSend(DEMAND_ALERT_CHANNEL_ID, mentionedPayload, {
-    allowedMentions: { parse: [], roles: [DEMAND_ALERT_ROLE_ID] },
+function enqueueHighDemandAlert(payload, pingRole = false) {
+  const messagePayload = pingRole
+    ? {
+        ...payload,
+        components: [
+          { type: 10, content: `<@&${DEMAND_ALERT_ROLE_ID}>` },
+          ...payload.components,
+        ],
+      }
+    : payload;
+
+  enqueueChannelSend(DEMAND_ALERT_CHANNEL_ID, messagePayload, {
+    allowedMentions: pingRole
+      ? { parse: [], roles: [DEMAND_ALERT_ROLE_ID] }
+      : { parse: [] },
   });
 }
 
@@ -1104,11 +1109,12 @@ function fanoutStockEvent(action, petName, beforeCount, afterCount, sampleData, 
   const payload = buildStockChangeMessage(action, petName, beforeCount, afterCount, sampleData, footerText);
   const demand = getDemandFromStockSample(sampleData);
   const highDemand = shouldPingForDemand(demand);
+  const pingHighDemandRole = highDemand && action === 'added';
 
   if (highDemand) {
     const key = makeEventCacheKey('stock-fixed-high', signature, 'global', DEMAND_ALERT_CHANNEL_ID, null);
     if (!sentEventCache.has(key)) {
-      enqueueHighDemandAlert(payload);
+      enqueueHighDemandAlert(payload, action === 'added');
       markEventSent(key);
     }
   }
@@ -1118,8 +1124,8 @@ function fanoutStockEvent(action, petName, beforeCount, afterCount, sampleData, 
       const key = makeEventCacheKey('stock', signature, guildId, cfg.bloxypotChannelId, null);
       if (!sentEventCache.has(key)) {
         enqueueChannelSend(cfg.bloxypotChannelId, payload, {
-          content: highDemand && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
-          allowedMentions: highDemand && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
+          content: pingHighDemandRole && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
+          allowedMentions: pingHighDemandRole && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
         });
         markEventSent(key);
       }
@@ -1129,8 +1135,8 @@ function fanoutStockEvent(action, petName, beforeCount, afterCount, sampleData, 
       const key = makeEventCacheKey('stock-high', signature, guildId, cfg.highDemandChannelId, cfg.highDemandRoleId);
       if (!sentEventCache.has(key)) {
         enqueueChannelSend(cfg.highDemandChannelId, payload, {
-          content: cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
-          allowedMentions: cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
+          content: pingHighDemandRole && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
+          allowedMentions: pingHighDemandRole && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
         });
         markEventSent(key);
       }
@@ -1143,11 +1149,12 @@ function fanoutMarketplaceEvent(action, item, beforeCount, afterCount) {
   const payload = buildMarketplaceChangeMessage(action, item, beforeCount, afterCount);
   const demand = getDemandFromMarketplaceItem(item);
   const highDemand = shouldPingForDemand(demand);
+  const pingHighDemandRole = highDemand && action === 'added';
 
   if (highDemand) {
     const key = makeEventCacheKey('market-fixed-high', signature, 'global', DEMAND_ALERT_CHANNEL_ID, null);
     if (!sentEventCache.has(key)) {
-      enqueueHighDemandAlert(payload);
+      enqueueHighDemandAlert(payload, action === 'added');
       markEventSent(key);
     }
   }
@@ -1157,8 +1164,8 @@ function fanoutMarketplaceEvent(action, item, beforeCount, afterCount) {
       const key = makeEventCacheKey('market', signature, guildId, cfg.bloxycrossChannelId, null);
       if (!sentEventCache.has(key)) {
         enqueueChannelSend(cfg.bloxycrossChannelId, payload, {
-          content: highDemand && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
-          allowedMentions: highDemand && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
+          content: pingHighDemandRole && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
+          allowedMentions: pingHighDemandRole && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
         });
         markEventSent(key);
       }
@@ -1168,8 +1175,8 @@ function fanoutMarketplaceEvent(action, item, beforeCount, afterCount) {
       const key = makeEventCacheKey('market-high', signature, guildId, cfg.highDemandChannelId, cfg.highDemandRoleId);
       if (!sentEventCache.has(key)) {
         enqueueChannelSend(cfg.highDemandChannelId, payload, {
-          content: cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
-          allowedMentions: cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
+          content: pingHighDemandRole && cfg.highDemandRoleId ? `<@&${cfg.highDemandRoleId}>` : undefined,
+          allowedMentions: pingHighDemandRole && cfg.highDemandRoleId ? { parse: [], roles: [cfg.highDemandRoleId] } : { parse: [] },
         });
         markEventSent(key);
       }
