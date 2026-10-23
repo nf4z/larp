@@ -879,15 +879,6 @@ local function parseOddsInput(input)
     end
 end
 
-local function getOneInX(chance)
-    if not chance then return math.huge end
-    local chanceNum = tonumber(chance) or 0
-    if chanceNum > 0 then
-        return 100 / chanceNum
-    end
-    return math.huge
-end
-
 local function getThreshold()
     return parseOddsInput(oddsThresholdInput)
 end
@@ -906,7 +897,6 @@ local shared = ReplicatedStorage.Shared
 local profileStore, petData, LocalPlayer = LocalData, Pets, player
 local remoteFunction = shared.Framework.Network.Remote.RemoteFunction
 local activeStates = {}
-local chanceData = {}
 local sharedConstants
 pcall(function() sharedConstants = require(shared.Constants) end)
 
@@ -1825,81 +1815,9 @@ local function getDiscordTimestamp()
 	return scriptStateXG
 end
 
-activeStates.BGSI_Lite_PetChanceData = activeStates.BGSI_Lite_PetChanceData or {}
-do
-	for _, loader in ipairs({
-		function()
-			return require(ReplicatedStorage.Shared.Framework.Constants)
-		end,
-		function()
-			return require(ReplicatedStorage.Shared.Constants)
-		end,
-	}) do
-		local ok, value = pcall(loader)
-		if ok and type(value) == "table" then
-			local stack = { value }
-			local seen = {}
-			while #stack > 0 do
-				local node = table.remove(stack)
-				if type(node) == "table" and not seen[node] then
-					seen[node] = true
-					local petName = node.Pet
-					local chance = nil
-					if type(node.Chance) == "number" and node.Chance == node.Chance then
-						chance = node.Chance
-					elseif type(node.Chance) == "string" then
-						chance = tonumber(node.Chance)
-					end
-					if type(petName) == "string" and petName ~= "" and chance then
-						activeStates.BGSI_Lite_PetChanceData[petName] = chance
-					end
-					if type(node.Pets) == "table" then
-						for _, petEntry in pairs(node.Pets) do
-							if type(petEntry) == "table" then
-								local entryName = petEntry.Pet or petEntry.Name
-								local entryChance = nil
-								if type(petEntry.Chance) == "number" and petEntry.Chance == petEntry.Chance then
-									entryChance = petEntry.Chance
-								elseif type(petEntry.Chance) == "string" then
-									entryChance = tonumber(petEntry.Chance)
-								end
-								if type(entryName) == "string" and entryName ~= "" and entryChance then
-									activeStates.BGSI_Lite_PetChanceData[entryName] = entryChance
-								end
-							end
-						end
-					end
-					if
-						type(node.Name) == "string"
-						and (type(petName) ~= "string" or petName == "")
-						and chance
-					then
-						local itemType = node.Type
-						if
-							itemType ~= "Powerup"
-							and itemType ~= "Potion"
-							and itemType ~= "Egg"
-							and type(node.Cost) ~= "table"
-						then
-							if not (type(node.Interval) == "number" and type(node.Pets) == "table") then
-								activeStates.BGSI_Lite_PetChanceData[node.Name] = chance
-							end
-						end
-					end
-					for _, child in pairs(node) do
-						if type(child) == "table" then
-							table.insert(stack, child)
-						end
-					end
-				end
-			end
-		end
-	end
-end
 -- // Variant hatch odds \ --
--- Uses game Constants percentage values for independent variant-roll odds.
--- These are estimated combined roll odds, not guaranteed identical to server
--- hatch odds if buffs, limited eggs, or special Super logic override rolls.
+-- Uses the egg's unmodified pool and the game's fixed variant rates.
+-- Account luck and event boosts do not change these displayed base odds.
 local variantXLChanceDefaults = {
     Unique = 0.00028571428571428574,
     Common = 0.0002,
@@ -1913,10 +1831,8 @@ local function getVariantHatchOdds(baseChancePercent, petInfo, shiny, mythic, xl
     local chance = tonumber(baseChancePercent)
     if not chance or chance <= 0 then return nil, false end
 
-    local shinyChance = tonumber(sharedConstants and sharedConstants.ShinyChance)
-    local mythicChance = tonumber(sharedConstants and sharedConstants.MythicChance)
-    if shiny and (not shinyChance or shinyChance <= 0) then return nil, false end
-    if mythic and (not mythicChance or mythicChance <= 0) then return nil, false end
+    local shinyChance = tonumber(sharedConstants and sharedConstants.ShinyChance) or 2.5
+    local mythicChance = tonumber(sharedConstants and sharedConstants.MythicChance) or 1
     if shiny then chance = chance * (shinyChance / 100) end
     if mythic then chance = chance * (mythicChance / 100) end
 
@@ -1935,14 +1851,29 @@ local function getVariantHatchOdds(baseChancePercent, petInfo, shiny, mythic, xl
     return 100 / chance, true
 end
 
-local function checkLowCurrencyWebhook(scriptStateAFQ, scriptStateDP)
-	if type(scriptStateAFQ) == "string" and activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ] then
-		return activeStates.BGSI_Lite_PetChanceData[scriptStateAFQ]
-	end
-	if type(scriptStateDP) == "table" and type(scriptStateDP.Chance) == "number" then
-		return scriptStateDP.Chance
-	end
-	return 100
+local function getBaseEggChance(pet, petName, petInfo)
+    local eggName = getWebhookHatchEggName(pet, petName, petInfo)
+    local egg = type(eggData) == "table" and eggData[eggName]
+    if type(egg) == "table" and type(egg.Pool) == "table" then
+        for _, entry in pairs(egg.Pool) do
+            if type(entry) == "table" and type(entry.Item) == "table"
+                and entry.Item.Type == "Pet" and entry.Item.Name == petName then
+                return tonumber(entry.Chance)
+            end
+        end
+        return nil
+    end
+    if eggName == "Unknown" and type(eggData) == "table" and next(eggData) then
+        return nil
+    end
+    -- Pet data carries the game's base chance when the egg module is unavailable.
+    return type(petInfo) == "table" and tonumber(petInfo.Chance) or nil
+end
+
+local function getHatchOdds(pet, petName, petInfo, shiny, mythic, xl)
+    return getVariantHatchOdds(
+        getBaseEggChance(pet, petName, petInfo), petInfo, shiny, mythic, xl
+    )
 end
 local function getPetVariantName(scriptStateSU, webhookPetEntry)
 	if not remoteFunction or type(scriptStateSU) ~= "string" or scriptStateSU == "" then
@@ -2459,8 +2390,7 @@ local function build(pet, options)
         thumbnail = getEnchantedSuperWebhookIcon(gameIcon, enchantNames)
         iconDescription = getSuperEnchantIconDescription(enchantNames)
     else
-        local baseChance = checkLowCurrencyWebhook(name, info)
-        local oneIn, chanceKnown = getVariantHatchOdds(baseChance, info, shiny, mythic, xl)
+        local oneIn, chanceKnown = getHatchOdds(pet, name, info, shiny, mythic, xl)
         local existing = getPetVariantName(name, pet)
         local origin = getPetOrigin(info)
         if origin == "Unknown" then
@@ -2504,7 +2434,9 @@ local function build(pet, options)
 end
 return {Build = build, Render = function(envelope) return envelope end,
     NormalizeURL = normalizeDiscordWebhookV2Url, Describe = describe, GetId = getPetId,
-    MakeSimulation = makeSimulation}
+    MakeSimulation = makeSimulation, GetOdds = function(pet, name, info, shiny, mythic, xl)
+        return getHatchOdds(pet, name, info, shiny, mythic, xl)
+    end}
 end)()
 -- End hatch webhook helper.
 
@@ -2985,7 +2917,7 @@ task.spawn(function()
             for key, pet in pairs(data.Pets) do
                 local id = inventoryPetId(pet, key)
                 if not id or knownPets[tostring(id)] then continue end
-                local name, info, rarity, isSuper, _, _, isXL = HatchWebhook.Describe(pet)
+                local name, info, rarity, isSuper, isShiny, isMythic, isXL = HatchWebhook.Describe(pet)
                 if not isSuper and rarity ~= "Secret" and rarity ~= "Celestial"
                     and rarity ~= "Infinity" and rarity ~= "Void" then continue end
                 knownPets[tostring(id)] = true
@@ -2995,9 +2927,11 @@ task.spawn(function()
                 local threshold = getThreshold()
                 local isInfinityOrVoid = rarity == "Infinity" or rarity == "Void"
                 if threshold and not isSuper and not isXL and not isInfinityOrVoid
-                    and not isOriginBypass(origin, rarity)
-                    and getOneInX(info.Chance) <= threshold then
-                    shouldSendPrivate = false
+                    and not isOriginBypass(origin, rarity) then
+                    local oneIn, known = HatchWebhook.GetOdds(pet, name, info, isShiny, isMythic, isXL)
+                    if known and oneIn <= threshold then
+                        shouldSendPrivate = false
+                    end
                 end
                 if not (shouldSendPrivate and HATCH_WEBHOOK_URL ~= "") and PUBLIC_WEBHOOK_URL == "" then
                     continue
