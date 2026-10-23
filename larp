@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.23.39"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.23.40"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.23.40",
+		releasedAt = "October 23, 2026",
+		notes = {
+			{ title = "Bounty Rift handoff", description = "Summons the 25x, one-hour rift in the bounty egg's world before hatching it.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.23.39",
 		releasedAt = "October 23, 2026",
@@ -5402,6 +5409,13 @@ function fireHatchEgg(scriptStateQC)
 		or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
 		return false
 	end
+	-- A pending bounty summon must not keep hatching the normal egg via the
+	-- cooldown callback (or any other ordinary hatch loop).
+	if Config.spawnRift == true and not isPriorityAutomationActive()
+		and (activeStates.BGSI_Lite_BountyRiftReady ~= true
+			or scriptStateQC ~= activeStates.BGSI_Lite_LastBountyRiftEgg) then
+		return false
+	end
 
 	-- A stale NextEggOpenAt callback can otherwise keep hatching after Auto Hatch is
 	-- turned off. Only allow hatch requests while an actual hatch-related automation
@@ -7794,6 +7808,7 @@ activeStates.BGSI_Lite_IsEggAutomationActive = function()
 end
 activeStates.BGSI_Lite_ShouldMaintainHatching = function()
 	return Config.autoHatch == true and activeStates.BGSI_Lite_TrickOrTreatActive ~= true
+		and Config.spawnRift ~= true
 		and activeStates.BGSI_Lite_NormalAutomationPaused ~= true
 		and activeStates.BGSI_Lite_BubbleQuestActive ~= true
 end
@@ -10184,11 +10199,9 @@ do
 		Title = "Spawn 25x Bounty Rift (1 hour)",
 		Default = Config.spawnRift,
 		Callback = function(scriptStateIZ)
-			Config.spawnRift = scriptStateIZ
+			Config.spawnRift = scriptStateIZ == true
+			activeStates.BGSI_Lite_BountyRiftReady = false
 			saveConfig()
-			if scriptStateIZ and type(activeStates.BGSI_Lite_SummonBountyRift) == "function" then
-				task.spawn(activeStates.BGSI_Lite_SummonBountyRift, false)
-			end
 		end,
 	})
 	activeStates.BGSI_Lite_BountyInfoParagraph = eggTab:AddInput("CurrentBountyDisplay", {
@@ -10921,7 +10934,8 @@ task.spawn(function()
 	local scriptStatePN = 0
 	while isCurrentRun() do
 		task.wait(Config.autoBounty and 0.1 or 0.85)
-		if Config.autoBounty ~= true or activeStates.BGSI_Lite_NormalAutomationPaused == true then
+		if Config.autoBounty ~= true or Config.spawnRift == true
+			or activeStates.BGSI_Lite_NormalAutomationPaused == true then
 			continue
 		end
 		if
@@ -10953,12 +10967,16 @@ task.spawn(function()
 end)
 activeStates.BGSI_Lite_LastBountyRiftSpawnAt = activeStates.BGSI_Lite_LastBountyRiftSpawnAt or 0
 activeStates.BGSI_Lite_BountyRiftActive = false
+activeStates.BGSI_Lite_BountyRiftReady = false
 activeStates.BGSI_Lite_GetRiftsFolder = function()
 	local renderedFolder = Workspace:FindFirstChild("Rendered")
 	return renderedFolder and renderedFolder:FindFirstChild("Rifts") or nil
 end
 activeStates.BGSI_Lite_RiftMatchesEgg = function(riftObject, bountyEggName)
 	if not riftObject or type(bountyEggName) ~= "string" or bountyEggName == "" then
+		return false
+	end
+	if riftObject:GetAttribute("Type") ~= "Egg" then
 		return false
 	end
 	local wantedEgg = string.lower(bountyEggName)
@@ -11024,11 +11042,26 @@ activeStates.BGSI_Lite_GetBountyRiftObject = function(bountyEggName)
 		and spawnedRiftObject.Parent
 		and spawnedRiftObject:IsDescendantOf(riftsFolder)
 		and activeStates.BGSI_Lite_SpawnedBountyRiftEgg == bountyEggName
+		and (tonumber(spawnedRiftObject:GetAttribute("DespawnAt")) or math.huge) > getCurrentTimestamp()
 	then
 		return spawnedRiftObject
 	end
 	activeStates.BGSI_Lite_SpawnedBountyRiftObject = nil
 	activeStates.BGSI_Lite_SpawnedBountyRiftName = nil
+	-- Reuse a live 25x bounty rift after a script reload instead of paying
+	-- for another summon. The game stores luck on the rendered rift.
+	for _, riftObject in ipairs(riftsFolder:GetChildren()) do
+		if activeStates.BGSI_Lite_RiftMatchesEgg(riftObject, bountyEggName)
+			and (tonumber(riftObject:GetAttribute("DespawnAt")) or math.huge) > getCurrentTimestamp() then
+			local luck = tonumber(riftObject:GetAttribute("BonusLuck")) or 0
+			for _, descendant in ipairs(riftObject:GetDescendants()) do
+				luck = math.max(luck, tonumber(descendant:GetAttribute("BonusLuck")) or 0)
+			end
+			if luck >= 25 then
+				return activeStates.BGSI_Lite_RememberBountyRift(riftObject, bountyEggName)
+			end
+		end
+	end
 	return nil
 end
 activeStates.BGSI_Lite_GetObjectCFrame = function(riftObject)
@@ -11058,43 +11091,56 @@ activeStates.BGSI_Lite_SummonBountyRift = function(forceSpawn)
 
 	if
 		forceSpawn ~= true
-		and tick() - (tonumber(activeStates.BGSI_Lite_LastBountyRiftSpawnAt) or 0) < 8
+		and tick() - (tonumber(activeStates.BGSI_Lite_LastBountyRiftSpawnAt) or 0) < 30
 	then
 		return false, "cooldown"
 	end
 
 	local riftsFolder = activeStates.BGSI_Lite_GetRiftsFolder()
+	if not riftsFolder then
+		return false, "rifts-not-loaded"
+	end
 	local riftsBefore = {}
-	if riftsFolder then
-		for _, riftObject in ipairs(riftsFolder:GetChildren()) do
-			riftsBefore[riftObject] = true
-		end
+	for _, riftObject in ipairs(riftsFolder:GetChildren()) do
+		riftsBefore[riftObject] = true
 	end
 
-	-- The official Rift Summon UI sends the world returned by the game's own
-	-- WorldUtil:GetPlayerWorld(LocalPlayer). Use that exact value first instead
-	-- of deriving the world from the bounty egg. The server validates the
-	-- requested world against the player's current world.
-	local bountyWorld
-	pcall(function()
-		local WorldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
-		bountyWorld = WorldUtil:GetPlayerWorld(LocalPlayer)
-	end)
-
-	-- Keep the egg/rift data as a fallback for game builds where WorldUtil is
-	-- unavailable, but never prefer it over the official player-world value.
-	if type(bountyWorld) ~= "string" or bountyWorld == "" then
-		pcall(function()
-			local Eggs = require(ReplicatedStorage.Shared.Data.Eggs)
-			local eggInfo = Eggs[bountyEggName]
-			if type(eggInfo) == "table" and type(eggInfo.World) == "string" then
-				bountyWorld = eggInfo.World
+	-- The summon menu only offers eggs in its selected world. Resolve the
+	-- bounty egg through that same game data, then move there before invoking.
+	local bountyWorld, worldUtil
+	local dataOk, dataError = pcall(function()
+		local summonCosts = require(ReplicatedStorage.Shared.Data.RiftSummonCosts)
+		worldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
+		for worldName, eggsInWorld in pairs(summonCosts.Eggs) do
+			if type(eggsInWorld) == "table" and eggsInWorld[bountyEggName] ~= nil then
+				bountyWorld = worldName
+				break
 			end
-		end)
+		end
+	end)
+	if not dataOk or not bountyWorld then
+		warn("[1rzHub Lite] Bounty egg is not summonable: " .. tostring(bountyEggName)
+			.. " | " .. tostring(dataError or "missing from RiftSummonCosts"))
+		return false, "egg-not-summonable"
 	end
-
-	if type(bountyWorld) ~= "string" or bountyWorld == "" then
-		bountyWorld = "The Overworld"
+	local currentWorld
+	pcall(function()
+		currentWorld = worldUtil:GetPlayerWorld(LocalPlayer)
+	end)
+	if currentWorld ~= bountyWorld then
+		if not teleportToEggByName(bountyEggName) then
+			return false, "egg-world-not-reached"
+		end
+		local worldDeadline = tick() + 3
+		repeat
+			task.wait(0.2)
+			pcall(function()
+				currentWorld = worldUtil:GetPlayerWorld(LocalPlayer)
+			end)
+		until currentWorld == bountyWorld or tick() >= worldDeadline
+		if currentWorld ~= bountyWorld then
+			return false, "egg-world-not-reached"
+		end
 	end
 
 	-- InvokeServer returns (success, error/status). A successful pcall only
@@ -11162,6 +11208,13 @@ task.spawn(function()
 		task.wait(Config.spawnRift and 1 or 2)
 		if not Config.spawnRift then
 			activeStates.BGSI_Lite_BountyRiftActive = false
+			activeStates.BGSI_Lite_BountyRiftReady = false
+			continue
+		end
+		if activeStates.BGSI_Lite_NormalAutomationPaused == true
+			or isPriorityAutomationActive() then
+			activeStates.BGSI_Lite_BountyRiftActive = false
+			activeStates.BGSI_Lite_BountyRiftReady = false
 			continue
 		end
 		local bountyEggName = stopLuckEggAutomation()
@@ -11170,15 +11223,20 @@ task.spawn(function()
 			activeStates.BGSI_Lite_BountyRiftActive = true
 			activeStates.BGSI_Lite_LastBountyRiftEgg = bountyEggName
 			if tick() - bountyRiftTeleportAt >= 5 then
-				local bountyRiftCFrame = activeStates.BGSI_Lite_GetObjectCFrame(bountyRiftObject)
+				local bountyRiftCFrame = activeStates.BGSI_Lite_GetRiftTargetCFrame(bountyRiftObject)
 				if bountyRiftCFrame then
-					teleportToCFrame(bountyRiftCFrame + Vector3.new(3, 5, 0))
+					activeStates.BGSI_Lite_BountyRiftReady = teleportToCFrame(
+						bountyRiftCFrame + Vector3.new(0, 3, 0)
+					) == true
 				end
 				bountyRiftTeleportAt = tick()
 			end
-			fireHatchEgg(bountyEggName)
+			if activeStates.BGSI_Lite_BountyRiftReady then
+				fireHatchEgg(bountyEggName)
+			end
 		else
-			activeStates.BGSI_Lite_BountyRiftActive = false
+			activeStates.BGSI_Lite_BountyRiftActive = bountyEggName ~= nil
+			activeStates.BGSI_Lite_BountyRiftReady = false
 			activeStates.BGSI_Lite_SummonBountyRift(false)
 		end
 	end
