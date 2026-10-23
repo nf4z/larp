@@ -2492,7 +2492,6 @@ local function build(pet, options)
         fields = fields,
         thumbnail = not xl and thumbnail and {url = thumbnail, description = iconDescription} or nil,
         image = xl and thumbnail and {url = thumbnail, description = iconDescription} or nil,
-        footer = {text = "Renoa The Finest has Blessed You!"},
         timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
     }
     local envelope = {embeds = {embed}}
