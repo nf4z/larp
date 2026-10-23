@@ -688,6 +688,11 @@ local HATCH_WEBHOOK_URL = settings.webhook.hatchURL or ""
 local ONLINE_WEBHOOK_URL = settings.webhook.onlineURL or ""
 local DISCORD_USER_ID = settings.webhook.userId or ""
 local PUBLIC_WEBHOOK_URL = ""
+local webhookGeneration = (tonumber(getgenv().RenoaWebhookGeneration) or 0) + 1
+getgenv().RenoaWebhookGeneration = webhookGeneration
+local function isCurrentWebhookGeneration()
+    return getgenv().RenoaWebhookGeneration == webhookGeneration
+end
 
 local request = http_request or request or (syn and syn.request) or (http and http.request)
 if not request then
@@ -2443,7 +2448,7 @@ local function build(pet, options)
     local displayName = options.hideUsername and "Hidden" or player.Name
     local title = displayName .. " hatched a "
         .. (#variants > 0 and table.concat(variants, " ") .. " " or "") .. name
-    local fields = {{name = "**User Info**", value = "Name : " .. displayName, inline = false}}
+    local fields = {}
     local thumbnail = getRenoaPetIcon(name, gameIcon, shiny, mythic, xl)
     local iconDescription
     if super then
@@ -2620,7 +2625,7 @@ local rareEggProcessing=false
 
 local function sendToWebhook(queue, url)
     if url == "" then return end
-    while #queue > 0 do
+    while isCurrentWebhookGeneration() and #queue > 0 do
         local p = table.remove(queue, 1)
         pcall(function()
             request({
@@ -2960,8 +2965,9 @@ if initData and initData.Pets then
 end
 
 task.spawn(function()
-    while true do
+    while isCurrentWebhookGeneration() do
         task.wait(5)
+        if not isCurrentWebhookGeneration() then break end
         local data = LocalData:Get()
         if data and data.Pets then
             inventoryScanCount = inventoryScanCount + 1
@@ -3015,8 +3021,6 @@ task.spawn(function()
                     -- Keep the existing public feed anonymous when it is configured.
                     local publicEmbed = table.clone(embed)
                     publicEmbed.fields = table.clone(embed.fields)
-                    publicEmbed.fields[1] = table.clone(embed.fields[1])
-                    publicEmbed.fields[1].value = "Name : Hidden"
                     local visibleName = hideUsername and "Hidden" or player.Name
                     local titlePrefix = "# **" .. visibleName
                     if type(publicEmbed.description) == "string"
