@@ -66,7 +66,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.10.22.38"
+activeStates.BGSI_Lite_ScriptVersion = "2026.10.23.39"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -93,6 +93,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.10.23.39",
+		releasedAt = "October 23, 2026",
+		notes = {
+			{ title = "Base hatch chances", description = "Hatch embeds use each egg's base pet chance and fixed variant rates, without player luck bonuses.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.10.22.38",
 		releasedAt = "October 22, 2026",
@@ -20562,18 +20569,12 @@ local scriptStateDX = {
 	Pearls = "<:Pearl:1561761464866308219>",
 	Clovers = "\240\159\141\128",
 }
-local statsUtil, worldUtil, getEggPool, xlEggUtil
+local statsUtil, worldUtil
 pcall(function()
 	statsUtil = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
 end)
 pcall(function()
 	worldUtil = require(ReplicatedStorage.Shared.Utils.WorldUtil)
-end)
-pcall(function()
-	getEggPool = require(ReplicatedStorage.Shared.Utils.GetEggPool)
-end)
-pcall(function()
-	xlEggUtil = require(ReplicatedStorage.Shared.Utils.XLEggUtil)
 end)
 function getWebhookAvatarUrl(scriptStateWL)
 	if type(scriptStateWL) ~= "number" or scriptStateWL ~= scriptStateWL then
@@ -20894,95 +20895,45 @@ local function isWebhookRebirthMachineReward(petEntry, petInfo, sourceName)
 	return false
 end
 
--- Match the game's LootPoolViewer: resolve the world, request the player's
--- current luck for this egg, then read its adjusted GetEggPool entry.
+-- Match PetUtil:GetChance: use the egg's unmodified pool chance, then apply
+-- only the game's base variant rates. Player luck and event boosts do not belong
+-- in the chance shown on a hatch embed.
 function getWebhookHatchChances(petName, petInfo, eggName, shiny, mythic, xl, super)
-	local basePercent = tonumber(checkLowCurrencyWebhook(petName, petInfo)) or 0
-	local finalPercent = basePercent
+	local basePercent
 	local egg = type(eggDataModule) == "table" and eggDataModule[eggName]
 	if type(egg) == "table" and type(egg.Pool) == "table" then
-		for _, entry in ipairs(egg.Pool) do
+		for _, entry in pairs(egg.Pool) do
 			if type(entry) == "table" and type(entry.Item) == "table"
 				and entry.Item.Type == "Pet" and entry.Item.Name == petName then
-				basePercent = tonumber(entry.Chance) or basePercent
-				finalPercent = basePercent
+				basePercent = tonumber(entry.Chance)
 				break
 			end
 		end
 	end
-	local profile
-	pcall(function()
-		if profileStore:IsReady() then profile = profileStore:Get() end
-	end)
-	if type(profile) == "table" and type(getEggPool) == "function" and type(egg) == "table" then
-		pcall(function()
-			local world = worldUtil and worldUtil:GetPlayerWorld(LocalPlayer) or "The Overworld"
-			if egg.World ~= world then world = "None" end
-			local bonusLuck = 0
-			if type(getEggLocationsByName) == "function" then
-				local locations = getEggLocationsByName(eggName, false)
-				local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-				local nearest, nearestDistance
-				for _, location in ipairs(locations) do
-					local distance = root and location.position
-						and (root.Position - location.position).Magnitude or math.huge
-					if location.instance and (not nearest or distance < nearestDistance) then
-						nearest = location.instance
-						nearestDistance = distance
-					end
-				end
-				for _ = 1, 3 do
-					if not nearest or type(nearest.GetAttribute) ~= "function" then break end
-					bonusLuck = math.max(bonusLuck, tonumber(nearest:GetAttribute("BonusLuck")) or 0)
-					nearest = nearest.Parent
-				end
-			end
-			local luck = statsUtil:GetLuckMultiplier(LocalPlayer, profile, world, nil, bonusLuck, eggName)
-			if eggName == "Sparkletime Egg" then luck = 1 end
-			local secretLuck = statsUtil:GetSecretLuck(profile, eggName)
-			local infinityLuck = statsUtil:GetInfinityLuck(profile, eggName)
-			local adjusted = getEggPool(eggName, world, luck, secretLuck, infinityLuck, profile)
-			for _, entry in ipairs(adjusted) do
-				if type(entry) == "table" and type(entry.Item) == "table"
-					and entry.Item.Type == "Pet" and entry.Item.Name == petName then
-					finalPercent = tonumber(entry.Chance) or finalPercent
-					break
-				end
-			end
-		end)
+	if basePercent == nil and type(petInfo) == "table" then
+		basePercent = tonumber(petInfo.Chance)
 	end
-	local function chance(method, fallback)
-		if type(profile) ~= "table" or not statsUtil or type(statsUtil[method]) ~= "function" then
-			return fallback
-		end
-		local ok, result = pcall(function()
-			local world = worldUtil and worldUtil:GetPlayerWorld(LocalPlayer) or "The Overworld"
-			if type(egg) == "table" and egg.World ~= world then world = "None" end
-			return statsUtil[method](statsUtil, profile, world, nil, eggName)
-		end)
-		if ok and type(result) == "number" and result >= 0 and result < math.huge then
-			return result
-		end
-		return fallback
+	if type(basePercent) ~= "number" or basePercent <= 0
+		or basePercent ~= basePercent or basePercent == math.huge then
+		return 0, 0
 	end
-	if shiny then finalPercent = finalPercent * math.min(chance("GetShinyChance", 2.5), 100) / 100 end
-	if mythic then finalPercent = finalPercent * math.min(chance("GetMythicChance", 1), 100) / 100 end
+	local constants = type(sharedConstants) == "table" and sharedConstants or {}
+	local finalPercent = basePercent
+	if shiny then finalPercent *= (tonumber(constants.ShinyChance) or 2.5) / 100 end
+	if mythic then finalPercent *= (tonumber(constants.MythicChance) or 1) / 100 end
 	if xl then
-		local xlPercent = 0.25
-		pcall(function()
-			local rarity = type(petInfo) == "table" and petInfo.Rarity or nil
-			local chances = xlEggUtil:GetChances(profile)
-			if type(chances) == "table" then xlPercent = tonumber(chances[rarity]) or xlPercent end
-		end)
-		finalPercent = finalPercent * math.min(xlPercent, 100) / 100
+		local rarity = type(petInfo) == "table" and petInfo.Rarity or nil
+		local xlDefaults = {
+			Common = 0.0002, Unique = 0.00028571428571428574,
+			Rare = 0.0013333333333333333, Epic = 0.004,
+			Legendary = 0.05, Secret = 0.4,
+		}
+		local xlChances = type(constants.XLChances) == "table" and constants.XLChances or {}
+		local xlPercent = tonumber(xlChances[rarity]) or xlDefaults[rarity]
+		if not xlPercent then return basePercent, 0 end
+		finalPercent *= xlPercent / 100
 	end
-	if super then
-		local superPercent = 0.1
-		pcall(function()
-			superPercent = tonumber(statsUtil:GetSuperChance(profile)) or superPercent
-		end)
-		finalPercent = finalPercent * math.min(superPercent, 100) / 100
-	end
+	if super then finalPercent *= (tonumber(constants.SuperChance) or 0.1) / 100 end
 	return basePercent, finalPercent
 end
 
@@ -22004,8 +21955,8 @@ local function buildSimulatedHatchPayload(pet, info)
 		"<:egg:1377264232915013673> Egg: **" .. sourceName .. "**",
 	}
 	if sourceIsEgg then
-		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-			.. runShrineDonation(math.floor(finalOneIn + 0.5)) .. "**")
+		table.insert(petLines, "<:four_leaf_clover:1462133363182796810> Chance: **"
+			.. (finalOneIn > 0 and ("1 in " .. runShrineDonation(math.floor(finalOneIn + 0.5))) or "N/A") .. "**")
 	end
 	local simulatedEnchantNames
 	if super then
@@ -22102,7 +22053,7 @@ do
 	})
 	scriptStateKM:AddInput("WebhookMinimumChance", {
 		Title = "Minimum Chance",
-		Description = "Send pets at this chance or rarer, including Shiny/Mythic/XL bonuses. Examples: 50m, 50b, 5t. Blank or 0 disables the filter.",
+		Description = "Uses base egg odds and fixed Shiny/Mythic/XL/Super variant rates, without luck. Examples: 50m, 50b, 5t. Blank or 0 disables the filter.",
 		Default = Config.webhookMinimumChance,
 		Placeholder = "50m / 50b / 5t (empty = all)",
 		Callback = function(value)
@@ -22739,8 +22690,8 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 					"<:egg:1377264232915013673> Egg: **" .. webhookSourceName .. "**")
 				if webhookSourceIsEgg then
 					table.insert(scriptStateAEO,
-						"<:four_leaf_clover:1462133363182796810> Chance: **1 in "
-							.. runShrineDonation(math.floor(scriptStateAEC + 0.5)) .. "**")
+						"<:four_leaf_clover:1462133363182796810> Chance: **"
+							.. (scriptStateAEC > 0 and ("1 in " .. runShrineDonation(math.floor(scriptStateAEC + 0.5))) or "N/A") .. "**")
 				end
 				if isSuperLegendaryPet then
 					local enchantText, enchantNames = getWebhookSuperLegendaryEnchantText(
