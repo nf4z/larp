@@ -1,0 +1,79 @@
+"""Build a standalone native-UI testHub from a pinned afbq snapshot."""
+from pathlib import Path
+import hashlib
+import json
+import re
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE = ROOT / 'testhub_src/afbq-base.lua'
+source = BASE.read_text(encoding='utf-8')
+adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
+
+# Keep all 17 embedded feature modules and their callbacks intact.
+library_start = source.index('-- // WindUI external dependency')
+window_start = source.index('-- // Complete Window Base', library_start)
+source = source[:library_start] + 'local WindUI = (function()\n' + adapter + '\nend)()\n\n' + source[window_start:]
+source = source.replace('Title = "Afbq Hub"', 'Title = "TestHub"').replace('Folder = "AfbqHub"', 'Folder = "TestHub"')
+source = source.replace('print("[Hub] Loading WindUI...")', 'print("[TestHub] Loading native game UI...")')
+source = source.replace('local settingsFile = "renoa_hub_settings.json"', 'local settingsFile = "testhub_settings.json"')
+a = source.index('function loadHubSettings()')
+b = source.index('\nloadHubSettings()', a)
+source = source[:a] + '''function loadHubSettings()
+    local success, saved = pcall(function() return readfile(settingsFile) end)
+    if not success then
+        -- First use copies afbq preferences; every later write is TestHub-only.
+        success, saved = pcall(function() return readfile("renoa_hub_settings.json") end)
+    end
+    local decoded, settings
+    if success and type(saved) == "string" then
+        decoded, settings = pcall(function() return HttpService:JSONDecode(saved) end)
+    end
+    getgenv().HubSettings = decoded and type(settings) == "table" and settings or {}
+end''' + source[b:]
+# These waits separate modules; leave all gameplay timing unchanged.
+source, shortened = re.subn(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', source)
+
+header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
+-- Generated with tools/build_testhub.py. Press K to open/close.
+local actualGlobals = (getgenv and getgenv()) or _G
+local prior = rawget(actualGlobals, "_BGSI_TestHub")
+if prior and prior.UI and prior.UI.ScreenGui.Parent then
+    prior.UI.Window:Open()
+    return prior.UI.Window
+end
+if prior and prior.Starting then
+    warn("[TestHub] Already starting; please wait")
+    return
+end
+if not game:IsLoaded() then game.Loaded:Wait() end
+local private = setmetatable({}, {__index = getfenv()})
+private._G = private
+private.getgenv = function() return private end
+-- Auxiliary feature scripts inherit the same private runtime.
+local originalLoadstring = loadstring
+private.loadstring = function(text, name)
+    local chunk, err = originalLoadstring(text, name)
+    if chunk then setfenv(chunk, private) end
+    return chunk, err
+end
+local runtime = {Starting = true}
+actualGlobals._BGSI_TestHub = runtime
+local function start()
+'''
+footer = '''
+end
+setfenv(start, private)
+local ok, err = pcall(start)
+runtime.Starting = false
+runtime.UI = rawget(private, "WindUI")
+if not ok then
+    if runtime.UI then runtime.UI:Destroy() end
+    actualGlobals._BGSI_TestHub = nil
+    error("[TestHub] Startup failed: " .. tostring(err), 0)
+end
+return runtime.UI and runtime.UI.Window
+'''
+result = header + source + footer
+(ROOT / 'testHub').write_text(result, encoding='utf-8', newline='\n')
+print(json.dumps({'bytes': len(result.encode()), 'featureModules': len(re.findall(r'-- // Embedded module:', source)),
+                  'shortenedModuleWaits': shortened, 'baseSHA256': hashlib.sha256(BASE.read_bytes()).hexdigest()}))
