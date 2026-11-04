@@ -17,12 +17,23 @@ local function safeRequire(module)
 	local ok, result = pcall(require, module)
 	return ok and result or nil
 end
-local palette = safeRequire(path(shared, "Palette"))
+local guiModules = path(ReplicatedStorage, "Client", "Gui")
+local guiFrame = safeRequire(path(guiModules, "GuiFrame"))
+if guiFrame then
+	guiFrame:Initialize("Inventory")
+	guiFrame:Initialize("Settings")
+end
+local palette = assert(safeRequire(path(shared, "Palette")), "[TestHub] Shared.Palette unavailable")
+local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[TestHub] Native button styling unavailable")
+local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[TestHub] Native Dropdown component unavailable")
 local itemUtil = safeRequire(path(shared, "Utils", "Stats", "ItemUtil"))
+local itemFrameBuilder = safeRequire(path(guiModules, "Utils", "ItemFrame"))
 local constants = safeRequire(path(shared, "Constants")) or {}
 local nativeScreen = playerGui:FindFirstChild("ScreenGui") or playerGui:WaitForChild("ScreenGui", 10)
+local nativeInventory = assert(nativeScreen and (nativeScreen:FindFirstChild("Inventory") or nativeScreen:WaitForChild("Inventory", 15)), "[TestHub] ScreenGui.Inventory is not loaded")
+local inventoryFrame = assert(path(nativeInventory, "Frame"), "[TestHub] Inventory.Frame is missing")
 local nativeSettings = path(nativeScreen, "Settings", "Frame")
-local nativeButton = path(assets, "Intro", "Play", "Button")
+local nativeButton = path(inventoryFrame, "Tray", "Buttons", "Buttons", "Best", "Button")
 local nativeRow
 local settingsList = path(nativeSettings, "Main", "ScrollingFrame")
 if settingsList then
@@ -34,6 +45,12 @@ if settingsList then
 		end
 	end
 end
+assert(nativeRow, "[TestHub] Native Settings rows are not loaded; open game Settings once and rerun")
+assert(nativeButton, "[TestHub] Native action button is unavailable")
+local prototypeDropdown = dropdownComponent.new(nativeButton, {Items = {"TestHub"}, DefaultValue = 1, Width = "Target", MaxItemsVisible = 6})
+local dropdownShell = prototypeDropdown._floater:Clone()
+local dropdownRow = prototypeDropdown._frames[1]:Clone()
+prototypeDropdown:Destroy()
 local textSample = nativeRow and nativeRow:FindFirstChildWhichIsA("TextLabel", true)
 	or path(assets, "Intro", "Play", "Button", "Label")
 local nativeFont = textSample and textSample.FontFace or Font.fromEnum(Enum.Font.FredokaOne)
@@ -44,7 +61,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.1", Windows = {} }
+local library = { Version = "2026.11.04.2", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -66,16 +83,30 @@ local function stroke(object, thickness, color)
 	if existing then existing.Thickness = thickness; existing.Color = color; return end
 	create("UIStroke", {Thickness = thickness, Color = color, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, object)
 end
-local function stripVisual(source, class)
-	local object = source and source.Archivable and source:IsA(class) and source:Clone() or Instance.new(class)
-	for _, child in ipairs(object:GetChildren()) do
-		if not child:IsA("UICorner") and not child:IsA("UIStroke") and not child:IsA("UIGradient") then child:Destroy() end
+local function cloneNative(source, zIndex)
+	assert(source and source.Archivable, "[TestHub] Native template cannot be cloned")
+	local object = source:Clone()
+	local function clean(node, depth)
+		if node:IsA("BaseScript") or node:IsA("ModuleScript") then node:Destroy(); return end
+		if node:IsA("GuiObject") then node.ZIndex = (zIndex or 1) + depth end
+		if node:IsA("GuiButton") then
+			for _, key in ipairs({"BaseAutoColor", "PressAutoColor", "EnterAutoColor", "Pressed", "ButtonActivated"}) do node:SetAttribute(key, nil) end
+			node.Active = true
+		end
+		if node:IsA("UIScale") then node.Scale = 1 end
+		for _, child in ipairs(node:GetChildren()) do clean(child, depth + 1) end
 	end
-	object.Visible = true
-	object.AutomaticSize = Enum.AutomaticSize.None
-	object.AnchorPoint = Vector2.zero
-	object.Rotation = 0
+	clean(object, 0)
+	if object:IsA("GuiObject") then object.Visible = true end
 	return object
+end
+local function clearContent(object)
+	for _, child in ipairs(object:GetChildren()) do if child:IsA("GuiObject") then child:Destroy() end end
+end
+local function getLabel(object)
+	local candidate = object:FindFirstChild("Label")
+	if candidate and candidate:IsA("TextLabel") then return candidate end
+	return object:FindFirstChildWhichIsA("TextLabel", true)
 end
 local function label(parent, text, size, color)
 	return create("TextLabel", {
@@ -86,24 +117,14 @@ local function label(parent, text, size, color)
 		TextStrokeColor3 = colors.stroke, ZIndex = parent.ZIndex + 1,
 	}, parent)
 end
-local function button(parent, text, colorName)
-	local result = stripVisual(nativeButton, "ImageButton")
+local function button(parent, text, colorName, prototype)
+	local result = cloneNative(prototype or nativeButton, parent.ZIndex + 2)
 	result.Name = "TestHubButton"
-	result.BackgroundColor3 = Color3.new(1, 1, 1)
-	result.BackgroundTransparency = 0
-	result.Image = ""
-	result.AutoButtonColor = true
-	result.ZIndex = parent.ZIndex + 2
 	result.Parent = parent
-	corner(result, 9); stroke(result, 2, colors.stroke)
-	local gradient = result:FindFirstChildOfClass("UIGradient") or create("UIGradient", {}, result)
-	gradient.Rotation = 90
-	local textLabel = label(result, text, 15)
-	textLabel.Name = "Label"; textLabel.Size = UDim2.new(1, -12, 1, 0); textLabel.Position = UDim2.fromOffset(6, 0)
-	textLabel.TextXAlignment = Enum.TextXAlignment.Center
+	local textLabel = assert(getLabel(result), "[TestHub] Native button label missing")
+	textLabel.Text = text
 	local function paint(name)
-		local theme = palette and palette.Button and palette.Button[name]
-		gradient.Color = theme and theme.Color or ColorSequence.new(colors.cyan, Color3.fromRGB(7, 135, 255))
+		autoButtonColor(result, palette.Button[name] or palette.Button.Blue)
 	end
 	paint(colorName or "Blue")
 	return result, textLabel, paint
@@ -183,6 +204,24 @@ local function renderIcon(host, value, context)
 		ScaleType = Enum.ScaleType.Fit, ZIndex = host.ZIndex + 1,
 	}, host)
 	if descriptor.item and itemUtil then
+		if type(itemFrameBuilder) == "function" then
+			local ok, card = pcall(itemFrameBuilder, descriptor.item, false, true)
+			if ok and card then
+				image:Destroy()
+				card.Name = "NativeItemIcon"; card.AnchorPoint = Vector2.zero; card.Position = UDim2.fromOffset(0, 0)
+				card.Size = UDim2.fromScale(1, 1); card.Parent = host
+				local inner = path(card, "Button", "Inner")
+				if inner then for _, name in ipairs({"Label", "Bottom", "Secret", "XL"}) do local text = inner:FindFirstChild(name); if text then text.Visible = false end end end
+				local cardButton = card:FindFirstChild("Button")
+				if cardButton then cardButton.Active = false; cardButton.Interactable = false; cardButton.Selectable = false end
+				local function raise(node, depth)
+					if node:IsA("GuiObject") then node.ZIndex = host.ZIndex + depth end
+					for _, child in ipairs(node:GetChildren()) do raise(child, depth + 1) end
+				end
+				raise(card, 1)
+				return
+			end
+		end
 		local ok = pcall(itemUtil.UpdateIcon, itemUtil, host, descriptor.item)
 		if ok then return end
 	end
@@ -211,29 +250,64 @@ local function renderIcon(host, value, context)
 end
 library.ResolveIcon = resolve
 
-local panel = stripVisual(nativeSettings, "Frame")
-panel.Name = "Window"; panel.BackgroundTransparency = 0; panel.BackgroundColor3 = colors.panel
+-- Keep the inventory's complete artwork and layout instead of rebuilding its shell.
+local holder = cloneNative(nativeInventory, 2)
+holder.Name = "TestHubInventory"; holder.Visible = true; holder.Parent = root
+local panel = assert(path(holder, "Frame"), "[TestHub] Inventory clone has no Frame")
+panel.Name = "Window"; panel.Visible = true
+local originalSize = inventoryFrame.Size
+local baseWidth = originalSize.X.Offset > 0 and originalSize.X.Offset or 1235
+local baseHeight = originalSize.Y.Offset > 0 and originalSize.Y.Offset or 770
+panel.Size = UDim2.fromOffset(baseWidth, baseHeight)
 panel.AnchorPoint = Vector2.new(0.5, 0.5); panel.Position = UDim2.fromScale(0.5, 0.5)
-panel.Size = UDim2.fromOffset(780, 570); panel.ClipsDescendants = true; panel.ZIndex = 2; panel.Parent = root
-corner(panel, 16); stroke(panel, 3, colors.stroke)
-local header = create("Frame", {BackgroundColor3 = Color3.fromRGB(7, 135, 255), BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 66), ZIndex = 3, Active = true}, panel)
-create("UIGradient", {Color = ColorSequence.new(colors.cyan, Color3.fromRGB(7, 135, 255)), Rotation = 15}, header)
-local heading = label(header, "TestHub", 25)
-heading.Position = UDim2.fromOffset(18, 5); heading.Size = UDim2.new(1, -130, 0, 31)
-local subtitle = label(header, "BUBBLE GUM SIMULATOR INFINITY  /  NATIVE EDITION", 11)
-subtitle.Position = UDim2.fromOffset(19, 37); subtitle.Size = UDim2.new(1, -86, 0, 20)
-local close = button(header, "x", "Red"); close.Size = UDim2.fromOffset(36, 34); close.AnchorPoint = Vector2.new(1, 0); close.Position = UDim2.new(1, -14, 0, 14)
-local sidebar = create("ScrollingFrame", {BackgroundTransparency = 1, BorderSizePixel = 0, Position = UDim2.fromOffset(12, 78), Size = UDim2.new(0, 158, 1, -120), CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 3, ZIndex = 3}, panel)
-create("UIListLayout", {Padding = UDim.new(0, 7), SortOrder = Enum.SortOrder.LayoutOrder}, sidebar)
-create("UIPadding", {PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 2), PaddingRight = UDim.new(0, 6), PaddingBottom = UDim.new(0, 8)}, sidebar)
-local search = create("TextBox", {Name = "Search", BackgroundColor3 = colors.card, BorderSizePixel = 0, Position = UDim2.fromOffset(184, 80), Size = UDim2.new(1, -198, 0, 36), FontFace = nativeFont, TextSize = 14, TextColor3 = colors.text, PlaceholderColor3 = colors.muted, PlaceholderText = "Search controls in this tab...", Text = "", ClearTextOnFocus = false, ZIndex = 4}, panel)
-corner(search, 9)
-local body = create("Frame", {BackgroundTransparency = 1, Position = UDim2.fromOffset(182, 126), Size = UDim2.new(1, -194, 1, -171), ZIndex = 3}, panel)
-local footer = label(panel, "K  open / close   |   Game assets, your controls", 12, colors.muted)
-footer.Position = UDim2.new(0, 16, 1, -34); footer.Size = UDim2.new(1, -32, 0, 24)
+local panelScale = panel:FindFirstChildOfClass("UIScale") or create("UIScale", {Scale = 1}, panel)
+local header = assert(path(panel, "Top"), "[TestHub] Native Inventory.Top missing")
+header.Active = true
+local heading = assert(path(header, "Title", "Title"), "[TestHub] Native Inventory title missing")
+heading.Text = "TestHub"
+local close = assert(path(header, "Close", "Button"), "[TestHub] Native close button missing")
+autoButtonColor(close, palette.Button.Red)
+local topLeft = path(header, "Left")
+if topLeft then
+	for _, child in ipairs(topLeft:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
+end
+local tray = assert(path(panel, "Tray"), "[TestHub] Native Inventory.Tray missing")
+tray.Visible = true
+local trayButtons = tray:FindFirstChild("Buttons")
+if trayButtons then trayButtons.Visible = false end
+local searchHost = assert(path(tray, "Search"), "[TestHub] Native inventory search missing")
+searchHost.Visible = true
+local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[TestHub] Native search TextBox missing")
+search.Text = ""; search.PlaceholderText = "Search TestHub..."; search.ClearTextOnFocus = false
+local body = assert(path(panel, "Inner"), "[TestHub] Native Inventory.Inner missing")
+local pagePrototype = path(body, "Items", "Main", "ScrollingFrame") or path(body, "Pets", "Main", "ScrollingFrame")
+assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[TestHub] Native inventory scroll panel missing")
+pagePrototype = cloneNative(pagePrototype, 3)
+clearContent(body)
+local side = assert(path(panel, "Sidebar"), "[TestHub] Native sidebar missing")
+local nativeButtons = assert(side:FindFirstChild("Buttons"), "[TestHub] Native sidebar buttons missing")
+local tabPrototypes = {}
+for _, child in ipairs(nativeButtons:GetChildren()) do
+	if child:IsA("GuiObject") and child:FindFirstChild("Button") then tabPrototypes[child.Name] = cloneNative(child, 4) end
+end
+local defaultTab = tabPrototypes.Pets or select(2, next(tabPrototypes))
+assert(defaultTab, "[TestHub] Native sidebar tab template missing")
+local sidebar = create("ScrollingFrame", {Name = "TestHubTabs", BackgroundTransparency = 1, BorderSizePixel = 0,
+	Size = UDim2.fromScale(1, 1), CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	ScrollBarThickness = 3, ClipsDescendants = true, ZIndex = nativeButtons.ZIndex}, side)
+nativeButtons.Visible = false
+local nativeLayout = nativeButtons:FindFirstChildOfClass("UIListLayout")
+local sidebarLayout = nativeLayout and nativeLayout:Clone() or create("UIListLayout", {}, nil)
+sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sidebar
+create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
+side.Size = UDim2.new(side.Size.X.Scale, math.max(side.Size.X.Offset, 100), 1, -150)
+local footer = cloneNative(heading, 10)
+footer.Name = "TestHubStatus"; footer.Text = "Loading features..."; footer.TextSize = math.min(footer.TextSize, 18)
+footer.AnchorPoint = Vector2.zero; footer.Position = UDim2.new(0, 20, 1, -30)
+footer.Size = UDim2.new(1, -40, 0, 24); footer.Parent = panel
 local reopen = button(root, "TestHub [K]", "Blue")
 reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
-local window = {Tabs = {}, Native = panel, Opened = true}
+local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
 library.Window = window
 local activeTab, popup, popupOwner
 local function closePopup()
@@ -259,6 +333,13 @@ connect(close.Activated, function() window:Close() end)
 connect(reopen.Activated, function() window:Open() end)
 local function status(message, failed)
 	footer.Text = tostring(message); footer.TextColor3 = failed and colors.red or colors.muted
+end
+function library:ModuleFailed(message)
+	table.insert(self.ModuleErrors, message)
+	status("Load error: " .. tostring(message), true)
+end
+function library:ModulesReady()
+	status(#self.ModuleErrors == 0 and "Ready  /  K to hide" or (tostring(#self.ModuleErrors) .. " modules failed; check console"), #self.ModuleErrors > 0)
 end
 local function invoke(control, value)
 	if not control.Callback then return end
@@ -290,16 +371,8 @@ local function resize()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local w, h = math.min(780, viewport.X - 22), math.min(570, viewport.Y - 64)
-	w, h = math.max(260, w), math.max(260, h)
-	panel.Size = UDim2.fromOffset(w, h)
-	local narrow = w < 570
-	local rail = narrow and 103 or 170
-	sidebar.Size = UDim2.new(0, rail - 12, 1, -120)
-	search.Position = UDim2.fromOffset(rail + 14, 80); search.Size = UDim2.new(1, -rail - 28, 0, 36)
-	body.Position = UDim2.fromOffset(rail + 12, 126); body.Size = UDim2.new(1, -rail - 24, 1, -171)
-	subtitle.Visible = w >= 420
-	for _, control in ipairs(controls) do if control.Layout then control:Layout(narrow) end end
+	panelScale.Scale = math.max(0.25, math.min(1, (viewport.X - 100) / baseWidth, (viewport.Y - 100) / baseHeight))
+	for _, control in ipairs(controls) do if control.Layout then control:Layout(false) end end
 	closePopup()
 end
 local cameraConnection
@@ -345,70 +418,101 @@ end)
 local methods = {}
 methods.__index = methods
 function methods:SetTitle(text) self.Title = tostring(text); self.Label.Text = self.Title; applyFilter() end
-function methods:SetDesc(text) self.Description = tostring(text); if self.Desc then self.Desc.Text = self.Description end; applyFilter() end
+function methods:SetDesc(text)
+	self.Description = tostring(text)
+	if self.Desc then self.Desc.Text = self.Description; self.Desc.Visible = self.Description ~= "" end
+	self:Layout(false); applyFilter()
+end
 function methods:Lock() self.Locked = true; if self.Action then self.Action.Active = false end end
 function methods:Unlock() self.Locked = false; if self.Action then self.Action.Active = true end end
 function methods:Layout(narrow)
 	local actionable = self.Kind ~= "Paragraph" and self.Kind ~= "Section"
-	local stacked = narrow and actionable
-	local height = self.Kind == "Section" and 32 or (stacked and 126 or 88)
-	self.Frame.Size = UDim2.new(1, -4, 0, height)
-	self.Label.Position = UDim2.fromOffset(12, self.Kind == "Section" and 0 or 8)
-	self.Label.Size = UDim2.new(1, actionable and not stacked and -224 or -24, 0, 25)
-	if self.Desc then
-		self.Desc.Position = UDim2.fromOffset(12, 35); self.Desc.Size = UDim2.new(1, actionable and not stacked and -224 or -24, 0, self.Kind == "Paragraph" and 0 or 43)
-	end
-	if self.Action then
-		self.Action.AnchorPoint = stacked and Vector2.zero or Vector2.new(1, 0.5)
-		self.Action.Position = stacked and UDim2.fromOffset(12, 84) or UDim2.new(1, -12, 0.5, 0)
-		self.Action.Size = stacked and UDim2.new(1, -24, 0, 32) or UDim2.fromOffset(192, 38)
+	local height = self.Kind == "Section" and 50 or (self.Description ~= "" and 90 or 64)
+	self.Frame.Size = UDim2.new(1, -12, 0, height)
+	self.Information.Size = UDim2.new(1, actionable and -240 or -16, 1, 0)
+	if self.ActionHost then
+		self.ActionHost.Visible = actionable
+		self.ActionHost.AnchorPoint = Vector2.new(1, 0.5)
+		self.ActionHost.Position = UDim2.new(1, -12, 0.5, 0)
+		self.ActionHost.Size = UDim2.fromOffset(215, 44)
 	end
 end
 local function row(tab, kind, props)
 	props = props or {}
-	local frame = stripVisual(kind ~= "Section" and nativeRow or nil, "Frame")
-	frame.Name = kind; frame.BackgroundColor3 = colors.card
-	frame.BackgroundTransparency = kind == "Section" and 1 or 0.1
-	frame.LayoutOrder = #tab.Controls + 1; frame.ZIndex = 4; frame.Parent = tab.Page
-	if kind ~= "Section" then corner(frame, 10) end
-	local title = label(frame, props.Title or kind, kind == "Section" and 17 or 15, kind == "Section" and colors.cyan or colors.text)
-	local description
-	if kind ~= "Section" then description = label(frame, props.Desc or "", 12, colors.muted); description.TextWrapped = true; description.TextTruncate = Enum.TextTruncate.None; description.TextYAlignment = Enum.TextYAlignment.Top end
-	if kind == "Paragraph" then frame.AutomaticSize = Enum.AutomaticSize.Y; description.AutomaticSize = Enum.AutomaticSize.Y end
+	local frame = cloneNative(nativeRow, 4)
+	frame.Name = kind; frame.LayoutOrder = #tab.Controls + 1; frame.Parent = tab.Page
+	local information = assert(frame:FindFirstChild("Information"), "[TestHub] Native row Information missing")
+	local title = assert(information:FindFirstChild("Label"), "[TestHub] Native row title missing")
+	title.Text = props.Title or kind
+	local favorite = title:FindFirstChild("Favorite"); if favorite then favorite.Visible = false end
+	local description = information:FindFirstChild("Description")
+	if description then description.Text = props.Desc or ""; description.TextWrapped = true; description.Visible = kind ~= "Section" and description.Text ~= "" end
+	local actionHost = assert(frame:FindFirstChild("Action"), "[TestHub] Native row Action missing")
+	for _, child in ipairs(actionHost:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
 	local control = setmetatable({Kind = kind, Frame = frame, Label = title, Desc = description,
+		Information = information, ActionHost = actionHost,
 		Title = props.Title or kind, Description = props.Desc or "", Callback = props.Callback, Tab = tab}, methods)
 	table.insert(tab.Controls, control); table.insert(controls, control)
-	control:Layout(panel.Size.X.Offset < 570)
+	control:Layout(false)
 	return control
+end
+local function rowButton(control)
+	local host = assert(control.ActionHost:FindFirstChild("Dropdown"), "[TestHub] Native Dropdown action missing")
+	host.Visible = true
+	local action = assert(host:FindFirstChild("Button"), "[TestHub] Native Dropdown button missing")
+	local title = assert(getLabel(action), "[TestHub] Native Dropdown label missing")
+	autoButtonColor(action, palette.Button.Blue)
+	control.Action = action
+	return action, title
 end
 local tabMethods = {}
 function tabMethods:Section(props) return row(self, "Section", props) end
 function tabMethods:Paragraph(props) return row(self, "Paragraph", props) end
 function tabMethods:Button(props)
 	local control = row(self, "Button", props)
-	control.Action = button(control.Frame, "Run", "Blue")
-	control:Layout(panel.Size.X.Offset < 570)
+	local action, title = rowButton(control); title.Text = "Run"
+	local chevron = action:FindFirstChild("Chevron"); if chevron then chevron.Visible = false end
 	connect(control.Action.Activated, function() if not control.Locked then invoke(control) end end)
 	return control
 end
 function tabMethods:Toggle(props)
 	local control = row(self, "Toggle", props)
-	local action, title, paint = button(control.Frame, "", "Inactive")
+	local action = assert(control.ActionHost:FindFirstChild("Toggle"), "[TestHub] Native Toggle action missing")
+	action.Visible = true
 	control.Action = action
 	function control:Set(value, silent)
-		self.Value = value == true; title.Text = self.Value and "ON" or "OFF"; paint(self.Value and "Green" or "Inactive")
+		self.Value = value == true
+		local blob = assert(action:FindFirstChild("Blob"), "[TestHub] Native toggle Blob missing")
+		blob.AnchorPoint = Vector2.new(self.Value and 1 or 0, 0)
+		blob.Position = UDim2.fromScale(self.Value and 1 or 0, 0)
+		local gradient = assert(action:FindFirstChildOfClass("UIGradient"), "[TestHub] Native toggle gradient missing")
+		gradient.Color = palette.Button[self.Value and "Green" or "Inactive"].Color
 		if not silent then invoke(self, self.Value) end
 	end
 	control.SetValue = control.Set
-	control:Set(props.Value, true); control:Layout(panel.Size.X.Offset < 570)
+	control:Set(props.Value, true)
 	connect(action.Activated, function() if not control.Locked then control:Set(not control.Value) end end)
 	return control
 end
 function tabMethods:Input(props)
 	local control = row(self, "Input", props)
-	local input = create("TextBox", {BackgroundColor3 = colors.panel, BorderSizePixel = 0, Text = tostring(props.Value or ""), PlaceholderText = props.Placeholder or "Enter value...", PlaceholderColor3 = colors.muted, TextColor3 = colors.text, FontFace = nativeFont, TextSize = 13, ClearTextOnFocus = false, TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 6}, control.Frame)
-	corner(input, 8); stroke(input, 1, colors.cyan)
-	control.Action = input; control:Layout(panel.Size.X.Offset < 570)
+	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[TestHub] Native input action missing")
+	keybind.Visible = true
+	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
+	local input = assert(keybind:FindFirstChild("InputBox"), "[TestHub] Native InputBox missing")
+	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
+	input.Size = UDim2.new(1, 0, 1, 0)
+	local display = input:FindFirstChild("Label")
+	if display then
+		-- The native input renders through its child label above its Background frame.
+		input.TextTransparency = 1; input.PlaceholderText = ""; display.Visible = true
+		local function mirrorText()
+			display.Text = input.Text ~= "" and input.Text or (props.Placeholder or "Enter value...")
+			display.TextTransparency = input.Text ~= "" and 0 or 0.4
+		end
+		connect(input:GetPropertyChangedSignal("Text"), mirrorText); mirrorText()
+	end
+	control.Action = input
 	function control:Set(value, silent) input.Text = tostring(value or ""); if not silent then invoke(self, input.Text) end end
 	control.SetValue = control.Set
 	connect(input.FocusLost, function() if not control.Locked then invoke(control, input.Text) end end)
@@ -420,10 +524,9 @@ local function optionTitle(value) return tostring(type(value) == "table" and (va
 function tabMethods:Dropdown(props)
 	local control = row(self, "Dropdown", props)
 	control.Values = table.clone(props.Values or {}); control.Value = props.Value; control.Multi = props.Multi == true
-	local action, title = button(control.Frame, "", "Blue")
+	local action, title = rowButton(control)
 	control.Action = action; title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Position = UDim2.fromOffset(43, 0); title.Size = UDim2.new(1, -65, 1, 0)
-	local chevron = label(action, "v", 14); chevron.Position = UDim2.new(1, -22, 0, 0); chevron.Size = UDim2.new(0, 18, 1, 0)
 	control.Icon = create("Frame", {BackgroundTransparency = 1, Position = UDim2.fromOffset(5, 3), Size = UDim2.fromOffset(32, 32), ZIndex = 7}, action)
 	function control:UpdateIcon()
 		if window.Opened and self.Tab == activeTab and self.Value ~= nil and not self.Multi then
@@ -442,20 +545,27 @@ function tabMethods:Dropdown(props)
 		self.Values = table.clone(values or {})
 		if popupOwner == self then closePopup() end
 	end
-	control:Select(props.Value, true); control:Layout(panel.Size.X.Offset < 570)
+	control:Select(props.Value, true)
 	connect(action.Activated, function()
 		if control.Locked then return end
 		if popupOwner == control then closePopup(); return end
 		closePopup()
 		if popup then popup:Destroy() end
-		popup = create("Frame", {Name = "IconPicker", BackgroundColor3 = colors.panel, BorderSizePixel = 0, Size = UDim2.fromOffset(360, 390), ZIndex = 40}, overlay)
-		corner(popup, 12); stroke(popup, 3, colors.cyan)
-		local popupTitle = label(popup, control.Title .. "  /  " .. #control.Values, 16)
+		popup = cloneNative(dropdownShell, 40)
+		popup.Name = "IconPicker"; popup.AnchorPoint = Vector2.zero; popup.Visible = true; popup.Parent = overlay
+		local popupTitle = cloneNative(nativeRow.Information.Label, 42)
+		popupTitle.Text = control.Title .. "  /  " .. #control.Values; popupTitle.Parent = popup
 		popupTitle.Position = UDim2.fromOffset(12, 8); popupTitle.Size = UDim2.new(1, -52, 0, 26)
 		local done = button(popup, "x", "Red"); done.Size = UDim2.fromOffset(28, 26); done.Position = UDim2.new(1, -38, 0, 8)
-		local query = create("TextBox", {Text = "", PlaceholderText = "Search names...", ClearTextOnFocus = false, BackgroundColor3 = colors.card, TextColor3 = colors.text, PlaceholderColor3 = colors.muted, FontFace = nativeFont, TextSize = 14, BorderSizePixel = 0, Position = UDim2.fromOffset(10, 43), Size = UDim2.new(1, -20, 0, 32), ZIndex = 42}, popup)
-		corner(query, 8)
-		local list = create("ScrollingFrame", {BackgroundTransparency = 1, BorderSizePixel = 0, Position = UDim2.fromOffset(10, 83), Size = UDim2.new(1, -20, 1, -95), ScrollBarThickness = 5, CanvasSize = UDim2.new(), ZIndex = 42}, popup)
+		local queryHost = cloneNative(searchHost, 42); queryHost.Parent = popup
+		queryHost.Position = UDim2.fromOffset(10, 43); queryHost.Size = UDim2.new(1, -20, 0, 40)
+		local query = assert(path(queryHost, "Search", "Bar", "TextBox"), "[TestHub] Native picker search missing")
+		query.Text = ""; query.PlaceholderText = "Search names..."; query.ClearTextOnFocus = false
+		local list = assert(popup:FindFirstChild("Items"), "[TestHub] Native picker Items missing")
+		clearContent(list)
+		for _, child in ipairs(list:GetChildren()) do if child:IsA("UIListLayout") or child:IsA("UIPadding") then child:Destroy() end end
+		list.Position = UDim2.fromOffset(10, 90); list.Size = UDim2.new(1, -20, 1, -102); list.ScrollBarThickness = 5
+		list.CanvasPosition = Vector2.zero; list.ScrollingEnabled = true
 		local empty = label(popup, "No matches", 15, colors.muted); empty.Position = UDim2.fromOffset(12, 90); empty.Size = UDim2.new(1, -24, 0, 40); empty.Visible = false
 		local pool, filtered = {}, {}
 		control.pool = pool
@@ -478,7 +588,7 @@ function tabMethods:Dropdown(props)
 		end
 		-- Nine reusable rows bound the number of potion animations and egg models.
 		for _ = 1, 9 do
-			local cellButton, cellTitle, paint = button(list, "", "Blue")
+			local cellButton, cellTitle, paint = button(list, "", "Blue", dropdownRow)
 			cellButton.Size = UDim2.new(1, -7, 0, 46)
 			cellTitle.Position = UDim2.fromOffset(52, 0); cellTitle.Size = UDim2.new(1, -60, 1, 0); cellTitle.TextXAlignment = Enum.TextXAlignment.Left
 			local icon = create("Frame", {BackgroundTransparency = 1, Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(4, 3), ZIndex = 46}, cellButton)
@@ -520,12 +630,22 @@ function tabMethods:Dropdown(props)
 	return control
 end
 function window:Tab(props)
-	local page = create("ScrollingFrame", {Name = props.Title, BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), ScrollBarThickness = 4, ScrollBarImageColor3 = colors.cyan, Visible = false, ZIndex = 3}, body)
+	if self.TabsByTitle[props.Title] then return self.TabsByTitle[props.Title] end
+	local page = cloneNative(pagePrototype, 3)
+	clearContent(page)
+	for _, child in ipairs(page:GetChildren()) do if child:IsA("UIListLayout") or child:IsA("UIGridLayout") then child:Destroy() end end
+	page.Name = props.Title; page.Position = UDim2.fromOffset(0, 0); page.Size = UDim2.fromScale(1, 1)
+	page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.CanvasSize = UDim2.new(); page.Visible = false; page.Parent = body
 	create("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, page)
-	create("UIPadding", {PaddingBottom = UDim.new(0, 8), PaddingLeft = UDim.new(0, 2)}, page)
 	local tab = setmetatable({Title = props.Title, Page = page, Controls = {}}, {__index = tabMethods})
-	local tabButton, tabTitle, paint = button(sidebar, props.Title, "Blue")
-	tabButton.Size = UDim2.new(1, -4, 0, 35); tabButton.LayoutOrder = #self.Tabs + 1; tabTitle.TextSize = 13
+	local iconCategories = {Info = "Currency", ["Activity Info"] = "Currency", Webhook = "Currency", Eggs = "Pets", Pets = "Pets", Enchant = "Pets", Trade = "Pets", Quest = "Titles", Teleport = "Titles"}
+	local entry = cloneNative(tabPrototypes[iconCategories[props.Title] or "Items"] or defaultTab, 4)
+	entry.Name = props.Title; entry.LayoutOrder = #self.Tabs + 1; entry.Parent = sidebar
+	local tabButton = assert(entry:FindFirstChild("Button"), "[TestHub] Native tab Button missing")
+	local tabTitle = assert(getLabel(tabButton), "[TestHub] Native tab Label missing")
+	tabTitle.Text = props.Title; tabTitle.TextWrapped = true
+	for _, child in ipairs(entry:GetDescendants()) do if child:IsA("GuiObject") and child.Name == "Notification" then child.Visible = false end end
+	local function paint(name) autoButtonColor(tabButton, palette.Button[name] or palette.Button.Blue) end
 	tab.Paint = paint; tab.NavigationButton = tabButton
 	function tab:Select()
 		closePopup()
@@ -540,12 +660,15 @@ function window:Tab(props)
 	connect(tabButton.Activated, function() tab:Select() end)
 	connect(page:GetPropertyChangedSignal("CanvasPosition"), closePopup)
 	table.insert(self.Tabs, tab)
+	self.TabsByTitle[props.Title] = tab
 	if not activeTab then tab:Select() end
 	return tab
 end
 function library:CreateWindow(props)
 	heading.Text = "TestHub"
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
+	-- Register navigation before feature code, so failures stay visible and diagnosable.
+	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc"}) do window:Tab({Title = title}) end
 	table.insert(self.Windows, window)
 	return window
 end
@@ -554,6 +677,8 @@ function library:Destroy()
 	for _, control in ipairs(controls) do if control.Icon then clearIcon(control.Icon) end end
 	for _, connection in ipairs(connections) do connection:Disconnect() end
 	table.clear(connections); root:Destroy()
+	pagePrototype:Destroy(); dropdownShell:Destroy(); dropdownRow:Destroy()
+	for _, prototype in pairs(tabPrototypes) do prototype:Destroy() end
 end
 function library:Notify(props) status(props.Content or props.Title or "") end
 return library

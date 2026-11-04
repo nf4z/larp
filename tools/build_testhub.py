@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
+source = source.replace('function saveHubSettings()', 'local function saveHubSettings()', 1)
+source = source.replace('function loadHubSettings()', 'private.saveHubSettings = saveHubSettings\nfunction loadHubSettings()', 1)
 
 # Keep all 17 embedded feature modules and their callbacks intact.
 library_start = source.index('-- // WindUI external dependency')
@@ -18,7 +20,7 @@ source = source.replace('print("[Hub] Loading WindUI...")', 'print("[TestHub] Lo
 source = source.replace('local settingsFile = "renoa_hub_settings.json"', 'local settingsFile = "testhub_settings.json"')
 a = source.index('function loadHubSettings()')
 b = source.index('\nloadHubSettings()', a)
-source = source[:a] + '''function loadHubSettings()
+source = source[:a] + '''local function loadHubSettings()
     local success, saved = pcall(function() return readfile(settingsFile) end)
     if not success then
         -- First use copies afbq preferences; every later write is TestHub-only.
@@ -32,16 +34,18 @@ source = source[:a] + '''function loadHubSettings()
 end''' + source[b:]
 # These waits separate modules; leave all gameplay timing unchanged.
 source, shortened = re.subn(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', source)
+source = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', source)
+source = source.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
 
 header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.UI and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 2 and prior.UI and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting then
+if prior and prior.Starting and prior.Revision == 2 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -56,13 +60,16 @@ private.loadstring = function(text, name)
     if chunk then setfenv(chunk, private) end
     return chunk, err
 end
-local runtime = {Starting = true}
+if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
+local runtime = {Starting = true, Revision = 2, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
+-- Lexical bindings survive executors whose task threads reset their environment.
+local function getgenv() return private end
+local loadstring = private.loadstring
 '''
 footer = '''
 end
-setfenv(start, private)
 local ok, err = pcall(start)
 runtime.Starting = false
 runtime.UI = rawget(private, "WindUI")

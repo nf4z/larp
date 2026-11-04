@@ -41,7 +41,7 @@ function Instance.new(class)
 	return setmetatable({_class=class,_children={},_signals={},_props={
 		Name=class,Archivable=true,Visible=true,ZIndex=1,Size=UDim2.fromOffset(100,100),
 		Position=UDim2.fromOffset(0,0),AbsolutePosition=vector(250,180),AbsoluteSize=vector(192,38),
-		CanvasPosition=vector(),Text="",FontFace="NativeFont",ViewportSize=vector(1100,800),
+		CanvasPosition=vector(),Text="",TextSize=28,FontFace="NativeFont",ViewportSize=vector(1100,800),
 	}},instanceMT)
 end
 local guiClasses = {Frame=true,ImageLabel=true,TextLabel=true,ImageButton=true,TextButton=true,TextBox=true,ScrollingFrame=true,ViewportFrame=true}
@@ -76,6 +76,7 @@ function methods:Clone()
 	return clone
 end
 function methods:Destroy()
+	if self._signals.Destroying then self._signals.Destroying:Fire() end
 	for _,child in ipairs(self:GetChildren()) do child:Destroy() end
 	self.Parent=nil;self._destroyed=true
 	-- Tests discard instance-owned listeners when destroying popup trees.
@@ -83,10 +84,12 @@ function methods:Destroy()
 end
 function methods:GetBoundingBox() return {Position=vector()},vector(2,3,2) end
 function methods:GetFocusedTextBox() return self._focused end
+function methods:SetAttribute(name,value) self._attributes=self._attributes or {};self._attributes[name]=value end
+function methods:GetAttribute(name) return self._attributes and self._attributes[name] end
 instanceMT.__index=function(self,key)
 	if methods[key] then return methods[key] end
 	if self._props[key]~=nil then return self._props[key] end
-	if key=="Activated" or key=="InputBegan" or key=="InputEnded" or key=="InputChanged" or key=="FocusLost" or key=="Idled" then
+	if key=="Activated" or key=="InputBegan" or key=="InputEnded" or key=="InputChanged" or key=="FocusLost" or key=="Idled" or key=="Destroying" then
 		if not self._signals[key] then self._signals[key]=signal() end
 		return self._signals[key]
 	end
@@ -132,7 +135,47 @@ local nativeScreen=child(pg,"ScreenGui","ScreenGui");local settings=child(native
 local frame=child(settings,"Frame","Frame");child(frame,"UIStroke","UIStroke")
 local main=child(frame,"Frame","Main");local list=child(main,"ScrollingFrame","ScrollingFrame")
 local template=child(list,"Frame","Template");local info=child(template,"Frame","Information");child(info,"TextLabel","Label")
+child(info,"TextLabel","Description")
+template.BackgroundTransparency=0.75
 local action=child(template,"Frame","Action");local drop=child(action,"Frame","Dropdown");nativeButton:Clone().Parent=drop
+local toggle=child(action,"ImageButton","Toggle");child(toggle,"Frame","Blob");child(toggle,"UIGradient","UIGradient")
+local keybind=child(action,"Frame","Keybind");child(keybind,"Frame","Clear")
+local inputBox=child(keybind,"TextBox","InputBox");child(inputBox,"TextLabel","Label");child(inputBox,"Frame","Background")
+local inventory=child(nativeScreen,"Frame","Inventory")
+local inventoryFrame=child(inventory,"Frame","Frame");inventoryFrame.Size=UDim2.fromOffset(1235,770)
+inventoryFrame.BackgroundColor3={nativeInventoryColor=true}
+child(inventoryFrame,"ImageLabel","Background").Image="native-inventory-art"
+local top=child(inventoryFrame,"Frame","Top");local topTitle=child(top,"Frame","Title");child(topTitle,"TextLabel","Title")
+local topLeft=child(top,"Frame","Left");child(topLeft,"Frame","Stats");child(topLeft,"Frame","StorageHolder")
+local closeHost=child(top,"Frame","Close");nativeButton:Clone().Parent=closeHost
+local inner=child(inventoryFrame,"Frame","Inner")
+for _,name in ipairs({"Pets","Items"}) do local page=child(inner,"Frame",name);local main=child(page,"Frame","Main");child(main,"ScrollingFrame","ScrollingFrame") end
+local side=child(inventoryFrame,"Frame","Sidebar");local nav=child(side,"Frame","Buttons");child(nav,"UIListLayout","UIListLayout")
+for _,name in ipairs({"Pets","Items","Titles","Currency"}) do
+	local entry=child(nav,"Frame",name);entry.Size=UDim2.fromOffset(65,65)
+	local entryButton=nativeButton:Clone();entryButton.Parent=entry;entryButton.Label.Text=name
+end
+local tray=child(inventoryFrame,"Frame","Tray");child(tray,"Frame","Buttons")
+local searchHost=child(tray,"Frame","Search");local search=child(searchHost,"Frame","Search");local bar=child(search,"Frame","Bar");child(bar,"TextBox","TextBox")
+local client=child(storage,"Folder","Client");local gui=child(client,"Folder","Gui");local guiUtils=child(gui,"Folder","Utils");local components=child(gui,"Folder","Components")
+child(gui,"ModuleScript","GuiFrame")._module={Initialize=function() end}
+child(guiUtils,"ModuleScript","AutoButtonColor")._module=function(button,theme) button:SetAttribute("MockTheme",theme) end
+child(guiUtils,"ModuleScript","ItemFrame")._module=function(item)
+	counters.nativeCards=(counters.nativeCards or 0)+1
+	local card=Instance.new("Frame");local b=child(card,"ImageButton","Button");local inner=child(b,"Frame","Inner")
+	for _,name in ipairs({"Label","Bottom","Secret","XL"}) do child(inner,"TextLabel",name) end
+	local icon=child(inner,"Frame","Icon");child(icon,"ImageLabel","Label");itemUtil._module:UpdateIcon(icon,item)
+	card.Destroying:Connect(function() counters.cardCleanup=(counters.cardCleanup or 0)+1 end)
+	return card
+end
+child(components,"ModuleScript","Dropdown")._module={new=function()
+	local floater=Instance.new("Frame");local items=child(floater,"ScrollingFrame","Items");child(items,"UIListLayout","UIListLayout")
+	local entry=nativeButton:Clone();entry.Parent=items
+	return {_floater=floater,_frames={entry},Destroy=function() floater:Destroy() end}
+end}
+local palette={Button={}}
+for _,name in ipairs({"Blue","Green","Inactive","Red"}) do palette.Button[name]={Color=ColorSequence.new(Color3.new(1,1,1))} end
+child(shared,"ModuleScript","Palette")._module=palette
 local localPlayer=Instance.new("Player");pg.Name="PlayerGui";pg.Parent=localPlayer
 local camera=Instance.new("Camera");local workspace=Instance.new("Workspace");workspace.CurrentCamera=camera
 local input=Instance.new("UserInputService")

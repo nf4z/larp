@@ -1,38 +1,28 @@
-# TestHub — BGSI native edition
+# TestHub — native Inventory rebuild
 
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub"))()
 ```
 
-Press **K** to open or close the menu. The key is ignored while typing or when the game consumes the input. A small TestHub button opens it on touch devices. Drag the title bar to move the window.
+Press **K** to show or hide TestHub. Text entry does not trigger the keybind.
 
-This is a separate, standalone version of `afbq`. The 17 embedded feature module bodies come from `afbq` commit `e9632f9e9a701ab09e917a5d1cfb86e85933f89d`. They are preserved apart from shortening the pauses between module initializations. TestHub replaces the WindUI download and window setup with its bundled game-asset adapter. Existing optional fishing/enchant feature scripts still use the original external downloads when those features are activated.
+This revision replaces the first custom shell with a clone of the game's **PlayerGui.ScreenGui.Inventory**. It retains the native Frame.Top title and close button, Frame.Sidebar artwork, Frame.Tray.Search search field, and Frame.Inner content area. Copied inventory contents are replaced with TestHub controls; the original Inventory remains intact.
 
-## Native visuals and controls
+The game file's ReplicatedStorage.Client.Gui.Frames.Inventory module controls that live panel. TestHub initializes Inventory and Settings through GuiFrame, then clones their live objects. Settings rows retain their Information/Action layout, actual switch and Blob, input-box styling, and dropdown buttons. Picker templates come from **Gui.Components.Dropdown.new**, and item cards from **Gui.Utils.ItemFrame**, with the same data and icon renderer as Inventory. The generic blue header and fabricated control cards from the first version are removed.
 
-- Clones the live game's Settings frame and setting-row visuals where available, plus native button assets and fonts. It creates new controls from those copies; it never moves the game's originals or calls the native Settings remotes.
-- Uses the game's `Shared.Palette`, `Assets.Intro.Play.Button`, `Shared.Utils.Stats.ItemUtil`, and `Shared.Data` modules. If the live Settings template is missing, it uses Intro button visuals and locally created controls with the same palette and font.
-- Searchable tabs, searchable icon pickers, clear ON/OFF states, wrapping status paragraphs, and a layout that stacks action controls on narrow screens.
-- Resolves real egg images, potion levels, powerups, pets, runes, currencies, and supported fishing items from live game data. Eggs without a useful image use a static viewport of the matching model when available. Unknown options get a text initial.
-- Dropdowns use nine reusable rows, even for large lists. Their icon animations/models are released when closed. Active-tab selected icons are also cleared while the menu is hidden.
+All 16 navigation entries are registered before feature startup. Modules reuse those entries. Load failures appear in the panel and console. State access is now lexical, so startup no longer depends on swapping the whole feature function's environment. A regression test executes the real Info module while resetting spawned workers to an ambient environment and verifies that it populates the native panel.
 
-The supplied `.rbxl` was used to inspect game hierarchy and APIs, including the native item icon renderer. Its saved file does not include the main live `PlayerGui.ScreenGui.Settings` tree, so the adapter discovers that tree at runtime and falls back cleanly when absent. The result combines cloned native visuals with custom navigation and event handling; it does not replace the game's own Settings UI.
+Egg images use live data, with static model viewports when an image is unavailable. Supported items resolve through live potion, powerup, pet, rune, currency, and fishing data. Pickers have search and nine reusable rows; destroying item cards cleans up their animations. Missing native templates report an error instead of presenting an invented fallback shell.
 
-## Settings and startup
+TestHub writes testhub_settings.json. On first use it can read renoa_hub_settings.json to copy preferences, but never saves to that original file. The 17 embedded feature modules remain based on afbq commit e9632f9e9a701ab09e917a5d1cfb86e85933f89d, with shorter startup pauses and load-error reporting. Optional auxiliary fishing/enchant downloads remain as in afbq.
 
-TestHub writes `testhub_settings.json`. On its first use, if that file is absent, it reads `renoa_hub_settings.json` to copy existing preferences. Subsequent saves write only TestHub's file. Invalid settings JSON falls back to an empty settings table. Its runtime globals and auxiliary downloaded feature scripts use a private environment, leaving `afbq`'s globals alone.
-
-Re-executing while the TestHub window exists opens the same window instead of starting duplicate workers. Hiding the menu leaves automation running, just as with `afbq`. TestHub is intended to be used as your active hub; its saved automation choices still perform the same game actions as `afbq`.
-
-## Build and verification
-
-Edit `testhub_src/native-ui.lua`, then run:
+## Build and checks
 
 ```text
 python tools/build_testhub.py
 python tools/test_testhub.py
 ```
 
-The builder uses the pinned `testhub_src/afbq-base.lua` and emits the standalone repository-root `testHub` script. No extra UI source download is needed at startup. The tests use the Luau compiler/CLI from `.tools/luau`, or the `LUAU_COMPILE` and `LUAU` environment variables.
+Edit testhub_src/native-ui.lua. The builder combines it with testhub_src/afbq-base.lua into the standalone root testHub script. Tests use .tools/luau, or the LUAU and LUAU_COMPILE environment variables.
 
-Validation covers compilation, feature-code preservation, native cloning/fallbacks, callbacks, search and icon selection, a 1,000-option picker, K/text focus, mobile layout branching, popup reuse and cleanup, private globals, isolated settings writes, and rerun protection. UI events are tested with deterministic mocks. No Roblox Studio session was connected during development, so live appearance, asset loading, and gameplay behavior still need verification in a Roblox client; these tests do not measure frame rate or memory usage there.
+Checks cover compilation, feature-code preservation, native inventory artwork/hierarchy, actual row/switch structures, callbacks, icons, 1,000-option search, K/text focus, viewport scaling, cleanup, separate settings writes, rerun protection, and the real asynchronous Info module. Component tests use mocks. Desktop inspection was stopped before the replacement UI could be exercised; final live appearance and full gameplay behavior have not been visually verified.
