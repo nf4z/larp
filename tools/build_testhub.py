@@ -15,17 +15,13 @@ source = source.replace('function loadHubSettings()', 'private.saveHubSettings =
 library_start = source.index('-- // WindUI external dependency')
 window_start = source.index('-- // Complete Window Base', library_start)
 source = source[:library_start] + 'local WindUI = (function()\n' + adapter + '\nend)()\n\n' + source[window_start:]
-source = source.replace('Title = "Afbq Hub"', 'Title = "TestHub"').replace('Folder = "AfbqHub"', 'Folder = "TestHub"')
-source = source.replace('print("[Hub] Loading WindUI...")', 'print("[TestHub] Loading native game UI...")')
-source = source.replace('local settingsFile = "renoa_hub_settings.json"', 'local settingsFile = "testhub_settings.json"')
+source = source.replace('Afbq Hub', '@qtrzip').replace('Folder = "AfbqHub"', 'Folder = "QtrzipHub"')
+source = source.replace('print("[Hub] Loading WindUI...")', 'print("[@qtrzip] Loading native game UI...")')
+source = source.replace('local settingsFile = "renoa_hub_settings.json"', 'local settingsFile = "qtrzip_settings.json"')
 a = source.index('function loadHubSettings()')
 b = source.index('\nloadHubSettings()', a)
 source = source[:a] + '''local function loadHubSettings()
     local success, saved = pcall(function() return readfile(settingsFile) end)
-    if not success then
-        -- First use copies afbq preferences; every later write is TestHub-only.
-        success, saved = pcall(function() return readfile("renoa_hub_settings.json") end)
-    end
     local decoded, settings
     if success and type(saved) == "string" then
         decoded, settings = pcall(function() return HttpService:JSONDecode(saved) end)
@@ -41,11 +37,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 3 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 4 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 3 then
+if prior and prior.Starting and prior.Revision == 4 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -61,7 +57,7 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 3, State = private}
+local runtime = {Starting = true, Revision = 4, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end

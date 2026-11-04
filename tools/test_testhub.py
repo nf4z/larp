@@ -17,6 +17,7 @@ base = (ROOT / 'testhub_src/afbq-base.lua').read_text(encoding='utf-8')
 built = (ROOT / 'testHub').read_text(encoding='utf-8')
 marker = '-- Shared egg scanner adapted from'
 feature_code = base[base.index(marker):]
+feature_code = feature_code.replace('Afbq Hub', '@qtrzip')
 feature_code = re.sub(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', feature_code)
 feature_code = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', feature_code)
 feature_code = feature_code.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
@@ -32,11 +33,16 @@ bad_adapter = adapter.replace('local parentZ = parent:IsA("GuiObject") and paren
 assert bad_adapter != adapter
 code += 'local broken = assert(loadstring(' + json.dumps(bad_adapter, ensure_ascii=True) + '))\nsetfenv(broken,mock.env)\n'
 code += 'local ok,err=pcall(broken);assert(not ok and tostring(err):find("ZIndex is not a valid member of ScreenGui",1,true),"Reproduce the reported startup failure")\n'
-code += 'local orphan=mock.playerGui:FindFirstChild("TestHub");if orphan then orphan:Destroy() end\n'
+code += 'local orphan=mock.playerGui:FindFirstChild("@qtrzip");if orphan then orphan:Destroy() end\n'
 code += 'local fn = assert(loadstring(' + json.dumps(adapter, ensure_ascii=True) + '))\nsetfenv(fn, mock.env)\nlocal ui = fn()\n'
 code += r'''
 local window = ui:CreateWindow({ToggleKey=mock.Enum.KeyCode.K})
-assert(math.abs(window.Width-420)<1 and math.abs(window.Height-320)<1, "Compact afbq-sized default")
+assert(math.abs(window.Width-600)<1 and math.abs(window.Height-420)<1, "Wider default")
+assert(ui.ScreenGui.Name=="@qtrzip")
+assert(ui.ScreenGui.QtrzipHolder.BackgroundTransparency==1 and not ui.ScreenGui.QtrzipHolder.Active)
+assert(not ui.ScreenGui.Overlay.Visible, "Do not leave an overlay over the controls")
+assert(mock.playerGui.ScreenGui.Inventory.BackgroundTransparency==0.45, "Do not alter the game's original backdrop")
+assert(window.Native.Interactable and not window.Native.Active)
 assert(mock.counters.clones > 0, "Use cloned game visuals")
 assert(window.Native.BackgroundColor3.nativeInventoryColor)
 assert(window.Native:FindFirstChild("Background").Image=="native-inventory-art")
@@ -88,6 +94,17 @@ mock.input._focused=nil
 mock.input.InputBegan:Fire({KeyCode=mock.Enum.KeyCode.K},true);assert(not window.Opened)
 mock.input.InputBegan:Fire({KeyCode=mock.Enum.KeyCode.K},false);assert(window.Opened)
 local other=window:Tab({Title="Potions"});other:Select();assert(other.Page.Visible and not tab.Page.Visible)
+assert(tab.NavigationButton:Click(), "Cloned tabs must accept clicks despite disabled source controls")
+assert(tab.Page.Visible and not other.Page.Visible)
+-- Direct pointer routing must still select tabs if decorative children eat Activated.
+local sidebar=window.Native:FindFirstChild("QtrzipTabs",true) or window.Native:FindFirstChild("TestHubTabs",true)
+sidebar.AbsolutePosition=mock.vector(20,100);sidebar.AbsoluteSize=mock.vector(120,300)
+window.DragHandle.AbsolutePosition=mock.vector(180,20);window.DragHandle.AbsoluteSize=mock.vector(400,40)
+window.ResizeGrip.AbsolutePosition=mock.vector(580,400);window.ResizeGrip.AbsoluteSize=mock.vector(20,20)
+for _,t in ipairs(window.Tabs) do t.NavigationButton.AbsolutePosition=mock.vector(-1000,-1000) end
+other.NavigationButton.AbsolutePosition=mock.vector(30,110);other.NavigationButton.AbsoluteSize=mock.vector(100,30)
+mock.input.InputBegan:Fire({UserInputType=mock.Enum.UserInputType.MouseButton1,Position=mock.vector(40,120)},true)
+assert(other.Page.Visible and not tab.Page.Visible, "Global pointer routing selects the intended tab")
 tab:Select();local search=window.Native.Tray.Search.Search.Bar.TextBox;search.Text="Rescan"
 assert(run.Frame.Visible and not toggle.Frame.Visible)
 search.Text="";assert(toggle.Frame.Visible)
@@ -99,9 +116,16 @@ assert(window.Native.Position.X.Offset>0, "Drag handle moves the window")
 window.ResizeGrip.InputBegan:Fire(mouse)
 mock.input.InputChanged:Fire({UserInputType=mock.Enum.UserInputType.MouseMovement,Position=mock.vector(70,50)})
 mock.input.InputEnded:Fire(mouse)
-assert(window.Width>420 and window.Height>320, "Resize grip changes both dimensions")
+assert(window.Width>600 and window.Height>420, "Resize grip changes both dimensions")
+-- Drag via global input, without firing the widget's InputBegan event.
+local beforeDragX=window.Native.Position.X.Offset
+local headerMouse={UserInputType=mock.Enum.UserInputType.MouseButton1,Position=mock.vector(200,30)}
+mock.input.InputBegan:Fire(headerMouse,true)
+mock.input.InputChanged:Fire({UserInputType=mock.Enum.UserInputType.MouseMovement,Position=mock.vector(240,30)})
+mock.input.InputEnded:Fire(headerMouse)
+assert(window.Native.Position.X.Offset>beforeDragX, "Header hit region drags even if widget input is swallowed")
 mock.workspace.CurrentCamera.ViewportSize=mock.vector(390,844)
-assert(window.Width<=366 and window.Native.Size.X.Offset==640, "Fit the compact native layout to the viewport")
+assert(window.Width<=366 and window.Native.Size.X.Offset==760, "Fit the native layout to the viewport")
 assert(ui.ResolveIcon("Luck Tier 2").item.Tier==2)
 assert(ui.ResolveIcon("Unknown").fallback=="U")
 assert(ui.ResolveIcon("Dog").item.Type=="Pet")
@@ -132,9 +156,11 @@ code += '\nlocal startupSource = ' + json.dumps(startup, ensure_ascii=False) + '
 code += r'''
 local liveGlobals={Window={original=true},HubSettings={original=true}}
 local writes={}
+local reads={}
 mock.env.getgenv=function() return liveGlobals end
 mock.env.readfile=function(name)
-    if name=="renoa_hub_settings.json" then return "legacy-json" end
+    table.insert(reads,name)
+    assert(name=="qtrzip_settings.json", "Never read afbq or earlier TestHub settings")
     error("missing")
 end
 mock.env.writefile=function(name,value) writes[name]=value end
@@ -142,8 +168,8 @@ local originalService=mock.env.game.GetService
 mock.env.game.IsLoaded=function() return true end
 mock.env.game.GetService=function(self,name)
     if name=="HttpService" then return {
-        JSONDecode=function(_,value) assert(value=="legacy-json");return {auto={presentRain=true}} end,
-        JSONEncode=function(_,value) assert(value.auto.presentRain);return "encoded-test-settings" end,
+        JSONDecode=function(_,value) assert(value=="qtrzip-json");return {auto={presentRain=true}} end,
+        JSONEncode=function(_,value) assert(type(value)=="table");return "encoded-test-settings" end,
     } end
     if name=="VirtualUser" then return {} end
     if name=="MarketplaceService" then return {} end
@@ -163,6 +189,7 @@ mock.env.task={
 local startupFn=assert(loadstring(startupSource));setfenv(startupFn,mock.env)
 local firstWindow=startupFn()
 assert(firstWindow and liveGlobals._BGSI_TestHub.UI)
+assert(next(liveGlobals._BGSI_TestHub.State.HubSettings)==nil, "Start with fresh settings")
 for _=1,8 do
     local co=table.remove(jobs,1)
     if co then
@@ -178,7 +205,15 @@ assert(startupFn()==firstWindow and mock.counters.created==created, "Rerun shoul
 -- saveHubSettings was defined in the private environment, never in afbq's globals.
 assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()
-assert(writes["testhub_settings.json"]=="encoded-test-settings" and writes["renoa_hub_settings.json"]==nil)
+assert(writes["qtrzip_settings.json"]=="encoded-test-settings" and writes["renoa_hub_settings.json"]==nil and writes["testhub_settings.json"]==nil)
+for _,name in ipairs(reads) do assert(name=="qtrzip_settings.json") end
+liveGlobals._BGSI_TestHub.UI:Destroy()
+mock.env.readfile=function(name)
+    assert(name=="qtrzip_settings.json")
+    return "qtrzip-json"
+end
+assert(startupFn())
+assert(liveGlobals._BGSI_TestHub.State.HubSettings.auto.presentRain==true, "Reload only the new hub's own config")
 liveGlobals._BGSI_TestHub.UI:Destroy()
 '''
 with tempfile.TemporaryDirectory() as directory:
@@ -191,5 +226,5 @@ with tempfile.TemporaryDirectory() as directory:
             line = int(match[1])
             print('\n'.join(f'{i+1}: {text[:300]}' for i, text in enumerate(code.splitlines()) if abs(i+1-line)<3))
     assert result.returncode == 0, result.stdout + '\n' + result.stderr
-print('Native clones, callbacks, locks, icons, 1000-option search, K/text focus, mobile layout, popup reuse, cleanup: PASS')
-print('Real startup: actual inventory hierarchy, native assets required, lexical state, isolated settings writes, rerun guard: PASS')
+print('Native input flags, click-aware tab switching, global pointer drag/tab routing, resize, icons, search, cleanup: PASS')
+print('Fresh qtrzip config, no legacy reads/writes, own-config reload, branding, no cloned backdrop, real Info startup: PASS')

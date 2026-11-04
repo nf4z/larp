@@ -1,28 +1,35 @@
-# TestHub — native Inventory rebuild
+# @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-4"))()
 ```
 
-The window defaults to **420 x 320 pixels**, similar to afbq. Drag the title bar to move it and drag the bottom-right // handle to resize it. Press **K** to show or hide TestHub; text entry does not trigger the keybind.
+The repository entry remains `testHub` for compatibility. Visible titles, search, reopen button, prompts, and hub branding use **@qtrzip**.
 
-This revision replaces the first custom shell with a clone of the game's **PlayerGui.ScreenGui.Inventory**. It retains the native Frame.Top title and close button, Frame.Sidebar container, Frame.Tray.Search search field, and Frame.Inner content area. Copied inventory contents are replaced with TestHub controls; the original Inventory remains intact.
+- Default size: **600 x 420**, with viewport fitting.
+- Drag the title bar; resize with the bottom-right // handle.
+- Press **K** to open/close. Keyboard text entry does not trigger it.
+- Scroll the sidebar for all 16 tabs; search controls in the selected tab.
 
-The game file's ReplicatedStorage.Client.Gui.Frames.Inventory module controls that live panel. TestHub initializes Inventory and Settings through GuiFrame, then clones their live objects. Settings rows retain their Information/Action layout, actual switch and Blob, input-box styling, and dropdown buttons. Picker templates come from **Gui.Components.Dropdown.new**, and item cards from **Gui.Utils.ItemFrame**, with the same data and icon renderer as Inventory. The generic blue header and fabricated control cards from the first version are removed.
+## Separate configuration
 
-All 16 navigation entries are registered before feature startup, using compact native dropdown-row styling in the sidebar. Revision 3 fixes the actual startup crash: the reopen button previously tried to read ZIndex from a ScreenGui, which is not a GuiObject. The strict mock now rejects that invalid property, reproduces the old failure, and checks that the corrected adapter completes startup. Partial startup failures remove the incomplete window. Modules reuse those entries. Load failures appear in the panel and console. State access is now lexical, so startup no longer depends on swapping the whole feature function's environment. A regression test executes the real Info module while resetting spawned workers to an ambient environment and verifies that it populates the native panel.
+This revision reads and writes **qtrzip_settings.json only**. If absent, it starts with an empty settings table and feature defaults. It never imports `renoa_hub_settings.json` or `testhub_settings.json`. Existing afbq preferences and old TestHub preferences are left alone.
 
-Egg images use live data, with static model viewports when an image is unavailable. Supported items resolve through live potion, powerup, pet, rune, currency, and fishing data. Pickers have search and nine reusable rows; destroying item cards cleans up their animations. Missing native templates report an error instead of presenting an invented fallback shell.
+When replacing an already running older version, rejoin once to clear that version's background automation before loading this revision. Re-executing the current revision reopens its existing window rather than starting another copy.
 
-TestHub writes testhub_settings.json. On first use it can read renoa_hub_settings.json to copy preferences, but never saves to that original file. The 17 embedded feature modules remain based on afbq commit e9632f9e9a701ab09e917a5d1cfb86e85933f89d, with shorter startup pauses and load-error reporting. Optional auxiliary fishing/enchant downloads remain as in afbq.
+## Native visuals and input repair
 
-## Build and checks
+The menu clones only the actual Inventory.Frame into a fresh transparent, passive holder. It no longer copies Inventory's fullscreen dim/input backdrop. Original game UI objects remain intact. Closed native-menu input flags are reset on clones: controls are interactable, passive decorations do not capture input, and cloned button modal state is disabled. The picker overlay is hidden whenever no picker is open.
+
+Tab selection and header/resize interaction also use explicit pointer hit regions through UserInputService, so decorative descendants cannot prevent navigation or dragging. Settings rows, native toggle knobs, dropdown templates, and item cards retain game visuals. Egg/item pickers use live game data and nine reusable rows. Destroying item cards cleans up their animations.
+
+## Build and verification
 
 ```text
 python tools/build_testhub.py
 python tools/test_testhub.py
 ```
 
-Edit testhub_src/native-ui.lua. The builder combines it with testhub_src/afbq-base.lua into the standalone root testHub script. Tests use .tools/luau, or the LUAU and LUAU_COMPILE environment variables.
+The builder combines `testhub_src/native-ui.lua` with the pinned `testhub_src/afbq-base.lua` into the standalone root `testHub` script. It preserves feature logic with startup diagnostics and branding changes. Tests use `.tools/luau`, or `LUAU` and `LUAU_COMPILE` environment variables.
 
-Checks cover compilation, feature-code preservation, native inventory artwork/hierarchy, actual row/switch structures, callbacks, icons, 1,000-option search, K/text focus, compact sizing, drag and resize input events, viewport fitting, cleanup, separate settings writes, rerun protection, and the real asynchronous Info module. Component tests use mocks. Desktop inspection was stopped before the replacement UI could be exercised; final live appearance and full gameplay behavior have not been visually verified.
+Regression checks cover compilation, the earlier invalid ScreenGui.ZIndex startup failure, disabled native input flags, click-aware tab switching, global pointer navigation/dragging, resize, viewport fitting, icons, large-list search, native item cleanup, fresh config without legacy reads, own-config persistence, no cloned dim backdrop, branding, and the real asynchronous Info worker. Event tests use mocks; live client appearance and gameplay have not been verified for this revision.

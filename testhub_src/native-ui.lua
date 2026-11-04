@@ -7,7 +7,7 @@ local GuiService = game:GetService("GuiService")
 local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local assets = ReplicatedStorage:WaitForChild("Assets", 15)
 local shared = ReplicatedStorage:WaitForChild("Shared", 15)
-assert(assets and shared, "[TestHub] Game assets did not load")
+assert(assets and shared, "[@qtrzip] Game assets did not load")
 local function path(root, ...)
 	for _, name in ipairs({...}) do root = root and root:FindFirstChild(name) end
 	return root
@@ -23,15 +23,15 @@ if guiFrame then
 	guiFrame:Initialize("Inventory")
 	guiFrame:Initialize("Settings")
 end
-local palette = assert(safeRequire(path(shared, "Palette")), "[TestHub] Shared.Palette unavailable")
-local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[TestHub] Native button styling unavailable")
-local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[TestHub] Native Dropdown component unavailable")
+local palette = assert(safeRequire(path(shared, "Palette")), "[@qtrzip] Shared.Palette unavailable")
+local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[@qtrzip] Native button styling unavailable")
+local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[@qtrzip] Native Dropdown component unavailable")
 local itemUtil = safeRequire(path(shared, "Utils", "Stats", "ItemUtil"))
 local itemFrameBuilder = safeRequire(path(guiModules, "Utils", "ItemFrame"))
 local constants = safeRequire(path(shared, "Constants")) or {}
 local nativeScreen = playerGui:FindFirstChild("ScreenGui") or playerGui:WaitForChild("ScreenGui", 10)
-local nativeInventory = assert(nativeScreen and (nativeScreen:FindFirstChild("Inventory") or nativeScreen:WaitForChild("Inventory", 15)), "[TestHub] ScreenGui.Inventory is not loaded")
-local inventoryFrame = assert(path(nativeInventory, "Frame"), "[TestHub] Inventory.Frame is missing")
+local nativeInventory = assert(nativeScreen and (nativeScreen:FindFirstChild("Inventory") or nativeScreen:WaitForChild("Inventory", 15)), "[@qtrzip] ScreenGui.Inventory is not loaded")
+local inventoryFrame = assert(path(nativeInventory, "Frame"), "[@qtrzip] Inventory.Frame is missing")
 local nativeSettings = path(nativeScreen, "Settings", "Frame")
 local nativeButton = path(inventoryFrame, "Tray", "Buttons", "Buttons", "Best", "Button")
 local nativeRow
@@ -45,9 +45,9 @@ if settingsList then
 		end
 	end
 end
-assert(nativeRow, "[TestHub] Native Settings rows are not loaded; open game Settings once and rerun")
-assert(nativeButton, "[TestHub] Native action button is unavailable")
-local prototypeDropdown = dropdownComponent.new(nativeButton, {Items = {"TestHub"}, DefaultValue = 1, Width = "Target", MaxItemsVisible = 6})
+assert(nativeRow, "[@qtrzip] Native Settings rows are not loaded; open game Settings once and rerun")
+assert(nativeButton, "[@qtrzip] Native action button is unavailable")
+local prototypeDropdown = dropdownComponent.new(nativeButton, {Items = {"@qtrzip"}, DefaultValue = 1, Width = "Target", MaxItemsVisible = 6})
 local dropdownShell = prototypeDropdown._floater:Clone()
 local dropdownRow = prototypeDropdown._frames[1]:Clone()
 prototypeDropdown:Destroy()
@@ -61,7 +61,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.3", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.04.4", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -84,14 +84,19 @@ local function stroke(object, thickness, color)
 	create("UIStroke", {Thickness = thickness, Color = color, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, object)
 end
 local function cloneNative(source, zIndex)
-	assert(source and source.Archivable, "[TestHub] Native template cannot be cloned")
+	assert(source and source.Archivable, "[@qtrzip] Native template cannot be cloned")
 	local object = source:Clone()
 	local function clean(node, depth)
 		if node:IsA("BaseScript") or node:IsA("ModuleScript") then node:Destroy(); return end
-		if node:IsA("GuiObject") then node.ZIndex = (zIndex or 1) + depth end
+		if node:IsA("GuiObject") then
+			node.ZIndex = (zIndex or 1) + depth
+			node.Interactable = true
+			node.Active = node:IsA("GuiButton") or node:IsA("TextBox") or node:IsA("ScrollingFrame")
+		end
 		if node:IsA("GuiButton") then
 			for _, key in ipairs({"BaseAutoColor", "PressAutoColor", "EnterAutoColor", "Pressed", "ButtonActivated"}) do node:SetAttribute(key, nil) end
 			node.Active = true
+			node.Modal = false
 		end
 		if node:IsA("UIScale") then node.Scale = 1 end
 		for _, child in ipairs(node:GetChildren()) do clean(child, depth + 1) end
@@ -120,9 +125,9 @@ end
 local function button(parent, text, colorName, prototype)
 	local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1
 	local result = cloneNative(prototype or nativeButton, parentZ + 2)
-	result.Name = "TestHubButton"
+	result.Name = "QtrzipButton"
 	result.Parent = parent
-	local textLabel = assert(getLabel(result), "[TestHub] Native button label missing")
+	local textLabel = assert(getLabel(result), "[@qtrzip] Native button label missing")
 	textLabel.Text = text
 	local function paint(name)
 		autoButtonColor(result, palette.Button[name] or palette.Button.Blue)
@@ -131,7 +136,7 @@ local function button(parent, text, colorName, prototype)
 	return result, textLabel, paint
 end
 local root = create("ScreenGui", {
-	Name = "TestHub", ResetOnSpawn = false, DisplayOrder = 1000100,
+	Name = "@qtrzip", ResetOnSpawn = false, DisplayOrder = 1000100,
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling, IgnoreGuiInset = false,
 }, playerGui)
 library.ScreenGui = root
@@ -139,7 +144,8 @@ if type(onTestHubUiCreated) == "function" then onTestHubUiCreated(library) end
 -- Compatibility names in afbq's setup; all overlays use the same private root.
 library.NotificationGui, library.DropdownGui, library.TooltipGui = root, root, root
 function library:SetParent(parent) root.Parent = parent end
-local overlay = create("Frame", {Name = "Overlay", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 40}, root)
+local overlay = create("Frame", {Name = "Overlay", BackgroundTransparency = 1, Active = false, Visible = false,
+	Size = UDim2.fromScale(1, 1), ZIndex = 40}, root)
 
 -- Data is required lazily, and only visible dropdown rows create icon instances.
 local dataCache, descriptorCache, descriptorCount = {}, {}, 0
@@ -253,32 +259,35 @@ end
 library.ResolveIcon = resolve
 
 -- Keep the inventory's complete artwork and layout instead of rebuilding its shell.
-local holder = cloneNative(nativeInventory, 2)
-holder.Name = "TestHubInventory"; holder.Visible = true; holder.Parent = root
-local panel = assert(path(holder, "Frame"), "[TestHub] Inventory clone has no Frame")
+-- The native Inventory wrapper contains the fullscreen dimmer/input backdrop.
+-- Copy only its actual window into a fresh transparent, passive holder.
+local holder = create("Frame", {Name = "QtrzipHolder", BackgroundTransparency = 1, Active = false,
+	Size = UDim2.fromScale(1, 1), ZIndex = 2}, root)
+local panel = cloneNative(inventoryFrame, 2)
+panel.Parent = holder
 panel.Name = "Window"; panel.Visible = true
 for _, target in ipairs({holder, panel}) do
 	for _, child in ipairs(target:GetChildren()) do
 		if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
 	end
 end
-local baseWidth, baseHeight = 640, 488
-local desiredWidth, desiredHeight = 420, 320
+local baseWidth, baseHeight = 760, 532
+local desiredWidth, desiredHeight = 600, 420
 panel.Size = UDim2.fromOffset(baseWidth, baseHeight)
 panel.AnchorPoint = Vector2.new(0.5, 0.5); panel.Position = UDim2.fromScale(0.5, 0.5)
 local panelScale = panel:FindFirstChildOfClass("UIScale") or create("UIScale", {Scale = 1}, panel)
-local header = assert(path(panel, "Top"), "[TestHub] Native Inventory.Top missing")
+local header = assert(path(panel, "Top"), "[@qtrzip] Native Inventory.Top missing")
 header.Active = true
 header.AnchorPoint = Vector2.zero; header.Position = UDim2.fromOffset(0, 0)
-local heading = assert(path(header, "Title", "Title"), "[TestHub] Native Inventory title missing")
-heading.Text = "TestHub"; heading.TextSize = 32
+local heading = assert(path(header, "Title", "Title"), "[@qtrzip] Native Inventory title missing")
+heading.Text = "@qtrzip"; heading.TextSize = 32
 header.Size = UDim2.new(1, 0, 0, 66)
 local titleHost = heading.Parent
 titleHost.AnchorPoint = Vector2.zero; titleHost.Position = UDim2.fromOffset(18, 10); titleHost.Size = UDim2.new(1, -90, 0, 46)
 heading.Size = UDim2.fromScale(1, 1)
 local dragHandle = create("Frame", {Name = "DragHandle", BackgroundTransparency = 1, Active = true,
 	Size = UDim2.new(1, -72, 0, 66), ZIndex = header.ZIndex + 12}, panel)
-local close = assert(path(header, "Close", "Button"), "[TestHub] Native close button missing")
+local close = assert(path(header, "Close", "Button"), "[@qtrzip] Native close button missing")
 close.Parent.AnchorPoint = Vector2.new(1, 0); close.Parent.Position = UDim2.new(1, -12, 0, 12); close.Parent.Size = UDim2.fromOffset(40, 40)
 close.Size = UDim2.fromScale(1, 1)
 autoButtonColor(close, palette.Button.Red)
@@ -286,35 +295,35 @@ local topLeft = path(header, "Left")
 if topLeft then
 	for _, child in ipairs(topLeft:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
 end
-local tray = assert(path(panel, "Tray"), "[TestHub] Native Inventory.Tray missing")
+local tray = assert(path(panel, "Tray"), "[@qtrzip] Native Inventory.Tray missing")
 tray.Visible = true
 local trayButtons = tray:FindFirstChild("Buttons")
 if trayButtons then trayButtons.Visible = false end
-local searchHost = assert(path(tray, "Search"), "[TestHub] Native inventory search missing")
+local searchHost = assert(path(tray, "Search"), "[@qtrzip] Native inventory search missing")
 searchHost.Visible = true
-local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[TestHub] Native search TextBox missing")
-search.Text = ""; search.PlaceholderText = "Search TestHub..."; search.ClearTextOnFocus = false
+local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native search TextBox missing")
+search.Text = ""; search.PlaceholderText = "Search @qtrzip..."; search.ClearTextOnFocus = false
 search.TextSize = 18
-tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 128, 1, -62); tray.Size = UDim2.new(1, -142, 0, 34)
+tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 168, 1, -62); tray.Size = UDim2.new(1, -184, 0, 34)
 searchHost.AnchorPoint = Vector2.zero; searchHost.Position = UDim2.fromOffset(0, 0); searchHost.Size = UDim2.fromScale(1, 1)
 local nativeSearch = searchHost:FindFirstChild("Search")
 nativeSearch.AnchorPoint = Vector2.zero; nativeSearch.Position = UDim2.fromOffset(0, 0); nativeSearch.Size = UDim2.fromScale(1, 1)
 nativeSearch.Bar.Size = UDim2.fromScale(1, 1)
-local body = assert(path(panel, "Inner"), "[TestHub] Native Inventory.Inner missing")
+local body = assert(path(panel, "Inner"), "[@qtrzip] Native Inventory.Inner missing")
 local pagePrototype = path(body, "Items", "Main", "ScrollingFrame") or path(body, "Pets", "Main", "ScrollingFrame")
-assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[TestHub] Native inventory scroll panel missing")
+assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[@qtrzip] Native inventory scroll panel missing")
 pagePrototype = cloneNative(pagePrototype, 3)
 clearContent(body)
-body.AnchorPoint = Vector2.zero; body.Position = UDim2.fromOffset(128, 74); body.Size = UDim2.new(1, -142, 1, -144)
-local side = assert(path(panel, "Sidebar"), "[TestHub] Native sidebar missing")
-local nativeButtons = assert(side:FindFirstChild("Buttons"), "[TestHub] Native sidebar buttons missing")
+body.AnchorPoint = Vector2.zero; body.Position = UDim2.fromOffset(168, 74); body.Size = UDim2.new(1, -184, 1, -144)
+local side = assert(path(panel, "Sidebar"), "[@qtrzip] Native sidebar missing")
+local nativeButtons = assert(side:FindFirstChild("Buttons"), "[@qtrzip] Native sidebar buttons missing")
 local tabPrototypes = {}
 for _, child in ipairs(nativeButtons:GetChildren()) do
 	if child:IsA("GuiObject") and child:FindFirstChild("Button") then tabPrototypes[child.Name] = cloneNative(child, 4) end
 end
 local defaultTab = tabPrototypes.Pets or select(2, next(tabPrototypes))
-assert(defaultTab, "[TestHub] Native sidebar tab template missing")
-local sidebar = create("ScrollingFrame", {Name = "TestHubTabs", BackgroundTransparency = 1, BorderSizePixel = 0,
+assert(defaultTab, "[@qtrzip] Native sidebar tab template missing")
+local sidebar = create("ScrollingFrame", {Name = "QtrzipTabs", BackgroundTransparency = 1, BorderSizePixel = 0,
 	Size = UDim2.fromScale(1, 1), CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	ScrollBarThickness = 3, ClipsDescendants = true, ZIndex = nativeButtons.ZIndex}, side)
 nativeButtons.Visible = false
@@ -323,12 +332,12 @@ local sidebarLayout = nativeLayout and nativeLayout:Clone() or create("UIListLay
 sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sidebar
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
-side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 74); side.Size = UDim2.new(0, 104, 1, -106)
+side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 74); side.Size = UDim2.new(0, 144, 1, -106)
 local footer = cloneNative(heading, 10)
 footer.Name = "TestHubStatus"; footer.Text = "Loading features..."; footer.TextSize = math.min(footer.TextSize, 18)
 footer.AnchorPoint = Vector2.zero; footer.Position = UDim2.new(0, 20, 1, -30)
 footer.Size = UDim2.new(1, -40, 0, 24); footer.Parent = panel
-local reopen = button(root, "TestHub [K]", "Blue")
+local reopen = button(root, "@qtrzip [K]", "Blue")
 reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
 local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
 local resizeGrip = create("TextButton", {Name = "ResizeGrip", Text = "//", FontFace = nativeFont, TextSize = 22,
@@ -339,6 +348,7 @@ library.Window = window
 local activeTab, popup, popupOwner
 local function closePopup()
 	if popup then popup.Visible = false end
+	overlay.Visible = false
 	if popupOwner then
 		for _, cell in ipairs(popupOwner.pool or {}) do clearIcon(cell.icon); cell.button.Visible = false end
 		popupOwner.pool = nil
@@ -372,7 +382,7 @@ local function invoke(control, value)
 	if not control.Callback then return end
 	task.spawn(function()
 		local ok, err = pcall(control.Callback, value)
-		if not ok then warn("[TestHub] " .. control.Title .. ": " .. tostring(err)); status("Error in " .. control.Title .. " (see console)", true) end
+		if not ok then warn("[@qtrzip] " .. control.Title .. ": " .. tostring(err)); status("Error in " .. control.Title .. " (see console)", true) end
 	end)
 end
 local function applyFilter()
@@ -416,15 +426,25 @@ connect(workspace:GetPropertyChangedSignal("CurrentCamera"), bindCamera)
 bindCamera()
 local drag, dragInput, dragStart, panelStart
 local resizing, resizeInput, resizeStart, resizeWidth, resizeHeight
+local function containsPoint(object, point)
+	local p, s = object.AbsolutePosition, object.AbsoluteSize
+	return point.X >= p.X and point.Y >= p.Y and point.X <= p.X + s.X and point.Y <= p.Y + s.Y
+end
+local function startDrag(input)
+	drag = true; dragInput = input; dragStart = input.Position; panelStart = panel.Position
+end
+local function startResize(input)
+	resizing = true; resizeInput = input; resizeStart = input.Position
+	resizeWidth, resizeHeight = window.Width, window.Height; closePopup()
+end
 connect(dragHandle.InputBegan, function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		drag = true; dragInput = input; dragStart = input.Position; panelStart = panel.Position
+		startDrag(input)
 	end
 end)
 connect(resizeGrip.InputBegan, function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		resizing = true; resizeInput = input; resizeStart = input.Position
-		resizeWidth, resizeHeight = window.Width, window.Height; closePopup()
+		startResize(input)
 	end
 end)
 connect(UserInputService.InputChanged, function(input)
@@ -451,6 +471,18 @@ end)
 connect(UserInputService.InputBegan, function(input, processed)
 	if not processed and not UserInputService:GetFocusedTextBox() and input.KeyCode == (window.ToggleKey or Enum.KeyCode.K) then window:Toggle() end
 	if input.KeyCode == Enum.KeyCode.Escape and popupOwner then closePopup() end
+	local pointer = input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch
+	-- Route our own header/nav hit regions directly; native decorative children
+	-- must not swallow dragging or selection before Activated reaches the button.
+	if pointer and window.Opened and input.Position and not (popupOwner and containsPoint(popup, input.Position)) then
+		if containsPoint(resizeGrip, input.Position) then startResize(input)
+		elseif containsPoint(dragHandle, input.Position) then startDrag(input)
+		elseif containsPoint(sidebar, input.Position) then
+			for _, tab in ipairs(window.Tabs) do
+				if tab.NavigationButton.Visible and containsPoint(tab.NavigationButton, input.Position) then tab:Select(); break end
+			end
+		end
+	end
 	if popupOwner and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
 		local point = Vector2.new(input.Position.X, input.Position.Y)
 		local function contains(object)
@@ -475,27 +507,27 @@ function methods:Layout(narrow)
 	local actionable = self.Kind ~= "Paragraph" and self.Kind ~= "Section"
 	local height = self.Kind == "Section" and 38 or (self.Description ~= "" and 86 or 54)
 	self.Frame.Size = UDim2.new(1, -12, 0, height)
-	self.Information.Size = UDim2.new(1, actionable and -170 or -16, 1, 0)
+	self.Information.Size = UDim2.new(1, actionable and -200 or -16, 1, 0)
 	self.Label.TextSize = self.Kind == "Section" and 22 or 20
 	if self.Desc then self.Desc.TextSize = 15 end
 	if self.ActionHost then
 		self.ActionHost.Visible = actionable
 		self.ActionHost.AnchorPoint = Vector2.new(1, 0.5)
 		self.ActionHost.Position = UDim2.new(1, -12, 0.5, 0)
-		self.ActionHost.Size = UDim2.fromOffset(150, 38)
+		self.ActionHost.Size = UDim2.fromOffset(180, 38)
 	end
 end
 local function row(tab, kind, props)
 	props = props or {}
 	local frame = cloneNative(nativeRow, 4)
 	frame.Name = kind; frame.LayoutOrder = #tab.Controls + 1; frame.Parent = tab.Page
-	local information = assert(frame:FindFirstChild("Information"), "[TestHub] Native row Information missing")
-	local title = assert(information:FindFirstChild("Label"), "[TestHub] Native row title missing")
+	local information = assert(frame:FindFirstChild("Information"), "[@qtrzip] Native row Information missing")
+	local title = assert(information:FindFirstChild("Label"), "[@qtrzip] Native row title missing")
 	title.Text = props.Title or kind
 	local favorite = title:FindFirstChild("Favorite"); if favorite then favorite.Visible = false end
 	local description = information:FindFirstChild("Description")
 	if description then description.Text = props.Desc or ""; description.TextWrapped = true; description.Visible = kind ~= "Section" and description.Text ~= "" end
-	local actionHost = assert(frame:FindFirstChild("Action"), "[TestHub] Native row Action missing")
+	local actionHost = assert(frame:FindFirstChild("Action"), "[@qtrzip] Native row Action missing")
 	for _, child in ipairs(actionHost:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
 	local control = setmetatable({Kind = kind, Frame = frame, Label = title, Desc = description,
 		Information = information, ActionHost = actionHost,
@@ -505,12 +537,12 @@ local function row(tab, kind, props)
 	return control
 end
 local function rowButton(control)
-	local host = assert(control.ActionHost:FindFirstChild("Dropdown"), "[TestHub] Native Dropdown action missing")
+	local host = assert(control.ActionHost:FindFirstChild("Dropdown"), "[@qtrzip] Native Dropdown action missing")
 	host.Visible = true
 	host.AnchorPoint = Vector2.zero; host.Position = UDim2.fromOffset(0, 0); host.Size = UDim2.fromScale(1, 1)
-	local action = assert(host:FindFirstChild("Button"), "[TestHub] Native Dropdown button missing")
+	local action = assert(host:FindFirstChild("Button"), "[@qtrzip] Native Dropdown button missing")
 	action.AnchorPoint = Vector2.zero; action.Position = UDim2.fromOffset(0, 0); action.Size = UDim2.fromScale(1, 1)
-	local title = assert(getLabel(action), "[TestHub] Native Dropdown label missing")
+	local title = assert(getLabel(action), "[@qtrzip] Native Dropdown label missing")
 	autoButtonColor(action, palette.Button.Blue)
 	control.Action = action
 	return action, title
@@ -527,15 +559,15 @@ function tabMethods:Button(props)
 end
 function tabMethods:Toggle(props)
 	local control = row(self, "Toggle", props)
-	local action = assert(control.ActionHost:FindFirstChild("Toggle"), "[TestHub] Native Toggle action missing")
+	local action = assert(control.ActionHost:FindFirstChild("Toggle"), "[@qtrzip] Native Toggle action missing")
 	action.Visible = true
 	control.Action = action
 	function control:Set(value, silent)
 		self.Value = value == true
-		local blob = assert(action:FindFirstChild("Blob"), "[TestHub] Native toggle Blob missing")
+		local blob = assert(action:FindFirstChild("Blob"), "[@qtrzip] Native toggle Blob missing")
 		blob.AnchorPoint = Vector2.new(self.Value and 1 or 0, 0)
 		blob.Position = UDim2.fromScale(self.Value and 1 or 0, 0)
-		local gradient = assert(action:FindFirstChildOfClass("UIGradient"), "[TestHub] Native toggle gradient missing")
+		local gradient = assert(action:FindFirstChildOfClass("UIGradient"), "[@qtrzip] Native toggle gradient missing")
 		gradient.Color = palette.Button[self.Value and "Green" or "Inactive"].Color
 		if not silent then invoke(self, self.Value) end
 	end
@@ -546,11 +578,11 @@ function tabMethods:Toggle(props)
 end
 function tabMethods:Input(props)
 	local control = row(self, "Input", props)
-	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[TestHub] Native input action missing")
+	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[@qtrzip] Native input action missing")
 	keybind.Visible = true
 	keybind.AnchorPoint = Vector2.zero; keybind.Position = UDim2.fromOffset(0, 0); keybind.Size = UDim2.fromScale(1, 1)
 	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
-	local input = assert(keybind:FindFirstChild("InputBox"), "[TestHub] Native InputBox missing")
+	local input = assert(keybind:FindFirstChild("InputBox"), "[@qtrzip] Native InputBox missing")
 	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
 	input.Size = UDim2.new(1, 0, 1, 0)
 	local display = input:FindFirstChild("Label")
@@ -586,7 +618,7 @@ function tabMethods:Dropdown(props)
 	function control:UpdateIcon()
 		if window.Opened and self.Tab == activeTab and self.Value ~= nil and not self.Multi then
 			local ok, err = pcall(renderIcon, self.Icon, self.Value, self.Title)
-			if not ok then warn("[TestHub] Icon: " .. tostring(err)) end
+			if not ok then warn("[@qtrzip] Icon: " .. tostring(err)) end
 		end
 	end
 	function control:Select(value, silent)
@@ -607,6 +639,7 @@ function tabMethods:Dropdown(props)
 		closePopup()
 		if popup then popup:Destroy() end
 		popup = cloneNative(dropdownShell, 40)
+		overlay.Visible = true
 		popup.Name = "IconPicker"; popup.AnchorPoint = Vector2.zero; popup.Visible = true; popup.Parent = overlay
 		local popupTitle = cloneNative(nativeRow.Information.Label, 42)
 		popupTitle.Text = control.Title .. "  /  " .. #control.Values; popupTitle.Parent = popup
@@ -614,9 +647,9 @@ function tabMethods:Dropdown(props)
 		local done = button(popup, "x", "Red"); done.Size = UDim2.fromOffset(28, 26); done.Position = UDim2.new(1, -38, 0, 8)
 		local queryHost = cloneNative(searchHost, 42); queryHost.Parent = popup
 		queryHost.Position = UDim2.fromOffset(10, 43); queryHost.Size = UDim2.new(1, -20, 0, 40)
-		local query = assert(path(queryHost, "Search", "Bar", "TextBox"), "[TestHub] Native picker search missing")
+		local query = assert(path(queryHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native picker search missing")
 		query.Text = ""; query.PlaceholderText = "Search names..."; query.ClearTextOnFocus = false
-		local list = assert(popup:FindFirstChild("Items"), "[TestHub] Native picker Items missing")
+		local list = assert(popup:FindFirstChild("Items"), "[@qtrzip] Native picker Items missing")
 		clearContent(list)
 		for _, child in ipairs(list:GetChildren()) do if child:IsA("UIListLayout") or child:IsA("UIPadding") then child:Destroy() end end
 		list.Position = UDim2.fromOffset(10, 90); list.Size = UDim2.new(1, -20, 1, -102); list.ScrollBarThickness = 5
@@ -707,7 +740,7 @@ function window:Tab(props)
 			for _, control in ipairs(activeTab.Controls) do if control.Icon then clearIcon(control.Icon) end end
 		end
 		activeTab = self; page.Visible = true; paint("Green"); search.Text = ""; applyFilter()
-		heading.Text = "TestHub  /  " .. self.Title
+		heading.Text = "@qtrzip  /  " .. self.Title
 		for _, control in ipairs(self.Controls) do if control.UpdateIcon then control:UpdateIcon() end end
 	end
 	connect(tabButton.Activated, function() tab:Select() end)
@@ -718,7 +751,7 @@ function window:Tab(props)
 	return tab
 end
 function library:CreateWindow(props)
-	heading.Text = "TestHub"
+	heading.Text = "@qtrzip"
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
 	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc"}) do window:Tab({Title = title}) end

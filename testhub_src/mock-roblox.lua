@@ -84,6 +84,15 @@ function methods:Destroy()
 end
 function methods:GetBoundingBox() return {Position=vector()},vector(2,3,2) end
 function methods:GetFocusedTextBox() return self._focused end
+function methods:Click()
+	if not self:IsA("GuiButton") or self.Active == false then return false end
+	local current=self
+	while current do
+		if current:IsA("GuiObject") and (current.Interactable==false or current.Visible==false) then return false end
+		current=current.Parent
+	end
+	self.Activated:Fire();return true
+end
 function methods:SetAttribute(name,value) self._attributes=self._attributes or {};self._attributes[name]=value end
 function methods:GetAttribute(name) return self._attributes and self._attributes[name] end
 instanceMT.__index=function(self,key)
@@ -144,7 +153,9 @@ local toggle=child(action,"ImageButton","Toggle");child(toggle,"Frame","Blob");c
 local keybind=child(action,"Frame","Keybind");child(keybind,"Frame","Clear")
 local inputBox=child(keybind,"TextBox","InputBox");child(inputBox,"TextLabel","Label");child(inputBox,"Frame","Background")
 local inventory=child(nativeScreen,"Frame","Inventory")
+inventory.BackgroundTransparency=0.45;inventory.Interactable=false;inventory.Active=true
 local inventoryFrame=child(inventory,"Frame","Frame");inventoryFrame.Size=UDim2.fromOffset(1235,770)
+inventoryFrame.Interactable=false
 inventoryFrame.BackgroundColor3={nativeInventoryColor=true}
 child(inventoryFrame,"ImageLabel","Background").Image="native-inventory-art"
 local top=child(inventoryFrame,"Frame","Top");local topTitle=child(top,"Frame","Title");child(topTitle,"TextLabel","Title")
@@ -178,6 +189,11 @@ end}
 local palette={Button={}}
 for _,name in ipairs({"Blue","Green","Inactive","Red"}) do palette.Button[name]={Color=ColorSequence.new(Color3.new(1,1,1))} end
 child(shared,"ModuleScript","Palette")._module=palette
+-- Closed native menus can be cloned with disabled buttons and active decoration.
+for _,node in ipairs(nativeScreen:GetDescendants()) do
+	if node:IsA("GuiButton") then node.Interactable=false end
+	if node:IsA("TextLabel") then node.Active=true end
+end
 local localPlayer=Instance.new("Player");pg.Name="PlayerGui";pg.Parent=localPlayer
 local camera=Instance.new("Camera");local workspace=Instance.new("Workspace");workspace.CurrentCamera=camera
 local input=Instance.new("UserInputService")
