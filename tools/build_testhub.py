@@ -41,11 +41,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 2 and prior.UI and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 3 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 2 then
+if prior and prior.Starting and prior.Revision == 3 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -61,9 +61,10 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 2, State = private}
+local runtime = {Starting = true, Revision = 3, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
+local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
 local function getgenv() return private end
 local loadstring = private.loadstring
@@ -74,7 +75,10 @@ local ok, err = pcall(start)
 runtime.Starting = false
 runtime.UI = rawget(private, "WindUI")
 if not ok then
-    if runtime.UI then runtime.UI:Destroy() end
+    if runtime.UI then
+        if type(runtime.UI.Destroy) == "function" then runtime.UI:Destroy()
+        elseif runtime.UI.ScreenGui then runtime.UI.ScreenGui:Destroy() end
+    end
     actualGlobals._BGSI_TestHub = nil
     error("[TestHub] Startup failed: " .. tostring(err), 0)
 end

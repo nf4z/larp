@@ -28,9 +28,15 @@ print('All 17 feature module bodies preserved; no WindUI download: PASS')
 mock = (ROOT / 'testhub_src/mock-roblox.lua').read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
 code = 'local mock = (function()\n' + mock + '\nend)()\n'
+bad_adapter = adapter.replace('local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1', 'local parentZ = parent.ZIndex')
+assert bad_adapter != adapter
+code += 'local broken = assert(loadstring(' + json.dumps(bad_adapter, ensure_ascii=True) + '))\nsetfenv(broken,mock.env)\n'
+code += 'local ok,err=pcall(broken);assert(not ok and tostring(err):find("ZIndex is not a valid member of ScreenGui",1,true),"Reproduce the reported startup failure")\n'
+code += 'local orphan=mock.playerGui:FindFirstChild("TestHub");if orphan then orphan:Destroy() end\n'
 code += 'local fn = assert(loadstring(' + json.dumps(adapter, ensure_ascii=True) + '))\nsetfenv(fn, mock.env)\nlocal ui = fn()\n'
 code += r'''
 local window = ui:CreateWindow({ToggleKey=mock.Enum.KeyCode.K})
+assert(math.abs(window.Width-420)<1 and math.abs(window.Height-320)<1, "Compact afbq-sized default")
 assert(mock.counters.clones > 0, "Use cloned game visuals")
 assert(window.Native.BackgroundColor3.nativeInventoryColor)
 assert(window.Native:FindFirstChild("Background").Image=="native-inventory-art")
@@ -85,8 +91,17 @@ local other=window:Tab({Title="Potions"});other:Select();assert(other.Page.Visib
 tab:Select();local search=window.Native.Tray.Search.Search.Bar.TextBox;search.Text="Rescan"
 assert(run.Frame.Visible and not toggle.Frame.Visible)
 search.Text="";assert(toggle.Frame.Visible)
+local mouse={UserInputType=mock.Enum.UserInputType.MouseButton1,Position=mock.vector(10,10)}
+window.DragHandle.InputBegan:Fire(mouse)
+mock.input.InputChanged:Fire({UserInputType=mock.Enum.UserInputType.MouseMovement,Position=mock.vector(50,35)})
+mock.input.InputEnded:Fire(mouse)
+assert(window.Native.Position.X.Offset>0, "Drag handle moves the window")
+window.ResizeGrip.InputBegan:Fire(mouse)
+mock.input.InputChanged:Fire({UserInputType=mock.Enum.UserInputType.MouseMovement,Position=mock.vector(70,50)})
+mock.input.InputEnded:Fire(mouse)
+assert(window.Width>420 and window.Height>320, "Resize grip changes both dimensions")
 mock.workspace.CurrentCamera.ViewportSize=mock.vector(390,844)
-assert(window.Scale.Scale<0.4 and window.Native.Size.X.Offset==1235, "Scale the actual native layout")
+assert(window.Width<=366 and window.Native.Size.X.Offset==640, "Fit the compact native layout to the viewport")
 assert(ui.ResolveIcon("Luck Tier 2").item.Tier==2)
 assert(ui.ResolveIcon("Unknown").fallback=="U")
 assert(ui.ResolveIcon("Dog").item.Type=="Pet")

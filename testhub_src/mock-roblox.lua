@@ -87,6 +87,7 @@ function methods:GetFocusedTextBox() return self._focused end
 function methods:SetAttribute(name,value) self._attributes=self._attributes or {};self._attributes[name]=value end
 function methods:GetAttribute(name) return self._attributes and self._attributes[name] end
 instanceMT.__index=function(self,key)
+	if self._class=="ScreenGui" and key=="ZIndex" then error("ZIndex is not a valid member of ScreenGui") end
 	if methods[key] then return methods[key] end
 	if self._props[key]~=nil then return self._props[key] end
 	if key=="Activated" or key=="InputBegan" or key=="InputEnded" or key=="InputChanged" or key=="FocusLost" or key=="Idled" or key=="Destroying" then
@@ -96,6 +97,7 @@ instanceMT.__index=function(self,key)
 	return self:FindFirstChild(key)
 end
 instanceMT.__newindex=function(self,key,value)
+	if self._class=="ScreenGui" and key=="ZIndex" then error("ZIndex is not a valid member of ScreenGui") end
 	if key:sub(1,1)=="_" then rawset(self,key,value);return end
 	local previous=self._props[key]
 	if key=="Parent" and previous~=value then

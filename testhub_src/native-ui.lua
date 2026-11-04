@@ -61,7 +61,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.2", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.04.3", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -118,7 +118,8 @@ local function label(parent, text, size, color)
 	}, parent)
 end
 local function button(parent, text, colorName, prototype)
-	local result = cloneNative(prototype or nativeButton, parent.ZIndex + 2)
+	local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1
+	local result = cloneNative(prototype or nativeButton, parentZ + 2)
 	result.Name = "TestHubButton"
 	result.Parent = parent
 	local textLabel = assert(getLabel(result), "[TestHub] Native button label missing")
@@ -134,6 +135,7 @@ local root = create("ScreenGui", {
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling, IgnoreGuiInset = false,
 }, playerGui)
 library.ScreenGui = root
+if type(onTestHubUiCreated) == "function" then onTestHubUiCreated(library) end
 -- Compatibility names in afbq's setup; all overlays use the same private root.
 library.NotificationGui, library.DropdownGui, library.TooltipGui = root, root, root
 function library:SetParent(parent) root.Parent = parent end
@@ -255,17 +257,30 @@ local holder = cloneNative(nativeInventory, 2)
 holder.Name = "TestHubInventory"; holder.Visible = true; holder.Parent = root
 local panel = assert(path(holder, "Frame"), "[TestHub] Inventory clone has no Frame")
 panel.Name = "Window"; panel.Visible = true
-local originalSize = inventoryFrame.Size
-local baseWidth = originalSize.X.Offset > 0 and originalSize.X.Offset or 1235
-local baseHeight = originalSize.Y.Offset > 0 and originalSize.Y.Offset or 770
+for _, target in ipairs({holder, panel}) do
+	for _, child in ipairs(target:GetChildren()) do
+		if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
+	end
+end
+local baseWidth, baseHeight = 640, 488
+local desiredWidth, desiredHeight = 420, 320
 panel.Size = UDim2.fromOffset(baseWidth, baseHeight)
 panel.AnchorPoint = Vector2.new(0.5, 0.5); panel.Position = UDim2.fromScale(0.5, 0.5)
 local panelScale = panel:FindFirstChildOfClass("UIScale") or create("UIScale", {Scale = 1}, panel)
 local header = assert(path(panel, "Top"), "[TestHub] Native Inventory.Top missing")
 header.Active = true
+header.AnchorPoint = Vector2.zero; header.Position = UDim2.fromOffset(0, 0)
 local heading = assert(path(header, "Title", "Title"), "[TestHub] Native Inventory title missing")
-heading.Text = "TestHub"
+heading.Text = "TestHub"; heading.TextSize = 32
+header.Size = UDim2.new(1, 0, 0, 66)
+local titleHost = heading.Parent
+titleHost.AnchorPoint = Vector2.zero; titleHost.Position = UDim2.fromOffset(18, 10); titleHost.Size = UDim2.new(1, -90, 0, 46)
+heading.Size = UDim2.fromScale(1, 1)
+local dragHandle = create("Frame", {Name = "DragHandle", BackgroundTransparency = 1, Active = true,
+	Size = UDim2.new(1, -72, 0, 66), ZIndex = header.ZIndex + 12}, panel)
 local close = assert(path(header, "Close", "Button"), "[TestHub] Native close button missing")
+close.Parent.AnchorPoint = Vector2.new(1, 0); close.Parent.Position = UDim2.new(1, -12, 0, 12); close.Parent.Size = UDim2.fromOffset(40, 40)
+close.Size = UDim2.fromScale(1, 1)
 autoButtonColor(close, palette.Button.Red)
 local topLeft = path(header, "Left")
 if topLeft then
@@ -279,11 +294,18 @@ local searchHost = assert(path(tray, "Search"), "[TestHub] Native inventory sear
 searchHost.Visible = true
 local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[TestHub] Native search TextBox missing")
 search.Text = ""; search.PlaceholderText = "Search TestHub..."; search.ClearTextOnFocus = false
+search.TextSize = 18
+tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 128, 1, -62); tray.Size = UDim2.new(1, -142, 0, 34)
+searchHost.AnchorPoint = Vector2.zero; searchHost.Position = UDim2.fromOffset(0, 0); searchHost.Size = UDim2.fromScale(1, 1)
+local nativeSearch = searchHost:FindFirstChild("Search")
+nativeSearch.AnchorPoint = Vector2.zero; nativeSearch.Position = UDim2.fromOffset(0, 0); nativeSearch.Size = UDim2.fromScale(1, 1)
+nativeSearch.Bar.Size = UDim2.fromScale(1, 1)
 local body = assert(path(panel, "Inner"), "[TestHub] Native Inventory.Inner missing")
 local pagePrototype = path(body, "Items", "Main", "ScrollingFrame") or path(body, "Pets", "Main", "ScrollingFrame")
 assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[TestHub] Native inventory scroll panel missing")
 pagePrototype = cloneNative(pagePrototype, 3)
 clearContent(body)
+body.AnchorPoint = Vector2.zero; body.Position = UDim2.fromOffset(128, 74); body.Size = UDim2.new(1, -142, 1, -144)
 local side = assert(path(panel, "Sidebar"), "[TestHub] Native sidebar missing")
 local nativeButtons = assert(side:FindFirstChild("Buttons"), "[TestHub] Native sidebar buttons missing")
 local tabPrototypes = {}
@@ -299,8 +321,9 @@ nativeButtons.Visible = false
 local nativeLayout = nativeButtons:FindFirstChildOfClass("UIListLayout")
 local sidebarLayout = nativeLayout and nativeLayout:Clone() or create("UIListLayout", {}, nil)
 sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sidebar
+sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
-side.Size = UDim2.new(side.Size.X.Scale, math.max(side.Size.X.Offset, 100), 1, -150)
+side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 74); side.Size = UDim2.new(0, 104, 1, -106)
 local footer = cloneNative(heading, 10)
 footer.Name = "TestHubStatus"; footer.Text = "Loading features..."; footer.TextSize = math.min(footer.TextSize, 18)
 footer.AnchorPoint = Vector2.zero; footer.Position = UDim2.new(0, 20, 1, -30)
@@ -308,6 +331,10 @@ footer.Size = UDim2.new(1, -40, 0, 24); footer.Parent = panel
 local reopen = button(root, "TestHub [K]", "Blue")
 reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
 local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
+local resizeGrip = create("TextButton", {Name = "ResizeGrip", Text = "//", FontFace = nativeFont, TextSize = 22,
+	TextColor3 = colors.text, BackgroundTransparency = 1, Size = UDim2.fromOffset(32, 32),
+	AnchorPoint = Vector2.new(1, 1), Position = UDim2.fromScale(1, 1), ZIndex = panel.ZIndex + 20}, panel)
+window.DragHandle = dragHandle; window.ResizeGrip = resizeGrip
 library.Window = window
 local activeTab, popup, popupOwner
 local function closePopup()
@@ -371,7 +398,11 @@ local function resize()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	panelScale.Scale = math.max(0.25, math.min(1, (viewport.X - 100) / baseWidth, (viewport.Y - 100) / baseHeight))
+	local scale = math.max(0.25, math.min(desiredWidth / baseWidth, (viewport.X - 24) / baseWidth))
+	local logicalHeight = math.clamp(desiredHeight / scale, 360, math.max(360, (viewport.Y - 60) / scale))
+	panelScale.Scale = scale
+	panel.Size = UDim2.fromOffset(baseWidth, logicalHeight)
+	window.Width = baseWidth * scale; window.Height = logicalHeight * scale
 	for _, control in ipairs(controls) do if control.Layout then control:Layout(false) end end
 	closePopup()
 end
@@ -384,12 +415,26 @@ end
 connect(workspace:GetPropertyChangedSignal("CurrentCamera"), bindCamera)
 bindCamera()
 local drag, dragInput, dragStart, panelStart
-connect(header.InputBegan, function(input)
+local resizing, resizeInput, resizeStart, resizeWidth, resizeHeight
+connect(dragHandle.InputBegan, function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		drag = true; dragInput = input; dragStart = input.Position; panelStart = panel.Position
 	end
 end)
+connect(resizeGrip.InputBegan, function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		resizing = true; resizeInput = input; resizeStart = input.Position
+		resizeWidth, resizeHeight = window.Width, window.Height; closePopup()
+	end
+end)
 connect(UserInputService.InputChanged, function(input)
+	if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input == resizeInput) then
+		local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
+		local delta = input.Position - resizeStart
+		desiredWidth = math.clamp(resizeWidth + delta.X, math.min(340, viewport.X - 24), math.max(340, viewport.X - 24))
+		desiredHeight = math.clamp(resizeHeight + delta.Y, 240, math.max(240, viewport.Y - 60))
+		resize(); return
+	end
 	if not drag then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseMovement and input ~= dragInput then return end
 	local delta = input.Position - dragStart
@@ -401,6 +446,7 @@ connect(UserInputService.InputChanged, function(input)
 end)
 connect(UserInputService.InputEnded, function(input)
 	if input == dragInput or input.UserInputType == Enum.UserInputType.MouseButton1 then drag = false end
+	if input == resizeInput or input.UserInputType == Enum.UserInputType.MouseButton1 then resizing = false end
 end)
 connect(UserInputService.InputBegan, function(input, processed)
 	if not processed and not UserInputService:GetFocusedTextBox() and input.KeyCode == (window.ToggleKey or Enum.KeyCode.K) then window:Toggle() end
@@ -427,14 +473,16 @@ function methods:Lock() self.Locked = true; if self.Action then self.Action.Acti
 function methods:Unlock() self.Locked = false; if self.Action then self.Action.Active = true end end
 function methods:Layout(narrow)
 	local actionable = self.Kind ~= "Paragraph" and self.Kind ~= "Section"
-	local height = self.Kind == "Section" and 50 or (self.Description ~= "" and 90 or 64)
+	local height = self.Kind == "Section" and 38 or (self.Description ~= "" and 86 or 54)
 	self.Frame.Size = UDim2.new(1, -12, 0, height)
-	self.Information.Size = UDim2.new(1, actionable and -240 or -16, 1, 0)
+	self.Information.Size = UDim2.new(1, actionable and -170 or -16, 1, 0)
+	self.Label.TextSize = self.Kind == "Section" and 22 or 20
+	if self.Desc then self.Desc.TextSize = 15 end
 	if self.ActionHost then
 		self.ActionHost.Visible = actionable
 		self.ActionHost.AnchorPoint = Vector2.new(1, 0.5)
 		self.ActionHost.Position = UDim2.new(1, -12, 0.5, 0)
-		self.ActionHost.Size = UDim2.fromOffset(215, 44)
+		self.ActionHost.Size = UDim2.fromOffset(150, 38)
 	end
 end
 local function row(tab, kind, props)
@@ -459,7 +507,9 @@ end
 local function rowButton(control)
 	local host = assert(control.ActionHost:FindFirstChild("Dropdown"), "[TestHub] Native Dropdown action missing")
 	host.Visible = true
+	host.AnchorPoint = Vector2.zero; host.Position = UDim2.fromOffset(0, 0); host.Size = UDim2.fromScale(1, 1)
 	local action = assert(host:FindFirstChild("Button"), "[TestHub] Native Dropdown button missing")
+	action.AnchorPoint = Vector2.zero; action.Position = UDim2.fromOffset(0, 0); action.Size = UDim2.fromScale(1, 1)
 	local title = assert(getLabel(action), "[TestHub] Native Dropdown label missing")
 	autoButtonColor(action, palette.Button.Blue)
 	control.Action = action
@@ -498,6 +548,7 @@ function tabMethods:Input(props)
 	local control = row(self, "Input", props)
 	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[TestHub] Native input action missing")
 	keybind.Visible = true
+	keybind.AnchorPoint = Vector2.zero; keybind.Position = UDim2.fromOffset(0, 0); keybind.Size = UDim2.fromScale(1, 1)
 	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
 	local input = assert(keybind:FindFirstChild("InputBox"), "[TestHub] Native InputBox missing")
 	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
@@ -506,6 +557,10 @@ function tabMethods:Input(props)
 	if display then
 		-- The native input renders through its child label above its Background frame.
 		input.TextTransparency = 1; input.PlaceholderText = ""; display.Visible = true
+		input.ClipsDescendants = true
+		display.AutomaticSize = Enum.AutomaticSize.None; display.AnchorPoint = Vector2.zero
+		display.Position = UDim2.fromOffset(6, 0); display.Size = UDim2.new(1, -12, 1, 0)
+		display.TextSize = 18; display.TextTruncate = Enum.TextTruncate.AtEnd
 		local function mirrorText()
 			display.Text = input.Text ~= "" and input.Text or (props.Placeholder or "Enter value...")
 			display.TextTransparency = input.Text ~= "" and 0 or 0.4
@@ -638,14 +693,12 @@ function window:Tab(props)
 	page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.CanvasSize = UDim2.new(); page.Visible = false; page.Parent = body
 	create("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, page)
 	local tab = setmetatable({Title = props.Title, Page = page, Controls = {}}, {__index = tabMethods})
-	local iconCategories = {Info = "Currency", ["Activity Info"] = "Currency", Webhook = "Currency", Eggs = "Pets", Pets = "Pets", Enchant = "Pets", Trade = "Pets", Quest = "Titles", Teleport = "Titles"}
-	local entry = cloneNative(tabPrototypes[iconCategories[props.Title] or "Items"] or defaultTab, 4)
-	entry.Name = props.Title; entry.LayoutOrder = #self.Tabs + 1; entry.Parent = sidebar
-	local tabButton = assert(entry:FindFirstChild("Button"), "[TestHub] Native tab Button missing")
-	local tabTitle = assert(getLabel(tabButton), "[TestHub] Native tab Label missing")
-	tabTitle.Text = props.Title; tabTitle.TextWrapped = true
-	for _, child in ipairs(entry:GetDescendants()) do if child:IsA("GuiObject") and child.Name == "Notification" then child.Visible = false end end
-	local function paint(name) autoButtonColor(tabButton, palette.Button[name] or palette.Button.Blue) end
+	local entry = create("Frame", {Name = props.Title, LayoutOrder = #self.Tabs + 1,
+		BackgroundTransparency = 1, Size = UDim2.new(1, -4, 0, 40), ZIndex = sidebar.ZIndex + 1}, sidebar)
+	local tabButton, tabTitle, paint = button(entry, props.Title, "Inactive", dropdownRow)
+	tabButton.AnchorPoint = Vector2.zero; tabButton.Position = UDim2.fromOffset(0, 0); tabButton.Size = UDim2.fromScale(1, 1)
+	tabTitle.TextSize = 18; tabTitle.TextWrapped = true
+	tabTitle.Position = UDim2.fromOffset(2, 0); tabTitle.Size = UDim2.new(1, -4, 1, 0)
 	tab.Paint = paint; tab.NavigationButton = tabButton
 	function tab:Select()
 		closePopup()
