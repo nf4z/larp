@@ -55,6 +55,7 @@ local Window = WindUI:CreateWindow({
     Icon = "door-open",
     Author = "Bubblegum Simulator Infinity",
     Folder = "AfbqHub",
+    ToggleKey = Enum.KeyCode.K,
     Size = UDim2.fromOffset(420, 320),
     Transparent = true,
     Theme = "Dark",
