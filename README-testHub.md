@@ -1,7 +1,7 @@
 # @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-4"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-5"))()
 ```
 
 The repository entry remains `testHub` for compatibility. Visible titles, search, reopen button, prompts, and hub branding use **@qtrzip**.
@@ -17,11 +17,15 @@ This revision reads and writes **qtrzip_settings.json only**. If absent, it star
 
 When replacing an already running older version, rejoin once to clear that version's background automation before loading this revision. Re-executing the current revision reopens its existing window rather than starting another copy.
 
-## Native visuals and input repair
+## Settings-based visuals and sizing
 
-The menu clones only the actual Inventory.Frame into a fresh transparent, passive holder. It no longer copies Inventory's fullscreen dim/input backdrop. Original game UI objects remain intact. Closed native-menu input flags are reset on clones: controls are interactable, passive decorations do not capture input, and cloned button modal state is disabled. The picker overlay is hidden whenever no picker is open.
+Revision 5 clones **Settings.Frame**, including its light Main content panel, instead of the Inventory shell. Sections are real Settings category containers with a centered label and Items list. Their height follows content using the same list-height-plus-50 calculation as the game's Settings module.
 
-Tab selection and header/resize interaction also use explicit pointer hit regions through UserInputService, so decorative descendants cannot prevent navigation or dragging. Settings rows, native toggle knobs, dropdown templates, and item cards retain game visuals. Egg/item pickers use live game data and nine reusable rows. Destroying item cards cleans up their animations.
+Rows follow Settings sizing: 50 logical pixels without a description and 75 with one. Toggles reserve 80 pixels, dropdowns 250 pixels, and the information column reserves the action width plus 15. Native row fonts are retained. Tab labels use a fixed font size and zero anchor to prevent automatic font enlargement and overlapping text.
+
+Plain choice lists use Gui.Components.Dropdown.new directly with target-button width and up to six visible options, without fake initial-letter icons, a picker title, or an extra search bar. Actual item/egg lists retain searchable icon selection and bounded reusable rows. Dropdown arrows reset on close.
+
+The transparent holder, hidden picker overlay, explicit pointer routing, drag/resize handling, separate qtrzip config, and K keybind remain. The native fullscreen background wrapper is not copied.
 
 ## Build and verification
 

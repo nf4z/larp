@@ -41,7 +41,7 @@ function Instance.new(class)
 	return setmetatable({_class=class,_children={},_signals={},_props={
 		Name=class,Archivable=true,Visible=true,ZIndex=1,Size=UDim2.fromOffset(100,100),
 		Position=UDim2.fromOffset(0,0),AbsolutePosition=vector(250,180),AbsoluteSize=vector(192,38),
-		CanvasPosition=vector(),Text="",TextSize=28,FontFace="NativeFont",ViewportSize=vector(1100,800),
+		CanvasPosition=vector(),AbsoluteContentSize=vector(),Text="",TextSize=28,FontFace="NativeFont",ViewportSize=vector(1100,800),
 	}},instanceMT)
 end
 local guiClasses = {Frame=true,ImageLabel=true,TextLabel=true,ImageButton=true,TextButton=true,TextBox=true,ScrollingFrame=true,ViewportFrame=true}
@@ -146,6 +146,9 @@ local nativeScreen=child(pg,"ScreenGui","ScreenGui");local settings=child(native
 local frame=child(settings,"Frame","Frame");child(frame,"UIStroke","UIStroke")
 local main=child(frame,"Frame","Main");local list=child(main,"ScrollingFrame","ScrollingFrame")
 local template=child(list,"Frame","Template");local info=child(template,"Frame","Information");child(info,"TextLabel","Label")
+local category=child(list,"Frame","General");child(category,"TextLabel","Label")
+local categoryItems=child(category,"Frame","Items");child(categoryItems,"UIListLayout","UIListLayout")
+template.Parent=categoryItems
 child(info,"TextLabel","Description")
 template.BackgroundTransparency=0.75
 local action=child(template,"Frame","Action");local drop=child(action,"Frame","Dropdown");nativeButton:Clone().Parent=drop
@@ -170,6 +173,10 @@ for _,name in ipairs({"Pets","Items","Titles","Currency"}) do
 end
 local tray=child(inventoryFrame,"Frame","Tray");child(tray,"Frame","Buttons")
 local searchHost=child(tray,"Frame","Search");local search=child(searchHost,"Frame","Search");local bar=child(search,"Frame","Bar");child(bar,"TextBox","TextBox")
+top:Clone().Parent=frame;side:Clone().Parent=frame
+frame.BackgroundColor3={nativeSettingsColor=true}
+child(frame,"ImageLabel","Background").Image="native-settings-art"
+child(main,"ImageLabel","Background").Image="native-settings-content"
 local client=child(storage,"Folder","Client");local gui=child(client,"Folder","Gui");local guiUtils=child(gui,"Folder","Utils");local components=child(gui,"Folder","Components")
 child(gui,"ModuleScript","GuiFrame")._module={Initialize=function() end}
 child(guiUtils,"ModuleScript","AutoButtonColor")._module=function(button,theme) button:SetAttribute("MockTheme",theme) end
@@ -181,10 +188,16 @@ child(guiUtils,"ModuleScript","ItemFrame")._module=function(item)
 	card.Destroying:Connect(function() counters.cardCleanup=(counters.cardCleanup or 0)+1 end)
 	return card
 end
-child(components,"ModuleScript","Dropdown")._module={new=function()
+child(components,"ModuleScript","Dropdown")._module={new=function(_,props)
 	local floater=Instance.new("Frame");local items=child(floater,"ScrollingFrame","Items");child(items,"UIListLayout","UIListLayout")
-	local entry=nativeButton:Clone();entry.Parent=items
-	return {_floater=floater,_frames={entry},Destroy=function() floater:Destroy() end}
+	local frames={}
+	for _,name in ipairs(props.Items) do local entry=nativeButton:Clone();entry.Parent=items;entry.Label.Text=name;table.insert(frames,entry) end
+	local picker={_floater=floater,_frames=frames,_height=math.min(#props.Items,6)*50,
+		OnSelectionChanged=signal(),Closed=signal(),_renderTrove={Add=function(_,v) return v end}}
+	function picker:SetOpened(value) self.Opened=value;if value then if self._observeSize then self:_observeSize() end else self.Closed:Fire() end end
+	function picker:SelectItem(index) self:SetOpened(false);assert(not self.Destroyed,"Do not destroy before selection");self.OnSelectionChanged:Fire(props.Items[index],index) end
+	function picker:Destroy() self.Destroyed=true;self.Closed:Fire();floater:Destroy() end
+	return picker
 end}
 local palette={Button={}}
 for _,name in ipairs({"Blue","Green","Inactive","Red"}) do palette.Button[name]={Color=ColorSequence.new(Color3.new(1,1,1))} end
@@ -203,6 +216,6 @@ local env=setmetatable({
 	workspace=workspace,Instance=Instance,Enum=Enum,Vector2=Vector2,Vector3=Vector3,UDim=UDim,UDim2=UDim2,
 	Color3=Color3,ColorSequence=ColorSequence,Font=Font,CFrame=CFrame,
 	require=function(module) return module._module or {} end,
-	task={spawn=function(fn,...) fn(...) end},
+	task={spawn=function(fn,...) fn(...) end,defer=function() end},
 }, {__index=getfenv()})
 return {env=env,counters=counters,playerGui=pg,input=input,workspace=workspace,Enum=Enum,vector=vector,assets=assets,signal=signal}
