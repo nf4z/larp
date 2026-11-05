@@ -108,3 +108,15 @@ Egg discovery rejects lock/template/hitbox objects and requires a catalog/asset 
 Visible icon rows are found from actual row positions and sizes instead of estimating from CanvasPosition divided by an unscaled template height. This keeps rendering aligned while scrolling/scaling. Run tools/test_testhub_catalog.py to check the generated discovery predicates and owned-egg filtering. UI checks remain mocked rather than a live client test.
 
 The close button uses a 40-pixel red target with a separate centered 26-pixel X. Its anchor and position are normalized, with clearance above the white panel in the blue header. The UI test checks target/glyph sizes and the gap to the content panel.
+
+## Native interaction and TopbarPlus (revision 14)
+
+Buttons now use the game's actual Client.Gui.Utils.ClickableButton module: its 1.035 hover / 0.925 press scale tweens, easing, and local hover/press/release sounds. Existing native dropdown color/hover behavior is retained without adding duplicate sounds to option rows. Toggles use Settings' 0.1-second Sine/Out motion; reopening uses the native PopIn module when available. Titles/descriptions are adjusted to 24/19 pixels for readability.
+
+The close button retains the complete original Settings artwork and its own colors, with no split/replacement X or extra tint. Its 44-pixel holder sits in the blue header with a gap above the content panel and uses the native button animation.
+
+The floating @qtrzip [K] button is removed. Minimizing lazily creates a left-aligned TopbarPlus entry labeled @qtrzip. Clicking it reopens the hub; it hides while the menu is open, remains available after respawn, and is destroyed on unload. K still toggles the hub and can reopen it if a download fails.
+
+The supplied place snapshot contains no TopbarPlus module. A pinned official distribution is bundled under vendor/TopbarPlus, including MPL-2.0 and unchanged Attribute attribution. An existing TopbarPlusReference is reused; otherwise the bundle is fetched once and cached for the session outside the hub's disposable task scope. See vendor/TopbarPlus/README.md for the loader adaptation.
+
+Tests exercise the real game ClickableButton source for hover/press/release scales and sounds, mock TopbarPlus for lazy visibility/reuse/destroy behavior, and compile the official bundle and verify its 21-module loader graph. Run python tools/build_topbarplus.py and python tools/test_topbarplus.py. These tests do not establish live Roblox visual correctness.

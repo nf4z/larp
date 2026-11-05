@@ -32,11 +32,9 @@ print('17 base modules retained with explicit feature/lifecycle transforms; no W
 mock = (ROOT / 'testhub_src/mock-roblox.lua').read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
 code = 'local mock = (function()\n' + mock + '\nend)()\n'
-bad_adapter = adapter.replace('local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1', 'local parentZ = parent.ZIndex')
-assert bad_adapter != adapter
-code += 'local broken = assert(loadstring(' + json.dumps(bad_adapter, ensure_ascii=True) + '))\nsetfenv(broken,mock.env)\n'
-code += 'local ok,err=pcall(broken);assert(not ok and tostring(err):find("ZIndex is not a valid member of ScreenGui",1,true),"Reproduce the reported startup failure")\n'
-code += 'local orphan=mock.playerGui:FindFirstChild("@qtrzip");if orphan then orphan:Destroy() end\n'
+native_clickable=(ROOT/'testhub_src/reference/ClickableButton.lua').read_text(encoding='utf-8')
+code += 'local bindNative=assert(loadstring(' + json.dumps(native_clickable) + '));setfenv(bindNative,mock.env)\n'
+code += 'mock.env.game:GetService("ReplicatedStorage").Client.Gui.Utils.ClickableButton._module=bindNative()\n'
 code += 'local fn = assert(loadstring(' + json.dumps(adapter, ensure_ascii=True) + '))\nsetfenv(fn, mock.env)\nlocal ui = fn()\n'
 code += r'''
 local window = ui:CreateWindow({ToggleKey=mock.Enum.KeyCode.K})
@@ -55,11 +53,16 @@ assert(window.Native:FindFirstChild("Background").Image=="native-settings-art")
 assert(window.Native.Main.Background.Image=="native-settings-content", "Keep the Settings light content panel")
 assert(not window.Native.Top.Title.Title.Visible and window.Native:FindFirstChild("TestHubStatus")==nil)
 assert(window.Native.Top:FindFirstChild("Unload")==nil)
-assert(window.CloseButton.Parent.Size.X.Offset==40 and window.CloseButton.Parent.Position.Y.Offset==10)
-assert(window.CloseButton.AnchorPoint.X==0 and window.CloseButton.Position.Y.Offset==0)
-assert(window.CloseButton.CloseGlyph.Size.X.Offset==26 and window.CloseButton.CloseGlyph.Position.Y.Scale==0.5)
-assert(window.CloseButton.ImageTransparency==1)
-assert(window.CloseButton.Parent.Position.Y.Offset+window.CloseButton.Parent.Size.Y.Offset<window.Native.Main.Position.Y.Offset, "Close stays clear of the white panel")
+assert(window.CloseButton.Parent.Size.X.Offset==44 and window.CloseButton.Parent.Position.Y.Offset==8)
+assert(window.CloseButton.Image=="native-close-x" and not window.CloseButton:FindFirstChild("CloseGlyph"), "Keep native close art intact")
+assert(window.CloseButton:FindFirstChildOfClass("UIScale"), "Use native close animation")
+assert(window.CloseButton.Parent.Position.Y.Offset+window.CloseButton.Parent.Size.Y.Offset<window.Native.Main.Position.Y.Offset)
+assert(ui.TopbarIcon==nil and not mock.counters.topbar, "Load topbar lazily")
+window:Close();local topbar=ui.TopbarIcon
+assert(topbar and topbar.alignment=="Left" and topbar.isEnabled and topbar.label=="@qtrzip")
+topbar.selected:Fire();assert(window.Opened and not topbar.isEnabled)
+window:Close();assert(ui.TopbarIcon==topbar and mock.counters.topbar==1)
+window:Open()
 assert(ui.UnloadControl and ui.UnloadControl.Tab.Title=="Misc")
 assert(ui.UnloadControl.Tab.Controls[#ui.UnloadControl.Tab.Controls]==ui.UnloadControl, "Unload is last in Misc")
 assert(#window.Tabs==17, "Native navigation exists before feature worker startup")
@@ -73,10 +76,10 @@ assert(section.Frame:FindFirstChild("Items") and section.Frame.Label.Text=="Hatc
 local changes, selected, inputValue = 0, nil, nil
 local toggle=tab:Toggle({Title="Auto Hatch",Value=true,Callback=function(value) changes+=1;assert(value==false) end})
 assert(toggle.Frame.Parent==section.Frame.Items and toggle.Frame.Size.Y.Offset==50)
-assert(toggle.Label.TextSize==22 and toggle.Information.Position.X.Offset==12)
+assert(toggle.Label.TextSize==24 and toggle.Information.Position.X.Offset==12)
 assert(toggle.Label.Position.X.Offset==3)
 local explained=tab:Toggle({Title="Explanation",Desc="A useful description",Value=false})
-assert(explained.Desc.TextSize==18 and explained.Desc.TextWrapped)
+assert(explained.Desc.TextSize==19 and explained.Desc.TextWrapped)
 assert(toggle.ActionHost.Size.X.Offset==80, "Use Settings toggle width")
 assert(toggle.Frame.BackgroundTransparency==0.75, "Keep native row visuals")
 assert(toggle.Action:FindFirstChild("Blob"), "Use the native toggle")
@@ -120,6 +123,12 @@ assert(plain.NativePicker and plain.pool==nil, "Plain choices use the native Dro
 plain.NativePicker:SelectItem(2)
 assert(plain.Value=="Mystery" and plain.NativePicker==nil)
 assert(tab.NavigationButton.Label.TextScaled==false and tab.NavigationButton.Label.AnchorPoint.X==0)
+local nativeScale=tab.NavigationButton:FindFirstChildOfClass("UIScale")
+assert(nativeScale)
+tab.NavigationButton.MouseEnter:Fire();assert(nativeScale.Scale==1.035)
+tab.NavigationButton.MouseButton1Down:Fire();assert(nativeScale.Scale==0.925)
+tab.NavigationButton.MouseButton1Up:Fire();assert(nativeScale.Scale==1.035)
+tab.NavigationButton.MouseLeave:Fire();assert(nativeScale.Scale==1 and mock.counters.sounds>0)
 drop.Action.Activated:Fire()
 assert(#drop.NativePicker._frames==1000 and drop.pool==nil, "Use the native component even for item lists")
 local popup=drop.NativePicker._floater
@@ -214,7 +223,7 @@ assert(ui.ResolveIcon("Coins").item.Currency=="Coins")
 assert(ui.ResolveIcon("Mystery Box").item.Type=="Powerup")
 -- Repeated picker opens must keep one popup tree and nine live rows.
 for i=1,30 do drop.Action.Activated:Fire();assert(#drop.NativePicker._frames==2);window:Close();window:Open() end
-ui:Destroy();assert(ui.ScreenGui.Parent==nil)
+ui:Destroy();assert(ui.ScreenGui.Parent==nil and topbar.isDestroyed, "Unload removes topbar icon")
 mock.input.InputBegan:Fire({KeyCode=mock.Enum.KeyCode.K},false)
 -- Missing native templates must fail clearly instead of fabricating a custom shell.
 local nativeInventory=mock.playerGui.ScreenGui.Inventory
@@ -310,5 +319,6 @@ with tempfile.TemporaryDirectory() as directory:
             line = int(match[1])
             print('\n'.join(f'{i+1}: {text[:300]}' for i, text in enumerate(code.splitlines()) if abs(i+1-line)<3))
     assert result.returncode == 0, result.stdout + '\n' + result.stderr
+print('Native hover/press/release and sound, lazy left TopbarPlus state/reuse/unload: PASS')
 print('Settings shell/categories, native plain dropdown, control sizing, unscaled labels, input/drag/resize, icons: PASS')
 print('Fresh qtrzip config, no legacy reads/writes, own-config reload, branding, no cloned backdrop, real Info startup: PASS')

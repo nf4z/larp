@@ -2,20 +2,26 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 13 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 14 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 13 then
+if prior and prior.Starting and prior.Revision == 14 then
     warn("[TestHub] Already starting; please wait")
     return
 end
 if not game:IsLoaded() then game.Loaded:Wait() end
-local private = setmetatable({}, {__index = getfenv()})
+local sharedEnvironment = getfenv()
+local private = setmetatable({}, {__index = sharedEnvironment})
 private._G = private
 private.getgenv = function() return private end
 -- Auxiliary feature scripts inherit the same private runtime.
 local originalLoadstring = loadstring
+private.LoadSharedLibrary = function(source, name)
+    local chunk = assert(originalLoadstring(source, name))
+    setfenv(chunk, sharedEnvironment)
+    return chunk()
+end
 private.loadstring = function(text, name)
     local chunk, err = originalLoadstring(text, name)
     if chunk then setfenv(chunk, private) end
@@ -23,7 +29,7 @@ private.loadstring = function(text, name)
 end
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 13, State = private}
+local runtime = {Starting = true, Revision = 14, State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -129,6 +135,23 @@ end
 local function start()
 local task, Instance = ownedTask, ownedInstance
 local function onTestHubUnload() runtime.Unload() end
+local function onTestHubGetTopbar()
+    if actualGlobals._BGSI_TopbarPlus then return actualGlobals._BGSI_TopbarPlus end
+    local storage = game:GetService("ReplicatedStorage")
+    local reference = storage:FindFirstChild("TopbarPlusReference")
+    local module
+    if reference and reference.Value then
+        local ok, result = pcall(require, reference.Value)
+        if ok and type(result) == "table" and type(result.new) == "function" then module = result end
+    end
+    if not module then
+        local source = game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/vendor/TopbarPlus/bundle.lua", true)
+        module = private.LoadSharedLibrary(source, "@TopbarPlus")
+    end
+    assert(type(module) == "table" and type(module.new) == "function", "Invalid TopbarPlus module")
+    actualGlobals._BGSI_TopbarPlus = module
+    return module
+end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
 local function getgenv() return private end
@@ -173,6 +196,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local assets = ReplicatedStorage:WaitForChild("Assets", 15)
@@ -195,6 +219,8 @@ if guiFrame then
 end
 local palette = assert(safeRequire(path(shared, "Palette")), "[@qtrzip] Shared.Palette unavailable")
 local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[@qtrzip] Native button styling unavailable")
+local clickableButton = assert(safeRequire(path(guiModules, "Utils", "ClickableButton")), "[@qtrzip] Native ClickableButton unavailable")
+local popIn = safeRequire(path(ReplicatedStorage, "Client", "Framework", "Utilities", "Gui", "Animations", "PopIn"))
 local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[@qtrzip] Native Dropdown component unavailable")
 local itemUtil = safeRequire(path(shared, "Utils", "Stats", "ItemUtil"))
 local constants = safeRequire(path(shared, "Constants")) or {}
@@ -233,7 +259,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.13", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.14", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -295,6 +321,13 @@ local function label(parent, text, size, color)
 		TextStrokeColor3 = colors.stroke, ZIndex = parent.ZIndex + 1,
 	}, parent)
 end
+local animatedButtons = setmetatable({}, {__mode = "k"})
+local function animateButton(object)
+	if animatedButtons[object] then return end
+	animatedButtons[object] = true
+	for _, child in ipairs(object:GetChildren()) do if child:IsA("UIScale") then child:Destroy() end end
+	clickableButton(object, nil, function() return not library.Destroyed and object.Active end)
+end
 local function button(parent, text, colorName, prototype)
 	local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1
 	local result = cloneNative(prototype or nativeButton, parentZ + 2)
@@ -306,6 +339,7 @@ local function button(parent, text, colorName, prototype)
 		autoButtonColor(result, palette.Button[name] or palette.Button.Blue)
 	end
 	paint(colorName or "Blue")
+	animateButton(result)
 	return result, textLabel, paint
 end
 local root = create("ScreenGui", {
@@ -529,30 +563,11 @@ local dragHandle = create("Frame", {Name = "DragHandle", BackgroundTransparency 
 	Position = UDim2.fromOffset(170, 0), Size = UDim2.new(1, -240, 0, 64), ZIndex = header.ZIndex + 12}, panel)
 local close = assert(path(header, "Close", "Button"), "[@qtrzip] Native close button missing")
 close.Parent.AnchorPoint = Vector2.new(1, 0)
-close.Parent.Position = UDim2.new(1, -16, 0, 10); close.Parent.Size = UDim2.fromOffset(40, 40)
-for _, object in ipairs({close.Parent, close}) do
-	for _, child in ipairs(object:GetChildren()) do
-		if child:IsA("UISizeConstraint") or child:IsA("UIAspectRatioConstraint") then child:Destroy() end
-	end
-end
+close.Parent.Position = UDim2.new(1, -14, 0, 8); close.Parent.Size = UDim2.fromOffset(44, 44)
 close.AnchorPoint = Vector2.zero; close.Position = UDim2.fromOffset(0, 0); close.Size = UDim2.fromScale(1, 1)
--- Separate the glyph from the red hit target so its X has breathing room.
-if close:IsA("ImageButton") and type(close.Image) == "string" and close.Image ~= "" then
-	local glyph = create("ImageLabel", {Name = "CloseGlyph", BackgroundTransparency = 1,
-		Image = close.Image, ImageColor3 = close.ImageColor3, ImageRectOffset = close.ImageRectOffset, ImageRectSize = close.ImageRectSize,
-		ScaleType = Enum.ScaleType.Fit, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(26, 26), Active = false, ZIndex = close.ZIndex + 2}, close)
-	close.ImageTransparency = 1
-end
-for _, child in ipairs(close:GetChildren()) do
-	if (child:IsA("ImageLabel") or child:IsA("TextLabel")) and child.Name ~= "Background" then
-		child.AnchorPoint = Vector2.new(0.5, 0.5); child.Position = UDim2.fromScale(0.5, 0.5)
-		child.Size = UDim2.fromOffset(26, 26)
-		if child:IsA("TextLabel") then child.TextScaled = false; child.TextSize = 26 end
-	end
-end
+-- Keep the original game close artwork intact, including its original X proportions.
+animateButton(close)
 
-autoButtonColor(close, palette.Button.Red)
 local topLeft = path(header, "Left")
 if topLeft then
 	for _, child in ipairs(topLeft:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
@@ -584,8 +599,6 @@ sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sid
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
 side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 64); side.Size = UDim2.new(0, 144, 1, -80)
-local reopen = button(root, "@qtrzip [K]", "Blue")
-reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
 local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
 local resizeGrip = create("TextButton", {Name = "ResizeGrip", Text = "//", FontFace = nativeFont, TextSize = 22,
 	TextColor3 = colors.text, BackgroundTransparency = 1, Size = UDim2.fromOffset(32, 32),
@@ -609,19 +622,47 @@ local function closePopup()
 	end
 	popupOwner = nil
 end
+local topbarLoading = false
+local function ensureTopbar()
+	if library.TopbarIcon then library.TopbarIcon:setEnabled(not window.Opened); return end
+	if topbarLoading or library.Destroyed then return end
+	topbarLoading = true
+	task.spawn(function()
+		local ok, Icon = pcall(function()
+			assert(type(onTestHubGetTopbar) == "function", "TopbarPlus loader unavailable")
+			return onTestHubGetTopbar()
+		end)
+		topbarLoading = false
+		if library.Destroyed then return end
+		if not ok then warn("[@qtrzip] TopbarPlus: " .. tostring(Icon) .. "; use K to reopen"); return end
+		local icon = Icon.new():setName("Bgsiscript"):setLabel("@qtrzip"):align("Left")
+		icon:setOrder(10):setCaption("Open hub [K]"):setDestroyOnRespawn(false)
+		library.TopbarIcon = icon
+		connect(icon.selected, function()
+			if library.Destroyed then return end
+			icon:deselect(); window:Open()
+		end)
+		icon:setEnabled(not window.Opened)
+	end)
+end
 function window:Open()
-	self.Opened = true; panel.Visible = true; reopen.Visible = false
+	local wasOpen = self.Opened
+	self.Opened = true; panel.Visible = true
+	if library.TopbarIcon then library.TopbarIcon:setEnabled(false) end
+	if not wasOpen and popIn then
+		local target = panel.Position
+		pcall(popIn, panel, UDim2.new(target.X.Scale, target.X.Offset, target.Y.Scale, target.Y.Offset + 12), target)
+	end
 	if activeTab then for _, control in ipairs(activeTab.Controls) do if control.UpdateIcon then control:UpdateIcon() end end end
 end
 function window:Close()
-	closePopup(); self.Opened = false; panel.Visible = false; reopen.Visible = true
+	closePopup(); self.Opened = false; panel.Visible = false; ensureTopbar()
 	if activeTab then for _, control in ipairs(activeTab.Controls) do if control.Icon then clearIcon(control.Icon) end end end
 end
 function window:Toggle() if self.Opened then self:Close() else self:Open() end end
 function window:SetToggleKey(key) self.ToggleKey = key end
 function window:EditOpenButton(_) end
 connect(close.Activated, function() window:Close() end)
-connect(reopen.Activated, function() window:Open() end)
 local function status(message, failed)
 	if failed then warn("[@qtrzip] " .. tostring(message)) end
 end
@@ -776,7 +817,7 @@ function methods:Layout(narrow)
 	self.Information.Size = UDim2.new(1, actionable and -width - 36 or -28, 1, -8)
 	self.Information.ClipsDescendants = true
 	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(3, 0)
-	self.Label.TextScaled = false; self.Label.TextSize = 22
+	self.Label.TextScaled = false; self.Label.TextSize = 24
 	self.Label.TextWrapped = false; self.Label.TextTruncate = Enum.TextTruncate.AtEnd
 	self.Label.Size = self.Description ~= "" and UDim2.new(1, -6, 0, 27) or UDim2.new(1, -6, 1, 0)
 	self.Label.TextYAlignment = Enum.TextYAlignment.Center
@@ -784,7 +825,7 @@ function methods:Layout(narrow)
 	if self.Desc then
 		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(3, 28)
 		self.Desc.Size = UDim2.new(1, -6, 1, -28)
-		self.Desc.TextScaled = false; self.Desc.TextSize = 18; self.Desc.TextWrapped = true
+		self.Desc.TextScaled = false; self.Desc.TextSize = 19; self.Desc.TextWrapped = true
 		self.Desc.TextYAlignment = Enum.TextYAlignment.Top
 		local border = self.Desc:FindFirstChildOfClass("UIStroke"); if border then border.Thickness = 1 end
 	end
@@ -843,6 +884,7 @@ local function rowButton(control)
 	local action = assert(host:FindFirstChild("Button"), "[@qtrzip] Native Dropdown button missing")
 	action.AnchorPoint = Vector2.zero; action.Position = UDim2.fromOffset(0, 0); action.Size = UDim2.fromScale(1, 1)
 	local title = assert(getLabel(action), "[@qtrzip] Native Dropdown label missing")
+	animateButton(action)
 	title.TextScaled = false
 	autoButtonColor(action, palette.Button.Blue)
 	control.Action = action
@@ -863,11 +905,17 @@ function tabMethods:Toggle(props)
 	local action = assert(control.ActionHost:FindFirstChild("Toggle"), "[@qtrzip] Native Toggle action missing")
 	action.Visible = true
 	control.Action = action
+	animateButton(action)
 	function control:Set(value, silent)
 		self.Value = value == true
 		local blob = assert(action:FindFirstChild("Blob"), "[@qtrzip] Native toggle Blob missing")
-		blob.AnchorPoint = Vector2.new(self.Value and 1 or 0, 0)
-		blob.Position = UDim2.fromScale(self.Value and 1 or 0, 0)
+		local destination = {AnchorPoint = Vector2.new(self.Value and 1 or 0, 0), Position = UDim2.fromScale(self.Value and 1 or 0, 0)}
+		if self.BlobTween then self.BlobTween:Cancel() end
+		if silent then blob.AnchorPoint = destination.AnchorPoint; blob.Position = destination.Position
+		else
+			self.BlobTween = TweenService:Create(blob, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), destination)
+			self.BlobTween:Play()
+		end
 		local gradient = assert(action:FindFirstChildOfClass("UIGradient"), "[@qtrzip] Native toggle gradient missing")
 		gradient.Color = palette.Button[self.Value and "Green" or "Inactive"].Color
 		if not silent then invoke(self, self.Value) end
@@ -1118,6 +1166,7 @@ end
 function library:Destroy()
 	if self.Destroyed then return end
 	self.Destroyed = true
+	if self.TopbarIcon then self.TopbarIcon:destroy(); self.TopbarIcon = nil end
 	closePopup()
 	for _, control in ipairs(controls) do if control.Icon then clearIcon(control.Icon) end end
 	for _, connection in ipairs(connections) do connection:Disconnect() end

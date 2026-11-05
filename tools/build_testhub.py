@@ -47,20 +47,26 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 13 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 14 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 13 then
+if prior and prior.Starting and prior.Revision == 14 then
     warn("[TestHub] Already starting; please wait")
     return
 end
 if not game:IsLoaded() then game.Loaded:Wait() end
-local private = setmetatable({}, {__index = getfenv()})
+local sharedEnvironment = getfenv()
+local private = setmetatable({}, {__index = sharedEnvironment})
 private._G = private
 private.getgenv = function() return private end
 -- Auxiliary feature scripts inherit the same private runtime.
 local originalLoadstring = loadstring
+private.LoadSharedLibrary = function(source, name)
+    local chunk = assert(originalLoadstring(source, name))
+    setfenv(chunk, sharedEnvironment)
+    return chunk()
+end
 private.loadstring = function(text, name)
     local chunk, err = originalLoadstring(text, name)
     if chunk then setfenv(chunk, private) end
@@ -68,12 +74,29 @@ private.loadstring = function(text, name)
 end
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 13, State = private}
+local runtime = {Starting = true, Revision = 14, State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()
 local task, Instance = ownedTask, ownedInstance
 local function onTestHubUnload() runtime.Unload() end
+local function onTestHubGetTopbar()
+    if actualGlobals._BGSI_TopbarPlus then return actualGlobals._BGSI_TopbarPlus end
+    local storage = game:GetService("ReplicatedStorage")
+    local reference = storage:FindFirstChild("TopbarPlusReference")
+    local module
+    if reference and reference.Value then
+        local ok, result = pcall(require, reference.Value)
+        if ok and type(result) == "table" and type(result.new) == "function" then module = result end
+    end
+    if not module then
+        local source = game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/vendor/TopbarPlus/bundle.lua", true)
+        module = private.LoadSharedLibrary(source, "@TopbarPlus")
+    end
+    assert(type(module) == "table" and type(module.new) == "function", "Invalid TopbarPlus module")
+    actualGlobals._BGSI_TopbarPlus = module
+    return module
+end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
 local function getgenv() return private end

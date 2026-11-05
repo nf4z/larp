@@ -36,13 +36,14 @@ local Font = {fromEnum=function(value) return value end}
 local CFrame = {lookAt=function(position) return {Position=position} end}
 local methods, instanceMT, counters = {}, {}, {clones=0,created=0,icons=0,cleaned=0}
 local Instance = {}
-function Instance.new(class)
+function Instance.new(class,parent)
 	counters.created+=1
-	return setmetatable({_class=class,_children={},_signals={},_props={
+	local object = setmetatable({_class=class,_children={},_signals={},_props={
 		Name=class,Archivable=true,Visible=true,ZIndex=1,Size=UDim2.fromOffset(100,100),
 		Position=UDim2.fromOffset(0,0),AbsolutePosition=vector(250,180),AbsoluteSize=vector(192,38),
 		CanvasPosition=vector(),AbsoluteContentSize=vector(),Text="",TextSize=28,FontFace="NativeFont",ViewportSize=vector(1100,800),
 	}},instanceMT)
+	object.Parent=parent;return object
 end
 local guiClasses = {Frame=true,ImageLabel=true,TextLabel=true,ImageButton=true,TextButton=true,TextBox=true,ScrollingFrame=true,ViewportFrame=true}
 function methods:IsA(class) return self._class==class or class=="GuiObject" and guiClasses[self._class] or class=="GuiButton" and (self._class=="ImageButton" or self._class=="TextButton") or class=="BasePart" and self._class=="Part" end
@@ -62,6 +63,11 @@ function methods:FindFirstChildOfClass(class)
 end
 function methods:FindFirstChildWhichIsA(class,recursive)
 	for _,child in ipairs(recursive and self:GetDescendants() or self._children) do if child:IsA(class) then return child end end
+end
+function methods:GetAttributeChangedSignal(name)
+    local key="attribute:"..name
+    if not self._signals[key] then self._signals[key]=signal() end
+    return self._signals[key]
 end
 function methods:GetPropertyChangedSignal(name)
 	local key="property:"..name
@@ -97,13 +103,13 @@ function methods:Click()
 	end
 	self.Activated:Fire();return true
 end
-function methods:SetAttribute(name,value) self._attributes=self._attributes or {};self._attributes[name]=value end
+function methods:SetAttribute(name,value) self._attributes=self._attributes or {};self._attributes[name]=value;local changed=self._signals["attribute:"..name];if changed then changed:Fire() end end
 function methods:GetAttribute(name) return self._attributes and self._attributes[name] end
 instanceMT.__index=function(self,key)
 	if self._class=="ScreenGui" and key=="ZIndex" then error("ZIndex is not a valid member of ScreenGui") end
 	if methods[key] then return methods[key] end
 	if self._props[key]~=nil then return self._props[key] end
-	if key=="Activated" or key=="InputBegan" or key=="InputEnded" or key=="InputChanged" or key=="FocusLost" or key=="Idled" or key=="Destroying" then
+	if key=="MouseEnter" or key=="MouseLeave" or key=="MouseButton1Down" or key=="MouseButton1Up" or key=="Activated" or key=="InputBegan" or key=="InputEnded" or key=="InputChanged" or key=="FocusLost" or key=="Idled" or key=="Destroying" then
 		if not self._signals[key] then self._signals[key]=signal() end
 		return self._signals[key]
 	end
@@ -198,6 +204,11 @@ child(frame,"ImageLabel","Background").Image="native-settings-art"
 child(main,"ImageLabel","Background").Image="native-settings-content"
 local client=child(storage,"Folder","Client");local gui=child(client,"Folder","Gui");local guiUtils=child(gui,"Folder","Utils");local components=child(gui,"Folder","Components")
 child(gui,"ModuleScript","GuiFrame")._module={Initialize=function() end}
+child(guiUtils,"ModuleScript","ClickableButton")
+child(guiUtils,"ModuleScript","PlayLocalSound")._module=function() counters.sounds=(counters.sounds or 0)+1 end
+local framework=child(client,"Folder","Framework");local servicesRoot=child(framework,"Folder","Services")
+child(servicesRoot,"ModuleScript","LocalData")._module={Get=function() return {} end}
+child(shared,"ModuleScript","Types")
 child(guiUtils,"ModuleScript","AutoButtonColor")._module=function(button,theme) button:SetAttribute("MockTheme",theme) end
 child(guiUtils,"ModuleScript","ItemFrame")._module=function(item)
 	counters.nativeCards=(counters.nativeCards or 0)+1
@@ -233,11 +244,30 @@ end
 local localPlayer=Instance.new("Player");pg.Name="PlayerGui";pg.Parent=localPlayer
 local camera=Instance.new("Camera");local workspace=Instance.new("Workspace");workspace.CurrentCamera=camera
 local input=Instance.new("UserInputService")
-local services={Players={LocalPlayer=localPlayer},ReplicatedStorage=storage,UserInputService=input,HttpService={JSONDecode=function() error("No JSON fixture") end},GuiService={GetGuiInset=function() return vector(0,36),vector() end}}
+local tweenService={Create=function(_,object,info,props)
+    counters.tweens=(counters.tweens or 0)+1
+    return {Play=function() for key,value in pairs(props) do object[key]=value end end,Cancel=function() end}
+end}
+local Icon={new=function()
+    local icon={selected=signal(),isEnabled=true}
+    function icon:setName(v) self.name=v;return self end
+    function icon:setLabel(v) self.label=v;return self end
+    function icon:align(v) self.alignment=v;return self end
+    function icon:setOrder(v) self.order=v;return self end
+    function icon:setCaption(v) self.caption=v;return self end
+    function icon:setDestroyOnRespawn(v) self.destroyOnRespawn=v;return self end
+    function icon:setEnabled(v) self.isEnabled=v;return self end
+    function icon:deselect() self.isSelected=false;return self end
+    function icon:destroy() self.isDestroyed=true end
+    counters.topbar=(counters.topbar or 0)+1
+    return icon
+end}
+local services={TweenService=tweenService,Players={LocalPlayer=localPlayer},ReplicatedStorage=storage,UserInputService=input,HttpService={JSONDecode=function() error("No JSON fixture") end},GuiService={GetGuiInset=function() return vector(0,36),vector() end}}
 local env=setmetatable({
 	game={GetService=function(_,name) assert(services[name],name);return services[name] end},
 	workspace=workspace,Instance=Instance,Enum=Enum,Vector2=Vector2,Vector3=Vector3,UDim=UDim,UDim2=UDim2,
-	Color3=Color3,ColorSequence=ColorSequence,Font=Font,CFrame=CFrame,
+	TweenInfo={new=function(...) return {...} end},Color3=Color3,ColorSequence=ColorSequence,Font=Font,CFrame=CFrame,
+	onTestHubGetTopbar=function() return Icon end,
 	require=function(module) return module._module or {} end,
 	task={spawn=function(fn,...) fn(...) end,defer=function() end},
 }, {__index=getfenv()})
