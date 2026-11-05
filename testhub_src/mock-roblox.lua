@@ -181,11 +181,15 @@ for _,name in ipairs({"Pets","Items","Titles","Currency"}) do
 	local entryButton=nativeButton:Clone();entryButton.Parent=entry;entryButton.Label.Text=name
 end
 local tray=child(inventoryFrame,"Frame","Tray");child(tray,"Frame","Buttons")
-local searchHost=child(tray,"Frame","Search");local search=child(searchHost,"Frame","Search")
+local searchHost=child(tray,"Frame","Search")
+child(searchHost,"ImageLabel","OuterTrayArtwork").Image="unwanted-outer-search-wrapper"
+local search=child(searchHost,"Frame","Search")
 child(search,"ImageLabel","MagnifyingGlass").Image="native-search-glass"
 child(search,"ImageLabel","Background").Image="native-search-background"
 local bar=child(search,"Frame","Bar");bar.Position=UDim2.fromOffset(56,4);bar.Size=UDim2.new(1,-64,1,-8)
 local searchInput=child(bar,"TextBox","TextBox");searchInput.Position=UDim2.fromOffset(8,0);searchInput.Size=UDim2.new(1,-16,1,0)
+searchInput.AnchorPoint=vector(0.5,0.5);searchInput.Position=UDim2.new(0.5,0,0.5,24);searchInput.Size=UDim2.new(1,-16,0,16)
+child(searchInput,"UITextSizeConstraint","UITextSizeConstraint")
 searchInput.TextXAlignment=Enum.TextXAlignment.Left;searchInput.TextColor3={nativeSearchText=true};searchInput.PlaceholderColor3={nativeSearchPlaceholder=true}
 top:Clone().Parent=frame;side:Clone().Parent=frame
 frame.BackgroundColor3={nativeSettingsColor=true}

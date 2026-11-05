@@ -64,7 +64,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.10", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.11", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -311,24 +311,44 @@ library.RenderIcon = renderIcon
 -- Keep the inventory's complete artwork and layout instead of rebuilding its shell.
 -- The native Inventory wrapper contains the fullscreen dimmer/input backdrop.
 -- Copy only its actual window into a fresh transparent, passive holder.
-local searchPrototype = assert(path(inventoryFrame, "Tray", "Search"), "[@qtrzip] Native Inventory search missing")
+local searchPrototype = assert(path(inventoryFrame, "Tray", "Search", "Search"), "[@qtrzip] Native Inventory inner search missing")
 local function nativeSearchBox(parent, name, placeholder)
+	-- Clone the inner magnifier/bar only, without the inventory tray's outer shell.
 	local shell = cloneNative(searchPrototype, parent.ZIndex + 1)
 	shell.Name = name; shell.Parent = parent
-	shell.AnchorPoint = Vector2.zero; shell.Position = UDim2.fromOffset(0, 0); shell.Size = UDim2.fromScale(1, 1)
-	for _, child in ipairs(shell:GetChildren()) do
-		if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
+	local bar = assert(shell:FindFirstChild("Bar"), "[@qtrzip] Inventory search Bar missing")
+	local input = assert(bar:FindFirstChild("TextBox"), "[@qtrzip] Inventory search TextBox missing")
+	for _, object in ipairs({shell, bar, input}) do
+		for _, child in ipairs(object:GetChildren()) do
+			if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") or child:IsA("UITextSizeConstraint")
+				or child:IsA("UIListLayout") or child:IsA("UIGridLayout") or child:IsA("UIPadding") then child:Destroy() end
+		end
 	end
-	local inner = assert(shell:FindFirstChild("Search"), "[@qtrzip] Inventory Search.Search missing")
-	inner.AnchorPoint = Vector2.zero; inner.Position = UDim2.fromOffset(0, 0); inner.Size = UDim2.fromScale(1, 1)
-	-- Preserve Bar, magnifying glass, borders, gradients, font and text insets.
-	local input = assert(path(inner, "Bar", "TextBox"), "[@qtrzip] Inventory search TextBox missing")
+	shell.AnchorPoint = Vector2.zero; shell.Position = UDim2.fromOffset(0, 0); shell.Size = UDim2.fromScale(1, 1)
+	shell.ClipsDescendants = false
+	bar.AnchorPoint = Vector2.zero; bar.Position = UDim2.fromOffset(42, 4); bar.Size = UDim2.new(1, -46, 1, -8)
+	bar.ClipsDescendants = true
+	-- Keep native magnifying-glass artwork, but fit it to these compact fields.
+	for _, child in ipairs(shell:GetChildren()) do
+		if child:IsA("GuiObject") and child ~= bar then
+			local key = child.Name:lower()
+			if key:find("icon", 1, true) or key:find("magnif", 1, true) then
+				child.AnchorPoint = Vector2.new(0, 0.5); child.Position = UDim2.new(0, 5, 0.5, 0)
+				child.Size = UDim2.fromOffset(32, 32); child.Active = false
+			end
+		end
+	end
+	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(8, 0); input.Size = UDim2.new(1, -16, 1, 0)
+	input.AutomaticSize = Enum.AutomaticSize.None
 	input.Text = ""; input.PlaceholderText = placeholder or "Search..."
 	input.ClearTextOnFocus = false; input.TextEditable = true
-	input.TextScaled = false; input.TextSize = 22; input.MultiLine = false; input.TextWrapped = false
-	input.ClipsDescendants = true; input.TextTransparency = 0
+	input.TextScaled = false; input.TextSize = 20; input.MultiLine = false; input.TextWrapped = false
+	input.TextXAlignment = Enum.TextXAlignment.Left; input.TextYAlignment = Enum.TextYAlignment.Center
+	input.TextTruncate = Enum.TextTruncate.None; input.TextTransparency = 0
+	input.ClipsDescendants = true
 	return shell, input
 end
+
 local holder = create("Frame", {Name = "QtrzipHolder", BackgroundTransparency = 1, Active = false,
 	Size = UDim2.fromScale(1, 1), ZIndex = 2}, root)
 local panel = cloneNative(nativeSettings, 2)

@@ -1,7 +1,7 @@
 # @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-10"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-11"))()
 ```
 
 The repository entry remains `testHub` for compatibility. The window has no title or status footer. The reopen button and hub branding use **@qtrzip**.
@@ -88,3 +88,7 @@ Item lookups now resolve punctuation, whitespace and case differences to the act
 Unload Script is the final control in Misc, under Session. It is installed after the base features finish, independently of the optional extras module, and no longer appears in the header. It uses the existing lifecycle cleanup.
 
 Regression checks now cover cloned search artwork/insets, alias resolution, centered static and native item rendering, fixed option fonts, viewport-edge picker clamping, and unloading through the Misc action. Checks use Luau mocks; live appearance remains unverified.
+
+## Compact inner search fields (revision 11)
+
+Inputs and the control filter now clone only Inventory.Frame.Tray.Search.Search, not its outer tray/search wrapper. The native inner background, magnifier and bar remain. Bar bounds and textbox anchor/position/height are explicitly fitted to the 40-pixel field, and inherited text/layout constraints are removed so short fields cannot clip text vertically. Text is vertically centered at a fixed 20-pixel size; the magnifier occupies a separate 32-pixel slot. Regression fixtures include unwanted outer artwork and a textbox with a stale vertical offset and fixed height.
