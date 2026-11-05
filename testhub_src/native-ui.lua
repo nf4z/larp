@@ -64,7 +64,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.7", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.8", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -313,15 +313,16 @@ header.AnchorPoint = Vector2.zero; header.Position = UDim2.fromOffset(0, 0)
 local heading = path(header, "Title", "Title") or path(header, "Title")
 if not (heading and heading:IsA("TextLabel")) then heading = getLabel(header) end
 assert(heading, "[@qtrzip] Native Settings title missing")
-heading.Text = "@qtrzip"; heading.TextScaled = false
-header.Size = UDim2.new(1, 0, 0, 90)
+heading.Text = ""; heading.Visible = false; heading.TextScaled = false
+header.Size = UDim2.new(1, 0, 0, 64)
 local titleHost = heading.Parent == header and heading or heading.Parent
 titleHost.AnchorPoint = Vector2.zero; titleHost.Position = UDim2.fromOffset(16, 8); titleHost.Size = UDim2.new(1, -100, 0, 72)
 if titleHost ~= heading then heading.Size = UDim2.fromScale(1, 1) end
+titleHost.Visible = false
 local dragHandle = create("Frame", {Name = "DragHandle", BackgroundTransparency = 1, Active = true,
-	Size = UDim2.new(1, -86, 0, 90), ZIndex = header.ZIndex + 12}, panel)
+	Position = UDim2.fromOffset(170, 0), Size = UDim2.new(1, -240, 0, 64), ZIndex = header.ZIndex + 12}, panel)
 local close = assert(path(header, "Close", "Button"), "[@qtrzip] Native close button missing")
-close.Parent.AnchorPoint = Vector2.new(1, 0); close.Parent.Position = UDim2.new(1, -14, 0, 14); close.Parent.Size = UDim2.fromOffset(60, 60)
+close.Parent.AnchorPoint = Vector2.new(1, 0); close.Parent.Position = UDim2.new(1, -14, 0, 10); close.Parent.Size = UDim2.fromOffset(44, 44)
 close.Size = UDim2.fromScale(1, 1)
 autoButtonColor(close, palette.Button.Red)
 local topLeft = path(header, "Left")
@@ -336,19 +337,22 @@ if trayButtons then trayButtons.Visible = false end
 local searchHost = assert(path(tray, "Search"), "[@qtrzip] Native inventory search missing")
 searchHost.Visible = true
 local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native search TextBox missing")
-search.Text = ""; search.PlaceholderText = "Search @qtrzip..."; search.ClearTextOnFocus = false
+search.Text = ""; search.PlaceholderText = "Search this tab..."; search.ClearTextOnFocus = false
 search.TextSize = 18
-tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 168, 1, -62); tray.Size = UDim2.new(1, -184, 0, 34)
+tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 168, 1, -52); tray.Size = UDim2.new(1, -190, 0, 36)
 searchHost.AnchorPoint = Vector2.zero; searchHost.Position = UDim2.fromOffset(0, 0); searchHost.Size = UDim2.fromScale(1, 1)
 local nativeSearch = searchHost:FindFirstChild("Search")
 nativeSearch.AnchorPoint = Vector2.zero; nativeSearch.Position = UDim2.fromOffset(0, 0); nativeSearch.Size = UDim2.fromScale(1, 1)
+nativeSearch.Bar.AnchorPoint = Vector2.zero; nativeSearch.Bar.Position = UDim2.fromOffset(0, 0)
 nativeSearch.Bar.Size = UDim2.fromScale(1, 1)
+search.TextScaled = false; search.TextWrapped = false; search.TextXAlignment = Enum.TextXAlignment.Left
+search.AnchorPoint = Vector2.zero; search.Position = UDim2.fromOffset(16, 0); search.Size = UDim2.new(1, -32, 1, 0)
 local body = assert(path(panel, "Main"), "[@qtrzip] Native Settings.Main missing")
 local pagePrototype = path(body, "ScrollingFrame")
 assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[@qtrzip] Native inventory scroll panel missing")
 pagePrototype = cloneNative(pagePrototype, 3)
 body.ScrollingFrame:Destroy()
-body.AnchorPoint = Vector2.zero; body.Position = UDim2.fromOffset(168, 98); body.Size = UDim2.new(1, -184, 1, -168)
+body.AnchorPoint = Vector2.zero; body.Position = UDim2.fromOffset(168, 64); body.Size = UDim2.new(1, -184, 1, -126)
 local side = assert(path(panel, "Sidebar"), "[@qtrzip] Native sidebar missing")
 local nativeButtons = assert(side:FindFirstChild("Buttons"), "[@qtrzip] Native sidebar buttons missing")
 local tabPrototypes = {}
@@ -366,11 +370,13 @@ local sidebarLayout = nativeLayout and nativeLayout:Clone() or create("UIListLay
 sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sidebar
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
-side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 98); side.Size = UDim2.new(0, 144, 1, -130)
-local footer = cloneNative(heading, 10)
-footer.Name = "TestHubStatus"; footer.Text = "Loading features..."; footer.TextSize = math.min(footer.TextSize, 18)
-footer.AnchorPoint = Vector2.zero; footer.Position = UDim2.new(0, 20, 1, -30)
-footer.Size = UDim2.new(1, -40, 0, 24); footer.Parent = panel
+side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 64); side.Size = UDim2.new(0, 144, 1, -80)
+local unload = button(panel, "Unload", "Red")
+unload.Name = "Unload"
+unload.Position = UDim2.fromOffset(18, 12); unload.Size = UDim2.fromOffset(136, 38)
+connect(unload.Activated, function()
+	if onTestHubUnload then onTestHubUnload() else library:Destroy() end
+end)
 local reopen = button(root, "@qtrzip [K]", "Blue")
 reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
 local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
@@ -410,14 +416,14 @@ function window:EditOpenButton(_) end
 connect(close.Activated, function() window:Close() end)
 connect(reopen.Activated, function() window:Open() end)
 local function status(message, failed)
-	footer.Text = tostring(message); footer.TextColor3 = failed and colors.red or colors.muted
+	if failed then warn("[@qtrzip] " .. tostring(message)) end
 end
 function library:ModuleFailed(message)
 	table.insert(self.ModuleErrors, message)
 	status("Load error: " .. tostring(message), true)
 end
 function library:ModulesReady()
-	status(#self.ModuleErrors == 0 and "Ready  /  K to hide" or (tostring(#self.ModuleErrors) .. " modules failed; check console"), #self.ModuleErrors > 0)
+	-- Startup diagnostics are recorded in ModuleErrors and the console.
 end
 local function invoke(control, value)
 	if not control.Callback then return end
@@ -553,7 +559,10 @@ function methods:Layout(narrow)
 	local width = self.Kind == "Dropdown" and 250 or (self.Kind == "Toggle" and 80 or 200)
 	self.Frame.Size = UDim2.new(1, 0, 0, height)
 	self.Information.Size = UDim2.new(1, actionable and -width - 15 or -16, 1, 0)
+	self.Information.ClipsDescendants = true
 	self.Label.TextScaled = false
+	self.Label.TextWrapped = false; self.Label.TextTruncate = Enum.TextTruncate.AtEnd
+	self.Label.Size = UDim2.new(1, 0, self.Description ~= "" and 0.5 or 1, 0)
 	if self.Desc then self.Desc.TextScaled = false end
 	if self.ActionHost then
 		self.ActionHost.Visible = actionable
@@ -649,9 +658,9 @@ function tabMethods:Input(props)
 	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
 	local input = assert(keybind:FindFirstChild("InputBox"), "[@qtrzip] Native InputBox missing")
 	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
-	input.Size = UDim2.new(1, 0, 1, 0)
+	input.Size = UDim2.new(1, -20, 1, 0)
 	input.TextEditable = true; input.Active = true; input.Interactable = true
-	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(0, 0)
+	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(10, 0)
 	input.TextTransparency = 0; input.BackgroundTransparency = 1; input.ClipsDescendants = true
 	local display = input:FindFirstChild("Label")
 	if display then
@@ -665,6 +674,15 @@ function tabMethods:Input(props)
 		background.Position = UDim2.fromOffset(0, 0); background.Size = UDim2.fromScale(1, 1)
 		background.ZIndex = keybind.ZIndex + 1; background.Active = false
 	end
+	-- Keybind templates may retain right alignment, padding, and text constraints.
+	-- Normalize the editable text independently of the native background artwork.
+	for _, child in ipairs(input:GetChildren()) do
+		if child:IsA("UIConstraint") or child:IsA("UIPadding") or child:IsA("UIStroke") then child:Destroy() end
+	end
+	input.TextScaled = false; input.TextSize = 22; input.TextWrapped = false
+	input.RichText = false; input.MultiLine = false
+	input.TextXAlignment = Enum.TextXAlignment.Left; input.TextYAlignment = Enum.TextYAlignment.Center
+	input.TextTruncate = Enum.TextTruncate.None
 	input.ZIndex = keybind.ZIndex + 4
 	input.PlaceholderText = props.Placeholder or "Enter value..."
 
@@ -825,7 +843,7 @@ function window:Tab(props)
 	local tab = setmetatable({Title = props.Title, Page = page, Controls = {}}, {__index = tabMethods})
 	local entry = create("Frame", {Name = props.Title, LayoutOrder = #self.Tabs + 1,
 		BackgroundTransparency = 1, Size = UDim2.new(1, -4, 0, 40), ZIndex = sidebar.ZIndex + 1}, sidebar)
-	local tabButton, tabTitle, paint = button(entry, props.Title, "Inactive", dropdownRow)
+	local tabButton, tabTitle, paint = button(entry, props.Title, "Blue", dropdownRow)
 	tabButton.AnchorPoint = Vector2.zero; tabButton.Position = UDim2.fromOffset(0, 0); tabButton.Size = UDim2.fromScale(1, 1)
 	tabTitle.TextScaled = false; tabTitle.TextSize = 20; tabTitle.TextWrapped = false
 	tabTitle.TextTruncate = Enum.TextTruncate.AtEnd
@@ -839,7 +857,7 @@ function window:Tab(props)
 			for _, control in ipairs(activeTab.Controls) do if control.Icon then clearIcon(control.Icon) end end
 		end
 		activeTab = self; page.Visible = true; paint("Green"); search.Text = ""; applyFilter()
-		heading.Text = "@qtrzip"
+		heading.Text = ""
 		for _, control in ipairs(self.Controls) do if control.UpdateIcon then control:UpdateIcon() end end
 	end
 	connect(tabButton.Activated, function() tab:Select() end)
@@ -850,7 +868,7 @@ function window:Tab(props)
 	return tab
 end
 function library:CreateWindow(props)
-	heading.Text = "@qtrzip"
+	heading.Text = ""
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
 	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc"}) do window:Tab({Title = title}) end
@@ -858,6 +876,8 @@ function library:CreateWindow(props)
 	return window
 end
 function library:Destroy()
+	if self.Destroyed then return end
+	self.Destroyed = true
 	closePopup()
 	for _, control in ipairs(controls) do if control.Icon then clearIcon(control.Icon) end end
 	for _, connection in ipairs(connections) do connection:Disconnect() end

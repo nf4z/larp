@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import re
+from testhub_lifecycle import instrument
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
@@ -38,15 +39,17 @@ source, shortened = re.subn(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedd
 source = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', source)
 source = source.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
 
+source = instrument(source)
+
 header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 7 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 8 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 7 then
+if prior and prior.Starting and prior.Revision == 8 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -61,10 +64,14 @@ private.loadstring = function(text, name)
     if chunk then setfenv(chunk, private) end
     return chunk, err
 end
-if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 7, State = private}
+if prior and prior.Unload then prior.Unload()
+elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
+local runtime = {Starting = true, Revision = 8, State = private}
 actualGlobals._BGSI_TestHub = runtime
+''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()
+local task, Instance = ownedTask, ownedInstance
+local function onTestHubUnload() runtime.Unload() end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
 local function getgenv() return private end
@@ -83,7 +90,7 @@ if not ok then
             if runtime.UI.PickerGui then runtime.UI.PickerGui:Destroy() end
         end
     end
-    actualGlobals._BGSI_TestHub = nil
+    runtime.Unload()
     error("[TestHub] Startup failed: " .. tostring(err), 0)
 end
 return runtime.UI and runtime.UI.Window

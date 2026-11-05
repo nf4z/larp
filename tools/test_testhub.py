@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import tempfile
+from testhub_lifecycle import instrument
 
 ROOT = Path(__file__).resolve().parents[1]
 LUAU = os.environ.get('LUAU', str(ROOT / '.tools/luau/luau.exe'))
@@ -16,7 +17,7 @@ print('Standalone script, adapter, and harness compile: PASS')
 base = (ROOT / 'testhub_src/afbq-base.lua').read_text(encoding='utf-8')
 built = (ROOT / 'testHub').read_text(encoding='utf-8')
 marker = '-- Shared egg scanner adapted from'
-feature_code = base[base.index(marker):]
+feature_code = instrument(base)[instrument(base).index(marker):]
 feature_code = feature_code.replace('Afbq Hub', '@qtrzip')
 feature_code = re.sub(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', feature_code)
 feature_code = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', feature_code)
@@ -48,6 +49,8 @@ assert(mock.counters.clones > 0, "Use cloned game visuals")
 assert(window.Native.BackgroundColor3.nativeSettingsColor)
 assert(window.Native:FindFirstChild("Background").Image=="native-settings-art")
 assert(window.Native.Main.Background.Image=="native-settings-content", "Keep the Settings light content panel")
+assert(not window.Native.Top.Title.Title.Visible and window.Native:FindFirstChild("TestHubStatus")==nil)
+assert(window.Native:FindFirstChild("Unload"))
 assert(#window.Tabs==16, "Native navigation exists before feature worker startup")
 local tab = window:Tab({Title="Eggs"})
 tab:Select()
@@ -67,6 +70,8 @@ local field=tab:Input({Title="Amount",Value="12",Callback=function(value) inputV
 assert(field.Action:TypeText("24"), "Native keybind textbox must become editable")
 field.Action.FocusLost:Fire();assert(inputValue=="24")
 assert(field.Action.TextEditable and field.Action.TextTransparency==0 and not field.Action.Label.Visible)
+assert(not field.Action.TextScaled and field.Action.TextSize==22 and field.Action.TextXAlignment==mock.Enum.TextXAlignment.Left)
+assert(field.Action.Position.X.Offset==10 and field.Information.ClipsDescendants)
 assert(field.Action.Parent.Background.ZIndex<field.Action.ZIndex, "The native artwork must sit behind the editable box")
 local ran=0
 local run=tab:Button({Title="Rescan",Callback=function() ran+=1 end})
@@ -225,14 +230,17 @@ assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()
 assert(writes["qtrzip_settings.json"]=="encoded-test-settings" and writes["renoa_hub_settings.json"]==nil and writes["testhub_settings.json"]==nil)
 for _,name in ipairs(reads) do assert(name=="qtrzip_settings.json") end
-liveGlobals._BGSI_TestHub.UI:Destroy()
+local unloaded=liveGlobals._BGSI_TestHub
+firstWindow.Native.Unload.Activated:Fire()
+assert(liveGlobals._BGSI_TestHub==nil and not unloaded.Active and firstWindow.Native.Parent==nil)
+assert(unloaded.UI==nil and unloaded.State==nil, "Release UI/state references on unload")
 mock.env.readfile=function(name)
     assert(name=="qtrzip_settings.json")
     return "qtrzip-json"
 end
 assert(startupFn())
 assert(liveGlobals._BGSI_TestHub.State.HubSettings.auto.presentRain==true, "Reload only the new hub's own config")
-liveGlobals._BGSI_TestHub.UI:Destroy()
+liveGlobals._BGSI_TestHub.Unload()
 '''
 with tempfile.TemporaryDirectory() as directory:
     path = Path(directory) / 'test.lua'
