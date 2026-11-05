@@ -5,10 +5,13 @@ import json
 import re
 from testhub_lifecycle import instrument
 from testhub_features import enhance
+from testhub_hatch import port_hatch
+from port_testhub_hatch import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
-SCRIPT_VERSION = 'v102'
+SCRIPT_VERSION = 'v103'
+generate()
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
 paths_file = ROOT / 'icon-cache/paths.json'
@@ -41,18 +44,18 @@ source, shortened = re.subn(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedd
 source = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', source)
 source = source.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
 
-source = enhance(source)
+source = port_hatch(enhance(source))
 source = instrument(source)
 
 header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 17 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 18 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 17 then
+if prior and prior.Starting and prior.Revision == 18 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -79,7 +82,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 17, ScriptVersion = "__SCRIPT_VERSION__", State = private}
+local runtime = {Starting = true, Revision = 18, ScriptVersion = "__SCRIPT_VERSION__", State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()

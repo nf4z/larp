@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 from testhub_lifecycle import instrument
 from testhub_features import enhance
+from testhub_hatch import port_hatch
 
 ROOT = Path(__file__).resolve().parents[1]
 LUAU = os.environ.get('LUAU', str(ROOT / '.tools/luau/luau.exe'))
@@ -23,7 +24,7 @@ feature_code = feature_code.replace('Afbq Hub', '@qtrzip')
 feature_code = re.sub(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', feature_code)
 feature_code = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', feature_code)
 feature_code = feature_code.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
-feature_code = instrument(enhance(feature_code))
+feature_code = instrument(port_hatch(enhance(feature_code)))
 actual = built[built.index(marker):built.rindex('\nend\nlocal ok, err = pcall(start)')]
 assert actual == feature_code, 'Unexpected change outside explicit lifecycle/feature transforms'
 assert 'Footagesus/WindUI/releases' not in built
@@ -285,9 +286,9 @@ local startupFn=assert(loadstring(startupSource));setfenv(startupFn,mock.env)
 local firstWindow=startupFn()
 assert(firstWindow and liveGlobals._BGSI_TestHub.UI)
 local gameVersion=mock.playerGui.ScreenGui.VersionLabel
-assert(gameVersion.Text=="v10724 | v102")
+assert(gameVersion.Text=="v10724 | v103")
 gameVersion.Text="v10725 (t)"
-assert(gameVersion.Text=="v10725 (t) | v102", "Preserve changes and plaza markers")
+assert(gameVersion.Text=="v10725 (t) | v103", "Preserve changes and plaza markers")
 assert(next(liveGlobals._BGSI_TestHub.State.HubSettings)==nil, "Start with fresh settings")
 for _=1,8 do
     local co=table.remove(jobs,1)
@@ -301,7 +302,7 @@ assert(#liveGlobals._BGSI_TestHub.UI.ModuleErrors==0)
 assert(liveGlobals.Window.original and liveGlobals.HubSettings.original)
 local created=mock.counters.created
 assert(startupFn()==firstWindow and mock.counters.created==created, "Rerun should reopen, not stack instances")
-assert(gameVersion.Text=="v10725 (t) | v102", "Do not duplicate suffix on rerun")
+assert(gameVersion.Text=="v10725 (t) | v103", "Do not duplicate suffix on rerun")
 -- saveHubSettings was defined in the private environment, never in afbq's globals.
 assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()

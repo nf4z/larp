@@ -136,3 +136,13 @@ Setting titles and descriptions start 8 logical pixels from the row's left edge 
 ## Native version label (script v102 / runtime revision 17)
 
 The place's ClientScript writes its build text to PlayerGui.ScreenGui.VersionLabel. While this script runs, that existing label receives the suffix ` | v102`. The base version and `(t)`/`(p)` trading markers are retained, game-driven text changes are reflected, reruns do not duplicate the suffix, and unload restores the latest native text. The script release identifier is configured once as SCRIPT_VERSION in tools/build_testhub.py. Native label styling and the loadstring stay unchanged.
+
+## Larplite hatch card port (script v103 / runtime revision 18)
+
+Hatch messages now use the same announcement, custom emoji Pet Info rows, sorted variant stat multipliers, existence counts, base variant odds, colors, variant-specific pet image, Super enchant composite, XL full image and Discord timestamp as Larplite 2026.11.04.41. Discord Components V2 renders the same section/thumbnail/media layout. The old Renoa-specific image proxy override, Pet Info summary and debug Stats card are removed from the active builder.
+
+Show User Info in Webhook / Hatch Embed adds Larplite's currencies, hatch totals and luck field; it defaults off like Larplite. Existing private settings, webhook URLs and filtering stay in qtrzip_settings.json. Username hiding uses Larplite's Player wording. Mention restrictions remain limited to the configured user ID. The queue and simulation endpoint both normalize V2 webhook parameters. Public output retains its existing anonymization. Real acquired pets keep their enchants; simulation alone may roll simulated Super enchants.
+
+The 15 source functions are pinned with hashes in testhub_src/hatch-upstream.json, verified against GitHub core blob 3e53aea248b108c6f0585286b2111eed93950bc4. tools/port_testhub_hatch.py generates the isolated formatter; tools/testhub_hatch.py connects it to the existing scanner and simulation controls. Core values and layout remain from upstream; the adapter supplies this hub's settings, canonical pet flags and configured mention. The existing Super enchant image helper is shared with Larplite.
+
+python tools/test_testhub_hatch.py compares full envelopes and V2 cards against the original upstream builder for normal/Shiny/Mythic/XL/Super cases, optional User Info and hiding. It exercises the generated bgsiscript bridge, source handling, real-enchant preservation and allowed mentions. Tests are offline and send no Discord messages. Live delivery is not verified. The permanent loadstring is unchanged; the native game label now appends v103.
