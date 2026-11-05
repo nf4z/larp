@@ -84,6 +84,10 @@ function methods:Destroy()
 end
 function methods:GetBoundingBox() return {Position=vector()},vector(2,3,2) end
 function methods:GetFocusedTextBox() return self._focused end
+function methods:TypeText(value)
+	if not self:IsA("TextBox") or self.TextEditable~=true or self.Active==false or self.Interactable==false then return false end
+	self.Text=value;return true
+end
 function methods:Click()
 	if not self:IsA("GuiButton") or self.Active == false then return false end
 	local current=self
@@ -155,6 +159,7 @@ local action=child(template,"Frame","Action");local drop=child(action,"Frame","D
 local toggle=child(action,"ImageButton","Toggle");child(toggle,"Frame","Blob");child(toggle,"UIGradient","UIGradient")
 local keybind=child(action,"Frame","Keybind");child(keybind,"Frame","Clear")
 local inputBox=child(keybind,"TextBox","InputBox");child(inputBox,"TextLabel","Label");child(inputBox,"Frame","Background")
+inputBox.TextEditable=false
 local inventory=child(nativeScreen,"Frame","Inventory")
 inventory.BackgroundTransparency=0.45;inventory.Interactable=false;inventory.Active=true
 local inventoryFrame=child(inventory,"Frame","Frame");inventoryFrame.Size=UDim2.fromOffset(1235,770)

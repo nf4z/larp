@@ -37,11 +37,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 5 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 6 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 5 then
+if prior and prior.Starting and prior.Revision == 6 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -57,7 +57,7 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 5, State = private}
+local runtime = {Starting = true, Revision = 6, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
@@ -73,7 +73,10 @@ runtime.UI = rawget(private, "WindUI")
 if not ok then
     if runtime.UI then
         if type(runtime.UI.Destroy) == "function" then runtime.UI:Destroy()
-        elseif runtime.UI.ScreenGui then runtime.UI.ScreenGui:Destroy() end
+        elseif runtime.UI.ScreenGui then
+            runtime.UI.ScreenGui:Destroy()
+            if runtime.UI.PickerGui then runtime.UI.PickerGui:Destroy() end
+        end
     end
     actualGlobals._BGSI_TestHub = nil
     error("[TestHub] Startup failed: " .. tostring(err), 0)

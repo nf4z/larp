@@ -2,11 +2,11 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 5 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 6 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 5 then
+if prior and prior.Starting and prior.Revision == 6 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -22,7 +22,7 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 5, State = private}
+local runtime = {Starting = true, Revision = 6, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
@@ -92,7 +92,6 @@ local palette = assert(safeRequire(path(shared, "Palette")), "[@qtrzip] Shared.P
 local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[@qtrzip] Native button styling unavailable")
 local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[@qtrzip] Native Dropdown component unavailable")
 local itemUtil = safeRequire(path(shared, "Utils", "Stats", "ItemUtil"))
-local itemFrameBuilder = safeRequire(path(guiModules, "Utils", "ItemFrame"))
 local constants = safeRequire(path(shared, "Constants")) or {}
 local nativeScreen = playerGui:FindFirstChild("ScreenGui") or playerGui:WaitForChild("ScreenGui", 10)
 local nativeInventory = assert(nativeScreen and (nativeScreen:FindFirstChild("Inventory") or nativeScreen:WaitForChild("Inventory", 15)), "[@qtrzip] ScreenGui.Inventory is not loaded")
@@ -129,7 +128,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.5", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.04.6", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -166,6 +165,7 @@ local function cloneNative(source, zIndex)
 			node.Active = true
 			node.Modal = false
 		end
+		if node:IsA("TextBox") then node.TextEditable = true end
 		if node:IsA("UIScale") then node.Scale = 1 end
 		for _, child in ipairs(node:GetChildren()) do clean(child, depth + 1) end
 	end
@@ -212,8 +212,11 @@ if type(onTestHubUiCreated) == "function" then onTestHubUiCreated(library) end
 -- Compatibility names in afbq's setup; all overlays use the same private root.
 library.NotificationGui, library.DropdownGui, library.TooltipGui = root, root, root
 function library:SetParent(parent) root.Parent = parent end
+local pickerGui = create("ScreenGui", {Name = "QtrzipPickers", ResetOnSpawn = false,
+	DisplayOrder = root.DisplayOrder + 1, IgnoreGuiInset = root.IgnoreGuiInset, ZIndexBehavior = Enum.ZIndexBehavior.Sibling}, playerGui)
+library.PickerGui = pickerGui
 local overlay = create("Frame", {Name = "Overlay", BackgroundTransparency = 1, Active = false, Visible = false,
-	Size = UDim2.fromScale(1, 1), ZIndex = 40}, root)
+	Size = UDim2.fromScale(1, 1), ZIndex = 1}, pickerGui)
 
 -- Data is required lazily, and only visible dropdown rows create icon instances.
 local dataCache, descriptorCache, descriptorCount = {}, {}, 0
@@ -280,24 +283,7 @@ local function renderIcon(host, value, context)
 		ScaleType = Enum.ScaleType.Fit, ZIndex = host.ZIndex + 1,
 	}, host)
 	if descriptor.item and itemUtil then
-		if type(itemFrameBuilder) == "function" then
-			local ok, card = pcall(itemFrameBuilder, descriptor.item, false, true)
-			if ok and card then
-				image:Destroy()
-				card.Name = "NativeItemIcon"; card.AnchorPoint = Vector2.zero; card.Position = UDim2.fromOffset(0, 0)
-				card.Size = UDim2.fromScale(1, 1); card.Parent = host
-				local inner = path(card, "Button", "Inner")
-				if inner then for _, name in ipairs({"Label", "Bottom", "Secret", "XL"}) do local text = inner:FindFirstChild(name); if text then text.Visible = false end end end
-				local cardButton = card:FindFirstChild("Button")
-				if cardButton then cardButton.Active = false; cardButton.Interactable = false; cardButton.Selectable = false end
-				local function raise(node, depth)
-					if node:IsA("GuiObject") then node.ZIndex = host.ZIndex + depth end
-					for _, child in ipairs(node:GetChildren()) do raise(child, depth + 1) end
-				end
-				raise(card, 1)
-				return
-			end
-		end
+
 		local ok = pcall(itemUtil.UpdateIcon, itemUtil, host, descriptor.item)
 		if ok then return end
 	end
@@ -484,11 +470,13 @@ local function resize()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local scale = math.max(0.25, math.min(desiredWidth / baseWidth, (viewport.X - 24) / baseWidth))
+	-- Window dimensions change independently of native font/control scale.
+	local scale = math.max(0.25, math.min(600 / baseWidth, (viewport.X - 24) / baseWidth))
 	local logicalHeight = math.clamp(desiredHeight / scale, 360, math.max(360, (viewport.Y - 60) / scale))
 	panelScale.Scale = scale
-	panel.Size = UDim2.fromOffset(baseWidth, logicalHeight)
-	window.Width = baseWidth * scale; window.Height = logicalHeight * scale
+	local logicalWidth = math.min(desiredWidth, viewport.X - 24) / scale
+	panel.Size = UDim2.fromOffset(logicalWidth, logicalHeight)
+	window.Width = logicalWidth * scale; window.Height = logicalHeight * scale
 	for _, control in ipairs(controls) do if control.Layout then control:Layout(false) end end
 	closePopup()
 end
@@ -683,20 +671,24 @@ function tabMethods:Input(props)
 	local input = assert(keybind:FindFirstChild("InputBox"), "[@qtrzip] Native InputBox missing")
 	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
 	input.Size = UDim2.new(1, 0, 1, 0)
+	input.TextEditable = true; input.Active = true; input.Interactable = true
+	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(0, 0)
+	input.TextTransparency = 0; input.BackgroundTransparency = 1; input.ClipsDescendants = true
 	local display = input:FindFirstChild("Label")
 	if display then
-		-- The native input renders through its child label above its Background frame.
-		input.TextTransparency = 1; input.PlaceholderText = ""; display.Visible = true
-		input.ClipsDescendants = true
-		display.AutomaticSize = Enum.AutomaticSize.None; display.AnchorPoint = Vector2.zero
-		display.Position = UDim2.fromOffset(6, 0); display.Size = UDim2.new(1, -12, 1, 0)
-		display.TextSize = 18; display.TextTruncate = Enum.TextTruncate.AtEnd
-		local function mirrorText()
-			display.Text = input.Text ~= "" and input.Text or (props.Placeholder or "Enter value...")
-			display.TextTransparency = input.Text ~= "" and 0 or 0.4
-		end
-		connect(input:GetPropertyChangedSignal("Text"), mirrorText); mirrorText()
+		for _, name in ipairs({"FontFace", "TextSize", "TextColor3", "TextStrokeColor3", "TextStrokeTransparency", "TextXAlignment"}) do input[name] = display[name] end
+		display.Visible = false
 	end
+	-- Native keybind artwork is retained, but placed behind its editable sibling.
+	local background = input:FindFirstChild("Background")
+	if background then
+		background.Parent = keybind; background.AnchorPoint = Vector2.zero
+		background.Position = UDim2.fromOffset(0, 0); background.Size = UDim2.fromScale(1, 1)
+		background.ZIndex = keybind.ZIndex + 1; background.Active = false
+	end
+	input.ZIndex = keybind.ZIndex + 4
+	input.PlaceholderText = props.Placeholder or "Enter value..."
+
 	control.Action = input
 	function control:Set(value, silent) input.Text = tostring(value or ""); if not silent then invoke(self, input.Text) end end
 	control.SetValue = control.Set
@@ -752,18 +744,18 @@ function tabMethods:Dropdown(props)
 		local picker = dropdownComponent.new(action, {Items = items, DefaultValue = selected,
 			Width = "Target", MaxItemsVisible = 6, Multiple = self.Multi, SelectedItems = selectedItems})
 		picker._floater.Parent = overlay
-		local gameScale = path(nativeScreen, "UIScale")
-		local scale = create("UIScale", {Scale = gameScale and gameScale.Scale or 1}, picker._floater)
+		local scale = create("UIScale", {Scale = panelScale.Scale}, picker._floater)
 		function picker:_observeSize()
 			local function update()
 				local s = scale.Scale
 				local p = action.AbsolutePosition - overlay.AbsolutePosition
 				local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
-				local height = self._height * s
+				local height = math.min(self._height * s, viewport.Y - overlay.AbsolutePosition.Y - 16)
 				local y = p.Y + action.AbsoluteSize.Y + 4
 				if y + height > viewport.Y - 44 then y = math.max(4, p.Y - height - 4) end
-				self._floater.Size = UDim2.fromOffset(action.AbsoluteSize.X / s, self._height)
-				self._floater.Position = UDim2.fromOffset(p.X, y)
+				y = math.clamp(y, 8, math.max(8, viewport.Y - overlay.AbsolutePosition.Y - height - 8))
+				self._floater.Size = UDim2.fromOffset(action.AbsoluteSize.X / s, height / s)
+				self._floater.Position = UDim2.fromOffset(math.clamp(p.X, 8, math.max(8, viewport.X - action.AbsoluteSize.X - 8)), y)
 			end
 			update()
 			self._renderTrove:Add(action:GetPropertyChangedSignal("AbsolutePosition"):Connect(update))
@@ -814,8 +806,14 @@ function tabMethods:Dropdown(props)
 		popup.Name = "IconPicker"; popup.AnchorPoint = Vector2.zero; popup.Visible = true; popup.Parent = overlay
 		local popupTitle = cloneNative(nativeRow.Information.Label, 42)
 		popupTitle.Text = control.Title .. "  /  " .. #control.Values; popupTitle.Parent = popup
+		popupTitle.AnchorPoint = Vector2.zero; popupTitle.TextScaled = false
+		popupTitle.TextTruncate = Enum.TextTruncate.AtEnd
+		for _, child in ipairs(popupTitle:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
 		popupTitle.Position = UDim2.fromOffset(12, 8); popupTitle.Size = UDim2.new(1, -52, 0, 26)
-		local done = button(popup, "x", "Red"); done.Size = UDim2.fromOffset(28, 26); done.Position = UDim2.new(1, -38, 0, 8)
+		local done = cloneNative(close, 44)
+		done.AnchorPoint = Vector2.zero; done.Size = UDim2.fromOffset(28, 28)
+		done.Position = UDim2.new(1, -38, 0, 8); done.Parent = popup
+		autoButtonColor(done, palette.Button.Red)
 		local queryHost = cloneNative(searchHost, 42); queryHost.Parent = popup
 		queryHost.Position = UDim2.fromOffset(10, 43); queryHost.Size = UDim2.new(1, -20, 0, 40)
 		local query = assert(path(queryHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native picker search missing")
@@ -880,10 +878,16 @@ function tabMethods:Dropdown(props)
 		local inset = GuiService:GetGuiInset()
 		local width = math.min(380, viewport.X - 24)
 		local height = math.min(390, viewport.Y - inset.Y - 30)
-		popup.Size = UDim2.fromOffset(width, height)
+		local popupScale = panelScale.Scale
+		local nativeScale = popup:FindFirstChildOfClass("UIScale") or create("UIScale", {}, popup)
+		nativeScale.Scale = popupScale
+		width = math.min(math.max(action.AbsoluteSize.X, 380 * popupScale), viewport.X - 24)
+		height = math.min(390 * popupScale, viewport.Y - inset.Y - 30)
+		popup.Size = UDim2.fromOffset(width / popupScale, height / popupScale)
 		local p = action.AbsolutePosition - overlay.AbsolutePosition
 		local y = p.Y + action.AbsoluteSize.Y + 6
 		if y + height > viewport.Y - inset.Y - 8 then y = math.max(8, p.Y - height - 6) end
+		y = math.clamp(y, 8, math.max(8, viewport.Y - inset.Y - height - 8))
 		popup.Position = UDim2.fromOffset(math.clamp(p.X, 12, math.max(12, viewport.X - width - 12)), y)
 		popupOwner = control; filter()
 	end)
@@ -937,7 +941,7 @@ function library:Destroy()
 	closePopup()
 	for _, control in ipairs(controls) do if control.Icon then clearIcon(control.Icon) end end
 	for _, connection in ipairs(connections) do connection:Disconnect() end
-	table.clear(connections); root:Destroy()
+	table.clear(connections); root:Destroy(); pickerGui:Destroy()
 	pagePrototype:Destroy(); dropdownShell:Destroy(); dropdownRow:Destroy()
 	for _, prototype in pairs(tabPrototypes) do prototype:Destroy() end
 end
@@ -12267,7 +12271,10 @@ runtime.UI = rawget(private, "WindUI")
 if not ok then
     if runtime.UI then
         if type(runtime.UI.Destroy) == "function" then runtime.UI:Destroy()
-        elseif runtime.UI.ScreenGui then runtime.UI.ScreenGui:Destroy() end
+        elseif runtime.UI.ScreenGui then
+            runtime.UI.ScreenGui:Destroy()
+            if runtime.UI.PickerGui then runtime.UI.PickerGui:Destroy() end
+        end
     end
     actualGlobals._BGSI_TestHub = nil
     error("[TestHub] Startup failed: " .. tostring(err), 0)
