@@ -160,6 +160,8 @@ local category=child(list,"Frame","General");child(category,"TextLabel","Label")
 local categoryItems=child(category,"Frame","Items");child(categoryItems,"UIListLayout","UIListLayout")
 template.Parent=categoryItems
 child(info,"TextLabel","Description")
+child(info,"UIListLayout","StaleInformationLayout");child(info.Label,"UITextSizeConstraint","StaleFontConstraint")
+info.Label.TextXAlignment=Enum.TextXAlignment.Center
 template.BackgroundTransparency=0.75
 local action=child(template,"Frame","Action");local drop=child(action,"Frame","Dropdown");nativeButton:Clone().Parent=drop
 local toggle=child(action,"ImageButton","Toggle");child(toggle,"Frame","Blob");child(toggle,"UIGradient","UIGradient")

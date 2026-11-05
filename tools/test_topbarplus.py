@@ -25,8 +25,34 @@ code+='local chunk=assert(loadstring('+json.dumps(fixture)+'));setfenv(chunk,moc
 code+='assert(result.name=="BgsiscriptTopbarPlus" and result.theme.default.name=="Default")\n'
 code+='assert(result.widget==result.again and result.widget.parent=="Elements" and result.theme.parent=="Features")\n'
 code+='assert(result.attr.name=="Attribute")\n'
+# Exercise the real Janitor implementation, not a stub: missing clean caused Themes.set to abort.
+assert 'in next, table.clone(Janitor.__index) do' in bundle
+assert '(tonumber(widget:GetAttribute("MinimumWidth")) or 44)' in bundle
+janitor=(ROOT/'vendor/TopbarPlus/src/Packages/Janitor.lua').read_text(encoding='utf-8')
+janitor=janitor.replace('in next, Janitor.__index do','in next, table.clone(Janitor.__index) do')
+code += 'local game={GetService=function() return {Heartbeat={}} end}\nlocal Janitor=(function()\n'+janitor+'\nend)()\n'
+code += '''local j=Janitor.new();local cleaned=0
+for _,name in ipairs({"add","clean","cleanup","destroy","get","remove","linkToInstance"}) do assert(type(j[name])=="function",name) end
+j:add(function() cleaned+=1 end);j:clean();assert(cleaned==1)
+j:add(function() cleaned+=1 end);j:destroy();assert(cleaned==2)
+'''
+recovery=(ROOT/'testhub_src/topbar-recovery.lua').read_text(encoding='utf-8')
+code+='local recover=(function()\n'+recovery+'\nend)()\n'
+code+='''local methods={Cleanup=function(self) self.cleaned=true end,Clean=function(self) self.cleaned=true end}
+local resource=setmetatable({}, {__index=methods})
+local widget={attributes={},GetAttribute=function(self,key) return self.attributes[key] end}
+local orphan={iconModule={Name="BgsiscriptTopbarPlus"},themesJanitor=resource,janitor=resource,widget=widget}
+function orphan:setTheme(theme) self.themesJanitor:clean();self.widget.attributes.MinimumWidth=44 end
+function orphan:destroy() self.janitor:clean();self.destroyed=true end
+local icons={orphan};recover({getIcons=function() return icons end,baseTheme={}})
+assert(methods.clean and resource.cleaned and orphan.destroyed and widget.attributes.MinimumWidth==44)
+local foreignMethods={Cleanup=function() end}
+local foreign=setmetatable({}, {__index=foreignMethods})
+recover({getIcons=function() return {{iconModule={Name="OtherPackage"},themesJanitor=foreign}} end})
+assert(foreignMethods.cleanup==nil,"Do not modify another application's package")
+'''
 with tempfile.TemporaryDirectory() as d:
     p=Path(d)/'bundle-test.lua';p.write_text(code,encoding='utf-8')
     r=subprocess.run([str(ROOT/'.tools/luau/luau.exe'),str(p)],text=True,capture_output=True)
     assert r.returncode==0,r.stdout+r.stderr
-print('TopbarPlus: official source compilation, 21-module require graph/cache, unchanged Attribute, private registration: PASS')
+print('TopbarPlus: official source compilation, 21-module require graph/cache, unchanged Attribute, private registration, real Janitor aliases/cleanup and broken-icon recovery: PASS')

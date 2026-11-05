@@ -1,5 +1,5 @@
 {
   "repository": "1ForeverHD/TopbarPlus",
   "commit": "39610ec4ad0e2c790f1ef8067229c3cb00da26e6",
-  "adaptation": "Bundled require loader; private Reference fallback, Attribute unchanged."
+  "adaptation": "Bundled require loader; private Reference registration, deterministic Janitor alias creation, numeric Widget attribute defaults. Attribute unchanged."
 }

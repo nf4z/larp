@@ -1,5 +1,5 @@
 -- TopbarPlus, ForeverHD. MPL-2.0; see vendor/TopbarPlus/LICENSE.
--- Upstream sources and Attribute preserved. Loader adapts Reference registration only.
+-- Upstream sources and Attribute preserved. Generated adaptations: Reference registration, deterministic Janitor aliases, numeric widget defaults.
 local originalRequire = require
 local nodes, factories, cache, loading = {}, {}, {}, {}
 nodes[""] = Instance.new("ModuleScript")
@@ -1758,9 +1758,9 @@ return function(icon, Icon)
 					initialWidgetWidth += itemWidth + contentsPadding
 				end
 			end
-			local widgetMinimumWidth = widget:GetAttribute("MinimumWidth")
-			local widgetMinimumHeight = widget:GetAttribute("MinimumHeight")
-			local widgetBorderSize = widget:GetAttribute("BorderSize")
+			local widgetMinimumWidth = (tonumber(widget:GetAttribute("MinimumWidth")) or 44)
+			local widgetMinimumHeight = (tonumber(widget:GetAttribute("MinimumHeight")) or 44)
+			local widgetBorderSize = (tonumber(widget:GetAttribute("BorderSize")) or 0)
 			local widgetWidth = math.clamp(initialWidgetWidth, widgetMinimumWidth, math.max(viewportX, widgetMinimumWidth))
 			local menuIcons = icon.menuIcons
 			local additionalWidth = 0
@@ -1890,7 +1890,7 @@ return function(icon, Icon)
 	end)
 	local function updateBorderSize()
 		task.defer(function()
-			local borderOffset = widget:GetAttribute("BorderSize")
+			local borderOffset = (tonumber(widget:GetAttribute("BorderSize")) or 0)
 			local alignment = icon.alignment
 			local alignmentOffset = (iconSpot.Visible == false and 0) or (alignment == "Right" and -borderOffset) or borderOffset
 			menu.Position = UDim2.new(0, alignmentOffset, 0, 0)
@@ -4933,7 +4933,7 @@ function Janitor.__index:LinkToInstances(...)
 	return ManualCleanup
 end
 
-for FunctionName, Function in next, Janitor.__index do
+for FunctionName, Function in next, table.clone(Janitor.__index) do
 	local NewFunctionName = string.sub(string.lower(FunctionName), 1, 1) .. string.sub(FunctionName, 2)
 	Janitor.__index[NewFunctionName] = Function
 end

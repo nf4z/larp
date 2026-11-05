@@ -47,11 +47,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 14 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 15 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 14 then
+if prior and prior.Starting and prior.Revision == 15 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -72,9 +72,13 @@ private.loadstring = function(text, name)
     if chunk then setfenv(chunk, private) end
     return chunk, err
 end
+local repairTopbar = (function()
+''' + (ROOT / 'testhub_src/topbar-recovery.lua').read_text(encoding='utf-8') + '''
+end)()
+pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 14, State = private}
+local runtime = {Starting = true, Revision = 15, State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()
@@ -120,6 +124,9 @@ if not ok then
 end
 return runtime.UI and runtime.UI.Window
 '''
+bundle_manifest = ROOT/'vendor/TopbarPlus/bundle-path.json'
+if bundle_manifest.exists():
+    header=header.replace('vendor/TopbarPlus/bundle.lua',json.loads(bundle_manifest.read_text(encoding='utf-8'))['path'])
 result = header + source + footer
 (ROOT / 'bgsiscript').write_text(result, encoding='utf-8', newline='\n')
 print(json.dumps({'bytes': len(result.encode()), 'featureModules': len(re.findall(r'-- // Embedded module:', source)),

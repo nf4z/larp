@@ -27,7 +27,7 @@ if guiFrame then
 end
 local palette = assert(safeRequire(path(shared, "Palette")), "[@qtrzip] Shared.Palette unavailable")
 local autoButtonColor = assert(safeRequire(path(guiModules, "Utils", "AutoButtonColor")), "[@qtrzip] Native button styling unavailable")
-local clickableButton = assert(safeRequire(path(guiModules, "Utils", "ClickableButton")), "[@qtrzip] Native ClickableButton unavailable")
+local playLocalSound = safeRequire(path(guiModules, "Utils", "PlayLocalSound"))
 local popIn = safeRequire(path(ReplicatedStorage, "Client", "Framework", "Utilities", "Gui", "Animations", "PopIn"))
 local dropdownComponent = assert(safeRequire(path(guiModules, "Components", "Dropdown")), "[@qtrzip] Native Dropdown component unavailable")
 local itemUtil = safeRequire(path(shared, "Utils", "Stats", "ItemUtil"))
@@ -67,7 +67,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.14", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.15", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -132,10 +132,32 @@ end
 local animatedButtons = setmetatable({}, {__mode = "k"})
 local function animateButton(object)
 	if animatedButtons[object] then return end
-	animatedButtons[object] = true
+	local state = {Hover = false, Press = false}; animatedButtons[object] = state
 	for _, child in ipairs(object:GetChildren()) do if child:IsA("UIScale") then child:Destroy() end end
-	clickableButton(object, nil, function() return not library.Destroyed and object.Active end)
+	object.AnchorPoint = Vector2.new(0.5, 0.5); object.Position = UDim2.fromScale(0.5, 0.5)
+	local scale = create("UIScale", {Scale = 1}, object)
+	local function render()
+		if state.Tween then state.Tween:Cancel() end
+		state.Tween = TweenService:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+			{Scale = state.Press and 0.985 or (state.Hover and 1.012 or 1)})
+		state.Tween:Play()
+	end
+	local function sound(name) if playLocalSound then pcall(playLocalSound, name) end end
+	connect(object.MouseEnter, function()
+		if not object.Active or library.Destroyed then return end
+		state.Hover = true; sound("ButtonHover"); render()
+	end)
+	connect(object.MouseLeave, function() state.Hover = false; state.Press = false; render() end)
+	connect(object.MouseButton1Down, function()
+		if not object.Active or library.Destroyed then return end
+		state.Press = true; sound("ButtonRelease"); render()
+	end)
+	connect(object.MouseButton1Up, function()
+		if not object.Active or library.Destroyed then return end
+		state.Press = false; sound("ButtonPress"); render()
+	end)
 end
+
 local function button(parent, text, colorName, prototype)
 	local parentZ = parent:IsA("GuiObject") and parent.ZIndex or 1
 	local result = cloneNative(prototype or nativeButton, parentZ + 2)
@@ -443,9 +465,18 @@ local function ensureTopbar()
 		topbarLoading = false
 		if library.Destroyed then return end
 		if not ok then warn("[@qtrzip] TopbarPlus: " .. tostring(Icon) .. "; use K to reopen"); return end
-		local icon = Icon.new():setName("Bgsiscript"):setLabel("@qtrzip"):align("Left")
-		icon:setOrder(10):setCaption("Open hub [K]"):setDestroyOnRespawn(false)
-		library.TopbarIcon = icon
+		local icon
+		local made, reason = pcall(function()
+			icon = Icon.new(); library.TopbarIcon = icon
+			icon:setName("Bgsiscript"):setLabel("@qtrzip"):align("Left")
+			icon:setOrder(10):setCaption("Open hub [K]"):setDestroyOnRespawn(false)
+		end)
+		if not made then
+			if icon then pcall(function() icon:destroy() end) end
+			library.TopbarIcon = nil
+			warn("[@qtrzip] TopbarPlus setup failed: " .. tostring(reason) .. "; use K to reopen")
+			return
+		end
 		connect(icon.selected, function()
 			if library.Destroyed then return end
 			icon:deselect(); window:Open()
@@ -618,23 +649,23 @@ function methods:Unlock() self.Locked = false; if self.Action then self.Action.A
 function methods:Layout(narrow)
 	if self.Kind == "Section" then return end
 	local actionable = self.Kind ~= "Paragraph" and self.Kind ~= "Section"
-	local height = self.Description ~= "" and 75 or 50
+	local height = self.Description ~= "" and 84 or 50
 	local width = (self.Kind == "Dropdown" or self.Kind == "Input") and 250 or (self.Kind == "Toggle" and 80 or 200)
 	self.Frame.Size = UDim2.new(1, 0, 0, height)
 	self.Information.AnchorPoint = Vector2.zero; self.Information.Position = UDim2.fromOffset(12, 4)
 	self.Information.Size = UDim2.new(1, actionable and -width - 36 or -28, 1, -8)
-	self.Information.ClipsDescendants = true
-	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(3, 0)
-	self.Label.TextScaled = false; self.Label.TextSize = 24
+	self.Information.ClipsDescendants = false
+	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(5, 0)
+	self.Label.TextScaled = false; self.Label.TextSize = 28
 	self.Label.TextWrapped = false; self.Label.TextTruncate = Enum.TextTruncate.AtEnd
-	self.Label.Size = self.Description ~= "" and UDim2.new(1, -6, 0, 27) or UDim2.new(1, -6, 1, 0)
-	self.Label.TextYAlignment = Enum.TextYAlignment.Center
+	self.Label.Size = self.Description ~= "" and UDim2.new(1, -10, 0, 32) or UDim2.new(1, -10, 1, 0)
+	self.Label.TextYAlignment = Enum.TextYAlignment.Center; self.Label.TextXAlignment = Enum.TextXAlignment.Left
 	local outline = self.Label:FindFirstChildOfClass("UIStroke"); if outline then outline.Thickness = 1.5 end
 	if self.Desc then
-		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(3, 28)
-		self.Desc.Size = UDim2.new(1, -6, 1, -28)
-		self.Desc.TextScaled = false; self.Desc.TextSize = 19; self.Desc.TextWrapped = true
-		self.Desc.TextYAlignment = Enum.TextYAlignment.Top
+		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(5, 34)
+		self.Desc.Size = UDim2.new(1, -10, 1, -34)
+		self.Desc.TextScaled = false; self.Desc.TextSize = 20; self.Desc.TextWrapped = true
+		self.Desc.TextYAlignment = Enum.TextYAlignment.Top; self.Desc.TextXAlignment = Enum.TextXAlignment.Left
 		local border = self.Desc:FindFirstChildOfClass("UIStroke"); if border then border.Thickness = 1 end
 	end
 	if self.ActionHost then
@@ -651,9 +682,9 @@ row = function(tab, kind, props)
 		local category = cloneNative(nativeCategory, 4)
 		category.Name = props.Title or "General"; category.LayoutOrder = #tab.Controls + 1; category.Parent = tab.Page
 		category.Label.Text = (props.Title or "General"):gsub("^%s*%-+%s*", ""):gsub("%s*%-+%s*$", "")
-		category.Label.TextScaled = false; category.Label.TextSize = 24
+		category.Label.TextScaled = false; category.Label.TextSize = 28
 		category.Label.AnchorPoint = Vector2.zero; category.Label.Position = UDim2.fromOffset(6, 6)
-		category.Label.Size = UDim2.new(1, -12, 0, 30); category.Label.TextTruncate = Enum.TextTruncate.AtEnd
+		category.Label.Size = UDim2.new(1, -12, 0, 36); category.Label.TextTruncate = Enum.TextTruncate.AtEnd
 		clearContent(category.Items)
 		local list = assert(category.Items:FindFirstChildOfClass("UIListLayout"), "[@qtrzip] Settings category layout missing")
 		local function updateSize()
@@ -672,6 +703,11 @@ row = function(tab, kind, props)
 	frame.Name = kind; frame.LayoutOrder = #tab.Controls + 1; frame.Parent = tab.CurrentCategory.Items
 	local information = assert(frame:FindFirstChild("Information"), "[@qtrzip] Native row Information missing")
 	local title = assert(information:FindFirstChild("Label"), "[@qtrzip] Native row title missing")
+	for _, object in ipairs({information, title, information:FindFirstChild("Description")}) do
+		if object then for _, child in ipairs(object:GetChildren()) do
+			if child:IsA("UIListLayout") or child:IsA("UIGridLayout") or child:IsA("UITextSizeConstraint") or child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
+		end end
+	end
 	title.Text = props.Title or kind
 	local favorite = title:FindFirstChild("Favorite"); if favorite then favorite.Visible = false end
 	local description = information:FindFirstChild("Description")
@@ -930,7 +966,7 @@ function window:Tab(props)
 	clearContent(page)
 	for _, child in ipairs(page:GetChildren()) do if child:IsA("UIGridLayout") then child:Destroy() end end
 	page.Name = props.Title; page.Position = UDim2.fromOffset(0, 0); page.Size = UDim2.fromScale(1, 1)
-	page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.CanvasSize = UDim2.new(); page.Visible = false; page.Parent = body
+	page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.CanvasSize = UDim2.new(); page.CanvasPosition = Vector2.zero; page.ScrollingDirection = Enum.ScrollingDirection.Y; page.Visible = false; page.Parent = body
 	local pagePadding = page:FindFirstChildOfClass("UIPadding") or create("UIPadding", {}, page)
 	pagePadding.PaddingLeft = UDim.new(0, 6); pagePadding.PaddingRight = UDim.new(0, 8)
 	pagePadding.PaddingTop = UDim.new(0, 4); pagePadding.PaddingBottom = UDim.new(0, 12)
@@ -940,7 +976,7 @@ function window:Tab(props)
 	local entry = create("Frame", {Name = props.Title, LayoutOrder = #self.Tabs + 1,
 		BackgroundTransparency = 1, Size = UDim2.new(1, -4, 0, 40), ZIndex = sidebar.ZIndex + 1}, sidebar)
 	local tabButton, tabTitle, paint = button(entry, props.Title, "Blue", dropdownRow)
-	tabButton.AnchorPoint = Vector2.zero; tabButton.Position = UDim2.fromOffset(0, 0); tabButton.Size = UDim2.fromScale(1, 1)
+	tabButton.AnchorPoint = Vector2.new(0.5, 0.5); tabButton.Position = UDim2.fromScale(0.5, 0.5); tabButton.Size = UDim2.fromScale(1, 1)
 	tabTitle.TextScaled = false; tabTitle.TextSize = 20; tabTitle.TextWrapped = false
 	tabTitle.TextTruncate = Enum.TextTruncate.AtEnd
 	tabTitle.AnchorPoint = Vector2.zero; tabTitle.Position = UDim2.fromOffset(6, 0); tabTitle.Size = UDim2.new(1, -12, 1, 0)
@@ -974,6 +1010,7 @@ end
 function library:Destroy()
 	if self.Destroyed then return end
 	self.Destroyed = true
+	for _, state in pairs(animatedButtons) do if state.Tween then state.Tween:Cancel() end end
 	if self.TopbarIcon then self.TopbarIcon:destroy(); self.TopbarIcon = nil end
 	closePopup()
 	for _, control in ipairs(controls) do if control.Icon then clearIcon(control.Icon) end end

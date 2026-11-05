@@ -120,3 +120,11 @@ The floating @qtrzip [K] button is removed. Minimizing lazily creates a left-ali
 The supplied place snapshot contains no TopbarPlus module. A pinned official distribution is bundled under vendor/TopbarPlus, including MPL-2.0 and unchanged Attribute attribution. An existing TopbarPlusReference is reused; otherwise the bundle is fetched once and cached for the session outside the hub's disposable task scope. See vendor/TopbarPlus/README.md for the loader adaptation.
 
 Tests exercise the real game ClickableButton source for hover/press/release scales and sounds, mock TopbarPlus for lazy visibility/reuse/destroy behavior, and compile the official bundle and verify its 21-module loader graph. Run python tools/build_topbarplus.py and python tools/test_topbarplus.py. These tests do not establish live Roblox visual correctness.
+
+## Topbar error repair, centered interaction and readable labels (revision 15)
+
+The supplied console errors identified an absent Janitor.clean alias, followed by missing widget theme sizes. The generated TopbarPlus package now creates aliases from a table snapshot, supplies numeric widget defaults during initial theme layout, and uses a content-addressed dependency path. Startup repairs the previous owned cached package and cleans partially created blank icons before replacing the hub. Foreign topbar packages are excluded. Actual Janitor add/clean/destroy and old-package recovery now run in the regression harness.
+
+Button scale animation is local to this hub: 1.012 hover and 0.985 press with Sine/Out easing. Buttons anchor at their center, keep native color/sound effects, and cancel outstanding scale tweens on cleanup. Native game ClickableButton constants are not mutated.
+
+Main row labels use 28-pixel text, descriptions 20 and headings 28. Information no longer clips text strokes, inherited layout/text constraints are removed, alignment is explicitly left, and scrolling is vertical with an initial zero horizontal offset. Description rows have enough height for two lines. The input design and permanent bgsiscript loadstring are unchanged. These are regression-tested changes; live rendering remains unverified.
