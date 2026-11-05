@@ -1,0 +1,17 @@
+{
+  "name": "Frost Shard",
+  "images": {
+    "Normal": "rbxassetid://70884303230308",
+    "Shiny": "rbxassetid://124422543905877"
+  },
+  "assetIds": [
+    "124422543905877",
+    "70884303230308"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

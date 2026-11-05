@@ -1,0 +1,17 @@
+{
+  "name": "Strawberry Doggy",
+  "images": {
+    "Normal": "rbxassetid://120719334954340",
+    "Shiny": "rbxassetid://101777457596590"
+  },
+  "assetIds": [
+    "101777457596590",
+    "120719334954340"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Strawberry Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

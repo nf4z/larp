@@ -1,0 +1,15 @@
+{
+  "name": "Thanksgiving Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://123450943961286"
+  },
+  "assetIds": [
+    "123450943961286"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Thanksgiving Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

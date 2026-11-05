@@ -1,0 +1,21 @@
+{
+  "name": "Clown Round",
+  "images": {
+    "Normal": "rbxassetid://105884726287161",
+    "Shiny": "rbxassetid://103200941384023",
+    "Mythic": "rbxassetid://74510493371470",
+    "MythicShiny": "rbxassetid://87240418207525"
+  },
+  "assetIds": [
+    "103200941384023",
+    "105884726287161",
+    "74510493371470",
+    "87240418207525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Round"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

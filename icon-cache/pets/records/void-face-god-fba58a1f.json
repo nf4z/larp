@@ -1,0 +1,17 @@
+{
+  "name": "VOID FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://98121375934548",
+    "Shiny": "rbxassetid://95127950833970"
+  },
+  "assetIds": [
+    "95127950833970",
+    "98121375934548"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

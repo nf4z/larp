@@ -1,0 +1,17 @@
+{
+  "name": "Hologram Dragon",
+  "images": {
+    "Normal": "rbxassetid://92851727982995",
+    "Shiny": "rbxassetid://113364795162921"
+  },
+  "assetIds": [
+    "113364795162921",
+    "92851727982995"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hologram Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

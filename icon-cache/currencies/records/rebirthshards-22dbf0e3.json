@@ -1,0 +1,15 @@
+{
+  "name": "RebirthShards",
+  "images": {
+    "Image": "rbxassetid://118652431699008"
+  },
+  "assetIds": [
+    "118652431699008"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "RebirthShards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

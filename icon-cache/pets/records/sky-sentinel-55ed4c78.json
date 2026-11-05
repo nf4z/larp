@@ -1,0 +1,21 @@
+{
+  "name": "Sky Sentinel",
+  "images": {
+    "Normal": "rbxassetid://115909573555033",
+    "Shiny": "rbxassetid://117120656908387",
+    "Mythic": "rbxassetid://80053490069974",
+    "MythicShiny": "rbxassetid://91357141879535"
+  },
+  "assetIds": [
+    "115909573555033",
+    "117120656908387",
+    "80053490069974",
+    "91357141879535"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sky Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

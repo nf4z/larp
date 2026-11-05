@@ -1,0 +1,21 @@
+{
+  "name": "Ghostarium",
+  "images": {
+    "Normal": "rbxassetid://78812155770528",
+    "Shiny": "rbxassetid://109324580707057",
+    "Mythic": "rbxassetid://113253945165266",
+    "MythicShiny": "rbxassetid://78689840382025"
+  },
+  "assetIds": [
+    "109324580707057",
+    "113253945165266",
+    "78689840382025",
+    "78812155770528"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghostarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

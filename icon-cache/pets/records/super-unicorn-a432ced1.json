@@ -1,0 +1,21 @@
+{
+  "name": "Super Unicorn",
+  "images": {
+    "Normal": "rbxassetid://106775469361189",
+    "Shiny": "rbxassetid://113753858623238",
+    "Mythic": "rbxassetid://88848620182507",
+    "MythicShiny": "rbxassetid://93369732019805"
+  },
+  "assetIds": [
+    "106775469361189",
+    "113753858623238",
+    "88848620182507",
+    "93369732019805"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

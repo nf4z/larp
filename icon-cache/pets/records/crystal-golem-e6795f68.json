@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Golem",
+  "images": {
+    "Normal": "rbxassetid://106907368698092",
+    "Shiny": "rbxassetid://89533765843547",
+    "Mythic": "rbxassetid://116963575534567",
+    "MythicShiny": "rbxassetid://138095592308711"
+  },
+  "assetIds": [
+    "106907368698092",
+    "116963575534567",
+    "138095592308711",
+    "89533765843547"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

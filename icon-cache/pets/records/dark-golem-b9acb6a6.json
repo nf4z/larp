@@ -1,0 +1,17 @@
+{
+  "name": "Dark Golem",
+  "images": {
+    "Normal": "rbxassetid://77806044103116",
+    "Shiny": "rbxassetid://91133953823987"
+  },
+  "assetIds": [
+    "77806044103116",
+    "91133953823987"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

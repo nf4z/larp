@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://75381514439524",
+    "Shiny": "rbxassetid://86924035455321",
+    "Mythic": "rbxassetid://129239561702412",
+    "MythicShiny": "rbxassetid://74818186601127"
+  },
+  "assetIds": [
+    "129239561702412",
+    "74818186601127",
+    "75381514439524",
+    "86924035455321"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

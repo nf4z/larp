@@ -1,0 +1,17 @@
+{
+  "name": "Moon Kitty",
+  "images": {
+    "Normal": "rbxassetid://109989444694659",
+    "Shiny": "rbxassetid://136290346714292"
+  },
+  "assetIds": [
+    "109989444694659",
+    "136290346714292"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moon Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

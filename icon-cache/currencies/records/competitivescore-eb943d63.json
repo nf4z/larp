@@ -1,0 +1,15 @@
+{
+  "name": "CompetitiveScore",
+  "images": {
+    "Image": "rbxassetid://102958595859917"
+  },
+  "assetIds": [
+    "102958595859917"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "CompetitiveScore"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

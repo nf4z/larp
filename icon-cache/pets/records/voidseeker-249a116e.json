@@ -1,0 +1,17 @@
+{
+  "name": "VOIDSEEKER",
+  "images": {
+    "Normal": "rbxassetid://119993204361213",
+    "Shiny": "rbxassetid://80794574711680"
+  },
+  "assetIds": [
+    "119993204361213",
+    "80794574711680"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOIDSEEKER"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

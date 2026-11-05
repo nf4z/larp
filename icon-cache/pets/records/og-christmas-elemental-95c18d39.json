@@ -1,0 +1,17 @@
+{
+  "name": "OG Christmas Elemental",
+  "images": {
+    "Normal": "rbxassetid://108450509341264",
+    "Shiny": "rbxassetid://134719955915931"
+  },
+  "assetIds": [
+    "108450509341264",
+    "134719955915931"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Christmas Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

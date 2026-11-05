@@ -1,0 +1,21 @@
+{
+  "name": "Deer Tophat",
+  "images": {
+    "Normal": "rbxassetid://121693036677899",
+    "Shiny": "rbxassetid://114632554608608",
+    "Mythic": "rbxassetid://112430349026881",
+    "MythicShiny": "rbxassetid://126389312609135"
+  },
+  "assetIds": [
+    "112430349026881",
+    "114632554608608",
+    "121693036677899",
+    "126389312609135"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Deer Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

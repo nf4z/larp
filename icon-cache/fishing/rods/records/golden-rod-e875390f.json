@@ -1,0 +1,15 @@
+{
+  "name": "Golden Rod",
+  "images": {
+    "Image": "rbxassetid://81778882933486"
+  },
+  "assetIds": [
+    "81778882933486"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Golden Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

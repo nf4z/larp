@@ -1,0 +1,21 @@
+{
+  "name": "Luminant Shard",
+  "images": {
+    "Normal": "rbxassetid://110568170088750",
+    "Shiny": "rbxassetid://120634348035516",
+    "Mythic": "rbxassetid://86751542767209",
+    "MythicShiny": "rbxassetid://115952754607842"
+  },
+  "assetIds": [
+    "110568170088750",
+    "115952754607842",
+    "120634348035516",
+    "86751542767209"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Galaxy Crate",
+  "images": {
+    "Image": "rbxassetid://109803978074501"
+  },
+  "assetIds": [
+    "109803978074501"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Galaxy Crate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

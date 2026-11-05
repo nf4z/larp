@@ -1,0 +1,21 @@
+{
+  "name": "LOL",
+  "images": {
+    "Normal": "rbxassetid://86718947451666",
+    "Shiny": "rbxassetid://123990566235175",
+    "Mythic": "rbxassetid://96699911188023",
+    "MythicShiny": "rbxassetid://91998945417823"
+  },
+  "assetIds": [
+    "123990566235175",
+    "86718947451666",
+    "91998945417823",
+    "96699911188023"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "LOL"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

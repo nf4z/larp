@@ -1,0 +1,21 @@
+{
+  "name": "Spring Soul",
+  "images": {
+    "Normal": "rbxassetid://96046475994204",
+    "Shiny": "rbxassetid://89682886002809",
+    "Mythic": "rbxassetid://92825275759519",
+    "MythicShiny": "rbxassetid://110491039378329"
+  },
+  "assetIds": [
+    "110491039378329",
+    "89682886002809",
+    "92825275759519",
+    "96046475994204"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

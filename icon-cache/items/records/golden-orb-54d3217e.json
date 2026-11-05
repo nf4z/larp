@@ -1,0 +1,15 @@
+{
+  "name": "Golden Orb",
+  "images": {
+    "Image": "rbxassetid://122113213891946"
+  },
+  "assetIds": [
+    "122113213891946"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Golden Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

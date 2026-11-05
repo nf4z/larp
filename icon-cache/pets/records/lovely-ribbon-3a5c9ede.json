@@ -1,0 +1,17 @@
+{
+  "name": "Lovely Ribbon",
+  "images": {
+    "Normal": "rbxassetid://100461297538009",
+    "Shiny": "rbxassetid://140038557856004"
+  },
+  "assetIds": [
+    "100461297538009",
+    "140038557856004"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovely Ribbon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

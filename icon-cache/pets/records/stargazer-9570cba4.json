@@ -1,0 +1,21 @@
+{
+  "name": "Stargazer",
+  "images": {
+    "Normal": "rbxassetid://139660363583084",
+    "Shiny": "rbxassetid://135937450153489",
+    "Mythic": "rbxassetid://80200570642398",
+    "MythicShiny": "rbxassetid://92432516161125"
+  },
+  "assetIds": [
+    "135937450153489",
+    "139660363583084",
+    "80200570642398",
+    "92432516161125"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stargazer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

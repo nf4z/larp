@@ -1,0 +1,12 @@
+{
+  "name": "Game Egg",
+  "images": {
+    "Image": "rbxassetid://105117298097171"
+  },
+  "assetIds": [
+    "105117298097171"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Silly Hydra",
+  "images": {
+    "Normal": "rbxassetid://108704377500182",
+    "Shiny": "rbxassetid://126476039651685",
+    "Mythic": "rbxassetid://125027668055770",
+    "MythicShiny": "rbxassetid://93698665456221"
+  },
+  "assetIds": [
+    "108704377500182",
+    "125027668055770",
+    "126476039651685",
+    "93698665456221"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Firecracker",
+  "images": {
+    "Normal": "rbxassetid://116348690179030",
+    "Shiny": "rbxassetid://123406412739268",
+    "Mythic": "rbxassetid://121219495409850",
+    "MythicShiny": "rbxassetid://129296659817825"
+  },
+  "assetIds": [
+    "116348690179030",
+    "121219495409850",
+    "123406412739268",
+    "129296659817825"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Firecracker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Rift Seeker",
+  "images": {
+    "Normal": "rbxassetid://135332582571927",
+    "Shiny": "rbxassetid://129819876948366",
+    "Mythic": "rbxassetid://97718781293910",
+    "MythicShiny": "rbxassetid://79425130150835"
+  },
+  "assetIds": [
+    "129819876948366",
+    "135332582571927",
+    "79425130150835",
+    "97718781293910"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rift Seeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

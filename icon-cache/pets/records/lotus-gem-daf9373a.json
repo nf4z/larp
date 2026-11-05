@@ -1,0 +1,21 @@
+{
+  "name": "Lotus Gem",
+  "images": {
+    "Normal": "rbxassetid://125997018630118",
+    "Shiny": "rbxassetid://71253422553495",
+    "Mythic": "rbxassetid://75451035985868",
+    "MythicShiny": "rbxassetid://120786251374735"
+  },
+  "assetIds": [
+    "120786251374735",
+    "125997018630118",
+    "71253422553495",
+    "75451035985868"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lotus Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

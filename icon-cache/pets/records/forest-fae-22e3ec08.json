@@ -1,0 +1,21 @@
+{
+  "name": "Forest Fae",
+  "images": {
+    "Normal": "rbxassetid://113163827767269",
+    "Shiny": "rbxassetid://113564803123042",
+    "Mythic": "rbxassetid://110340655336659",
+    "MythicShiny": "rbxassetid://125947838456760"
+  },
+  "assetIds": [
+    "110340655336659",
+    "113163827767269",
+    "113564803123042",
+    "125947838456760"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forest Fae"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

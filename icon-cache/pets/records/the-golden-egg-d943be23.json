@@ -1,0 +1,21 @@
+{
+  "name": "The Golden Egg",
+  "images": {
+    "Normal": "rbxassetid://131533027855837",
+    "Shiny": "rbxassetid://95644397350096",
+    "Mythic": "rbxassetid://80843454538988",
+    "MythicShiny": "rbxassetid://89999910425168"
+  },
+  "assetIds": [
+    "131533027855837",
+    "80843454538988",
+    "89999910425168",
+    "95644397350096"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Golden Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

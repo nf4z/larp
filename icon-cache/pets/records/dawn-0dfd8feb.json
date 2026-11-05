@@ -1,0 +1,17 @@
+{
+  "name": "Dawn",
+  "images": {
+    "Normal": "rbxassetid://129676752705804",
+    "Shiny": "rbxassetid://115221531612569"
+  },
+  "assetIds": [
+    "115221531612569",
+    "129676752705804"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dawn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

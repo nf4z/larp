@@ -1,0 +1,17 @@
+{
+  "name": "Countess Federation",
+  "images": {
+    "Normal": "rbxassetid://96723152686824",
+    "Shiny": "rbxassetid://107533282813670"
+  },
+  "assetIds": [
+    "107533282813670",
+    "96723152686824"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Countess Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Clown Doggy",
+  "images": {
+    "Normal": "rbxassetid://78385189878590",
+    "Shiny": "rbxassetid://81458549537903"
+  },
+  "assetIds": [
+    "78385189878590",
+    "81458549537903"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

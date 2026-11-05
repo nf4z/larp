@@ -1,0 +1,21 @@
+{
+  "name": "Resurrection",
+  "images": {
+    "Normal": "rbxassetid://119199202610151",
+    "Shiny": "rbxassetid://109802169698423",
+    "Mythic": "rbxassetid://100714193276003",
+    "MythicShiny": "rbxassetid://116013850823017"
+  },
+  "assetIds": [
+    "100714193276003",
+    "109802169698423",
+    "116013850823017",
+    "119199202610151"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Resurrection"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "The Star Card",
+  "images": {
+    "Normal": "rbxassetid://136424512999067",
+    "Shiny": "rbxassetid://126483173377388"
+  },
+  "assetIds": [
+    "126483173377388",
+    "136424512999067"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Star Card"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

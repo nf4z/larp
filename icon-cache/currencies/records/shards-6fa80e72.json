@@ -1,0 +1,15 @@
+{
+  "name": "Shards",
+  "images": {
+    "Image": "rbxassetid://105888098389628"
+  },
+  "assetIds": [
+    "105888098389628"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Shards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

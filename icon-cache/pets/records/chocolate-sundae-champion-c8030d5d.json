@@ -1,0 +1,21 @@
+{
+  "name": "Chocolate Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://110040643545851",
+    "Shiny": "rbxassetid://71593193452628",
+    "Mythic": "rbxassetid://108632053997849",
+    "MythicShiny": "rbxassetid://130170094115762"
+  },
+  "assetIds": [
+    "108632053997849",
+    "110040643545851",
+    "130170094115762",
+    "71593193452628"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Magician",
+  "images": {
+    "Normal": "rbxassetid://131803651955581",
+    "Shiny": "rbxassetid://113009669869128",
+    "Mythic": "rbxassetid://106391544038712",
+    "MythicShiny": "rbxassetid://114264137678347"
+  },
+  "assetIds": [
+    "106391544038712",
+    "113009669869128",
+    "114264137678347",
+    "131803651955581"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Magician"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Flying Pig",
+  "images": {
+    "Normal": "rbxassetid://118299916052281",
+    "Shiny": "rbxassetid://108822579247381",
+    "Mythic": "rbxassetid://79498492070152",
+    "MythicShiny": "rbxassetid://132959504112054"
+  },
+  "assetIds": [
+    "108822579247381",
+    "118299916052281",
+    "132959504112054",
+    "79498492070152"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Pig"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

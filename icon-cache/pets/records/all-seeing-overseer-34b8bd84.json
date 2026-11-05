@@ -1,0 +1,21 @@
+{
+  "name": "All-Seeing Overseer",
+  "images": {
+    "Normal": "rbxassetid://105605411738631",
+    "Shiny": "rbxassetid://115838500985019",
+    "Mythic": "rbxassetid://119957910137920",
+    "MythicShiny": "rbxassetid://92054153197716"
+  },
+  "assetIds": [
+    "105605411738631",
+    "115838500985019",
+    "119957910137920",
+    "92054153197716"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "All-Seeing Overseer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

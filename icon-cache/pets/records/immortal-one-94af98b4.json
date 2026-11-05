@@ -1,0 +1,21 @@
+{
+  "name": "Immortal One",
+  "images": {
+    "Normal": "rbxassetid://111331044970153",
+    "Shiny": "rbxassetid://77080182198487",
+    "Mythic": "rbxassetid://84123547994928",
+    "MythicShiny": "rbxassetid://140462741374001"
+  },
+  "assetIds": [
+    "111331044970153",
+    "140462741374001",
+    "77080182198487",
+    "84123547994928"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Immortal One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

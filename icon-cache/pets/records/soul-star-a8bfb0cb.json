@@ -1,0 +1,21 @@
+{
+  "name": "Soul Star",
+  "images": {
+    "Normal": "rbxassetid://122269176802318",
+    "Shiny": "rbxassetid://133160437504441",
+    "Mythic": "rbxassetid://109456073476925",
+    "MythicShiny": "rbxassetid://135650351484772"
+  },
+  "assetIds": [
+    "109456073476925",
+    "122269176802318",
+    "133160437504441",
+    "135650351484772"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soul Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

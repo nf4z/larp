@@ -1,0 +1,15 @@
+{
+  "name": "Moon Key",
+  "images": {
+    "Image": "rbxassetid://137942276770054"
+  },
+  "assetIds": [
+    "137942276770054"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Moon Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

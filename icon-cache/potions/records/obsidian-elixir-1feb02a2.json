@@ -1,0 +1,12 @@
+{
+  "name": "Obsidian Elixir",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Obsidian Elixir",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

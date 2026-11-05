@@ -1,0 +1,21 @@
+{
+  "name": "Gummy Winged Hydra",
+  "images": {
+    "Normal": "rbxassetid://119401232525108",
+    "Shiny": "rbxassetid://114943657607663",
+    "Mythic": "rbxassetid://92917570817984",
+    "MythicShiny": "rbxassetid://79782737730626"
+  },
+  "assetIds": [
+    "114943657607663",
+    "119401232525108",
+    "79782737730626",
+    "92917570817984"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gummy Winged Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

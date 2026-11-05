@@ -1,0 +1,21 @@
+{
+  "name": "Pumpkin Spice",
+  "images": {
+    "Normal": "rbxassetid://138874272606979",
+    "Shiny": "rbxassetid://127130444157241",
+    "Mythic": "rbxassetid://99024307716709",
+    "MythicShiny": "rbxassetid://85495687013403"
+  },
+  "assetIds": [
+    "127130444157241",
+    "138874272606979",
+    "85495687013403",
+    "99024307716709"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Spice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

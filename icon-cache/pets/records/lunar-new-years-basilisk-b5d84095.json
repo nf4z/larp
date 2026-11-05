@@ -1,0 +1,17 @@
+{
+  "name": "Lunar New Years Basilisk",
+  "images": {
+    "Normal": "rbxassetid://112159717142283",
+    "Shiny": "rbxassetid://107725045777540"
+  },
+  "assetIds": [
+    "107725045777540",
+    "112159717142283"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar New Years Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

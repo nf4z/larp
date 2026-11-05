@@ -1,0 +1,21 @@
+{
+  "name": "Money Mouth",
+  "images": {
+    "Normal": "rbxassetid://98169117141742",
+    "Shiny": "rbxassetid://78875103816157",
+    "Mythic": "rbxassetid://85283459859503",
+    "MythicShiny": "rbxassetid://76008905493897"
+  },
+  "assetIds": [
+    "76008905493897",
+    "78875103816157",
+    "85283459859503",
+    "98169117141742"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Money Mouth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

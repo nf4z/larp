@@ -1,0 +1,17 @@
+{
+  "name": "Researcher Kitty",
+  "images": {
+    "Normal": "rbxassetid://111572566536202",
+    "Shiny": "rbxassetid://119726423030811"
+  },
+  "assetIds": [
+    "111572566536202",
+    "119726423030811"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Researcher Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

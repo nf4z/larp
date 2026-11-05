@@ -1,0 +1,17 @@
+{
+  "name": "Elite Kitty",
+  "images": {
+    "Normal": "rbxassetid://95311327199690",
+    "Shiny": "rbxassetid://93298648338702"
+  },
+  "assetIds": [
+    "93298648338702",
+    "95311327199690"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

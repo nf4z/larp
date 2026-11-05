@@ -1,0 +1,17 @@
+{
+  "name": "Fire Bat",
+  "images": {
+    "Normal": "rbxassetid://121918080567082",
+    "Shiny": "rbxassetid://103401065792382"
+  },
+  "assetIds": [
+    "103401065792382",
+    "121918080567082"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Super Hexarium",
+  "images": {
+    "Normal": "rbxassetid://140027769044783",
+    "Shiny": "rbxassetid://136148458275929",
+    "Mythic": "rbxassetid://126589259181084",
+    "MythicShiny": "rbxassetid://119510723900286"
+  },
+  "assetIds": [
+    "119510723900286",
+    "126589259181084",
+    "136148458275929",
+    "140027769044783"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

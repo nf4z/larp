@@ -1,0 +1,21 @@
+{
+  "name": "Grand Topaz",
+  "images": {
+    "Normal": "rbxassetid://114973670289309",
+    "Shiny": "rbxassetid://71522532667029",
+    "Mythic": "rbxassetid://94006299142089",
+    "MythicShiny": "rbxassetid://113779872008215"
+  },
+  "assetIds": [
+    "113779872008215",
+    "114973670289309",
+    "71522532667029",
+    "94006299142089"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Grand Topaz"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Snowball",
+  "images": {
+    "Normal": "rbxassetid://74680055687216",
+    "Shiny": "rbxassetid://100978591448595",
+    "Mythic": "rbxassetid://123969654960944",
+    "MythicShiny": "rbxassetid://96919126131251"
+  },
+  "assetIds": [
+    "100978591448595",
+    "123969654960944",
+    "74680055687216",
+    "96919126131251"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

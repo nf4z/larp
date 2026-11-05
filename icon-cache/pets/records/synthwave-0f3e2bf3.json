@@ -1,0 +1,17 @@
+{
+  "name": "Synthwave",
+  "images": {
+    "Normal": "rbxassetid://95254529401388",
+    "Shiny": "rbxassetid://112408745457239"
+  },
+  "assetIds": [
+    "112408745457239",
+    "95254529401388"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Synthwave"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

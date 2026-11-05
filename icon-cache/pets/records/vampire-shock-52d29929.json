@@ -1,0 +1,21 @@
+{
+  "name": "Vampire Shock",
+  "images": {
+    "Normal": "rbxassetid://111264965302153",
+    "Shiny": "rbxassetid://77139361956857",
+    "Mythic": "rbxassetid://118188280163696",
+    "MythicShiny": "rbxassetid://137615252851592"
+  },
+  "assetIds": [
+    "111264965302153",
+    "118188280163696",
+    "137615252851592",
+    "77139361956857"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Halos",
+  "images": {
+    "Image": "rbxassetid://140121194726047"
+  },
+  "assetIds": [
+    "140121194726047"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Halos"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

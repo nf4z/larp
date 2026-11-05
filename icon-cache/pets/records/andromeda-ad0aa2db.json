@@ -1,0 +1,21 @@
+{
+  "name": "Andromeda",
+  "images": {
+    "Normal": "rbxassetid://98285215805636",
+    "Shiny": "rbxassetid://138420142068174",
+    "Mythic": "rbxassetid://95091185710115",
+    "MythicShiny": "rbxassetid://111236607585632"
+  },
+  "assetIds": [
+    "111236607585632",
+    "138420142068174",
+    "95091185710115",
+    "98285215805636"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Andromeda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

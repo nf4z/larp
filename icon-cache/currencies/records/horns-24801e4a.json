@@ -1,0 +1,15 @@
+{
+  "name": "Horns",
+  "images": {
+    "Image": "rbxassetid://99805015969849"
+  },
+  "assetIds": [
+    "99805015969849"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Horns"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

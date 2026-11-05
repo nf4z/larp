@@ -1,0 +1,21 @@
+{
+  "name": "Heavenly Bunny",
+  "images": {
+    "Normal": "rbxassetid://90133017516752",
+    "Shiny": "rbxassetid://109492290232900",
+    "Mythic": "rbxassetid://124742598479738",
+    "MythicShiny": "rbxassetid://133354566863510"
+  },
+  "assetIds": [
+    "109492290232900",
+    "124742598479738",
+    "133354566863510",
+    "90133017516752"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Heavenly Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

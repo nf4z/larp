@@ -1,0 +1,12 @@
+{
+  "name": "Festive Elixir",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Festive Elixir",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

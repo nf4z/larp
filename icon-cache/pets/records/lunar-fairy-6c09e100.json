@@ -1,0 +1,21 @@
+{
+  "name": "Lunar Fairy",
+  "images": {
+    "Normal": "rbxassetid://76029144226935",
+    "Shiny": "rbxassetid://125308259422121",
+    "Mythic": "rbxassetid://136172872366962",
+    "MythicShiny": "rbxassetid://74802971268314"
+  },
+  "assetIds": [
+    "125308259422121",
+    "136172872366962",
+    "74802971268314",
+    "76029144226935"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Fairy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

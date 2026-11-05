@@ -1,0 +1,21 @@
+{
+  "name": "Golden Serpent",
+  "images": {
+    "Normal": "rbxassetid://121581198557563",
+    "Shiny": "rbxassetid://116196148024951",
+    "Mythic": "rbxassetid://103415874250073",
+    "MythicShiny": "rbxassetid://87651771364930"
+  },
+  "assetIds": [
+    "103415874250073",
+    "116196148024951",
+    "121581198557563",
+    "87651771364930"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

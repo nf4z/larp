@@ -1,0 +1,21 @@
+{
+  "name": "Doggy UFO",
+  "images": {
+    "Normal": "rbxassetid://118109045520949",
+    "Shiny": "rbxassetid://82395777802005",
+    "Mythic": "rbxassetid://109543222116000",
+    "MythicShiny": "rbxassetid://81173987642237"
+  },
+  "assetIds": [
+    "109543222116000",
+    "118109045520949",
+    "81173987642237",
+    "82395777802005"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy UFO"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

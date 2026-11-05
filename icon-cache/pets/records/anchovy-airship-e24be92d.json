@@ -1,0 +1,21 @@
+{
+  "name": "Anchovy Airship",
+  "images": {
+    "Normal": "rbxassetid://125503356678129",
+    "Shiny": "rbxassetid://138859492589511",
+    "Mythic": "rbxassetid://74290457713104",
+    "MythicShiny": "rbxassetid://127299900193974"
+  },
+  "assetIds": [
+    "125503356678129",
+    "127299900193974",
+    "138859492589511",
+    "74290457713104"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Anchovy Airship"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

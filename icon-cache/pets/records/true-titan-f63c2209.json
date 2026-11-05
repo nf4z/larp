@@ -1,0 +1,21 @@
+{
+  "name": "True Titan",
+  "images": {
+    "Normal": "rbxassetid://109077944704202",
+    "Shiny": "rbxassetid://86980816167938",
+    "Mythic": "rbxassetid://113653635228323",
+    "MythicShiny": "rbxassetid://130281227808198"
+  },
+  "assetIds": [
+    "109077944704202",
+    "113653635228323",
+    "130281227808198",
+    "86980816167938"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "True Titan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

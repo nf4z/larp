@@ -1,0 +1,15 @@
+{
+  "name": "Perch",
+  "images": {
+    "Image": "rbxassetid://88057591591757"
+  },
+  "assetIds": [
+    "88057591591757"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Perch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

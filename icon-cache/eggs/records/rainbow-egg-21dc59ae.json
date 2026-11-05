@@ -1,0 +1,12 @@
+{
+  "name": "Rainbow Egg",
+  "images": {
+    "Image": "rbxassetid://101322128600967"
+  },
+  "assetIds": [
+    "101322128600967"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

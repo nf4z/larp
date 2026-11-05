@@ -1,0 +1,21 @@
+{
+  "name": "Giant Gummy Worm",
+  "images": {
+    "Normal": "rbxassetid://129712893059173",
+    "Shiny": "rbxassetid://113648852397192",
+    "Mythic": "rbxassetid://104598457609626",
+    "MythicShiny": "rbxassetid://129792854492364"
+  },
+  "assetIds": [
+    "104598457609626",
+    "113648852397192",
+    "129712893059173",
+    "129792854492364"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Gummy Worm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

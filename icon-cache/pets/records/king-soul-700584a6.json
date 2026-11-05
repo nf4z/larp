@@ -1,0 +1,17 @@
+{
+  "name": "King Soul",
+  "images": {
+    "Normal": "rbxassetid://91911264068662",
+    "Shiny": "rbxassetid://118925496119322"
+  },
+  "assetIds": [
+    "118925496119322",
+    "91911264068662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

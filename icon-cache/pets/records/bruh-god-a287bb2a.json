@@ -1,0 +1,21 @@
+{
+  "name": "BRUH GOD",
+  "images": {
+    "Normal": "rbxassetid://134770831073295",
+    "Shiny": "rbxassetid://91356457879715",
+    "Mythic": "rbxassetid://123148893175682",
+    "MythicShiny": "rbxassetid://128505224919350"
+  },
+  "assetIds": [
+    "123148893175682",
+    "128505224919350",
+    "134770831073295",
+    "91356457879715"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BRUH GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

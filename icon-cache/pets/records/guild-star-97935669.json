@@ -1,0 +1,17 @@
+{
+  "name": "Guild Star",
+  "images": {
+    "Normal": "rbxassetid://97961170187208",
+    "Shiny": "rbxassetid://103581104505641"
+  },
+  "assetIds": [
+    "103581104505641",
+    "97961170187208"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guild Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

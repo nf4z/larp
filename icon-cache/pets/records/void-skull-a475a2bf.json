@@ -1,0 +1,17 @@
+{
+  "name": "VOID SKULL",
+  "images": {
+    "Normal": "rbxassetid://80620038084439",
+    "Shiny": "rbxassetid://102408536099087"
+  },
+  "assetIds": [
+    "102408536099087",
+    "80620038084439"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID SKULL"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

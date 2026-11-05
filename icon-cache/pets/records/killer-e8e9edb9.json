@@ -1,0 +1,21 @@
+{
+  "name": "Killer",
+  "images": {
+    "Normal": "rbxassetid://118285267712747",
+    "Shiny": "rbxassetid://90914498963120",
+    "Mythic": "rbxassetid://90691416602163",
+    "MythicShiny": "rbxassetid://99041007882271"
+  },
+  "assetIds": [
+    "118285267712747",
+    "90691416602163",
+    "90914498963120",
+    "99041007882271"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Killer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dreamscape Influence",
+  "images": {
+    "Normal": "rbxassetid://129903101837596",
+    "Shiny": "rbxassetid://113109299436803",
+    "Mythic": "rbxassetid://86144615127180",
+    "MythicShiny": "rbxassetid://118306242086794"
+  },
+  "assetIds": [
+    "113109299436803",
+    "118306242086794",
+    "129903101837596",
+    "86144615127180"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dreamscape Influence"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

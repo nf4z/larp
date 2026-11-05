@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Ghost Spirit",
+  "images": {
+    "Normal": "rbxassetid://137034878357829",
+    "Shiny": "rbxassetid://118834544618285",
+    "Mythic": "rbxassetid://113458141117383",
+    "MythicShiny": "rbxassetid://123307915749544"
+  },
+  "assetIds": [
+    "113458141117383",
+    "118834544618285",
+    "123307915749544",
+    "137034878357829"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Ghost Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

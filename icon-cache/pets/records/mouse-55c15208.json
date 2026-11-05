@@ -1,0 +1,17 @@
+{
+  "name": "Mouse",
+  "images": {
+    "Normal": "rbxassetid://129738500672564",
+    "Shiny": "rbxassetid://113473859675084"
+  },
+  "assetIds": [
+    "113473859675084",
+    "129738500672564"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

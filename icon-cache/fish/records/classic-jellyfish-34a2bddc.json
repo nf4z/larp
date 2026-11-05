@@ -1,0 +1,15 @@
+{
+  "name": "Classic Jellyfish",
+  "images": {
+    "Image": "rbxassetid://85820361672847"
+  },
+  "assetIds": [
+    "85820361672847"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Jellyfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Manarium",
+  "images": {
+    "Normal": "rbxassetid://96886389446306",
+    "Shiny": "rbxassetid://87072251154600",
+    "Mythic": "rbxassetid://112814884526629",
+    "MythicShiny": "rbxassetid://123771065624121"
+  },
+  "assetIds": [
+    "112814884526629",
+    "123771065624121",
+    "87072251154600",
+    "96886389446306"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Manarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

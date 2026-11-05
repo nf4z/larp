@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Kitty",
+  "images": {
+    "Normal": "rbxassetid://129087243110044",
+    "Shiny": "rbxassetid://136163493796243",
+    "Mythic": "rbxassetid://87256688829313",
+    "MythicShiny": "rbxassetid://114636492784944"
+  },
+  "assetIds": [
+    "114636492784944",
+    "129087243110044",
+    "136163493796243",
+    "87256688829313"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

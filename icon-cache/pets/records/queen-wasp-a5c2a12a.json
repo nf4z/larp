@@ -1,0 +1,21 @@
+{
+  "name": "Queen Wasp",
+  "images": {
+    "Normal": "rbxassetid://111385387081935",
+    "Shiny": "rbxassetid://119586376772615",
+    "Mythic": "rbxassetid://114594091172382",
+    "MythicShiny": "rbxassetid://85496269057068"
+  },
+  "assetIds": [
+    "111385387081935",
+    "114594091172382",
+    "119586376772615",
+    "85496269057068"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Wasp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Golem Bunny",
+  "images": {
+    "Normal": "rbxassetid://88738039431072",
+    "Shiny": "rbxassetid://105220443724263"
+  },
+  "assetIds": [
+    "105220443724263",
+    "88738039431072"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golem Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

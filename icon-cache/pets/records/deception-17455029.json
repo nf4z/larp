@@ -1,0 +1,21 @@
+{
+  "name": "Deception",
+  "images": {
+    "Normal": "rbxassetid://128073736324679",
+    "Shiny": "rbxassetid://106536413784039",
+    "Mythic": "rbxassetid://74044436578095",
+    "MythicShiny": "rbxassetid://138962630393270"
+  },
+  "assetIds": [
+    "106536413784039",
+    "128073736324679",
+    "138962630393270",
+    "74044436578095"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Deception"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

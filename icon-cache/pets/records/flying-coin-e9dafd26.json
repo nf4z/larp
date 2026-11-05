@@ -1,0 +1,21 @@
+{
+  "name": "Flying Coin",
+  "images": {
+    "Normal": "rbxassetid://74370521121195",
+    "Shiny": "rbxassetid://83103637221518",
+    "Mythic": "rbxassetid://106964365089635",
+    "MythicShiny": "rbxassetid://129440709251809"
+  },
+  "assetIds": [
+    "106964365089635",
+    "129440709251809",
+    "74370521121195",
+    "83103637221518"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Coin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

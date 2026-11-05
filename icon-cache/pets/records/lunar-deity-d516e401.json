@@ -1,0 +1,17 @@
+{
+  "name": "Lunar Deity",
+  "images": {
+    "Normal": "rbxassetid://85587469397800",
+    "Shiny": "rbxassetid://130350931628389"
+  },
+  "assetIds": [
+    "130350931628389",
+    "85587469397800"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Deity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

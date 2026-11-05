@@ -1,0 +1,21 @@
+{
+  "name": "OG Cardinal Bunny",
+  "images": {
+    "Normal": "rbxassetid://114185137049967",
+    "Shiny": "rbxassetid://138770594631342",
+    "Mythic": "rbxassetid://84311410408929",
+    "MythicShiny": "rbxassetid://95546222463930"
+  },
+  "assetIds": [
+    "114185137049967",
+    "138770594631342",
+    "84311410408929",
+    "95546222463930"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Cardinal Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

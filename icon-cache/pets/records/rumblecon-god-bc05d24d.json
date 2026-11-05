@@ -1,0 +1,21 @@
+{
+  "name": "RUMBLECON GOD",
+  "images": {
+    "Normal": "rbxassetid://84816453544504",
+    "Shiny": "rbxassetid://132770629560931",
+    "Mythic": "rbxassetid://88782076541429",
+    "MythicShiny": "rbxassetid://137679360312239"
+  },
+  "assetIds": [
+    "132770629560931",
+    "137679360312239",
+    "84816453544504",
+    "88782076541429"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "RUMBLECON GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Armageddon",
+  "images": {
+    "Normal": "rbxassetid://131765975098579",
+    "Shiny": "rbxassetid://139600773108420",
+    "Mythic": "rbxassetid://103558114481539",
+    "MythicShiny": "rbxassetid://104504262879432"
+  },
+  "assetIds": [
+    "103558114481539",
+    "104504262879432",
+    "131765975098579",
+    "139600773108420"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Armageddon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Dreamer Egg",
+  "images": {
+    "Image": "rbxassetid://117850532219099"
+  },
+  "assetIds": [
+    "117850532219099"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

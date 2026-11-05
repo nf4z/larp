@@ -1,0 +1,15 @@
+{
+  "name": "CircusTickets",
+  "images": {
+    "Image": "rbxassetid://121636069883165"
+  },
+  "assetIds": [
+    "121636069883165"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "CircusTickets"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Autumn Hydra",
+  "images": {
+    "Normal": "rbxassetid://87609115995133",
+    "Shiny": "rbxassetid://125419950248503"
+  },
+  "assetIds": [
+    "125419950248503",
+    "87609115995133"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

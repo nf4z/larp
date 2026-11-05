@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Crystal Ore Egg",
+  "images": {
+    "Image": "rbxassetid://102382244608545"
+  },
+  "assetIds": [
+    "102382244608545"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

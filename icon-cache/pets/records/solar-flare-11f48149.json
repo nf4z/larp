@@ -1,0 +1,21 @@
+{
+  "name": "Solar Flare",
+  "images": {
+    "Normal": "rbxassetid://77765932052725",
+    "Shiny": "rbxassetid://83965403733479",
+    "Mythic": "rbxassetid://76017160669251",
+    "MythicShiny": "rbxassetid://137882917639314"
+  },
+  "assetIds": [
+    "137882917639314",
+    "76017160669251",
+    "77765932052725",
+    "83965403733479"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solar Flare"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

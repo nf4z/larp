@@ -1,0 +1,21 @@
+{
+  "name": "Crowned Coin",
+  "images": {
+    "Normal": "rbxassetid://99050871238661",
+    "Shiny": "rbxassetid://128873221226595",
+    "Mythic": "rbxassetid://109940777938581",
+    "MythicShiny": "rbxassetid://114936562332632"
+  },
+  "assetIds": [
+    "109940777938581",
+    "114936562332632",
+    "128873221226595",
+    "99050871238661"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crowned Coin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Wonder Champion",
+  "images": {
+    "Normal": "rbxassetid://115792305488109",
+    "Shiny": "rbxassetid://113043683619629",
+    "Mythic": "rbxassetid://124459320965149",
+    "MythicShiny": "rbxassetid://130256122881385"
+  },
+  "assetIds": [
+    "113043683619629",
+    "115792305488109",
+    "124459320965149",
+    "130256122881385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wonder Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

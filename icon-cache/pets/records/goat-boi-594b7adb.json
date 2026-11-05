@@ -1,0 +1,21 @@
+{
+  "name": "Goat Boi",
+  "images": {
+    "Normal": "rbxassetid://132702480351185",
+    "Shiny": "rbxassetid://138179057325961",
+    "Mythic": "rbxassetid://134366771552258",
+    "MythicShiny": "rbxassetid://90867723215519"
+  },
+  "assetIds": [
+    "132702480351185",
+    "134366771552258",
+    "138179057325961",
+    "90867723215519"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Goat Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

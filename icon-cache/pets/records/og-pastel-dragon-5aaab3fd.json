@@ -1,0 +1,17 @@
+{
+  "name": "OG Pastel Dragon",
+  "images": {
+    "Normal": "rbxassetid://116392450325756",
+    "Shiny": "rbxassetid://85675049721886"
+  },
+  "assetIds": [
+    "116392450325756",
+    "85675049721886"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Pastel Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

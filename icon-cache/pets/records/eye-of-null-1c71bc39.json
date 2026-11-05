@@ -1,0 +1,21 @@
+{
+  "name": "Eye of Null",
+  "images": {
+    "Normal": "rbxassetid://70901364700866",
+    "Shiny": "rbxassetid://76765416489255",
+    "Mythic": "rbxassetid://104265991561513",
+    "MythicShiny": "rbxassetid://86023878704299"
+  },
+  "assetIds": [
+    "104265991561513",
+    "70901364700866",
+    "76765416489255",
+    "86023878704299"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eye of Null"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

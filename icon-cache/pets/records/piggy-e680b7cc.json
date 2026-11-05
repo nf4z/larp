@@ -1,0 +1,17 @@
+{
+  "name": "Piggy",
+  "images": {
+    "Normal": "rbxassetid://126005209800286",
+    "Shiny": "rbxassetid://100449039008111"
+  },
+  "assetIds": [
+    "100449039008111",
+    "126005209800286"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Piggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

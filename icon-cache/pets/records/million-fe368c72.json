@@ -1,0 +1,17 @@
+{
+  "name": "Million",
+  "images": {
+    "Normal": "rbxassetid://98440138920308",
+    "Shiny": "rbxassetid://85073378803263"
+  },
+  "assetIds": [
+    "85073378803263",
+    "98440138920308"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Million"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

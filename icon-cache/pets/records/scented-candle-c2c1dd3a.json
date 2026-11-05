@@ -1,0 +1,17 @@
+{
+  "name": "Scented Candle",
+  "images": {
+    "Normal": "rbxassetid://87270056540979",
+    "Shiny": "rbxassetid://92079174311696"
+  },
+  "assetIds": [
+    "87270056540979",
+    "92079174311696"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Scented Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

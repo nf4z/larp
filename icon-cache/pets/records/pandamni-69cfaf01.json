@@ -1,0 +1,17 @@
+{
+  "name": "Pandamni",
+  "images": {
+    "Normal": "rbxassetid://134269722427522",
+    "Shiny": "rbxassetid://140555908497137"
+  },
+  "assetIds": [
+    "134269722427522",
+    "140555908497137"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pandamni"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

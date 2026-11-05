@@ -1,0 +1,17 @@
+{
+  "name": "Fire Golem",
+  "images": {
+    "Normal": "rbxassetid://92717333984469",
+    "Shiny": "rbxassetid://91222486859677"
+  },
+  "assetIds": [
+    "91222486859677",
+    "92717333984469"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

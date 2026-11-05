@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Kitty",
+  "images": {
+    "Normal": "rbxassetid://126078055694355",
+    "Shiny": "rbxassetid://84434591879615"
+  },
+  "assetIds": [
+    "126078055694355",
+    "84434591879615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Luck",
+  "images": {
+    "Tier1": "rbxassetid://89728132564818",
+    "Tier2": "rbxassetid://109314989843487",
+    "Tier3": "rbxassetid://72158339745494"
+  },
+  "assetIds": [
+    "89728132564818",
+    "109314989843487",
+    "72158339745494"
+  ],
+  "item": {
+    "Type": "Rune",
+    "Name": "Luck",
+    "Tier": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Runes"
+}

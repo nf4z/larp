@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Bunny",
+  "images": {
+    "Normal": "rbxassetid://94959358655870",
+    "Shiny": "rbxassetid://118993537874001",
+    "Mythic": "rbxassetid://127874294503648",
+    "MythicShiny": "rbxassetid://72713441164440"
+  },
+  "assetIds": [
+    "118993537874001",
+    "127874294503648",
+    "72713441164440",
+    "94959358655870"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

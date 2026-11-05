@@ -1,0 +1,21 @@
+{
+  "name": "Candy Winged Hydra",
+  "images": {
+    "Normal": "rbxassetid://125204111022999",
+    "Shiny": "rbxassetid://81715956562486",
+    "Mythic": "rbxassetid://92611302193584",
+    "MythicShiny": "rbxassetid://126923682188509"
+  },
+  "assetIds": [
+    "125204111022999",
+    "126923682188509",
+    "81715956562486",
+    "92611302193584"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candy Winged Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

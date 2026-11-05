@@ -1,0 +1,21 @@
+{
+  "name": "Phantom Phoenix",
+  "images": {
+    "Normal": "rbxassetid://94161196219435",
+    "Shiny": "rbxassetid://83195553758244",
+    "Mythic": "rbxassetid://78226798912310",
+    "MythicShiny": "rbxassetid://113563527705305"
+  },
+  "assetIds": [
+    "113563527705305",
+    "78226798912310",
+    "83195553758244",
+    "94161196219435"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Phantom Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Foliar Ascension",
+  "images": {
+    "Normal": "rbxassetid://78373198579329",
+    "Shiny": "rbxassetid://83172366355980",
+    "Mythic": "rbxassetid://70560810571800",
+    "MythicShiny": "rbxassetid://90136112683093"
+  },
+  "assetIds": [
+    "70560810571800",
+    "78373198579329",
+    "83172366355980",
+    "90136112683093"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Foliar Ascension"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

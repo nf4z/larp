@@ -1,0 +1,15 @@
+{
+  "name": "Lotus Rod",
+  "images": {
+    "Image": "rbxassetid://117198961578003"
+  },
+  "assetIds": [
+    "117198961578003"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Lotus Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

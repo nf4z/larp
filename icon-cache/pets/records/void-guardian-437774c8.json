@@ -1,0 +1,17 @@
+{
+  "name": "VOID GUARDIAN",
+  "images": {
+    "Normal": "rbxassetid://116307552049151",
+    "Shiny": "rbxassetid://121034953356854"
+  },
+  "assetIds": [
+    "116307552049151",
+    "121034953356854"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID GUARDIAN"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

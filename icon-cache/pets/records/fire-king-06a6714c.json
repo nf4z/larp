@@ -1,0 +1,21 @@
+{
+  "name": "Fire King",
+  "images": {
+    "Normal": "rbxassetid://71204485758712",
+    "Shiny": "rbxassetid://77761888376525",
+    "Mythic": "rbxassetid://85815276018155",
+    "MythicShiny": "rbxassetid://71704307293022"
+  },
+  "assetIds": [
+    "71204485758712",
+    "71704307293022",
+    "77761888376525",
+    "85815276018155"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

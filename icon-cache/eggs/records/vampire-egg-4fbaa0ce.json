@@ -1,0 +1,12 @@
+{
+  "name": "Vampire Egg",
+  "images": {
+    "Image": "rbxassetid://105209108627098"
+  },
+  "assetIds": [
+    "105209108627098"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

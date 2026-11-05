@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Tropical Egg",
+  "images": {
+    "Image": "rbxassetid://94107014129744"
+  },
+  "assetIds": [
+    "94107014129744"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

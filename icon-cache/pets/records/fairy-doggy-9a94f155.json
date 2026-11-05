@@ -1,0 +1,17 @@
+{
+  "name": "Fairy Doggy",
+  "images": {
+    "Normal": "rbxassetid://79078380933757",
+    "Shiny": "rbxassetid://110377356428993"
+  },
+  "assetIds": [
+    "110377356428993",
+    "79078380933757"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fairy Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

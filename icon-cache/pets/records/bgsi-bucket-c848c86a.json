@@ -1,0 +1,21 @@
+{
+  "name": "BGSI Bucket",
+  "images": {
+    "Normal": "rbxassetid://75438498779557",
+    "Shiny": "rbxassetid://102999286682509",
+    "Mythic": "rbxassetid://76131309177138",
+    "MythicShiny": "rbxassetid://105645504039946"
+  },
+  "assetIds": [
+    "102999286682509",
+    "105645504039946",
+    "75438498779557",
+    "76131309177138"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BGSI Bucket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

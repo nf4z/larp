@@ -1,0 +1,21 @@
+{
+  "name": "Hellish Bunny",
+  "images": {
+    "Normal": "rbxassetid://112852083443788",
+    "Shiny": "rbxassetid://80835686811740",
+    "Mythic": "rbxassetid://91239247839054",
+    "MythicShiny": "rbxassetid://119779158807936"
+  },
+  "assetIds": [
+    "112852083443788",
+    "119779158807936",
+    "80835686811740",
+    "91239247839054"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellish Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

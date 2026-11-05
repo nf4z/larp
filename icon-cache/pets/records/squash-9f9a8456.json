@@ -1,0 +1,17 @@
+{
+  "name": "Squash",
+  "images": {
+    "Normal": "rbxassetid://133214369843849",
+    "Shiny": "rbxassetid://135677166561159"
+  },
+  "assetIds": [
+    "133214369843849",
+    "135677166561159"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Squash"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

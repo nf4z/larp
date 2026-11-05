@@ -1,0 +1,21 @@
+{
+  "name": "OG Angelic Skull",
+  "images": {
+    "Normal": "rbxassetid://139933661380336",
+    "Shiny": "rbxassetid://85282945987143",
+    "Mythic": "rbxassetid://137205886151561",
+    "MythicShiny": "rbxassetid://91791186508190"
+  },
+  "assetIds": [
+    "137205886151561",
+    "139933661380336",
+    "85282945987143",
+    "91791186508190"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Angelic Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

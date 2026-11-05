@@ -1,0 +1,12 @@
+{
+  "name": "Light Egg",
+  "images": {
+    "Image": "rbxassetid://103238470834764"
+  },
+  "assetIds": [
+    "103238470834764"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

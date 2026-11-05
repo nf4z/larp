@@ -1,0 +1,17 @@
+{
+  "name": "Space Bull",
+  "images": {
+    "Normal": "rbxassetid://139962127352917",
+    "Shiny": "rbxassetid://86759888574124"
+  },
+  "assetIds": [
+    "139962127352917",
+    "86759888574124"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Space Bull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

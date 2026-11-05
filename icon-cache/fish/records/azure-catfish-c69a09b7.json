@@ -1,0 +1,15 @@
+{
+  "name": "Azure Catfish",
+  "images": {
+    "Image": "rbxassetid://136553524946172"
+  },
+  "assetIds": [
+    "136553524946172"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Azure Catfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

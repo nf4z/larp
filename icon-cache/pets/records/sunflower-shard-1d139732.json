@@ -1,0 +1,17 @@
+{
+  "name": "Sunflower Shard",
+  "images": {
+    "Normal": "rbxassetid://132637679563657",
+    "Shiny": "rbxassetid://105217543478455"
+  },
+  "assetIds": [
+    "105217543478455",
+    "132637679563657"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunflower Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

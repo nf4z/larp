@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Cube",
+  "images": {
+    "Normal": "rbxassetid://118510130470134",
+    "Shiny": "rbxassetid://79182973159304",
+    "Mythic": "rbxassetid://108444291064240",
+    "MythicShiny": "rbxassetid://97641653727155"
+  },
+  "assetIds": [
+    "108444291064240",
+    "118510130470134",
+    "79182973159304",
+    "97641653727155"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

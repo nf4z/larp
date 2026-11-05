@@ -1,0 +1,21 @@
+{
+  "name": "Fabergé",
+  "images": {
+    "Normal": "rbxassetid://81977172536919",
+    "Shiny": "rbxassetid://131632339991880",
+    "Mythic": "rbxassetid://113465080446926",
+    "MythicShiny": "rbxassetid://83481539093781"
+  },
+  "assetIds": [
+    "113465080446926",
+    "131632339991880",
+    "81977172536919",
+    "83481539093781"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fabergé"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

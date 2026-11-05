@@ -1,0 +1,17 @@
+{
+  "name": "Joy",
+  "images": {
+    "Normal": "rbxassetid://103208189294844",
+    "Shiny": "rbxassetid://89946936256615"
+  },
+  "assetIds": [
+    "103208189294844",
+    "89946936256615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Joy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

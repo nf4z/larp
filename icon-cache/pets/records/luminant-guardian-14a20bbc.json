@@ -1,0 +1,21 @@
+{
+  "name": "Luminant Guardian",
+  "images": {
+    "Normal": "rbxassetid://74273765054866",
+    "Shiny": "rbxassetid://103010387456144",
+    "Mythic": "rbxassetid://139172321230107",
+    "MythicShiny": "rbxassetid://128250341166976"
+  },
+  "assetIds": [
+    "103010387456144",
+    "128250341166976",
+    "139172321230107",
+    "74273765054866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Empress of Hearts",
+  "images": {
+    "Normal": "rbxassetid://100099394473268",
+    "Shiny": "rbxassetid://124904655283575",
+    "Mythic": "rbxassetid://100439242357174",
+    "MythicShiny": "rbxassetid://118524911533398"
+  },
+  "assetIds": [
+    "100099394473268",
+    "100439242357174",
+    "118524911533398",
+    "124904655283575"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Empress of Hearts"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

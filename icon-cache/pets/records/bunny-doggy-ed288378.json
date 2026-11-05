@@ -1,0 +1,17 @@
+{
+  "name": "Bunny Doggy",
+  "images": {
+    "Normal": "rbxassetid://126178131383232",
+    "Shiny": "rbxassetid://125640287196502"
+  },
+  "assetIds": [
+    "125640287196502",
+    "126178131383232"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

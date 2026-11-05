@@ -1,0 +1,15 @@
+{
+  "name": "Royal Key",
+  "images": {
+    "Image": "rbxassetid://111073141301512"
+  },
+  "assetIds": [
+    "111073141301512"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Royal Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

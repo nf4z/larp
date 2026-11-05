@@ -1,0 +1,21 @@
+{
+  "name": "Wolf Skull",
+  "images": {
+    "Normal": "rbxassetid://126915189895222",
+    "Shiny": "rbxassetid://100208613266039",
+    "Mythic": "rbxassetid://127139020999349",
+    "MythicShiny": "rbxassetid://87377296627749"
+  },
+  "assetIds": [
+    "100208613266039",
+    "126915189895222",
+    "127139020999349",
+    "87377296627749"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wolf Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

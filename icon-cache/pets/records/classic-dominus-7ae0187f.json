@@ -1,0 +1,21 @@
+{
+  "name": "Classic Dominus",
+  "images": {
+    "Normal": "rbxassetid://120763423866163",
+    "Shiny": "rbxassetid://72944753326916",
+    "Mythic": "rbxassetid://101217949101069",
+    "MythicShiny": "rbxassetid://88313244334910"
+  },
+  "assetIds": [
+    "101217949101069",
+    "120763423866163",
+    "72944753326916",
+    "88313244334910"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Hydra",
+  "images": {
+    "Normal": "rbxassetid://130614993423848",
+    "Shiny": "rbxassetid://103032281534696",
+    "Mythic": "rbxassetid://111399033000883",
+    "MythicShiny": "rbxassetid://125315948717031"
+  },
+  "assetIds": [
+    "103032281534696",
+    "111399033000883",
+    "125315948717031",
+    "130614993423848"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

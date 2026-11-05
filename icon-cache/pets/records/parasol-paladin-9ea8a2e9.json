@@ -1,0 +1,21 @@
+{
+  "name": "Parasol Paladin",
+  "images": {
+    "Normal": "rbxassetid://132354686744857",
+    "Shiny": "rbxassetid://72168826992061",
+    "Mythic": "rbxassetid://87000116825538",
+    "MythicShiny": "rbxassetid://83738609630426"
+  },
+  "assetIds": [
+    "132354686744857",
+    "72168826992061",
+    "83738609630426",
+    "87000116825538"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Parasol Paladin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dazzling Diamond",
+  "images": {
+    "Normal": "rbxassetid://72607596735561",
+    "Shiny": "rbxassetid://119344767093035",
+    "Mythic": "rbxassetid://126365626190389",
+    "MythicShiny": "rbxassetid://75426840594448"
+  },
+  "assetIds": [
+    "119344767093035",
+    "126365626190389",
+    "72607596735561",
+    "75426840594448"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dazzling Diamond"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

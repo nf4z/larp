@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Plushie Egg",
+  "images": {
+    "Image": "rbxassetid://115396393376910"
+  },
+  "assetIds": [
+    "115396393376910"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

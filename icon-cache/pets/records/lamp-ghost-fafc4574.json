@@ -1,0 +1,21 @@
+{
+  "name": "Lamp Ghost",
+  "images": {
+    "Normal": "rbxassetid://128877138024682",
+    "Shiny": "rbxassetid://138214823805853",
+    "Mythic": "rbxassetid://118412778086810",
+    "MythicShiny": "rbxassetid://139624871596337"
+  },
+  "assetIds": [
+    "118412778086810",
+    "128877138024682",
+    "138214823805853",
+    "139624871596337"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lamp Ghost"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

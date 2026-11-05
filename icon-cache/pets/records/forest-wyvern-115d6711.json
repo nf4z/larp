@@ -1,0 +1,21 @@
+{
+  "name": "Forest Wyvern",
+  "images": {
+    "Normal": "rbxassetid://100792684985765",
+    "Shiny": "rbxassetid://134041781007131",
+    "Mythic": "rbxassetid://89015846946527",
+    "MythicShiny": "rbxassetid://102618681898601"
+  },
+  "assetIds": [
+    "100792684985765",
+    "102618681898601",
+    "134041781007131",
+    "89015846946527"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forest Wyvern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

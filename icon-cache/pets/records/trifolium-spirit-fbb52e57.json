@@ -1,0 +1,21 @@
+{
+  "name": "Trifolium Spirit",
+  "images": {
+    "Normal": "rbxassetid://93457331994625",
+    "Shiny": "rbxassetid://129279141418701",
+    "Mythic": "rbxassetid://94503086277728",
+    "MythicShiny": "rbxassetid://77216279441434"
+  },
+  "assetIds": [
+    "129279141418701",
+    "77216279441434",
+    "93457331994625",
+    "94503086277728"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Trifolium Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

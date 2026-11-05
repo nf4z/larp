@@ -1,0 +1,21 @@
+{
+  "name": "Driftwood",
+  "images": {
+    "Normal": "rbxassetid://78473422876620",
+    "Shiny": "rbxassetid://109470395305287",
+    "Mythic": "rbxassetid://124699818246327",
+    "MythicShiny": "rbxassetid://135488099482101"
+  },
+  "assetIds": [
+    "109470395305287",
+    "124699818246327",
+    "135488099482101",
+    "78473422876620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Driftwood"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

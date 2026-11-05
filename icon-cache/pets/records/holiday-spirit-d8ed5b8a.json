@@ -1,0 +1,21 @@
+{
+  "name": "Holiday Spirit",
+  "images": {
+    "Normal": "rbxassetid://91430252499161",
+    "Shiny": "rbxassetid://86276059739060",
+    "Mythic": "rbxassetid://115852478955923",
+    "MythicShiny": "rbxassetid://140040280726283"
+  },
+  "assetIds": [
+    "115852478955923",
+    "140040280726283",
+    "86276059739060",
+    "91430252499161"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holiday Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

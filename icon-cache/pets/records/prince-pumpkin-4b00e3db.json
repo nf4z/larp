@@ -1,0 +1,17 @@
+{
+  "name": "Prince Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://132363951215714",
+    "Shiny": "rbxassetid://127199896946166"
+  },
+  "assetIds": [
+    "127199896946166",
+    "132363951215714"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prince Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

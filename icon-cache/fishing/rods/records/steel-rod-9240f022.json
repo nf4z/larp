@@ -1,0 +1,15 @@
+{
+  "name": "Steel Rod",
+  "images": {
+    "Image": "rbxassetid://118103869995016"
+  },
+  "assetIds": [
+    "118103869995016"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Steel Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

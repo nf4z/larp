@@ -1,0 +1,17 @@
+{
+  "name": "Chunky Bunny",
+  "images": {
+    "Normal": "rbxassetid://131326924528550",
+    "Shiny": "rbxassetid://115356258444430"
+  },
+  "assetIds": [
+    "115356258444430",
+    "131326924528550"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chunky Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

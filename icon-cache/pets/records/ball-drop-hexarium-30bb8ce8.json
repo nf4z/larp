@@ -1,0 +1,21 @@
+{
+  "name": "Ball Drop Hexarium",
+  "images": {
+    "Normal": "rbxassetid://96598760098842",
+    "Shiny": "rbxassetid://119939493180102",
+    "Mythic": "rbxassetid://90809176557079",
+    "MythicShiny": "rbxassetid://92381830427720"
+  },
+  "assetIds": [
+    "119939493180102",
+    "90809176557079",
+    "92381830427720",
+    "96598760098842"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ball Drop Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Chocolate Gem",
+  "images": {
+    "Normal": "rbxassetid://138219937537226",
+    "Shiny": "rbxassetid://99022644015342",
+    "Mythic": "rbxassetid://114039448403615",
+    "MythicShiny": "rbxassetid://74763088250997"
+  },
+  "assetIds": [
+    "114039448403615",
+    "138219937537226",
+    "74763088250997",
+    "99022644015342"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

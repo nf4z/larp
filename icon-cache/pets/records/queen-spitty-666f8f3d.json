@@ -1,0 +1,21 @@
+{
+  "name": "Queen Spitty",
+  "images": {
+    "Normal": "rbxassetid://112275667136050",
+    "Shiny": "rbxassetid://135349656689237",
+    "Mythic": "rbxassetid://76445626617432",
+    "MythicShiny": "rbxassetid://123120822937689"
+  },
+  "assetIds": [
+    "112275667136050",
+    "123120822937689",
+    "135349656689237",
+    "76445626617432"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

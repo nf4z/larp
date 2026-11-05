@@ -1,0 +1,21 @@
+{
+  "name": "Taffy Dogcat",
+  "images": {
+    "Normal": "rbxassetid://126515919736550",
+    "Shiny": "rbxassetid://79377488866996",
+    "Mythic": "rbxassetid://77600874047042",
+    "MythicShiny": "rbxassetid://113288374470140"
+  },
+  "assetIds": [
+    "113288374470140",
+    "126515919736550",
+    "77600874047042",
+    "79377488866996"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Taffy Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

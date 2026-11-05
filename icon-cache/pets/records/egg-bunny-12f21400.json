@@ -1,0 +1,17 @@
+{
+  "name": "Egg Bunny",
+  "images": {
+    "Normal": "rbxassetid://99971205246669",
+    "Shiny": "rbxassetid://76077384828967"
+  },
+  "assetIds": [
+    "76077384828967",
+    "99971205246669"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

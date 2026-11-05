@@ -1,0 +1,21 @@
+{
+  "name": "Giant Demon Spitty",
+  "images": {
+    "Normal": "rbxassetid://78022271881347",
+    "Shiny": "rbxassetid://131658560366915",
+    "Mythic": "rbxassetid://79477586564453",
+    "MythicShiny": "rbxassetid://97509681622594"
+  },
+  "assetIds": [
+    "131658560366915",
+    "78022271881347",
+    "79477586564453",
+    "97509681622594"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Demon Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

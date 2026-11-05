@@ -1,0 +1,16 @@
+{
+  "name": "Legendary Artifact Totem",
+  "images": {
+    "Image": "rbxassetid://135514577838085"
+  },
+  "assetIds": [
+    "135514577838085"
+  ],
+  "item": {
+    "Type": "Potion",
+    "Name": "Legendary Artifact Totem",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

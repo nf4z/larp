@@ -1,0 +1,15 @@
+{
+  "name": "More Storage",
+  "images": {
+    "Image": "rbxassetid://113277025719614"
+  },
+  "assetIds": [
+    "113277025719614"
+  ],
+  "item": {
+    "Type": "PermanentBuff",
+    "Name": "More Storage"
+  },
+  "recipe": "native-item",
+  "sourceModule": "PermanentBuffs"
+}

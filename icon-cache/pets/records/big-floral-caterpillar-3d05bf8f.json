@@ -1,0 +1,21 @@
+{
+  "name": "Big Floral Caterpillar",
+  "images": {
+    "Normal": "rbxassetid://99831588427420",
+    "Shiny": "rbxassetid://93508761085196",
+    "Mythic": "rbxassetid://105085863370044",
+    "MythicShiny": "rbxassetid://127621695901926"
+  },
+  "assetIds": [
+    "105085863370044",
+    "127621695901926",
+    "93508761085196",
+    "99831588427420"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Floral Caterpillar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

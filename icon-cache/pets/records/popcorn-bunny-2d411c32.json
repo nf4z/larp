@@ -1,0 +1,17 @@
+{
+  "name": "Popcorn Bunny",
+  "images": {
+    "Normal": "rbxassetid://72365662970675",
+    "Shiny": "rbxassetid://82233224225370"
+  },
+  "assetIds": [
+    "72365662970675",
+    "82233224225370"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Popcorn Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

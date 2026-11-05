@@ -1,0 +1,21 @@
+{
+  "name": "Borealis Elk",
+  "images": {
+    "Normal": "rbxassetid://119989307588125",
+    "Shiny": "rbxassetid://138347751892687",
+    "Mythic": "rbxassetid://139843264938802",
+    "MythicShiny": "rbxassetid://140387130874787"
+  },
+  "assetIds": [
+    "119989307588125",
+    "138347751892687",
+    "139843264938802",
+    "140387130874787"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Borealis Elk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

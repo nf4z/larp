@@ -1,0 +1,15 @@
+{
+  "name": "Festive Toilet Paper",
+  "images": {
+    "Image": "rbxassetid://106252650847193"
+  },
+  "assetIds": [
+    "106252650847193"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Festive Toilet Paper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Darkness Creature",
+  "images": {
+    "Normal": "rbxassetid://71015189812068",
+    "Shiny": "rbxassetid://77940831616108",
+    "Mythic": "rbxassetid://80607872363665",
+    "MythicShiny": "rbxassetid://138494095812890"
+  },
+  "assetIds": [
+    "138494095812890",
+    "71015189812068",
+    "77940831616108",
+    "80607872363665"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkness Creature"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

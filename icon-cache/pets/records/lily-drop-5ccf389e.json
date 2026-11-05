@@ -1,0 +1,21 @@
+{
+  "name": "Lily Drop",
+  "images": {
+    "Normal": "rbxassetid://95393259035408",
+    "Shiny": "rbxassetid://125963433318701",
+    "Mythic": "rbxassetid://75691478346585",
+    "MythicShiny": "rbxassetid://136769854987336"
+  },
+  "assetIds": [
+    "125963433318701",
+    "136769854987336",
+    "75691478346585",
+    "95393259035408"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lily Drop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "King Eye",
+  "images": {
+    "Normal": "rbxassetid://76223141191324",
+    "Shiny": "rbxassetid://130682619658020",
+    "Mythic": "rbxassetid://139733247249535",
+    "MythicShiny": "rbxassetid://92351222433674"
+  },
+  "assetIds": [
+    "130682619658020",
+    "139733247249535",
+    "76223141191324",
+    "92351222433674"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

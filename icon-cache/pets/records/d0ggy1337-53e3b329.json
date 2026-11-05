@@ -1,0 +1,21 @@
+{
+  "name": "D0GGY1337",
+  "images": {
+    "Normal": "rbxassetid://101480831068155",
+    "Shiny": "rbxassetid://115470554647335",
+    "Mythic": "rbxassetid://124744852365539",
+    "MythicShiny": "rbxassetid://140729118755512"
+  },
+  "assetIds": [
+    "101480831068155",
+    "115470554647335",
+    "124744852365539",
+    "140729118755512"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "D0GGY1337"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

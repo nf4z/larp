@@ -1,0 +1,17 @@
+{
+  "name": "Santa Doggy",
+  "images": {
+    "Normal": "rbxassetid://74251405338779",
+    "Shiny": "rbxassetid://126075062480860"
+  },
+  "assetIds": [
+    "126075062480860",
+    "74251405338779"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

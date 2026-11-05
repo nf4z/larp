@@ -1,0 +1,21 @@
+{
+  "name": "New Year's Overlord",
+  "images": {
+    "Normal": "rbxassetid://132015123419643",
+    "Shiny": "rbxassetid://75411229281584",
+    "Mythic": "rbxassetid://102963340247368",
+    "MythicShiny": "rbxassetid://112888763215852"
+  },
+  "assetIds": [
+    "102963340247368",
+    "112888763215852",
+    "132015123419643",
+    "75411229281584"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "New Year's Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bug Amber",
+  "images": {
+    "Normal": "rbxassetid://108540792355599",
+    "Shiny": "rbxassetid://91952928147822",
+    "Mythic": "rbxassetid://80933527394425",
+    "MythicShiny": "rbxassetid://102346513279290"
+  },
+  "assetIds": [
+    "102346513279290",
+    "108540792355599",
+    "80933527394425",
+    "91952928147822"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bug Amber"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

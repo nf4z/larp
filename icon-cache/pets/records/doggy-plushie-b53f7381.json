@@ -1,0 +1,21 @@
+{
+  "name": "Doggy Plushie",
+  "images": {
+    "Normal": "rbxassetid://111430442193370",
+    "Shiny": "rbxassetid://123609823773695",
+    "Mythic": "rbxassetid://85786098006802",
+    "MythicShiny": "rbxassetid://95787219968064"
+  },
+  "assetIds": [
+    "111430442193370",
+    "123609823773695",
+    "85786098006802",
+    "95787219968064"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

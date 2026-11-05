@@ -1,0 +1,21 @@
+{
+  "name": "Solar Star",
+  "images": {
+    "Normal": "rbxassetid://110469507834897",
+    "Shiny": "rbxassetid://84348479446591",
+    "Mythic": "rbxassetid://115366311803590",
+    "MythicShiny": "rbxassetid://131612442309616"
+  },
+  "assetIds": [
+    "110469507834897",
+    "115366311803590",
+    "131612442309616",
+    "84348479446591"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solar Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Common Easter Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Common Easter Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

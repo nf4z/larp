@@ -1,0 +1,17 @@
+{
+  "name": "Clown Nert Plushie",
+  "images": {
+    "Normal": "rbxassetid://133235092172585",
+    "Shiny": "rbxassetid://72481853686247"
+  },
+  "assetIds": [
+    "133235092172585",
+    "72481853686247"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Nert Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

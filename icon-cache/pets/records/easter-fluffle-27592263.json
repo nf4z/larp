@@ -1,0 +1,17 @@
+{
+  "name": "Easter Fluffle",
+  "images": {
+    "Normal": "rbxassetid://111160641904639",
+    "Shiny": "rbxassetid://133620067717567"
+  },
+  "assetIds": [
+    "111160641904639",
+    "133620067717567"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Fluffle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

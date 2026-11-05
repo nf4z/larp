@@ -1,0 +1,21 @@
+{
+  "name": "Spectral Hunter",
+  "images": {
+    "Normal": "rbxassetid://138126338033477",
+    "Shiny": "rbxassetid://119452742565759",
+    "Mythic": "rbxassetid://138801903997916",
+    "MythicShiny": "rbxassetid://92284339454681"
+  },
+  "assetIds": [
+    "119452742565759",
+    "138126338033477",
+    "138801903997916",
+    "92284339454681"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spectral Hunter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

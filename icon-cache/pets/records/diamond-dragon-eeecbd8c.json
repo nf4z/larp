@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Dragon",
+  "images": {
+    "Normal": "rbxassetid://127553679773509",
+    "Shiny": "rbxassetid://102693553668299",
+    "Mythic": "rbxassetid://138555802600550",
+    "MythicShiny": "rbxassetid://83137689762827"
+  },
+  "assetIds": [
+    "102693553668299",
+    "127553679773509",
+    "138555802600550",
+    "83137689762827"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

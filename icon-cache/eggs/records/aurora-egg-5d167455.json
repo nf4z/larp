@@ -1,0 +1,12 @@
+{
+  "name": "Aurora Egg",
+  "images": {
+    "Image": "rbxassetid://138562259272616"
+  },
+  "assetIds": [
+    "138562259272616"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

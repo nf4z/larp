@@ -1,0 +1,17 @@
+{
+  "name": "Dark Rift Bunny",
+  "images": {
+    "Normal": "rbxassetid://123823593772593",
+    "Shiny": "rbxassetid://89403495483586"
+  },
+  "assetIds": [
+    "123823593772593",
+    "89403495483586"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Rift Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

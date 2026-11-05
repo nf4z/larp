@@ -1,0 +1,21 @@
+{
+  "name": "Dragonfruit",
+  "images": {
+    "Normal": "rbxassetid://136939712343243",
+    "Shiny": "rbxassetid://134524660968000",
+    "Mythic": "rbxassetid://116030266325049",
+    "MythicShiny": "rbxassetid://100501379429873"
+  },
+  "assetIds": [
+    "100501379429873",
+    "116030266325049",
+    "134524660968000",
+    "136939712343243"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragonfruit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

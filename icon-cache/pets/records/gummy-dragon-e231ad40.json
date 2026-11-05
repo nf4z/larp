@@ -1,0 +1,21 @@
+{
+  "name": "Gummy Dragon",
+  "images": {
+    "Normal": "rbxassetid://119915698170033",
+    "Shiny": "rbxassetid://132929906646236",
+    "Mythic": "rbxassetid://114706069742178",
+    "MythicShiny": "rbxassetid://73250082447175"
+  },
+  "assetIds": [
+    "114706069742178",
+    "119915698170033",
+    "132929906646236",
+    "73250082447175"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gummy Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

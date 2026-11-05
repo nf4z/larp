@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Beast",
+  "images": {
+    "Normal": "rbxassetid://90718519395948",
+    "Shiny": "rbxassetid://128263245146316",
+    "Mythic": "rbxassetid://83204586171376",
+    "MythicShiny": "rbxassetid://72906663732294"
+  },
+  "assetIds": [
+    "128263245146316",
+    "72906663732294",
+    "83204586171376",
+    "90718519395948"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Beast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

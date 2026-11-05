@@ -1,0 +1,15 @@
+{
+  "name": "FestivalCoins",
+  "images": {
+    "Image": "rbxassetid://135609356297279"
+  },
+  "assetIds": [
+    "135609356297279"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "FestivalCoins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

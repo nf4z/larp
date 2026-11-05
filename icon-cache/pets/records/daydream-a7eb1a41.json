@@ -1,0 +1,21 @@
+{
+  "name": "Daydream",
+  "images": {
+    "Normal": "rbxassetid://111303248101929",
+    "Shiny": "rbxassetid://132153284509167",
+    "Mythic": "rbxassetid://94651553465361",
+    "MythicShiny": "rbxassetid://132137488479223"
+  },
+  "assetIds": [
+    "111303248101929",
+    "132137488479223",
+    "132153284509167",
+    "94651553465361"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Daydream"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

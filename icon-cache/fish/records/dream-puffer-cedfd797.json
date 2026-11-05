@@ -1,0 +1,15 @@
+{
+  "name": "Dream Puffer",
+  "images": {
+    "Image": "rbxassetid://84283096823297"
+  },
+  "assetIds": [
+    "84283096823297"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Dream Puffer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Mystic Carp",
+  "images": {
+    "Image": "rbxassetid://115933642242202"
+  },
+  "assetIds": [
+    "115933642242202"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mystic Carp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

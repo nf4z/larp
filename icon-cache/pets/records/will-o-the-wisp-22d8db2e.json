@@ -1,0 +1,21 @@
+{
+  "name": "Will-o'-the-Wisp",
+  "images": {
+    "Normal": "rbxassetid://114187209899816",
+    "Shiny": "rbxassetid://140458723231595",
+    "Mythic": "rbxassetid://99091398906277",
+    "MythicShiny": "rbxassetid://105792935143768"
+  },
+  "assetIds": [
+    "105792935143768",
+    "114187209899816",
+    "140458723231595",
+    "99091398906277"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Will-o'-the-Wisp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

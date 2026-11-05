@@ -1,0 +1,12 @@
+{
+  "name": "Epic Easter Egg",
+  "images": {
+    "Image": "rbxassetid://106942137562906"
+  },
+  "assetIds": [
+    "106942137562906"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

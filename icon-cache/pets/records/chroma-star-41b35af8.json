@@ -1,0 +1,21 @@
+{
+  "name": "Chroma Star",
+  "images": {
+    "Normal": "rbxassetid://116267373914792",
+    "Shiny": "rbxassetid://100649959158879",
+    "Mythic": "rbxassetid://120937022746701",
+    "MythicShiny": "rbxassetid://78500741626694"
+  },
+  "assetIds": [
+    "100649959158879",
+    "116267373914792",
+    "120937022746701",
+    "78500741626694"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chroma Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Holy Light",
+  "images": {
+    "Normal": "rbxassetid://72432097799452",
+    "Shiny": "rbxassetid://91820088551030"
+  },
+  "assetIds": [
+    "72432097799452",
+    "91820088551030"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holy Light"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

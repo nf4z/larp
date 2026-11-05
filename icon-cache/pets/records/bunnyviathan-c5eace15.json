@@ -1,0 +1,21 @@
+{
+  "name": "Bunnyviathan",
+  "images": {
+    "Normal": "rbxassetid://131526475842256",
+    "Shiny": "rbxassetid://103399654637942",
+    "Mythic": "rbxassetid://73838952503271",
+    "MythicShiny": "rbxassetid://119689148057865"
+  },
+  "assetIds": [
+    "103399654637942",
+    "119689148057865",
+    "131526475842256",
+    "73838952503271"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunnyviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

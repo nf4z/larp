@@ -1,0 +1,17 @@
+{
+  "name": "Darkburst",
+  "images": {
+    "Normal": "rbxassetid://112697429790830",
+    "Shiny": "rbxassetid://127705646342028"
+  },
+  "assetIds": [
+    "112697429790830",
+    "127705646342028"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkburst"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

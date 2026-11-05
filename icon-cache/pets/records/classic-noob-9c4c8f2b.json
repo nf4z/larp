@@ -1,0 +1,21 @@
+{
+  "name": "Classic Noob",
+  "images": {
+    "Normal": "rbxassetid://100204843942910",
+    "Shiny": "rbxassetid://132367886692264",
+    "Mythic": "rbxassetid://140636040711775",
+    "MythicShiny": "rbxassetid://123295461013564"
+  },
+  "assetIds": [
+    "100204843942910",
+    "123295461013564",
+    "132367886692264",
+    "140636040711775"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Noob"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

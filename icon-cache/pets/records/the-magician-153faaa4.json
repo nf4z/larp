@@ -1,0 +1,21 @@
+{
+  "name": "The Magician",
+  "images": {
+    "Normal": "rbxassetid://95894457391029",
+    "Shiny": "rbxassetid://105888747969938",
+    "Mythic": "rbxassetid://130727001598572",
+    "MythicShiny": "rbxassetid://104887377862864"
+  },
+  "assetIds": [
+    "104887377862864",
+    "105888747969938",
+    "130727001598572",
+    "95894457391029"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Magician"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Captain Kitty",
+  "images": {
+    "Normal": "rbxassetid://91823880852465",
+    "Shiny": "rbxassetid://97720786260062"
+  },
+  "assetIds": [
+    "91823880852465",
+    "97720786260062"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Captain Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

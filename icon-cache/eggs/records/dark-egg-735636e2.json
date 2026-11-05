@@ -1,0 +1,12 @@
+{
+  "name": "Dark Egg",
+  "images": {
+    "Image": "rbxassetid://140457137216735"
+  },
+  "assetIds": [
+    "140457137216735"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

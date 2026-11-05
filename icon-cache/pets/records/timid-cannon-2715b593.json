@@ -1,0 +1,21 @@
+{
+  "name": "Timid Cannon",
+  "images": {
+    "Normal": "rbxassetid://132558464873974",
+    "Shiny": "rbxassetid://76963911095984",
+    "Mythic": "rbxassetid://124515523072141",
+    "MythicShiny": "rbxassetid://117089572600801"
+  },
+  "assetIds": [
+    "117089572600801",
+    "124515523072141",
+    "132558464873974",
+    "76963911095984"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Timid Cannon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

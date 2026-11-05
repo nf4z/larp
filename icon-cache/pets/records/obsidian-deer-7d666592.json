@@ -1,0 +1,17 @@
+{
+  "name": "Obsidian Deer",
+  "images": {
+    "Normal": "rbxassetid://110921591554485",
+    "Shiny": "rbxassetid://133094321823964"
+  },
+  "assetIds": [
+    "110921591554485",
+    "133094321823964"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

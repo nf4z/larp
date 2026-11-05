@@ -1,0 +1,15 @@
+{
+  "name": "Classic Crate",
+  "images": {
+    "Image": "rbxassetid://117829013343971"
+  },
+  "assetIds": [
+    "117829013343971"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Classic Crate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

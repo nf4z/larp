@@ -1,0 +1,21 @@
+{
+  "name": "Starcaster",
+  "images": {
+    "Normal": "rbxassetid://109230050974782",
+    "Shiny": "rbxassetid://79587532920470",
+    "Mythic": "rbxassetid://136544009971830",
+    "MythicShiny": "rbxassetid://138709299984175"
+  },
+  "assetIds": [
+    "109230050974782",
+    "136544009971830",
+    "138709299984175",
+    "79587532920470"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starcaster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

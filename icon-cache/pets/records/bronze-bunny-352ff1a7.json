@@ -1,0 +1,17 @@
+{
+  "name": "Bronze Bunny",
+  "images": {
+    "Normal": "rbxassetid://113213527955425",
+    "Shiny": "rbxassetid://83519311440715"
+  },
+  "assetIds": [
+    "113213527955425",
+    "83519311440715"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bronze Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

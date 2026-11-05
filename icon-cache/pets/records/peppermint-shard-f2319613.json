@@ -1,0 +1,21 @@
+{
+  "name": "Peppermint Shard",
+  "images": {
+    "Normal": "rbxassetid://106962625426868",
+    "Shiny": "rbxassetid://78358124889437",
+    "Mythic": "rbxassetid://109718822151116",
+    "MythicShiny": "rbxassetid://74699128017699"
+  },
+  "assetIds": [
+    "106962625426868",
+    "109718822151116",
+    "74699128017699",
+    "78358124889437"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Peppermint Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Golden Retriever",
+  "images": {
+    "Normal": "rbxassetid://127998880328441",
+    "Shiny": "rbxassetid://136517392186014",
+    "Mythic": "rbxassetid://103511452507389",
+    "MythicShiny": "rbxassetid://88816993335097"
+  },
+  "assetIds": [
+    "103511452507389",
+    "127998880328441",
+    "136517392186014",
+    "88816993335097"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Golden Retriever"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

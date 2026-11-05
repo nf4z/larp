@@ -1,0 +1,21 @@
+{
+  "name": "Pond Queen",
+  "images": {
+    "Normal": "rbxassetid://73958517477951",
+    "Shiny": "rbxassetid://108398025759983",
+    "Mythic": "rbxassetid://140544079158479",
+    "MythicShiny": "rbxassetid://102961187319423"
+  },
+  "assetIds": [
+    "102961187319423",
+    "108398025759983",
+    "140544079158479",
+    "73958517477951"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pond Queen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

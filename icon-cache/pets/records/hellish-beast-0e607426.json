@@ -1,0 +1,21 @@
+{
+  "name": "Hellish Beast",
+  "images": {
+    "Normal": "rbxassetid://108012847762890",
+    "Shiny": "rbxassetid://104441019256065",
+    "Mythic": "rbxassetid://127122937868600",
+    "MythicShiny": "rbxassetid://119385021955108"
+  },
+  "assetIds": [
+    "104441019256065",
+    "108012847762890",
+    "119385021955108",
+    "127122937868600"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellish Beast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

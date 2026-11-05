@@ -1,0 +1,17 @@
+{
+  "name": "Rumblecon Doggy",
+  "images": {
+    "Normal": "rbxassetid://120659186703701",
+    "Shiny": "rbxassetid://76996936469473"
+  },
+  "assetIds": [
+    "120659186703701",
+    "76996936469473"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

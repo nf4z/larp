@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Dogcat",
+  "images": {
+    "Normal": "rbxassetid://139022703563592",
+    "Shiny": "rbxassetid://105014987702684",
+    "Mythic": "rbxassetid://98702508233341",
+    "MythicShiny": "rbxassetid://104816187672128"
+  },
+  "assetIds": [
+    "104816187672128",
+    "105014987702684",
+    "139022703563592",
+    "98702508233341"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

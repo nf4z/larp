@@ -1,0 +1,21 @@
+{
+  "name": "Symphony",
+  "images": {
+    "Normal": "rbxassetid://105744446889373",
+    "Shiny": "rbxassetid://86456560690805",
+    "Mythic": "rbxassetid://133970652408397",
+    "MythicShiny": "rbxassetid://84274460369911"
+  },
+  "assetIds": [
+    "105744446889373",
+    "133970652408397",
+    "84274460369911",
+    "86456560690805"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Symphony"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

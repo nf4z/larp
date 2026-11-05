@@ -1,0 +1,17 @@
+{
+  "name": "Egg Kitty",
+  "images": {
+    "Normal": "rbxassetid://83536058341237",
+    "Shiny": "rbxassetid://71619475937266"
+  },
+  "assetIds": [
+    "71619475937266",
+    "83536058341237"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

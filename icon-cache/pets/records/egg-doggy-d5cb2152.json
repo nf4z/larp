@@ -1,0 +1,17 @@
+{
+  "name": "Egg Doggy",
+  "images": {
+    "Normal": "rbxassetid://133862022248728",
+    "Shiny": "rbxassetid://128523124785753"
+  },
+  "assetIds": [
+    "128523124785753",
+    "133862022248728"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

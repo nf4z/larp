@@ -1,0 +1,17 @@
+{
+  "name": "Flying Clover",
+  "images": {
+    "Normal": "rbxassetid://82769846091105",
+    "Shiny": "rbxassetid://133547600341538"
+  },
+  "assetIds": [
+    "133547600341538",
+    "82769846091105"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Clover"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

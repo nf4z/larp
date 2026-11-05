@@ -1,0 +1,21 @@
+{
+  "name": "Jelly Overlord",
+  "images": {
+    "Normal": "rbxassetid://83741154253681",
+    "Shiny": "rbxassetid://82469872879189",
+    "Mythic": "rbxassetid://106350239629726",
+    "MythicShiny": "rbxassetid://90805683443007"
+  },
+  "assetIds": [
+    "106350239629726",
+    "82469872879189",
+    "83741154253681",
+    "90805683443007"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jelly Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

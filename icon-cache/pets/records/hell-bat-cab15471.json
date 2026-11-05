@@ -1,0 +1,17 @@
+{
+  "name": "Hell Bat",
+  "images": {
+    "Normal": "rbxassetid://96741744508615",
+    "Shiny": "rbxassetid://75103443297629"
+  },
+  "assetIds": [
+    "75103443297629",
+    "96741744508615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hell Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

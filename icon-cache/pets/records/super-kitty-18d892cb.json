@@ -1,0 +1,17 @@
+{
+  "name": "Super Kitty",
+  "images": {
+    "Normal": "rbxassetid://136820791661584",
+    "Shiny": "rbxassetid://77317365865434"
+  },
+  "assetIds": [
+    "136820791661584",
+    "77317365865434"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

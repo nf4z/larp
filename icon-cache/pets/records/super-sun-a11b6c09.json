@@ -1,0 +1,17 @@
+{
+  "name": "SUPER SUN",
+  "images": {
+    "Normal": "rbxassetid://128178494530736",
+    "Shiny": "rbxassetid://103691860831916"
+  },
+  "assetIds": [
+    "103691860831916",
+    "128178494530736"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "SUPER SUN"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

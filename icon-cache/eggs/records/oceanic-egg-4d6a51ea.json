@@ -1,0 +1,12 @@
+{
+  "name": "Oceanic Egg",
+  "images": {
+    "Image": "rbxassetid://76409254027775"
+  },
+  "assetIds": [
+    "76409254027775"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

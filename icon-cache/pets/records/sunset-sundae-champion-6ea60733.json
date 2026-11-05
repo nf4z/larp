@@ -1,0 +1,21 @@
+{
+  "name": "Sunset Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://75114619103230",
+    "Shiny": "rbxassetid://103220675654180",
+    "Mythic": "rbxassetid://79217497467481",
+    "MythicShiny": "rbxassetid://74719752407671"
+  },
+  "assetIds": [
+    "103220675654180",
+    "74719752407671",
+    "75114619103230",
+    "79217497467481"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunset Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Vampire Mouse",
+  "images": {
+    "Normal": "rbxassetid://89966357731572",
+    "Shiny": "rbxassetid://109263820297850"
+  },
+  "assetIds": [
+    "109263820297850",
+    "89966357731572"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Mouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

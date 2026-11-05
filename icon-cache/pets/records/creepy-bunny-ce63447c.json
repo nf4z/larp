@@ -1,0 +1,17 @@
+{
+  "name": "Creepy Bunny",
+  "images": {
+    "Normal": "rbxassetid://118321219223742",
+    "Shiny": "rbxassetid://137685463409191"
+  },
+  "assetIds": [
+    "118321219223742",
+    "137685463409191"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Creepy Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

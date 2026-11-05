@@ -1,0 +1,12 @@
+{
+  "name": "St Patricks Elixir",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "St Patricks Elixir",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

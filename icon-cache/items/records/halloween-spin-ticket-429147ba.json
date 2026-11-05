@@ -1,0 +1,15 @@
+{
+  "name": "Halloween Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://132754375684717"
+  },
+  "assetIds": [
+    "132754375684717"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Halloween Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

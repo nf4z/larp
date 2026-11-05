@@ -1,0 +1,17 @@
+{
+  "name": "Giant One Eyed Monster",
+  "images": {
+    "Normal": "rbxassetid://130449621666826",
+    "Shiny": "rbxassetid://102313044532574"
+  },
+  "assetIds": [
+    "102313044532574",
+    "130449621666826"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant One Eyed Monster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

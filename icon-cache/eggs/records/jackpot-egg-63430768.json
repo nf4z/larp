@@ -1,0 +1,12 @@
+{
+  "name": "Jackpot Egg",
+  "images": {
+    "Image": "rbxassetid://109798336150657"
+  },
+  "assetIds": [
+    "109798336150657"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

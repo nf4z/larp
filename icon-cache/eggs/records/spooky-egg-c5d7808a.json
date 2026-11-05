@@ -1,0 +1,12 @@
+{
+  "name": "Spooky Egg",
+  "images": {
+    "Image": "rbxassetid://121597848184674"
+  },
+  "assetIds": [
+    "121597848184674"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

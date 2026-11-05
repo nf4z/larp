@@ -1,0 +1,21 @@
+{
+  "name": "Serene Axolotl",
+  "images": {
+    "Normal": "rbxassetid://109463271202266",
+    "Shiny": "rbxassetid://133813740855931",
+    "Mythic": "rbxassetid://70786701991278",
+    "MythicShiny": "rbxassetid://122262879715011"
+  },
+  "assetIds": [
+    "109463271202266",
+    "122262879715011",
+    "133813740855931",
+    "70786701991278"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Serene Axolotl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

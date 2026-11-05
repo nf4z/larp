@@ -1,0 +1,17 @@
+{
+  "name": "Ghost Deer",
+  "images": {
+    "Normal": "rbxassetid://106595829613091",
+    "Shiny": "rbxassetid://82649321468517"
+  },
+  "assetIds": [
+    "106595829613091",
+    "82649321468517"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghost Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

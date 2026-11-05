@@ -1,0 +1,21 @@
+{
+  "name": "Chromatic Bunny",
+  "images": {
+    "Normal": "rbxassetid://94262965845548",
+    "Shiny": "rbxassetid://110935546635258",
+    "Mythic": "rbxassetid://83716587902440",
+    "MythicShiny": "rbxassetid://78434870216819"
+  },
+  "assetIds": [
+    "110935546635258",
+    "78434870216819",
+    "83716587902440",
+    "94262965845548"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chromatic Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

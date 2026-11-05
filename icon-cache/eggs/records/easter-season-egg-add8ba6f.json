@@ -1,0 +1,12 @@
+{
+  "name": "Easter Season Egg",
+  "images": {
+    "Image": "rbxassetid://93962731653393"
+  },
+  "assetIds": [
+    "93962731653393"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

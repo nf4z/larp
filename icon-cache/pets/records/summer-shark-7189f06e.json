@@ -1,0 +1,17 @@
+{
+  "name": "Summer Shark",
+  "images": {
+    "Normal": "rbxassetid://99582014384429",
+    "Shiny": "rbxassetid://115738667336805"
+  },
+  "assetIds": [
+    "115738667336805",
+    "99582014384429"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

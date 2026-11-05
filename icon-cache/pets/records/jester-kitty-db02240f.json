@@ -1,0 +1,17 @@
+{
+  "name": "Jester Kitty",
+  "images": {
+    "Normal": "rbxassetid://74973118321649",
+    "Shiny": "rbxassetid://100306293704610"
+  },
+  "assetIds": [
+    "100306293704610",
+    "74973118321649"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

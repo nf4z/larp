@@ -1,0 +1,21 @@
+{
+  "name": "Fire Seal",
+  "images": {
+    "Normal": "rbxassetid://125819008901101",
+    "Shiny": "rbxassetid://130222313939319",
+    "Mythic": "rbxassetid://112589075502953",
+    "MythicShiny": "rbxassetid://127944099040400"
+  },
+  "assetIds": [
+    "112589075502953",
+    "125819008901101",
+    "127944099040400",
+    "130222313939319"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

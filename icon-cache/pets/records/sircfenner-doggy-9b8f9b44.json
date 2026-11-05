@@ -1,0 +1,17 @@
+{
+  "name": "Sircfenner Doggy",
+  "images": {
+    "Normal": "rbxassetid://102640084968346",
+    "Shiny": "rbxassetid://77040854163458"
+  },
+  "assetIds": [
+    "102640084968346",
+    "77040854163458"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sircfenner Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

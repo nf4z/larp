@@ -1,0 +1,21 @@
+{
+  "name": "Ophanim",
+  "images": {
+    "Normal": "rbxassetid://94680130398483",
+    "Shiny": "rbxassetid://116946378224550",
+    "Mythic": "rbxassetid://76642953428686",
+    "MythicShiny": "rbxassetid://120779162975826"
+  },
+  "assetIds": [
+    "116946378224550",
+    "120779162975826",
+    "76642953428686",
+    "94680130398483"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ophanim"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

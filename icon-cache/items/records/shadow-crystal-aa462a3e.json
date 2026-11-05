@@ -1,0 +1,15 @@
+{
+  "name": "Shadow Crystal",
+  "images": {
+    "Image": "rbxassetid://104674617808438"
+  },
+  "assetIds": [
+    "104674617808438"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Shadow Crystal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

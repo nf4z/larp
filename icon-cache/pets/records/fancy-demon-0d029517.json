@@ -1,0 +1,17 @@
+{
+  "name": "Fancy Demon",
+  "images": {
+    "Normal": "rbxassetid://119579347444394",
+    "Shiny": "rbxassetid://118660693089214"
+  },
+  "assetIds": [
+    "118660693089214",
+    "119579347444394"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fancy Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

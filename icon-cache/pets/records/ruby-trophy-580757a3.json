@@ -1,0 +1,17 @@
+{
+  "name": "Ruby Trophy",
+  "images": {
+    "Normal": "rbxassetid://91857089268918",
+    "Shiny": "rbxassetid://103096717315717"
+  },
+  "assetIds": [
+    "103096717315717",
+    "91857089268918"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ruby Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

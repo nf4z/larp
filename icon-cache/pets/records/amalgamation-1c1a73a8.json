@@ -1,0 +1,21 @@
+{
+  "name": "Amalgamation",
+  "images": {
+    "Normal": "rbxassetid://105206517997052",
+    "Shiny": "rbxassetid://140223465205640",
+    "Mythic": "rbxassetid://117215804980139",
+    "MythicShiny": "rbxassetid://103218509711970"
+  },
+  "assetIds": [
+    "103218509711970",
+    "105206517997052",
+    "117215804980139",
+    "140223465205640"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Amalgamation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

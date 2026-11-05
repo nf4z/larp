@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Seal",
+  "images": {
+    "Normal": "rbxassetid://130107372754759",
+    "Shiny": "rbxassetid://107837404208582"
+  },
+  "assetIds": [
+    "107837404208582",
+    "130107372754759"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

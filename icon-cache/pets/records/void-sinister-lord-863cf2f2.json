@@ -1,0 +1,17 @@
+{
+  "name": "VOID SINISTER LORD",
+  "images": {
+    "Normal": "rbxassetid://133039603656912",
+    "Shiny": "rbxassetid://121278600418492"
+  },
+  "assetIds": [
+    "121278600418492",
+    "133039603656912"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID SINISTER LORD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

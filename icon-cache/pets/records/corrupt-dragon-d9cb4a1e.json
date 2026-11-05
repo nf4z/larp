@@ -1,0 +1,17 @@
+{
+  "name": "Corrupt Dragon",
+  "images": {
+    "Normal": "rbxassetid://115969966545247",
+    "Shiny": "rbxassetid://116761555998356"
+  },
+  "assetIds": [
+    "115969966545247",
+    "116761555998356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupt Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

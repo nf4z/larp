@@ -1,0 +1,17 @@
+{
+  "name": "Leprechaun Kitty",
+  "images": {
+    "Normal": "rbxassetid://91722768841452",
+    "Shiny": "rbxassetid://100810127614532"
+  },
+  "assetIds": [
+    "100810127614532",
+    "91722768841452"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leprechaun Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

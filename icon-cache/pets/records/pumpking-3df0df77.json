@@ -1,0 +1,17 @@
+{
+  "name": "Pumpking",
+  "images": {
+    "Normal": "rbxassetid://87317433773846",
+    "Shiny": "rbxassetid://84925184902267"
+  },
+  "assetIds": [
+    "84925184902267",
+    "87317433773846"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpking"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

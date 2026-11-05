@@ -1,0 +1,21 @@
+{
+  "name": "Wilted Branch",
+  "images": {
+    "Normal": "rbxassetid://98788195438077",
+    "Shiny": "rbxassetid://115598034602164",
+    "Mythic": "rbxassetid://129136110996276",
+    "MythicShiny": "rbxassetid://132197411335867"
+  },
+  "assetIds": [
+    "115598034602164",
+    "129136110996276",
+    "132197411335867",
+    "98788195438077"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wilted Branch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

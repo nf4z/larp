@@ -1,0 +1,21 @@
+{
+  "name": "Clockwork",
+  "images": {
+    "Normal": "rbxassetid://139112071009836",
+    "Shiny": "rbxassetid://132245636749426",
+    "Mythic": "rbxassetid://123092806513322",
+    "MythicShiny": "rbxassetid://99733942123354"
+  },
+  "assetIds": [
+    "123092806513322",
+    "132245636749426",
+    "139112071009836",
+    "99733942123354"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clockwork"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

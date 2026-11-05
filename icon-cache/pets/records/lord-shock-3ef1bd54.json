@@ -1,0 +1,21 @@
+{
+  "name": "Lord Shock",
+  "images": {
+    "Normal": "rbxassetid://121615054037109",
+    "Shiny": "rbxassetid://70512874553960",
+    "Mythic": "rbxassetid://116444708473049",
+    "MythicShiny": "rbxassetid://111874952582221"
+  },
+  "assetIds": [
+    "111874952582221",
+    "116444708473049",
+    "121615054037109",
+    "70512874553960"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lord Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

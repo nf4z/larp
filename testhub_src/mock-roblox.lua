@@ -198,7 +198,7 @@ child(components,"ModuleScript","Dropdown")._module={new=function(_,props)
 	local frames={}
 	for _,name in ipairs(props.Items) do local entry=nativeButton:Clone();entry.Parent=items;entry.Label.Text=name;table.insert(frames,entry) end
 	local picker={_floater=floater,_frames=frames,_height=math.min(#props.Items,6)*50,
-		OnSelectionChanged=signal(),Closed=signal(),_renderTrove={Add=function(_,v) return v end}}
+		OnSelectionChanged=signal(),Closed=signal(),_renderTrove={Add=function(_,v) return v end},_trove={Add=function(_,v) return v end}}
 	function picker:SetOpened(value) self.Opened=value;if value then if self._observeSize then self:_observeSize() end else self.Closed:Fire() end end
 	function picker:SelectItem(index) self:SetOpened(false);assert(not self.Destroyed,"Do not destroy before selection");self.OnSelectionChanged:Fire(props.Items[index],index) end
 	function picker:Destroy() self.Destroyed=true;self.Closed:Fire();floater:Destroy() end
@@ -215,7 +215,7 @@ end
 local localPlayer=Instance.new("Player");pg.Name="PlayerGui";pg.Parent=localPlayer
 local camera=Instance.new("Camera");local workspace=Instance.new("Workspace");workspace.CurrentCamera=camera
 local input=Instance.new("UserInputService")
-local services={Players={LocalPlayer=localPlayer},ReplicatedStorage=storage,UserInputService=input,GuiService={GetGuiInset=function() return vector(0,36),vector() end}}
+local services={Players={LocalPlayer=localPlayer},ReplicatedStorage=storage,UserInputService=input,HttpService={JSONDecode=function() error("No JSON fixture") end},GuiService={GetGuiInset=function() return vector(0,36),vector() end}}
 local env=setmetatable({
 	game={GetService=function(_,name) assert(services[name],name);return services[name] end},
 	workspace=workspace,Instance=Instance,Enum=Enum,Vector2=Vector2,Vector3=Vector3,UDim=UDim,UDim2=UDim2,

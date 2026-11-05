@@ -1,0 +1,17 @@
+{
+  "name": "Lion",
+  "images": {
+    "Normal": "rbxassetid://131717782127818",
+    "Shiny": "rbxassetid://93097843502473"
+  },
+  "assetIds": [
+    "131717782127818",
+    "93097843502473"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Extra Hatch",
+  "images": {
+    "Image": "rbxassetid://104145017008309"
+  },
+  "assetIds": [
+    "104145017008309"
+  ],
+  "item": {
+    "Type": "PermanentBuff",
+    "Name": "Extra Hatch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "PermanentBuffs"
+}

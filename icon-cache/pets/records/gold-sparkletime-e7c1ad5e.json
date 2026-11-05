@@ -1,0 +1,17 @@
+{
+  "name": "Gold Sparkletime",
+  "images": {
+    "Normal": "rbxassetid://70454500262632",
+    "Shiny": "rbxassetid://98016489568795"
+  },
+  "assetIds": [
+    "70454500262632",
+    "98016489568795"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gold Sparkletime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

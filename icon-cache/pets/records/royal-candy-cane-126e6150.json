@@ -1,0 +1,21 @@
+{
+  "name": "Royal Candy Cane",
+  "images": {
+    "Normal": "rbxassetid://94900013962299",
+    "Shiny": "rbxassetid://77183246589888",
+    "Mythic": "rbxassetid://121939490121447",
+    "MythicShiny": "rbxassetid://85748453781818"
+  },
+  "assetIds": [
+    "121939490121447",
+    "77183246589888",
+    "85748453781818",
+    "94900013962299"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Candy Cane"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

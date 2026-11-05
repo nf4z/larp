@@ -1,0 +1,17 @@
+{
+  "name": "Doodle Dragon",
+  "images": {
+    "Normal": "rbxassetid://132240203984517",
+    "Shiny": "rbxassetid://102178384101393"
+  },
+  "assetIds": [
+    "102178384101393",
+    "132240203984517"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodle Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

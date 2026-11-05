@@ -1,0 +1,21 @@
+{
+  "name": "Merry Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://78885667366682",
+    "Shiny": "rbxassetid://108928615413061",
+    "Mythic": "rbxassetid://98412530598371",
+    "MythicShiny": "rbxassetid://90330313366285"
+  },
+  "assetIds": [
+    "108928615413061",
+    "78885667366682",
+    "90330313366285",
+    "98412530598371"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Merry Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

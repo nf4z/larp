@@ -1,0 +1,17 @@
+{
+  "name": "OG Beta TV",
+  "images": {
+    "Normal": "rbxassetid://73289033059792",
+    "Shiny": "rbxassetid://115455868750545"
+  },
+  "assetIds": [
+    "115455868750545",
+    "73289033059792"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Beta TV"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

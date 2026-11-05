@@ -1,0 +1,17 @@
+{
+  "name": "Void Crystal Doggy",
+  "images": {
+    "Normal": "rbxassetid://132093561043294",
+    "Shiny": "rbxassetid://131888773898664"
+  },
+  "assetIds": [
+    "131888773898664",
+    "132093561043294"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Crystal Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

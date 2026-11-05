@@ -1,0 +1,17 @@
+{
+  "name": "Lightness Creature",
+  "images": {
+    "Normal": "rbxassetid://117586039080579",
+    "Shiny": "rbxassetid://132632458635224"
+  },
+  "assetIds": [
+    "117586039080579",
+    "132632458635224"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lightness Creature"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

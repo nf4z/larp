@@ -1,0 +1,15 @@
+{
+  "name": "Pale Perch",
+  "images": {
+    "Image": "rbxassetid://85184726739460"
+  },
+  "assetIds": [
+    "85184726739460"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Pale Perch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

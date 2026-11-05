@@ -1,0 +1,17 @@
+{
+  "name": "Cerberus",
+  "images": {
+    "Normal": "rbxassetid://134425768030839",
+    "Shiny": "rbxassetid://117483329191111"
+  },
+  "assetIds": [
+    "117483329191111",
+    "134425768030839"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cerberus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

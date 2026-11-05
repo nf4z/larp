@@ -1,0 +1,21 @@
+{
+  "name": "Frost Cube",
+  "images": {
+    "Normal": "rbxassetid://98371401754663",
+    "Shiny": "rbxassetid://134016355691014",
+    "Mythic": "rbxassetid://98391203834279",
+    "MythicShiny": "rbxassetid://107559382594861"
+  },
+  "assetIds": [
+    "107559382594861",
+    "134016355691014",
+    "98371401754663",
+    "98391203834279"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Bunny Overlord",
+  "images": {
+    "Normal": "rbxassetid://88582258428234",
+    "Shiny": "rbxassetid://82137127027873"
+  },
+  "assetIds": [
+    "82137127027873",
+    "88582258428234"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

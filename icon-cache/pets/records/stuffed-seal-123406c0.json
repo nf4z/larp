@@ -1,0 +1,21 @@
+{
+  "name": "Stuffed Seal",
+  "images": {
+    "Normal": "rbxassetid://90564309635416",
+    "Shiny": "rbxassetid://76326832058321",
+    "Mythic": "rbxassetid://81385869283979",
+    "MythicShiny": "rbxassetid://106052245809009"
+  },
+  "assetIds": [
+    "106052245809009",
+    "76326832058321",
+    "81385869283979",
+    "90564309635416"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

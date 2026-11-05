@@ -1,0 +1,21 @@
+{
+  "name": "Elite Lord Shock",
+  "images": {
+    "Normal": "rbxassetid://86297106982060",
+    "Shiny": "rbxassetid://123185293650090",
+    "Mythic": "rbxassetid://77836837491873",
+    "MythicShiny": "rbxassetid://78427557846737"
+  },
+  "assetIds": [
+    "123185293650090",
+    "77836837491873",
+    "78427557846737",
+    "86297106982060"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Lord Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

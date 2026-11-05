@@ -1,0 +1,17 @@
+{
+  "name": "Purple Sparkletime",
+  "images": {
+    "Normal": "rbxassetid://84200198001528",
+    "Shiny": "rbxassetid://97604680019041"
+  },
+  "assetIds": [
+    "84200198001528",
+    "97604680019041"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Purple Sparkletime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

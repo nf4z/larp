@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Leviathan",
+  "images": {
+    "Normal": "rbxassetid://113895046846445",
+    "Shiny": "rbxassetid://87869821261365",
+    "Mythic": "rbxassetid://129942950244202",
+    "MythicShiny": "rbxassetid://127171061771215"
+  },
+  "assetIds": [
+    "113895046846445",
+    "127171061771215",
+    "129942950244202",
+    "87869821261365"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

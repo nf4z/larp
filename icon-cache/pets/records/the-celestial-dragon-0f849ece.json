@@ -1,0 +1,17 @@
+{
+  "name": "The Celestial Dragon",
+  "images": {
+    "Normal": "rbxassetid://74027946835351",
+    "Shiny": "rbxassetid://107788471697795"
+  },
+  "assetIds": [
+    "107788471697795",
+    "74027946835351"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Celestial Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Demonic One",
+  "images": {
+    "Normal": "rbxassetid://136004565716335",
+    "Shiny": "rbxassetid://71628885058118",
+    "Mythic": "rbxassetid://73016504208246",
+    "MythicShiny": "rbxassetid://119246386833427"
+  },
+  "assetIds": [
+    "119246386833427",
+    "136004565716335",
+    "71628885058118",
+    "73016504208246"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

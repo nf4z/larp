@@ -1,0 +1,21 @@
+{
+  "name": "Equinox",
+  "images": {
+    "Normal": "rbxassetid://131028390396233",
+    "Shiny": "rbxassetid://79512620639788",
+    "Mythic": "rbxassetid://70803485477775",
+    "MythicShiny": "rbxassetid://132894053730725"
+  },
+  "assetIds": [
+    "131028390396233",
+    "132894053730725",
+    "70803485477775",
+    "79512620639788"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Equinox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

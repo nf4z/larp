@@ -1,0 +1,21 @@
+{
+  "name": "Synthesis",
+  "images": {
+    "Normal": "rbxassetid://70591776161634",
+    "Shiny": "rbxassetid://132566988637310",
+    "Mythic": "rbxassetid://126094193462594",
+    "MythicShiny": "rbxassetid://88625551860072"
+  },
+  "assetIds": [
+    "126094193462594",
+    "132566988637310",
+    "70591776161634",
+    "88625551860072"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Synthesis"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

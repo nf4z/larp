@@ -1,0 +1,15 @@
+{
+  "name": "Verdant Minnow",
+  "images": {
+    "Image": "rbxassetid://115189399442976"
+  },
+  "assetIds": [
+    "115189399442976"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Verdant Minnow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

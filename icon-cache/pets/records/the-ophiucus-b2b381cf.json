@@ -1,0 +1,21 @@
+{
+  "name": "The Ophiucus",
+  "images": {
+    "Normal": "rbxassetid://107804815237382",
+    "Shiny": "rbxassetid://133213985154873",
+    "Mythic": "rbxassetid://94667777681702",
+    "MythicShiny": "rbxassetid://78797445307022"
+  },
+  "assetIds": [
+    "107804815237382",
+    "133213985154873",
+    "78797445307022",
+    "94667777681702"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Ophiucus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

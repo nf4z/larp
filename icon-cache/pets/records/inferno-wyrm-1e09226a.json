@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Wyrm",
+  "images": {
+    "Normal": "rbxassetid://116642584722413",
+    "Shiny": "rbxassetid://91036506875749",
+    "Mythic": "rbxassetid://98231908632883",
+    "MythicShiny": "rbxassetid://116830030957518"
+  },
+  "assetIds": [
+    "116642584722413",
+    "116830030957518",
+    "91036506875749",
+    "98231908632883"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Wyrm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

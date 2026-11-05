@@ -1,0 +1,15 @@
+{
+  "name": "Season Key",
+  "images": {
+    "Image": "rbxassetid://80529749941015"
+  },
+  "assetIds": [
+    "80529749941015"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Season Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

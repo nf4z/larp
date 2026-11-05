@@ -1,0 +1,15 @@
+{
+  "name": "Ice Crystal",
+  "images": {
+    "Image": "rbxassetid://93281050123454"
+  },
+  "assetIds": [
+    "93281050123454"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Ice Crystal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

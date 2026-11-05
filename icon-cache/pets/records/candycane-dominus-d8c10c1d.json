@@ -1,0 +1,21 @@
+{
+  "name": "Candycane Dominus",
+  "images": {
+    "Normal": "rbxassetid://74632310541784",
+    "Shiny": "rbxassetid://108355990384342",
+    "Mythic": "rbxassetid://98236976504287",
+    "MythicShiny": "rbxassetid://93247434796737"
+  },
+  "assetIds": [
+    "108355990384342",
+    "74632310541784",
+    "93247434796737",
+    "98236976504287"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candycane Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Blossom Dementor",
+  "images": {
+    "Normal": "rbxassetid://84829015684618",
+    "Shiny": "rbxassetid://96328719330997",
+    "Mythic": "rbxassetid://127759154119844",
+    "MythicShiny": "rbxassetid://117383250914966"
+  },
+  "assetIds": [
+    "117383250914966",
+    "127759154119844",
+    "84829015684618",
+    "96328719330997"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blossom Dementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

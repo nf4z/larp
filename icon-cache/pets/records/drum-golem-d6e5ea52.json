@@ -1,0 +1,17 @@
+{
+  "name": "Drum Golem",
+  "images": {
+    "Normal": "rbxassetid://139609641861387",
+    "Shiny": "rbxassetid://137385591497601"
+  },
+  "assetIds": [
+    "137385591497601",
+    "139609641861387"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Drum Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

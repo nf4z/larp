@@ -1,0 +1,17 @@
+{
+  "name": "VOID RADIANCE",
+  "images": {
+    "Normal": "rbxassetid://84254143978392",
+    "Shiny": "rbxassetid://136365564864504"
+  },
+  "assetIds": [
+    "136365564864504",
+    "84254143978392"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID RADIANCE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

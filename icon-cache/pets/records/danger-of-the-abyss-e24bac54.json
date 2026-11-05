@@ -1,0 +1,21 @@
+{
+  "name": "Danger of the Abyss",
+  "images": {
+    "Normal": "rbxassetid://76783017759123",
+    "Shiny": "rbxassetid://87099098917714",
+    "Mythic": "rbxassetid://74537785678595",
+    "MythicShiny": "rbxassetid://100954759724360"
+  },
+  "assetIds": [
+    "100954759724360",
+    "74537785678595",
+    "76783017759123",
+    "87099098917714"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Danger of the Abyss"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

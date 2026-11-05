@@ -1,0 +1,17 @@
+{
+  "name": "OG Dowodle",
+  "images": {
+    "Normal": "rbxassetid://118010701906903",
+    "Shiny": "rbxassetid://139331100408065"
+  },
+  "assetIds": [
+    "118010701906903",
+    "139331100408065"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

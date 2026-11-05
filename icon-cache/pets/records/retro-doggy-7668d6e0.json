@@ -1,0 +1,17 @@
+{
+  "name": "Retro Doggy",
+  "images": {
+    "Normal": "rbxassetid://133818242212943",
+    "Shiny": "rbxassetid://85376598453228"
+  },
+  "assetIds": [
+    "133818242212943",
+    "85376598453228"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

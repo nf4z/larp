@@ -1,0 +1,17 @@
+{
+  "name": "Elite Champion",
+  "images": {
+    "Normal": "rbxassetid://98312589937281",
+    "Shiny": "rbxassetid://135537305085933"
+  },
+  "assetIds": [
+    "135537305085933",
+    "98312589937281"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

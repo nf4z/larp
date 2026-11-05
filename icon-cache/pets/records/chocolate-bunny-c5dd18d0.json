@@ -1,0 +1,21 @@
+{
+  "name": "Chocolate Bunny",
+  "images": {
+    "Normal": "rbxassetid://76625492348694",
+    "Shiny": "rbxassetid://91443601878887",
+    "Mythic": "rbxassetid://81118434114062",
+    "MythicShiny": "rbxassetid://135944243354588"
+  },
+  "assetIds": [
+    "135944243354588",
+    "76625492348694",
+    "81118434114062",
+    "91443601878887"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

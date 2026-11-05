@@ -1,0 +1,21 @@
+{
+  "name": "Pastel Hexarium",
+  "images": {
+    "Normal": "rbxassetid://139380303236524",
+    "Shiny": "rbxassetid://78232243585653",
+    "Mythic": "rbxassetid://135827457885794",
+    "MythicShiny": "rbxassetid://80372740339767"
+  },
+  "assetIds": [
+    "135827457885794",
+    "139380303236524",
+    "78232243585653",
+    "80372740339767"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pastel Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

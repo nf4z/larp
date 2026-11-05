@@ -1,0 +1,21 @@
+{
+  "name": "Elite Shard",
+  "images": {
+    "Normal": "rbxassetid://72288851765520",
+    "Shiny": "rbxassetid://77460812888167",
+    "Mythic": "rbxassetid://125836657557787",
+    "MythicShiny": "rbxassetid://124061796189683"
+  },
+  "assetIds": [
+    "124061796189683",
+    "125836657557787",
+    "72288851765520",
+    "77460812888167"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

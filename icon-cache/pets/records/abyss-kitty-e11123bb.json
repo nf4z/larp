@@ -1,0 +1,17 @@
+{
+  "name": "Abyss Kitty",
+  "images": {
+    "Normal": "rbxassetid://138854676621427",
+    "Shiny": "rbxassetid://130509657210362"
+  },
+  "assetIds": [
+    "130509657210362",
+    "138854676621427"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyss Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

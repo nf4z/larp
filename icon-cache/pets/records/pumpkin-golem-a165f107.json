@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Golem",
+  "images": {
+    "Normal": "rbxassetid://92776105093453",
+    "Shiny": "rbxassetid://112901697439718"
+  },
+  "assetIds": [
+    "112901697439718",
+    "92776105093453"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

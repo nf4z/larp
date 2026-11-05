@@ -1,0 +1,12 @@
+{
+  "name": "Super XL Elixir",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Super XL Elixir",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

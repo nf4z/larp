@@ -1,0 +1,17 @@
+{
+  "name": "Pink Sparkletime",
+  "images": {
+    "Normal": "rbxassetid://133671156773544",
+    "Shiny": "rbxassetid://105119728779645"
+  },
+  "assetIds": [
+    "105119728779645",
+    "133671156773544"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pink Sparkletime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

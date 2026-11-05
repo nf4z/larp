@@ -1,0 +1,21 @@
+{
+  "name": "False Prophet",
+  "images": {
+    "Normal": "rbxassetid://138261528601275",
+    "Shiny": "rbxassetid://140281824443289",
+    "Mythic": "rbxassetid://130820877142967",
+    "MythicShiny": "rbxassetid://97933579786120"
+  },
+  "assetIds": [
+    "130820877142967",
+    "138261528601275",
+    "140281824443289",
+    "97933579786120"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "False Prophet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

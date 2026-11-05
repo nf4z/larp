@@ -1,0 +1,21 @@
+{
+  "name": "Frozen Soul",
+  "images": {
+    "Normal": "rbxassetid://135019903391423",
+    "Shiny": "rbxassetid://130956274323164",
+    "Mythic": "rbxassetid://126135554639940",
+    "MythicShiny": "rbxassetid://129176663569255"
+  },
+  "assetIds": [
+    "126135554639940",
+    "129176663569255",
+    "130956274323164",
+    "135019903391423"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frozen Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

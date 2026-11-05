@@ -1,0 +1,21 @@
+{
+  "name": "Shard",
+  "images": {
+    "Normal": "rbxassetid://137086016688563",
+    "Shiny": "rbxassetid://79829166747028",
+    "Mythic": "rbxassetid://122201014421767",
+    "MythicShiny": "rbxassetid://71231130457293"
+  },
+  "assetIds": [
+    "122201014421767",
+    "137086016688563",
+    "71231130457293",
+    "79829166747028"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

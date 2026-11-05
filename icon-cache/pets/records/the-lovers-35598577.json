@@ -1,0 +1,21 @@
+{
+  "name": "The Lovers",
+  "images": {
+    "Normal": "rbxassetid://100332178871535",
+    "Shiny": "rbxassetid://130481500890509",
+    "Mythic": "rbxassetid://95751152797008",
+    "MythicShiny": "rbxassetid://130262375146736"
+  },
+  "assetIds": [
+    "100332178871535",
+    "130262375146736",
+    "130481500890509",
+    "95751152797008"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Lovers"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

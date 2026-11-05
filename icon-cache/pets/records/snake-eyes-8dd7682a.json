@@ -1,0 +1,21 @@
+{
+  "name": "Snake Eyes",
+  "images": {
+    "Normal": "rbxassetid://75836718793343",
+    "Shiny": "rbxassetid://92019132814759",
+    "Mythic": "rbxassetid://84343546099955",
+    "MythicShiny": "rbxassetid://140206848244695"
+  },
+  "assetIds": [
+    "140206848244695",
+    "75836718793343",
+    "84343546099955",
+    "92019132814759"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snake Eyes"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

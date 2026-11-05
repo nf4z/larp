@@ -1,0 +1,21 @@
+{
+  "name": "EVIL",
+  "images": {
+    "Normal": "rbxassetid://83081993491500",
+    "Shiny": "rbxassetid://136864636873399",
+    "Mythic": "rbxassetid://84144838014791",
+    "MythicShiny": "rbxassetid://119097330901053"
+  },
+  "assetIds": [
+    "119097330901053",
+    "136864636873399",
+    "83081993491500",
+    "84144838014791"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "EVIL"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

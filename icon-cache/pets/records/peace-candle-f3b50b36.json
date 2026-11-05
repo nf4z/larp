@@ -1,0 +1,21 @@
+{
+  "name": "Peace Candle",
+  "images": {
+    "Normal": "rbxassetid://118465691209870",
+    "Shiny": "rbxassetid://74626505660214",
+    "Mythic": "rbxassetid://104413552350842",
+    "MythicShiny": "rbxassetid://106651500782273"
+  },
+  "assetIds": [
+    "104413552350842",
+    "106651500782273",
+    "118465691209870",
+    "74626505660214"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Peace Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Seal",
+  "images": {
+    "Normal": "rbxassetid://74672867888997",
+    "Shiny": "rbxassetid://92133589909761",
+    "Mythic": "rbxassetid://132665502164069",
+    "MythicShiny": "rbxassetid://102390191647709"
+  },
+  "assetIds": [
+    "102390191647709",
+    "132665502164069",
+    "74672867888997",
+    "92133589909761"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

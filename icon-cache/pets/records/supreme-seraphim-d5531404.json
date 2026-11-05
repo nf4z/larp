@@ -1,0 +1,21 @@
+{
+  "name": "Supreme Seraphim",
+  "images": {
+    "Normal": "rbxassetid://124247486143095",
+    "Shiny": "rbxassetid://124992669020990",
+    "Mythic": "rbxassetid://105093366595154",
+    "MythicShiny": "rbxassetid://81395105774431"
+  },
+  "assetIds": [
+    "105093366595154",
+    "124247486143095",
+    "124992669020990",
+    "81395105774431"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Supreme Seraphim"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

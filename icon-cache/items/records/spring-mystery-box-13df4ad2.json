@@ -1,0 +1,15 @@
+{
+  "name": "Spring Mystery Box",
+  "images": {
+    "Image": "rbxassetid://81586572880064"
+  },
+  "assetIds": [
+    "81586572880064"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Spring Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

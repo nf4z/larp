@@ -1,0 +1,21 @@
+{
+  "name": "Royal Elemental",
+  "images": {
+    "Normal": "rbxassetid://121952169866242",
+    "Shiny": "rbxassetid://105381030989945",
+    "Mythic": "rbxassetid://140010239410643",
+    "MythicShiny": "rbxassetid://104925046804666"
+  },
+  "assetIds": [
+    "104925046804666",
+    "105381030989945",
+    "121952169866242",
+    "140010239410643"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

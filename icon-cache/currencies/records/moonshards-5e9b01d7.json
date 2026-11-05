@@ -1,0 +1,15 @@
+{
+  "name": "MoonShards",
+  "images": {
+    "Image": "rbxassetid://73068203551606"
+  },
+  "assetIds": [
+    "73068203551606"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "MoonShards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

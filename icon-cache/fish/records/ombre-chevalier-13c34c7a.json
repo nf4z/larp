@@ -1,0 +1,15 @@
+{
+  "name": "Ombre Chevalier",
+  "images": {
+    "Image": "rbxassetid://103398713863529"
+  },
+  "assetIds": [
+    "103398713863529"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Ombre Chevalier"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

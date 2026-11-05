@@ -1,0 +1,21 @@
+{
+  "name": "Sircfenner Plushie",
+  "images": {
+    "Normal": "rbxassetid://136033473306374",
+    "Shiny": "rbxassetid://131945082230271",
+    "Mythic": "rbxassetid://108623936169761",
+    "MythicShiny": "rbxassetid://128349906197083"
+  },
+  "assetIds": [
+    "108623936169761",
+    "128349906197083",
+    "131945082230271",
+    "136033473306374"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sircfenner Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bundog",
+  "images": {
+    "Normal": "rbxassetid://83881277103409",
+    "Shiny": "rbxassetid://94777390405484",
+    "Mythic": "rbxassetid://106937738111734",
+    "MythicShiny": "rbxassetid://105684535196531"
+  },
+  "assetIds": [
+    "105684535196531",
+    "106937738111734",
+    "83881277103409",
+    "94777390405484"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bundog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

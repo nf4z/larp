@@ -1,0 +1,21 @@
+{
+  "name": "Witch of The Woods",
+  "images": {
+    "Normal": "rbxassetid://131427374028193",
+    "Shiny": "rbxassetid://80487092872407",
+    "Mythic": "rbxassetid://77885492804055",
+    "MythicShiny": "rbxassetid://110846888209591"
+  },
+  "assetIds": [
+    "110846888209591",
+    "131427374028193",
+    "77885492804055",
+    "80487092872407"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witch of The Woods"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

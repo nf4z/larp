@@ -1,0 +1,11 @@
+{
+  "name": "Sinister Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Sinister Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

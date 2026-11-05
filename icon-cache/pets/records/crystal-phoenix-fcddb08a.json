@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Phoenix",
+  "images": {
+    "Normal": "rbxassetid://137726528975521",
+    "Shiny": "rbxassetid://85348147456036",
+    "Mythic": "rbxassetid://117274273536356",
+    "MythicShiny": "rbxassetid://131143332944924"
+  },
+  "assetIds": [
+    "117274273536356",
+    "131143332944924",
+    "137726528975521",
+    "85348147456036"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

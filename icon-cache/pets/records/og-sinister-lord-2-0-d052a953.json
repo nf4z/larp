@@ -1,0 +1,21 @@
+{
+  "name": "OG Sinister Lord 2.0",
+  "images": {
+    "Normal": "rbxassetid://99458283383081",
+    "Shiny": "rbxassetid://78120832057131",
+    "Mythic": "rbxassetid://104947600695579",
+    "MythicShiny": "rbxassetid://85918068837919"
+  },
+  "assetIds": [
+    "104947600695579",
+    "78120832057131",
+    "85918068837919",
+    "99458283383081"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Sinister Lord 2.0"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

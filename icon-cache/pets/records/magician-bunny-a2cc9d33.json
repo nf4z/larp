@@ -1,0 +1,17 @@
+{
+  "name": "Magician Bunny",
+  "images": {
+    "Normal": "rbxassetid://76344601733681",
+    "Shiny": "rbxassetid://100547199355079"
+  },
+  "assetIds": [
+    "100547199355079",
+    "76344601733681"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magician Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

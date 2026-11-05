@@ -1,0 +1,15 @@
+{
+  "name": "Classic Minnow",
+  "images": {
+    "Image": "rbxassetid://112729483122079"
+  },
+  "assetIds": [
+    "112729483122079"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Minnow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

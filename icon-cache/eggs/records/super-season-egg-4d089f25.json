@@ -1,0 +1,12 @@
+{
+  "name": "Super Season Egg",
+  "images": {
+    "Image": "rbxassetid://81221107293847"
+  },
+  "assetIds": [
+    "81221107293847"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

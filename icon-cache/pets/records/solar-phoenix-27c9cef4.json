@@ -1,0 +1,17 @@
+{
+  "name": "Solar Phoenix",
+  "images": {
+    "Normal": "rbxassetid://121372924349376",
+    "Shiny": "rbxassetid://105771751097367"
+  },
+  "assetIds": [
+    "105771751097367",
+    "121372924349376"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solar Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

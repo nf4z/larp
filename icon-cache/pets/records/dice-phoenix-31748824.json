@@ -1,0 +1,21 @@
+{
+  "name": "Dice Phoenix",
+  "images": {
+    "Normal": "rbxassetid://102269452178678",
+    "Shiny": "rbxassetid://138622135953413",
+    "Mythic": "rbxassetid://140549565649086",
+    "MythicShiny": "rbxassetid://72770400220937"
+  },
+  "assetIds": [
+    "102269452178678",
+    "138622135953413",
+    "140549565649086",
+    "72770400220937"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

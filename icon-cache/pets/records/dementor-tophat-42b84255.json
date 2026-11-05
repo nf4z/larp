@@ -1,0 +1,17 @@
+{
+  "name": "Dementor Tophat",
+  "images": {
+    "Normal": "rbxassetid://83613218264314",
+    "Shiny": "rbxassetid://121907320729337"
+  },
+  "assetIds": [
+    "121907320729337",
+    "83613218264314"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dementor Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

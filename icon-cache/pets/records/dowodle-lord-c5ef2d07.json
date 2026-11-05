@@ -1,0 +1,21 @@
+{
+  "name": "Dowodle Lord",
+  "images": {
+    "Normal": "rbxassetid://126348415455357",
+    "Shiny": "rbxassetid://136055782434641",
+    "Mythic": "rbxassetid://102320131868619",
+    "MythicShiny": "rbxassetid://129166790879761"
+  },
+  "assetIds": [
+    "102320131868619",
+    "126348415455357",
+    "129166790879761",
+    "136055782434641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowodle Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

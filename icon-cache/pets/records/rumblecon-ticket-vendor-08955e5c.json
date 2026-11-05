@@ -1,0 +1,21 @@
+{
+  "name": "Rumblecon Ticket Vendor",
+  "images": {
+    "Normal": "rbxassetid://128789419906063",
+    "Shiny": "rbxassetid://79100817949685",
+    "Mythic": "rbxassetid://107900068088134",
+    "MythicShiny": "rbxassetid://136659397379041"
+  },
+  "assetIds": [
+    "107900068088134",
+    "128789419906063",
+    "136659397379041",
+    "79100817949685"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Ticket Vendor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Serpent",
+  "images": {
+    "Normal": "rbxassetid://124540640956273",
+    "Shiny": "rbxassetid://110071703565942",
+    "Mythic": "rbxassetid://126601935186426",
+    "MythicShiny": "rbxassetid://104115679219043"
+  },
+  "assetIds": [
+    "104115679219043",
+    "110071703565942",
+    "124540640956273",
+    "126601935186426"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

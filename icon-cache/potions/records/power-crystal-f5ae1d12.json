@@ -1,0 +1,12 @@
+{
+  "name": "Power Crystal",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Power Crystal",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

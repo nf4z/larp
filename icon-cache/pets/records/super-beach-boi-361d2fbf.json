@@ -1,0 +1,21 @@
+{
+  "name": "Super Beach Boi",
+  "images": {
+    "Normal": "rbxassetid://134675187261483",
+    "Shiny": "rbxassetid://120559621372731",
+    "Mythic": "rbxassetid://73598364514753",
+    "MythicShiny": "rbxassetid://95760048047517"
+  },
+  "assetIds": [
+    "120559621372731",
+    "134675187261483",
+    "73598364514753",
+    "95760048047517"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Beach Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

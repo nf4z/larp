@@ -1,0 +1,21 @@
+{
+  "name": "Penumbra",
+  "images": {
+    "Normal": "rbxassetid://121730614145035",
+    "Shiny": "rbxassetid://101984158871831",
+    "Mythic": "rbxassetid://110153181468339",
+    "MythicShiny": "rbxassetid://130575822753015"
+  },
+  "assetIds": [
+    "101984158871831",
+    "110153181468339",
+    "121730614145035",
+    "130575822753015"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Penumbra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

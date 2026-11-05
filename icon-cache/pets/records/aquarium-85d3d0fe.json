@@ -1,0 +1,21 @@
+{
+  "name": "Aquarium",
+  "images": {
+    "Normal": "rbxassetid://76280982517572",
+    "Shiny": "rbxassetid://117557687321041",
+    "Mythic": "rbxassetid://78467530539097",
+    "MythicShiny": "rbxassetid://96261896171258"
+  },
+  "assetIds": [
+    "117557687321041",
+    "76280982517572",
+    "78467530539097",
+    "96261896171258"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aquarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

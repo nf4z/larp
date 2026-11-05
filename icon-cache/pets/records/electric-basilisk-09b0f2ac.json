@@ -1,0 +1,21 @@
+{
+  "name": "Electric Basilisk",
+  "images": {
+    "Normal": "rbxassetid://132413355493634",
+    "Shiny": "rbxassetid://136569988991636",
+    "Mythic": "rbxassetid://84742117573959",
+    "MythicShiny": "rbxassetid://71077256129672"
+  },
+  "assetIds": [
+    "132413355493634",
+    "136569988991636",
+    "71077256129672",
+    "84742117573959"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Electric Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

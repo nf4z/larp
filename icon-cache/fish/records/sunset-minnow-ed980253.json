@@ -1,0 +1,15 @@
+{
+  "name": "Sunset Minnow",
+  "images": {
+    "Image": "rbxassetid://94949044406558"
+  },
+  "assetIds": [
+    "94949044406558"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sunset Minnow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

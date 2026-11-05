@@ -1,0 +1,21 @@
+{
+  "name": "Retro Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://111198256501276",
+    "Shiny": "rbxassetid://129101623430869",
+    "Mythic": "rbxassetid://132071565650886",
+    "MythicShiny": "rbxassetid://89254512095163"
+  },
+  "assetIds": [
+    "111198256501276",
+    "129101623430869",
+    "132071565650886",
+    "89254512095163"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

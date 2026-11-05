@@ -1,0 +1,17 @@
+{
+  "name": "Sleepy Bunny",
+  "images": {
+    "Normal": "rbxassetid://116722260024080",
+    "Shiny": "rbxassetid://80968988528542"
+  },
+  "assetIds": [
+    "116722260024080",
+    "80968988528542"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sleepy Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

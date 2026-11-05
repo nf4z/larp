@@ -1,0 +1,21 @@
+{
+  "name": "Fall Gryphon",
+  "images": {
+    "Normal": "rbxassetid://105043712220571",
+    "Shiny": "rbxassetid://97011414486538",
+    "Mythic": "rbxassetid://122552340622115",
+    "MythicShiny": "rbxassetid://95188396683756"
+  },
+  "assetIds": [
+    "105043712220571",
+    "122552340622115",
+    "95188396683756",
+    "97011414486538"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fall Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

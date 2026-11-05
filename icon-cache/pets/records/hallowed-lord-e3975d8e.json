@@ -1,0 +1,21 @@
+{
+  "name": "Hallowed Lord",
+  "images": {
+    "Normal": "rbxassetid://121322932784550",
+    "Shiny": "rbxassetid://99961363719268",
+    "Mythic": "rbxassetid://99692420837978",
+    "MythicShiny": "rbxassetid://80955981975297"
+  },
+  "assetIds": [
+    "121322932784550",
+    "80955981975297",
+    "99692420837978",
+    "99961363719268"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hallowed Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

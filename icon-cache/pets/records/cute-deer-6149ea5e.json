@@ -1,0 +1,17 @@
+{
+  "name": "Cute Deer",
+  "images": {
+    "Normal": "rbxassetid://105066898757192",
+    "Shiny": "rbxassetid://73998537566687"
+  },
+  "assetIds": [
+    "105066898757192",
+    "73998537566687"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cute Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Lava Blackdragon",
+  "images": {
+    "Image": "rbxassetid://123033737389926"
+  },
+  "assetIds": [
+    "123033737389926"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Lava Blackdragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

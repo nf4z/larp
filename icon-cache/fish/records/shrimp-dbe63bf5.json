@@ -1,0 +1,15 @@
+{
+  "name": "Shrimp",
+  "images": {
+    "Image": "rbxassetid://110059407595639"
+  },
+  "assetIds": [
+    "110059407595639"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Shrimp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

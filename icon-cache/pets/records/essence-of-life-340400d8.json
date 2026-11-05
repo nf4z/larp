@@ -1,0 +1,21 @@
+{
+  "name": "Essence of Life",
+  "images": {
+    "Normal": "rbxassetid://131983897046578",
+    "Shiny": "rbxassetid://134946679315189",
+    "Mythic": "rbxassetid://115935680019133",
+    "MythicShiny": "rbxassetid://133403856300037"
+  },
+  "assetIds": [
+    "115935680019133",
+    "131983897046578",
+    "133403856300037",
+    "134946679315189"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Essence of Life"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

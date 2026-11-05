@@ -1,0 +1,17 @@
+{
+  "name": "Shattered Kitty",
+  "images": {
+    "Normal": "rbxassetid://119339381302021",
+    "Shiny": "rbxassetid://70628527441973"
+  },
+  "assetIds": [
+    "119339381302021",
+    "70628527441973"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shattered Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

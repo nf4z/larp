@@ -1,0 +1,21 @@
+{
+  "name": "Shadowshard",
+  "images": {
+    "Normal": "rbxassetid://81810972876840",
+    "Shiny": "rbxassetid://70374805499111",
+    "Mythic": "rbxassetid://114128461618252",
+    "MythicShiny": "rbxassetid://102005935326389"
+  },
+  "assetIds": [
+    "102005935326389",
+    "114128461618252",
+    "70374805499111",
+    "81810972876840"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadowshard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

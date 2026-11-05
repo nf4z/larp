@@ -1,0 +1,17 @@
+{
+  "name": "Sack O' Angel",
+  "images": {
+    "Normal": "rbxassetid://111438820006608",
+    "Shiny": "rbxassetid://125853060220776"
+  },
+  "assetIds": [
+    "111438820006608",
+    "125853060220776"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sack O' Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

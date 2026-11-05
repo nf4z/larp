@@ -1,0 +1,17 @@
+{
+  "name": "OG Cartoon Kitty",
+  "images": {
+    "Normal": "rbxassetid://92639940264599",
+    "Shiny": "rbxassetid://116270903537340"
+  },
+  "assetIds": [
+    "116270903537340",
+    "92639940264599"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Cartoon Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

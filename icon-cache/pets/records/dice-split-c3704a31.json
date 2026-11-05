@@ -1,0 +1,21 @@
+{
+  "name": "Dice Split",
+  "images": {
+    "Normal": "rbxassetid://140212979301756",
+    "Shiny": "rbxassetid://128103253336307",
+    "Mythic": "rbxassetid://114639637803307",
+    "MythicShiny": "rbxassetid://115097115638781"
+  },
+  "assetIds": [
+    "114639637803307",
+    "115097115638781",
+    "128103253336307",
+    "140212979301756"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

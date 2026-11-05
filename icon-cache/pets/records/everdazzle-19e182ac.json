@@ -1,0 +1,17 @@
+{
+  "name": "Everdazzle",
+  "images": {
+    "Normal": "rbxassetid://125263584198289",
+    "Shiny": "rbxassetid://83371340668463"
+  },
+  "assetIds": [
+    "125263584198289",
+    "83371340668463"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Everdazzle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

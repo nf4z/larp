@@ -1,0 +1,21 @@
+{
+  "name": "Hellspawn",
+  "images": {
+    "Normal": "rbxassetid://124642102737765",
+    "Shiny": "rbxassetid://112009586830204",
+    "Mythic": "rbxassetid://81300519944354",
+    "MythicShiny": "rbxassetid://140017287786790"
+  },
+  "assetIds": [
+    "112009586830204",
+    "124642102737765",
+    "140017287786790",
+    "81300519944354"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellspawn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bonbun",
+  "images": {
+    "Normal": "rbxassetid://89835476908808",
+    "Shiny": "rbxassetid://120708543597408",
+    "Mythic": "rbxassetid://105776661504373",
+    "MythicShiny": "rbxassetid://121627793959564"
+  },
+  "assetIds": [
+    "105776661504373",
+    "120708543597408",
+    "121627793959564",
+    "89835476908808"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bonbun"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

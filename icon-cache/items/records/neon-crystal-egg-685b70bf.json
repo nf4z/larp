@@ -1,0 +1,11 @@
+{
+  "name": "Neon Crystal Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Neon Crystal Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

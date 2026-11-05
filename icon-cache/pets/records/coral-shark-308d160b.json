@@ -1,0 +1,17 @@
+{
+  "name": "Coral Shark",
+  "images": {
+    "Normal": "rbxassetid://122182171436467",
+    "Shiny": "rbxassetid://96057089902357"
+  },
+  "assetIds": [
+    "122182171436467",
+    "96057089902357"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

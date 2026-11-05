@@ -1,0 +1,17 @@
+{
+  "name": "Sky Star Rabbit",
+  "images": {
+    "Normal": "rbxassetid://100248971979372",
+    "Shiny": "rbxassetid://138347195236144"
+  },
+  "assetIds": [
+    "100248971979372",
+    "138347195236144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sky Star Rabbit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

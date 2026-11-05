@@ -1,0 +1,17 @@
+{
+  "name": "Symbiote",
+  "images": {
+    "Normal": "rbxassetid://122728260399761",
+    "Shiny": "rbxassetid://136110050516439"
+  },
+  "assetIds": [
+    "122728260399761",
+    "136110050516439"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Symbiote"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "High Priestess",
+  "images": {
+    "Normal": "rbxassetid://136643891179350",
+    "Shiny": "rbxassetid://96739021784034",
+    "Mythic": "rbxassetid://73188637391994",
+    "MythicShiny": "rbxassetid://108290073199895"
+  },
+  "assetIds": [
+    "108290073199895",
+    "136643891179350",
+    "73188637391994",
+    "96739021784034"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "High Priestess"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

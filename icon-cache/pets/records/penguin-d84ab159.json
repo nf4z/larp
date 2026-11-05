@@ -1,0 +1,17 @@
+{
+  "name": "Penguin",
+  "images": {
+    "Normal": "rbxassetid://127594766498768",
+    "Shiny": "rbxassetid://133672019607442"
+  },
+  "assetIds": [
+    "127594766498768",
+    "133672019607442"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Penguin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

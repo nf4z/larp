@@ -1,0 +1,21 @@
+{
+  "name": "Big Spring Critter",
+  "images": {
+    "Normal": "rbxassetid://118982782328376",
+    "Shiny": "rbxassetid://110039665783415",
+    "Mythic": "rbxassetid://92555120128993",
+    "MythicShiny": "rbxassetid://122514523777773"
+  },
+  "assetIds": [
+    "110039665783415",
+    "118982782328376",
+    "122514523777773",
+    "92555120128993"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Spring Critter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

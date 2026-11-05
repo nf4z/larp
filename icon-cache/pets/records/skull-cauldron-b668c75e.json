@@ -1,0 +1,21 @@
+{
+  "name": "Skull Cauldron",
+  "images": {
+    "Normal": "rbxassetid://92386422082261",
+    "Shiny": "rbxassetid://127497730167429",
+    "Mythic": "rbxassetid://107757037726783",
+    "MythicShiny": "rbxassetid://125044380538388"
+  },
+  "assetIds": [
+    "107757037726783",
+    "125044380538388",
+    "127497730167429",
+    "92386422082261"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skull Cauldron"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ent of the Equinox",
+  "images": {
+    "Normal": "rbxassetid://131248603100946",
+    "Shiny": "rbxassetid://108003620482423",
+    "Mythic": "rbxassetid://114051697343832",
+    "MythicShiny": "rbxassetid://99788498805625"
+  },
+  "assetIds": [
+    "108003620482423",
+    "114051697343832",
+    "131248603100946",
+    "99788498805625"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ent of the Equinox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

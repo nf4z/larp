@@ -1,0 +1,21 @@
+{
+  "name": "The Love Thief",
+  "images": {
+    "Normal": "rbxassetid://134899143117872",
+    "Shiny": "rbxassetid://134325917326792",
+    "Mythic": "rbxassetid://92268959124279",
+    "MythicShiny": "rbxassetid://71684984285998"
+  },
+  "assetIds": [
+    "134325917326792",
+    "134899143117872",
+    "71684984285998",
+    "92268959124279"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Love Thief"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

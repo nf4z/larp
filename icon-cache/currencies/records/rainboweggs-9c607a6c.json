@@ -1,0 +1,15 @@
+{
+  "name": "RainbowEggs",
+  "images": {
+    "Image": "rbxassetid://114396526669720"
+  },
+  "assetIds": [
+    "114396526669720"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "RainbowEggs"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

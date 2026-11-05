@@ -1,0 +1,21 @@
+{
+  "name": "White Swan",
+  "images": {
+    "Normal": "rbxassetid://78724157554092",
+    "Shiny": "rbxassetid://89809427200191",
+    "Mythic": "rbxassetid://105399654355947",
+    "MythicShiny": "rbxassetid://109497142301065"
+  },
+  "assetIds": [
+    "105399654355947",
+    "109497142301065",
+    "78724157554092",
+    "89809427200191"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "White Swan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

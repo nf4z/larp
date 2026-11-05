@@ -1,0 +1,17 @@
+{
+  "name": "Holy Shock",
+  "images": {
+    "Normal": "rbxassetid://87357335772226",
+    "Shiny": "rbxassetid://131835208422374"
+  },
+  "assetIds": [
+    "131835208422374",
+    "87357335772226"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holy Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

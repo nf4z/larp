@@ -1,0 +1,21 @@
+{
+  "name": "ROUND BRUH",
+  "images": {
+    "Normal": "rbxassetid://106876419309036",
+    "Shiny": "rbxassetid://95854016713670",
+    "Mythic": "rbxassetid://138708937939597",
+    "MythicShiny": "rbxassetid://102899660564761"
+  },
+  "assetIds": [
+    "102899660564761",
+    "106876419309036",
+    "138708937939597",
+    "95854016713670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "ROUND BRUH"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

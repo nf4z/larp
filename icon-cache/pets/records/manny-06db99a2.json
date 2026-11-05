@@ -1,0 +1,17 @@
+{
+  "name": "Manny",
+  "images": {
+    "Normal": "rbxassetid://136450592953585",
+    "Shiny": "rbxassetid://114012206693503"
+  },
+  "assetIds": [
+    "114012206693503",
+    "136450592953585"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Manny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

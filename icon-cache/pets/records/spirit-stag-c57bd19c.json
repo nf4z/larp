@@ -1,0 +1,21 @@
+{
+  "name": "Spirit Stag",
+  "images": {
+    "Normal": "rbxassetid://73688324022505",
+    "Shiny": "rbxassetid://83526277725373",
+    "Mythic": "rbxassetid://126993992985434",
+    "MythicShiny": "rbxassetid://138223998604516"
+  },
+  "assetIds": [
+    "126993992985434",
+    "138223998604516",
+    "73688324022505",
+    "83526277725373"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spirit Stag"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

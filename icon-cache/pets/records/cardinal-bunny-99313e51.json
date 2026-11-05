@@ -1,0 +1,21 @@
+{
+  "name": "Cardinal Bunny",
+  "images": {
+    "Normal": "rbxassetid://104513918534463",
+    "Shiny": "rbxassetid://81866848585659",
+    "Mythic": "rbxassetid://118889671469786",
+    "MythicShiny": "rbxassetid://96170721611701"
+  },
+  "assetIds": [
+    "104513918534463",
+    "118889671469786",
+    "81866848585659",
+    "96170721611701"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cardinal Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

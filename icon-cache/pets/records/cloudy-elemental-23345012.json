@@ -1,0 +1,21 @@
+{
+  "name": "Cloudy Elemental",
+  "images": {
+    "Normal": "rbxassetid://127300213114425",
+    "Shiny": "rbxassetid://82853573270199",
+    "Mythic": "rbxassetid://137643809559124",
+    "MythicShiny": "rbxassetid://98882322037123"
+  },
+  "assetIds": [
+    "127300213114425",
+    "137643809559124",
+    "82853573270199",
+    "98882322037123"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudy Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

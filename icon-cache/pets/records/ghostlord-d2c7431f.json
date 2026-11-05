@@ -1,0 +1,21 @@
+{
+  "name": "Ghostlord",
+  "images": {
+    "Normal": "rbxassetid://87176718063492",
+    "Shiny": "rbxassetid://99563248280602",
+    "Mythic": "rbxassetid://129617707605612",
+    "MythicShiny": "rbxassetid://121998655717573"
+  },
+  "assetIds": [
+    "121998655717573",
+    "129617707605612",
+    "87176718063492",
+    "99563248280602"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghostlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://122484330274388",
+    "Shiny": "rbxassetid://99799182743285",
+    "Mythic": "rbxassetid://134786215896637",
+    "MythicShiny": "rbxassetid://85416196107830"
+  },
+  "assetIds": [
+    "122484330274388",
+    "134786215896637",
+    "85416196107830",
+    "99799182743285"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

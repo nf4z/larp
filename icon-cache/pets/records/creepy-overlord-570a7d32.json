@@ -1,0 +1,21 @@
+{
+  "name": "Creepy Overlord",
+  "images": {
+    "Normal": "rbxassetid://106165048030713",
+    "Shiny": "rbxassetid://82636878719836",
+    "Mythic": "rbxassetid://86264533838056",
+    "MythicShiny": "rbxassetid://133323994915688"
+  },
+  "assetIds": [
+    "106165048030713",
+    "133323994915688",
+    "82636878719836",
+    "86264533838056"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Creepy Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

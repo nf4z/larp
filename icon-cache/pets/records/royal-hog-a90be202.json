@@ -1,0 +1,17 @@
+{
+  "name": "Royal Hog",
+  "images": {
+    "Normal": "rbxassetid://138809250533481",
+    "Shiny": "rbxassetid://123906557024540"
+  },
+  "assetIds": [
+    "123906557024540",
+    "138809250533481"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Hog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

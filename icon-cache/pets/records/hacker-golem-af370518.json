@@ -1,0 +1,21 @@
+{
+  "name": "Hacker Golem",
+  "images": {
+    "Normal": "rbxassetid://128151959844109",
+    "Shiny": "rbxassetid://103119431882425",
+    "Mythic": "rbxassetid://116858779966749",
+    "MythicShiny": "rbxassetid://78505971723584"
+  },
+  "assetIds": [
+    "103119431882425",
+    "116858779966749",
+    "128151959844109",
+    "78505971723584"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hacker Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

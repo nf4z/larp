@@ -1,0 +1,21 @@
+{
+  "name": "Easter Spirit",
+  "images": {
+    "Normal": "rbxassetid://89528377426565",
+    "Shiny": "rbxassetid://127123815557283",
+    "Mythic": "rbxassetid://114309124587821",
+    "MythicShiny": "rbxassetid://88654872257068"
+  },
+  "assetIds": [
+    "114309124587821",
+    "127123815557283",
+    "88654872257068",
+    "89528377426565"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

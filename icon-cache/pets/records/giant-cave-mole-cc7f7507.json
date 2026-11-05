@@ -1,0 +1,17 @@
+{
+  "name": "Giant Cave Mole",
+  "images": {
+    "Normal": "rbxassetid://121630154919645",
+    "Shiny": "rbxassetid://113804921128890"
+  },
+  "assetIds": [
+    "113804921128890",
+    "121630154919645"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Cave Mole"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

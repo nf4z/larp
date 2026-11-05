@@ -1,0 +1,17 @@
+{
+  "name": "Serene Tide",
+  "images": {
+    "Normal": "rbxassetid://78031761573919",
+    "Shiny": "rbxassetid://97192550692552"
+  },
+  "assetIds": [
+    "78031761573919",
+    "97192550692552"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Serene Tide"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

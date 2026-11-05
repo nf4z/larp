@@ -1,0 +1,21 @@
+{
+  "name": "Sinister Lord 2.0",
+  "images": {
+    "Normal": "rbxassetid://90193102965824",
+    "Shiny": "rbxassetid://137893045233327",
+    "Mythic": "rbxassetid://90267860273615",
+    "MythicShiny": "rbxassetid://116487730436714"
+  },
+  "assetIds": [
+    "116487730436714",
+    "137893045233327",
+    "90193102965824",
+    "90267860273615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister Lord 2.0"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Pastel Paladin",
+  "images": {
+    "Normal": "rbxassetid://124671196499036",
+    "Shiny": "rbxassetid://94152213621634"
+  },
+  "assetIds": [
+    "124671196499036",
+    "94152213621634"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pastel Paladin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

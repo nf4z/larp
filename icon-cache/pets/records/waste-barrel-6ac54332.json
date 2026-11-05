@@ -1,0 +1,17 @@
+{
+  "name": "Waste Barrel",
+  "images": {
+    "Normal": "rbxassetid://84060232890749",
+    "Shiny": "rbxassetid://139790360597254"
+  },
+  "assetIds": [
+    "139790360597254",
+    "84060232890749"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Waste Barrel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

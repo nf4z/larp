@@ -1,0 +1,21 @@
+{
+  "name": "Toxic Shock",
+  "images": {
+    "Normal": "rbxassetid://101081171372785",
+    "Shiny": "rbxassetid://80650525917204",
+    "Mythic": "rbxassetid://130655105865999",
+    "MythicShiny": "rbxassetid://95875183488363"
+  },
+  "assetIds": [
+    "101081171372785",
+    "130655105865999",
+    "80650525917204",
+    "95875183488363"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toxic Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

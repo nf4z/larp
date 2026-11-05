@@ -1,0 +1,21 @@
+{
+  "name": "Love Candle",
+  "images": {
+    "Normal": "rbxassetid://132676673091052",
+    "Shiny": "rbxassetid://114090534203248",
+    "Mythic": "rbxassetid://129508139591391",
+    "MythicShiny": "rbxassetid://115008338999057"
+  },
+  "assetIds": [
+    "114090534203248",
+    "115008338999057",
+    "129508139591391",
+    "132676673091052"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Love Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

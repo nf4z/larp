@@ -1,0 +1,17 @@
+{
+  "name": "Fossil Dragon",
+  "images": {
+    "Normal": "rbxassetid://134377016763911",
+    "Shiny": "rbxassetid://92453230170802"
+  },
+  "assetIds": [
+    "134377016763911",
+    "92453230170802"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fossil Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

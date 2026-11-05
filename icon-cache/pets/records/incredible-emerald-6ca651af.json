@@ -1,0 +1,21 @@
+{
+  "name": "Incredible Emerald",
+  "images": {
+    "Normal": "rbxassetid://86109585905069",
+    "Shiny": "rbxassetid://86785704846073",
+    "Mythic": "rbxassetid://77514304298236",
+    "MythicShiny": "rbxassetid://134709056173638"
+  },
+  "assetIds": [
+    "134709056173638",
+    "77514304298236",
+    "86109585905069",
+    "86785704846073"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Incredible Emerald"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

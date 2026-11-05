@@ -1,0 +1,17 @@
+{
+  "name": "Lucky Rabbit",
+  "images": {
+    "Normal": "rbxassetid://119904417917390",
+    "Shiny": "rbxassetid://108820246067360"
+  },
+  "assetIds": [
+    "108820246067360",
+    "119904417917390"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Rabbit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

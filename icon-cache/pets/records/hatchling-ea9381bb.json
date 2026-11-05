@@ -1,0 +1,17 @@
+{
+  "name": "Hatchling",
+  "images": {
+    "Normal": "rbxassetid://119285236689048",
+    "Shiny": "rbxassetid://126418352072171"
+  },
+  "assetIds": [
+    "119285236689048",
+    "126418352072171"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hatchling"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

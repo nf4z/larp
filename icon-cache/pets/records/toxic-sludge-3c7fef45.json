@@ -1,0 +1,17 @@
+{
+  "name": "Toxic Sludge",
+  "images": {
+    "Normal": "rbxassetid://132096392665052",
+    "Shiny": "rbxassetid://135655871472070"
+  },
+  "assetIds": [
+    "132096392665052",
+    "135655871472070"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toxic Sludge"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

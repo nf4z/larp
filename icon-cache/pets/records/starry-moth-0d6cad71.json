@@ -1,0 +1,17 @@
+{
+  "name": "Starry Moth",
+  "images": {
+    "Normal": "rbxassetid://124037658974987",
+    "Shiny": "rbxassetid://105202424464394"
+  },
+  "assetIds": [
+    "105202424464394",
+    "124037658974987"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

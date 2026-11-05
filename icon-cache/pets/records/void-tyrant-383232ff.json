@@ -1,0 +1,17 @@
+{
+  "name": "VOID TYRANT",
+  "images": {
+    "Normal": "rbxassetid://94883918006417",
+    "Shiny": "rbxassetid://112477278737934"
+  },
+  "assetIds": [
+    "112477278737934",
+    "94883918006417"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID TYRANT"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Carnival Dragon",
+  "images": {
+    "Normal": "rbxassetid://126536328484309",
+    "Shiny": "rbxassetid://73838455217328",
+    "Mythic": "rbxassetid://70587971063748",
+    "MythicShiny": "rbxassetid://74095624371027"
+  },
+  "assetIds": [
+    "126536328484309",
+    "70587971063748",
+    "73838455217328",
+    "74095624371027"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carnival Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

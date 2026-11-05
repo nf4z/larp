@@ -1,0 +1,15 @@
+{
+  "name": "Circus Mystery Box",
+  "images": {
+    "Image": "rbxassetid://129143695378164"
+  },
+  "assetIds": [
+    "129143695378164"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Circus Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

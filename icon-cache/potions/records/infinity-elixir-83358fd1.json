@@ -1,0 +1,12 @@
+{
+  "name": "Infinity Elixir",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Infinity Elixir",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

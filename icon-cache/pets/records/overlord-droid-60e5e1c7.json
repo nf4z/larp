@@ -1,0 +1,21 @@
+{
+  "name": "Overlord Droid",
+  "images": {
+    "Normal": "rbxassetid://118597805818346",
+    "Shiny": "rbxassetid://139188172348967",
+    "Mythic": "rbxassetid://137603309786234",
+    "MythicShiny": "rbxassetid://124794754944036"
+  },
+  "assetIds": [
+    "118597805818346",
+    "124794754944036",
+    "137603309786234",
+    "139188172348967"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overlord Droid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

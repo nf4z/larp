@@ -1,0 +1,21 @@
+{
+  "name": "Grand Pearl",
+  "images": {
+    "Normal": "rbxassetid://123830085836059",
+    "Shiny": "rbxassetid://95562496110366",
+    "Mythic": "rbxassetid://102067132553883",
+    "MythicShiny": "rbxassetid://121121560778684"
+  },
+  "assetIds": [
+    "102067132553883",
+    "121121560778684",
+    "123830085836059",
+    "95562496110366"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Grand Pearl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

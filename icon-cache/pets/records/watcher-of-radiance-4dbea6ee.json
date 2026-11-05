@@ -1,0 +1,21 @@
+{
+  "name": "Watcher of Radiance",
+  "images": {
+    "Normal": "rbxassetid://90886431062397",
+    "Shiny": "rbxassetid://139986741602912",
+    "Mythic": "rbxassetid://112810512376015",
+    "MythicShiny": "rbxassetid://97781724476131"
+  },
+  "assetIds": [
+    "112810512376015",
+    "139986741602912",
+    "90886431062397",
+    "97781724476131"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Watcher of Radiance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG BGS Plaque",
+  "images": {
+    "Normal": "rbxassetid://77737591396668",
+    "Shiny": "rbxassetid://89312591783211",
+    "Mythic": "rbxassetid://126189123472649",
+    "MythicShiny": "rbxassetid://132250151368414"
+  },
+  "assetIds": [
+    "126189123472649",
+    "132250151368414",
+    "77737591396668",
+    "89312591783211"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG BGS Plaque"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

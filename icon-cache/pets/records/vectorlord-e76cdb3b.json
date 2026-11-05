@@ -1,0 +1,21 @@
+{
+  "name": "Vectorlord",
+  "images": {
+    "Normal": "rbxassetid://82691005889717",
+    "Shiny": "rbxassetid://97200467525003",
+    "Mythic": "rbxassetid://95070712656410",
+    "MythicShiny": "rbxassetid://116801425843153"
+  },
+  "assetIds": [
+    "116801425843153",
+    "82691005889717",
+    "95070712656410",
+    "97200467525003"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vectorlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

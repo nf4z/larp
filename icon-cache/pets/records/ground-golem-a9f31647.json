@@ -1,0 +1,17 @@
+{
+  "name": "Ground Golem",
+  "images": {
+    "Normal": "rbxassetid://112609148711239",
+    "Shiny": "rbxassetid://127936550770801"
+  },
+  "assetIds": [
+    "112609148711239",
+    "127936550770801"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ground Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

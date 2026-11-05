@@ -1,0 +1,12 @@
+{
+  "name": "Ultra Fall Egg",
+  "images": {
+    "Image": "rbxassetid://115547046825952"
+  },
+  "assetIds": [
+    "115547046825952"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

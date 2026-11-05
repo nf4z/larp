@@ -1,0 +1,21 @@
+{
+  "name": "OG Axolotl Plushie",
+  "images": {
+    "Normal": "rbxassetid://93957736157706",
+    "Shiny": "rbxassetid://85738950333525",
+    "Mythic": "rbxassetid://73452858734878",
+    "MythicShiny": "rbxassetid://139224176116560"
+  },
+  "assetIds": [
+    "139224176116560",
+    "73452858734878",
+    "85738950333525",
+    "93957736157706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Axolotl Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

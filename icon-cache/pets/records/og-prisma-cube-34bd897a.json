@@ -1,0 +1,21 @@
+{
+  "name": "OG Prisma Cube",
+  "images": {
+    "Normal": "rbxassetid://120406243889067",
+    "Shiny": "rbxassetid://139086032145151",
+    "Mythic": "rbxassetid://77721618301944",
+    "MythicShiny": "rbxassetid://118772290369695"
+  },
+  "assetIds": [
+    "118772290369695",
+    "120406243889067",
+    "139086032145151",
+    "77721618301944"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Prisma Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dowominus",
+  "images": {
+    "Normal": "rbxassetid://136793520981301",
+    "Shiny": "rbxassetid://70815154192636",
+    "Mythic": "rbxassetid://100390594184464",
+    "MythicShiny": "rbxassetid://113472031557868"
+  },
+  "assetIds": [
+    "100390594184464",
+    "113472031557868",
+    "136793520981301",
+    "70815154192636"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Seraph Tophat",
+  "images": {
+    "Normal": "rbxassetid://137137416721653",
+    "Shiny": "rbxassetid://85262870150566",
+    "Mythic": "rbxassetid://122406908556773",
+    "MythicShiny": "rbxassetid://70874467371366"
+  },
+  "assetIds": [
+    "122406908556773",
+    "137137416721653",
+    "70874467371366",
+    "85262870150566"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seraph Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

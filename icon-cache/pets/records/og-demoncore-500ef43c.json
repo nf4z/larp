@@ -1,0 +1,17 @@
+{
+  "name": "OG Demoncore",
+  "images": {
+    "Normal": "rbxassetid://79856563358900",
+    "Shiny": "rbxassetid://114259963445567"
+  },
+  "assetIds": [
+    "114259963445567",
+    "79856563358900"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Demoncore"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Soulflake",
+  "images": {
+    "Normal": "rbxassetid://128908976799288",
+    "Shiny": "rbxassetid://139420331503428",
+    "Mythic": "rbxassetid://139092844489205",
+    "MythicShiny": "rbxassetid://83104948194308"
+  },
+  "assetIds": [
+    "128908976799288",
+    "139092844489205",
+    "139420331503428",
+    "83104948194308"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soulflake"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Sunburst",
+  "images": {
+    "Normal": "rbxassetid://139143026499191",
+    "Shiny": "rbxassetid://88775068999267",
+    "Mythic": "rbxassetid://91262235990773",
+    "MythicShiny": "rbxassetid://110348969055139"
+  },
+  "assetIds": [
+    "110348969055139",
+    "139143026499191",
+    "88775068999267",
+    "91262235990773"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunburst"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

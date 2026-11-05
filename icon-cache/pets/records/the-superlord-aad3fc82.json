@@ -1,0 +1,21 @@
+{
+  "name": "The Superlord",
+  "images": {
+    "Normal": "rbxassetid://76124386286339",
+    "Shiny": "rbxassetid://113612725121647",
+    "Mythic": "rbxassetid://84809037713510",
+    "MythicShiny": "rbxassetid://76013770978120"
+  },
+  "assetIds": [
+    "113612725121647",
+    "76013770978120",
+    "76124386286339",
+    "84809037713510"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Superlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

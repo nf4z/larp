@@ -1,0 +1,15 @@
+{
+  "name": "Poisoned Potato",
+  "images": {
+    "Image": "rbxassetid://84365659795122"
+  },
+  "assetIds": [
+    "84365659795122"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Poisoned Potato"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

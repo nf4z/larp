@@ -1,0 +1,21 @@
+{
+  "name": "OG Sky Imp",
+  "images": {
+    "Normal": "rbxassetid://120008117577354",
+    "Shiny": "rbxassetid://84088973771970",
+    "Mythic": "rbxassetid://82083892794859",
+    "MythicShiny": "rbxassetid://121430103620466"
+  },
+  "assetIds": [
+    "120008117577354",
+    "121430103620466",
+    "82083892794859",
+    "84088973771970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Sky Imp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

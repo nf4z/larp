@@ -1,0 +1,15 @@
+{
+  "name": "Normal Bait",
+  "images": {
+    "Image": "rbxassetid://70633895639429"
+  },
+  "assetIds": [
+    "70633895639429"
+  ],
+  "item": {
+    "Type": "Bait",
+    "Name": "Normal Bait"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingBait"
+}

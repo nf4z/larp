@@ -1,0 +1,17 @@
+{
+  "name": "Rune Stone",
+  "images": {
+    "Normal": "rbxassetid://128343838730500",
+    "Shiny": "rbxassetid://137307772861297"
+  },
+  "assetIds": [
+    "128343838730500",
+    "137307772861297"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rune Stone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "que pequena",
+  "images": {
+    "Normal": "rbxassetid://113890672065864",
+    "Shiny": "rbxassetid://125055949383032"
+  },
+  "assetIds": [
+    "113890672065864",
+    "125055949383032"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "que pequena"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

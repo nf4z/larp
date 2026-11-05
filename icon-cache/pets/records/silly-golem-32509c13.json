@@ -1,0 +1,17 @@
+{
+  "name": "Silly Golem",
+  "images": {
+    "Normal": "rbxassetid://130151598440638",
+    "Shiny": "rbxassetid://86815407383578"
+  },
+  "assetIds": [
+    "130151598440638",
+    "86815407383578"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

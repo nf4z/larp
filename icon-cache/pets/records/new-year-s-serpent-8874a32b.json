@@ -1,0 +1,21 @@
+{
+  "name": "New Year's Serpent",
+  "images": {
+    "Normal": "rbxassetid://96942622213058",
+    "Shiny": "rbxassetid://79495233379335",
+    "Mythic": "rbxassetid://105780169429273",
+    "MythicShiny": "rbxassetid://98037039588934"
+  },
+  "assetIds": [
+    "105780169429273",
+    "79495233379335",
+    "96942622213058",
+    "98037039588934"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "New Year's Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

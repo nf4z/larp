@@ -1,0 +1,17 @@
+{
+  "name": "Pixel Heart",
+  "images": {
+    "Normal": "rbxassetid://116262480326120",
+    "Shiny": "rbxassetid://124612708787912"
+  },
+  "assetIds": [
+    "116262480326120",
+    "124612708787912"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pixel Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Unholy Bell",
+  "images": {
+    "Normal": "rbxassetid://116182673595838",
+    "Shiny": "rbxassetid://104291878973431",
+    "Mythic": "rbxassetid://89050097252674",
+    "MythicShiny": "rbxassetid://112791618800609"
+  },
+  "assetIds": [
+    "104291878973431",
+    "112791618800609",
+    "116182673595838",
+    "89050097252674"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Unholy Bell"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

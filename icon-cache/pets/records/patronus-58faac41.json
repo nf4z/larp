@@ -1,0 +1,21 @@
+{
+  "name": "Patronus",
+  "images": {
+    "Normal": "rbxassetid://94392748552254",
+    "Shiny": "rbxassetid://138338380491055",
+    "Mythic": "rbxassetid://73085088086641",
+    "MythicShiny": "rbxassetid://121702391632093"
+  },
+  "assetIds": [
+    "121702391632093",
+    "138338380491055",
+    "73085088086641",
+    "94392748552254"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patronus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

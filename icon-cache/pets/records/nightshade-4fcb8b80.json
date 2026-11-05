@@ -1,0 +1,21 @@
+{
+  "name": "Nightshade",
+  "images": {
+    "Normal": "rbxassetid://120108333939258",
+    "Shiny": "rbxassetid://113614988445061",
+    "Mythic": "rbxassetid://92818354481181",
+    "MythicShiny": "rbxassetid://75099419723787"
+  },
+  "assetIds": [
+    "113614988445061",
+    "120108333939258",
+    "75099419723787",
+    "92818354481181"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightshade"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Broken Unicorn",
+  "images": {
+    "Normal": "rbxassetid://95199514162963",
+    "Shiny": "rbxassetid://114739491905431"
+  },
+  "assetIds": [
+    "114739491905431",
+    "95199514162963"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Broken Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lemonade Master",
+  "images": {
+    "Normal": "rbxassetid://123867790673591",
+    "Shiny": "rbxassetid://96015092179671",
+    "Mythic": "rbxassetid://91839298376333",
+    "MythicShiny": "rbxassetid://86542024898615"
+  },
+  "assetIds": [
+    "123867790673591",
+    "86542024898615",
+    "91839298376333",
+    "96015092179671"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lemonade Master"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

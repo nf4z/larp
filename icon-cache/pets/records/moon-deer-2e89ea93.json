@@ -1,0 +1,21 @@
+{
+  "name": "Moon Deer",
+  "images": {
+    "Normal": "rbxassetid://120225123806435",
+    "Shiny": "rbxassetid://90255821847608",
+    "Mythic": "rbxassetid://130216478201148",
+    "MythicShiny": "rbxassetid://127432657813726"
+  },
+  "assetIds": [
+    "120225123806435",
+    "127432657813726",
+    "130216478201148",
+    "90255821847608"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moon Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Shock",
+  "images": {
+    "Normal": "rbxassetid://87545607076722",
+    "Shiny": "rbxassetid://123590913952664",
+    "Mythic": "rbxassetid://137794173403351",
+    "MythicShiny": "rbxassetid://87434633303796"
+  },
+  "assetIds": [
+    "123590913952664",
+    "137794173403351",
+    "87434633303796",
+    "87545607076722"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

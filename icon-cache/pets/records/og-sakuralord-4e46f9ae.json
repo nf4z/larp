@@ -1,0 +1,21 @@
+{
+  "name": "OG Sakuralord",
+  "images": {
+    "Normal": "rbxassetid://83668236779313",
+    "Shiny": "rbxassetid://82549707471208",
+    "Mythic": "rbxassetid://80813534567421",
+    "MythicShiny": "rbxassetid://138628083144760"
+  },
+  "assetIds": [
+    "138628083144760",
+    "80813534567421",
+    "82549707471208",
+    "83668236779313"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Sakuralord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

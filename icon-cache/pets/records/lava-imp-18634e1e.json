@@ -1,0 +1,17 @@
+{
+  "name": "Lava Imp",
+  "images": {
+    "Normal": "rbxassetid://76828965780601",
+    "Shiny": "rbxassetid://107413102195472"
+  },
+  "assetIds": [
+    "107413102195472",
+    "76828965780601"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lava Imp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

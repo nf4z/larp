@@ -1,0 +1,21 @@
+{
+  "name": "Pufferfish Tophat",
+  "images": {
+    "Normal": "rbxassetid://99723924093102",
+    "Shiny": "rbxassetid://113235913199163",
+    "Mythic": "rbxassetid://81796661710949",
+    "MythicShiny": "rbxassetid://105627612264504"
+  },
+  "assetIds": [
+    "105627612264504",
+    "113235913199163",
+    "81796661710949",
+    "99723924093102"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pufferfish Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

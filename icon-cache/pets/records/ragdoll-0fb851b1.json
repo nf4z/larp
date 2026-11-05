@@ -1,0 +1,21 @@
+{
+  "name": "Ragdoll",
+  "images": {
+    "Normal": "rbxassetid://93220552361742",
+    "Shiny": "rbxassetid://115883307437961",
+    "Mythic": "rbxassetid://121800265321856",
+    "MythicShiny": "rbxassetid://97854380817521"
+  },
+  "assetIds": [
+    "115883307437961",
+    "121800265321856",
+    "93220552361742",
+    "97854380817521"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ragdoll"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

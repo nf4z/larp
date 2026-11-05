@@ -1,0 +1,17 @@
+{
+  "name": "Nert Dragon",
+  "images": {
+    "Normal": "rbxassetid://105952784958205",
+    "Shiny": "rbxassetid://118608269104367"
+  },
+  "assetIds": [
+    "105952784958205",
+    "118608269104367"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nert Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

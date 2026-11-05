@@ -1,0 +1,21 @@
+{
+  "name": "Angler Fish",
+  "images": {
+    "Normal": "rbxassetid://94121897827250",
+    "Shiny": "rbxassetid://97908254624788",
+    "Mythic": "rbxassetid://129742611768349",
+    "MythicShiny": "rbxassetid://120919075204560"
+  },
+  "assetIds": [
+    "120919075204560",
+    "129742611768349",
+    "94121897827250",
+    "97908254624788"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angler Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

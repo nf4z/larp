@@ -1,0 +1,21 @@
+{
+  "name": "Mistletoe Fairy",
+  "images": {
+    "Normal": "rbxassetid://84913038910001",
+    "Shiny": "rbxassetid://114559113608167",
+    "Mythic": "rbxassetid://82742948608304",
+    "MythicShiny": "rbxassetid://135637362312135"
+  },
+  "assetIds": [
+    "114559113608167",
+    "135637362312135",
+    "82742948608304",
+    "84913038910001"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mistletoe Fairy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

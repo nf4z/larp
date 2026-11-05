@@ -1,0 +1,15 @@
+{
+  "name": "Verdant Bass",
+  "images": {
+    "Image": "rbxassetid://126875730187364"
+  },
+  "assetIds": [
+    "126875730187364"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Verdant Bass"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

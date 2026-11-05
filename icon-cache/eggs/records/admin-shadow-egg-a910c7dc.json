@@ -1,0 +1,12 @@
+{
+  "name": "Admin Shadow Egg",
+  "images": {
+    "Image": "rbxassetid://89667117496191"
+  },
+  "assetIds": [
+    "89667117496191"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

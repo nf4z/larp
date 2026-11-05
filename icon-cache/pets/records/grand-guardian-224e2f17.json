@@ -1,0 +1,21 @@
+{
+  "name": "Grand Guardian",
+  "images": {
+    "Normal": "rbxassetid://111108051048946",
+    "Shiny": "rbxassetid://74966710783520",
+    "Mythic": "rbxassetid://136145173052074",
+    "MythicShiny": "rbxassetid://85930508223144"
+  },
+  "assetIds": [
+    "111108051048946",
+    "136145173052074",
+    "74966710783520",
+    "85930508223144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Grand Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

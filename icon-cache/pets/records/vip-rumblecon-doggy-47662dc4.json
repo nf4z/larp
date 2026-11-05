@@ -1,0 +1,17 @@
+{
+  "name": "VIP Rumblecon Doggy",
+  "images": {
+    "Normal": "rbxassetid://106428446195946",
+    "Shiny": "rbxassetid://89238624607871"
+  },
+  "assetIds": [
+    "106428446195946",
+    "89238624607871"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VIP Rumblecon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

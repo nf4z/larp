@@ -1,0 +1,21 @@
+{
+  "name": "Blue Raspberry Snowcone",
+  "images": {
+    "Normal": "rbxassetid://125047045685374",
+    "Shiny": "rbxassetid://120690750754486",
+    "Mythic": "rbxassetid://111266751764441",
+    "MythicShiny": "rbxassetid://99028478556715"
+  },
+  "assetIds": [
+    "111266751764441",
+    "120690750754486",
+    "125047045685374",
+    "99028478556715"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blue Raspberry Snowcone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Santa Slime",
+  "images": {
+    "Normal": "rbxassetid://127157726728103",
+    "Shiny": "rbxassetid://80510730582127"
+  },
+  "assetIds": [
+    "127157726728103",
+    "80510730582127"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

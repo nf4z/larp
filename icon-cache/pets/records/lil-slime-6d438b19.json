@@ -1,0 +1,21 @@
+{
+  "name": "Lil Slime",
+  "images": {
+    "Normal": "rbxassetid://112575513698724",
+    "Shiny": "rbxassetid://91892864433737",
+    "Mythic": "rbxassetid://74816334452147",
+    "MythicShiny": "rbxassetid://86721616354931"
+  },
+  "assetIds": [
+    "112575513698724",
+    "74816334452147",
+    "86721616354931",
+    "91892864433737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lil Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

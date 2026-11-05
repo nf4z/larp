@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Neon Pumpkin Egg",
+  "images": {
+    "Image": "rbxassetid://82416846206867"
+  },
+  "assetIds": [
+    "82416846206867"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

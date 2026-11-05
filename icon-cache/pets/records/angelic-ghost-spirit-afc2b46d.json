@@ -1,0 +1,21 @@
+{
+  "name": "Angelic Ghost Spirit",
+  "images": {
+    "Normal": "rbxassetid://100237405484599",
+    "Shiny": "rbxassetid://75561203245231",
+    "Mythic": "rbxassetid://97313801971957",
+    "MythicShiny": "rbxassetid://77998485578357"
+  },
+  "assetIds": [
+    "100237405484599",
+    "75561203245231",
+    "77998485578357",
+    "97313801971957"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelic Ghost Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

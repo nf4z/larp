@@ -1,0 +1,21 @@
+{
+  "name": "Shrubbery",
+  "images": {
+    "Normal": "rbxassetid://78860495778319",
+    "Shiny": "rbxassetid://83540641759035",
+    "Mythic": "rbxassetid://117249323632433",
+    "MythicShiny": "rbxassetid://88876110058084"
+  },
+  "assetIds": [
+    "117249323632433",
+    "78860495778319",
+    "83540641759035",
+    "88876110058084"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shrubbery"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

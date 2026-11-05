@@ -1,0 +1,21 @@
+{
+  "name": "Water Champion",
+  "images": {
+    "Normal": "rbxassetid://119864434567914",
+    "Shiny": "rbxassetid://72555792786107",
+    "Mythic": "rbxassetid://97363171664601",
+    "MythicShiny": "rbxassetid://119171782621214"
+  },
+  "assetIds": [
+    "119171782621214",
+    "119864434567914",
+    "72555792786107",
+    "97363171664601"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Water Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

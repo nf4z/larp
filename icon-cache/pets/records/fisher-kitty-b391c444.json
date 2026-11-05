@@ -1,0 +1,17 @@
+{
+  "name": "Fisher Kitty",
+  "images": {
+    "Normal": "rbxassetid://95519934930528",
+    "Shiny": "rbxassetid://93691359253118"
+  },
+  "assetIds": [
+    "93691359253118",
+    "95519934930528"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fisher Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

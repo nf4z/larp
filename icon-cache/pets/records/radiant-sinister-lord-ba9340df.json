@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Sinister Lord",
+  "images": {
+    "Normal": "rbxassetid://77052669209303",
+    "Shiny": "rbxassetid://76852624839940",
+    "Mythic": "rbxassetid://96238984303492",
+    "MythicShiny": "rbxassetid://89727656699206"
+  },
+  "assetIds": [
+    "76852624839940",
+    "77052669209303",
+    "89727656699206",
+    "96238984303492"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Sinister Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

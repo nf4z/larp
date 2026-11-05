@@ -1,0 +1,21 @@
+{
+  "name": "Cosmos",
+  "images": {
+    "Normal": "rbxassetid://123672874086964",
+    "Shiny": "rbxassetid://86636130156284",
+    "Mythic": "rbxassetid://96916210760166",
+    "MythicShiny": "rbxassetid://133712084225094"
+  },
+  "assetIds": [
+    "123672874086964",
+    "133712084225094",
+    "86636130156284",
+    "96916210760166"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cosmos"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Sakuralord",
+  "images": {
+    "Normal": "rbxassetid://88764294824980",
+    "Shiny": "rbxassetid://105296835200469",
+    "Mythic": "rbxassetid://102562704960104",
+    "MythicShiny": "rbxassetid://112511915076758"
+  },
+  "assetIds": [
+    "102562704960104",
+    "105296835200469",
+    "112511915076758",
+    "88764294824980"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakuralord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

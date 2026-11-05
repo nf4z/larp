@@ -1,0 +1,17 @@
+{
+  "name": "Chubby Bunny",
+  "images": {
+    "Normal": "rbxassetid://105432306560546",
+    "Shiny": "rbxassetid://110449606817749"
+  },
+  "assetIds": [
+    "105432306560546",
+    "110449606817749"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chubby Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

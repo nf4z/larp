@@ -1,0 +1,17 @@
+{
+  "name": "Giant que fofo",
+  "images": {
+    "Normal": "rbxassetid://111892785241817",
+    "Shiny": "rbxassetid://130929711911688"
+  },
+  "assetIds": [
+    "111892785241817",
+    "130929711911688"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant que fofo"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

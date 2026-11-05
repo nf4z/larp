@@ -1,0 +1,17 @@
+{
+  "name": "Dark Serpent",
+  "images": {
+    "Normal": "rbxassetid://98681684304520",
+    "Shiny": "rbxassetid://126906631192910"
+  },
+  "assetIds": [
+    "126906631192910",
+    "98681684304520"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

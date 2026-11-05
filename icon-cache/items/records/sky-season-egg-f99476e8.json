@@ -1,0 +1,11 @@
+{
+  "name": "Sky Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Sky Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

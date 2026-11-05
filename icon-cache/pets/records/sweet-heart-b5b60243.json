@@ -1,0 +1,21 @@
+{
+  "name": "Sweet Heart",
+  "images": {
+    "Normal": "rbxassetid://127852460038427",
+    "Shiny": "rbxassetid://124961515267412",
+    "Mythic": "rbxassetid://85471446880613",
+    "MythicShiny": "rbxassetid://129517018541285"
+  },
+  "assetIds": [
+    "124961515267412",
+    "127852460038427",
+    "129517018541285",
+    "85471446880613"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sweet Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

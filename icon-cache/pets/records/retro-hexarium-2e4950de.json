@@ -1,0 +1,21 @@
+{
+  "name": "Retro Hexarium",
+  "images": {
+    "Normal": "rbxassetid://98227926521554",
+    "Shiny": "rbxassetid://84676444003198",
+    "Mythic": "rbxassetid://81799742141881",
+    "MythicShiny": "rbxassetid://91834414744156"
+  },
+  "assetIds": [
+    "81799742141881",
+    "84676444003198",
+    "91834414744156",
+    "98227926521554"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ardent Lantern",
+  "images": {
+    "Normal": "rbxassetid://137619007883749",
+    "Shiny": "rbxassetid://105197148578523",
+    "Mythic": "rbxassetid://129276532417681",
+    "MythicShiny": "rbxassetid://116136133665449"
+  },
+  "assetIds": [
+    "105197148578523",
+    "116136133665449",
+    "129276532417681",
+    "137619007883749"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ardent Lantern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

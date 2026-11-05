@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Bloodmoon",
+  "images": {
+    "Normal": "rbxassetid://93618006076424",
+    "Shiny": "rbxassetid://82911153902304",
+    "Mythic": "rbxassetid://78097074748607",
+    "MythicShiny": "rbxassetid://106742025589586"
+  },
+  "assetIds": [
+    "106742025589586",
+    "78097074748607",
+    "82911153902304",
+    "93618006076424"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Bloodmoon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

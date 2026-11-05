@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Shock",
+  "images": {
+    "Normal": "rbxassetid://80342299362434",
+    "Shiny": "rbxassetid://139624175007925",
+    "Mythic": "rbxassetid://119992028070509",
+    "MythicShiny": "rbxassetid://136701671381708"
+  },
+  "assetIds": [
+    "119992028070509",
+    "136701671381708",
+    "139624175007925",
+    "80342299362434"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

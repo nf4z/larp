@@ -1,0 +1,21 @@
+{
+  "name": "Voidflame",
+  "images": {
+    "Normal": "rbxassetid://78741917831719",
+    "Shiny": "rbxassetid://122536458875907",
+    "Mythic": "rbxassetid://91942554484841",
+    "MythicShiny": "rbxassetid://100409220344763"
+  },
+  "assetIds": [
+    "100409220344763",
+    "122536458875907",
+    "78741917831719",
+    "91942554484841"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Voidflame"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

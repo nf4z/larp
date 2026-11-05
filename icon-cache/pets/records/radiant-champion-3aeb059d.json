@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Champion",
+  "images": {
+    "Normal": "rbxassetid://101546291175738",
+    "Shiny": "rbxassetid://104892009323220",
+    "Mythic": "rbxassetid://130587039435833",
+    "MythicShiny": "rbxassetid://103910850489524"
+  },
+  "assetIds": [
+    "101546291175738",
+    "103910850489524",
+    "104892009323220",
+    "130587039435833"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

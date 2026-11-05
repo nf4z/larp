@@ -1,0 +1,21 @@
+{
+  "name": "Royal Lion",
+  "images": {
+    "Normal": "rbxassetid://106027870520070",
+    "Shiny": "rbxassetid://111460609228602",
+    "Mythic": "rbxassetid://115329615271496",
+    "MythicShiny": "rbxassetid://75895473673472"
+  },
+  "assetIds": [
+    "106027870520070",
+    "111460609228602",
+    "115329615271496",
+    "75895473673472"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Lion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

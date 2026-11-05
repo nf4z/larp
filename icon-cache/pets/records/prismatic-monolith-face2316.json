@@ -1,0 +1,17 @@
+{
+  "name": "Prismatic Monolith",
+  "images": {
+    "Normal": "rbxassetid://135615237075372",
+    "Shiny": "rbxassetid://135262391493229"
+  },
+  "assetIds": [
+    "135262391493229",
+    "135615237075372"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prismatic Monolith"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

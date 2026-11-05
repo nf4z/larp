@@ -1,0 +1,21 @@
+{
+  "name": "Jack O' Harvest",
+  "images": {
+    "Normal": "rbxassetid://87989038548307",
+    "Shiny": "rbxassetid://106665687527181",
+    "Mythic": "rbxassetid://133966861423276",
+    "MythicShiny": "rbxassetid://134216434699630"
+  },
+  "assetIds": [
+    "106665687527181",
+    "133966861423276",
+    "134216434699630",
+    "87989038548307"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jack O' Harvest"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

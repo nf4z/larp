@@ -1,0 +1,17 @@
+{
+  "name": "Lady Federation",
+  "images": {
+    "Normal": "rbxassetid://93725317566212",
+    "Shiny": "rbxassetid://90239606967284"
+  },
+  "assetIds": [
+    "90239606967284",
+    "93725317566212"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lady Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

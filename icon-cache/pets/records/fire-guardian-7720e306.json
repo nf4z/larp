@@ -1,0 +1,21 @@
+{
+  "name": "Fire Guardian",
+  "images": {
+    "Normal": "rbxassetid://123853736189876",
+    "Shiny": "rbxassetid://118227551764569",
+    "Mythic": "rbxassetid://92204236373738",
+    "MythicShiny": "rbxassetid://123127011127099"
+  },
+  "assetIds": [
+    "118227551764569",
+    "123127011127099",
+    "123853736189876",
+    "92204236373738"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

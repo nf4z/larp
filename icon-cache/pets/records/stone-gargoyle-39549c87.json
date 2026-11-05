@@ -1,0 +1,21 @@
+{
+  "name": "Stone Gargoyle",
+  "images": {
+    "Normal": "rbxassetid://96447056752701",
+    "Shiny": "rbxassetid://118449202987348",
+    "Mythic": "rbxassetid://79313909775478",
+    "MythicShiny": "rbxassetid://136984425928222"
+  },
+  "assetIds": [
+    "118449202987348",
+    "136984425928222",
+    "79313909775478",
+    "96447056752701"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stone Gargoyle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

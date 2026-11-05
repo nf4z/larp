@@ -1,0 +1,15 @@
+{
+  "name": "Tuna Fish",
+  "images": {
+    "Image": "rbxassetid://102416992478994"
+  },
+  "assetIds": [
+    "102416992478994"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Tuna Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

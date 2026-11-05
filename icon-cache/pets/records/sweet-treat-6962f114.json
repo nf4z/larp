@@ -1,0 +1,21 @@
+{
+  "name": "Sweet Treat",
+  "images": {
+    "Normal": "rbxassetid://78848637998928",
+    "Shiny": "rbxassetid://84518745196741",
+    "Mythic": "rbxassetid://101958456373333",
+    "MythicShiny": "rbxassetid://125017252768987"
+  },
+  "assetIds": [
+    "101958456373333",
+    "125017252768987",
+    "78848637998928",
+    "84518745196741"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sweet Treat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

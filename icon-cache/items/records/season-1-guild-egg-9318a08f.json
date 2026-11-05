@@ -1,0 +1,11 @@
+{
+  "name": "Season 1 Guild Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Season 1 Guild Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Forest Bloom",
+  "images": {
+    "Normal": "rbxassetid://108428828679942",
+    "Shiny": "rbxassetid://137496608905910",
+    "Mythic": "rbxassetid://109289811225456",
+    "MythicShiny": "rbxassetid://139986473661850"
+  },
+  "assetIds": [
+    "108428828679942",
+    "109289811225456",
+    "137496608905910",
+    "139986473661850"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forest Bloom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

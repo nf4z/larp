@@ -1,0 +1,21 @@
+{
+  "name": "Lollipop",
+  "images": {
+    "Normal": "rbxassetid://101900194037636",
+    "Shiny": "rbxassetid://101367623256379",
+    "Mythic": "rbxassetid://90053118003539",
+    "MythicShiny": "rbxassetid://72097083937384"
+  },
+  "assetIds": [
+    "101367623256379",
+    "101900194037636",
+    "72097083937384",
+    "90053118003539"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lollipop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bubblegum Pegasus",
+  "images": {
+    "Normal": "rbxassetid://126180257622039",
+    "Shiny": "rbxassetid://120557416864064",
+    "Mythic": "rbxassetid://81766076398263",
+    "MythicShiny": "rbxassetid://85674106298962"
+  },
+  "assetIds": [
+    "120557416864064",
+    "126180257622039",
+    "81766076398263",
+    "85674106298962"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubblegum Pegasus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

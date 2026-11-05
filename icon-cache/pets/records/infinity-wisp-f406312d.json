@@ -1,0 +1,21 @@
+{
+  "name": "Infinity Wisp",
+  "images": {
+    "Normal": "rbxassetid://84110775387792",
+    "Shiny": "rbxassetid://114786378535894",
+    "Mythic": "rbxassetid://122783357294686",
+    "MythicShiny": "rbxassetid://112287869671200"
+  },
+  "assetIds": [
+    "112287869671200",
+    "114786378535894",
+    "122783357294686",
+    "84110775387792"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Infinity Wisp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

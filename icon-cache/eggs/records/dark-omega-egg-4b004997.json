@@ -1,0 +1,12 @@
+{
+  "name": "Dark Omega Egg",
+  "images": {
+    "Image": "rbxassetid://70372630817540"
+  },
+  "assetIds": [
+    "70372630817540"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

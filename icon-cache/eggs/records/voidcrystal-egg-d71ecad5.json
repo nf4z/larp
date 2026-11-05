@@ -1,0 +1,12 @@
+{
+  "name": "Voidcrystal Egg",
+  "images": {
+    "Image": "rbxassetid://102774517855446"
+  },
+  "assetIds": [
+    "102774517855446"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Petals",
+  "images": {
+    "Image": "rbxassetid://121222327829043"
+  },
+  "assetIds": [
+    "121222327829043"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Petals"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

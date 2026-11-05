@@ -1,0 +1,21 @@
+{
+  "name": "Carnival Ferris Wheel",
+  "images": {
+    "Normal": "rbxassetid://118270621062650",
+    "Shiny": "rbxassetid://77723360888323",
+    "Mythic": "rbxassetid://128799635760800",
+    "MythicShiny": "rbxassetid://89463357637347"
+  },
+  "assetIds": [
+    "118270621062650",
+    "128799635760800",
+    "77723360888323",
+    "89463357637347"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carnival Ferris Wheel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

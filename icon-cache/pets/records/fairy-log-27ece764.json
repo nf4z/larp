@@ -1,0 +1,17 @@
+{
+  "name": "Fairy Log",
+  "images": {
+    "Normal": "rbxassetid://111158141465071",
+    "Shiny": "rbxassetid://135870255507157"
+  },
+  "assetIds": [
+    "111158141465071",
+    "135870255507157"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fairy Log"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

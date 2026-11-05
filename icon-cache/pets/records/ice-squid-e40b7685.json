@@ -1,0 +1,21 @@
+{
+  "name": "Ice Squid",
+  "images": {
+    "Normal": "rbxassetid://103817075941046",
+    "Shiny": "rbxassetid://120127546709413",
+    "Mythic": "rbxassetid://74340545295041",
+    "MythicShiny": "rbxassetid://102819861332459"
+  },
+  "assetIds": [
+    "102819861332459",
+    "103817075941046",
+    "120127546709413",
+    "74340545295041"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Squid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

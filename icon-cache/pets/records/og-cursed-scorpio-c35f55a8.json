@@ -1,0 +1,21 @@
+{
+  "name": "OG Cursed Scorpio",
+  "images": {
+    "Normal": "rbxassetid://105245676602415",
+    "Shiny": "rbxassetid://104958557911188",
+    "Mythic": "rbxassetid://72240482666802",
+    "MythicShiny": "rbxassetid://73231606966590"
+  },
+  "assetIds": [
+    "104958557911188",
+    "105245676602415",
+    "72240482666802",
+    "73231606966590"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Cursed Scorpio"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

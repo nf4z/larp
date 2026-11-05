@@ -1,0 +1,21 @@
+{
+  "name": "Super Hacker Prism",
+  "images": {
+    "Normal": "rbxassetid://79279670144856",
+    "Shiny": "rbxassetid://100151951125278",
+    "Mythic": "rbxassetid://110349314200037",
+    "MythicShiny": "rbxassetid://88208551738049"
+  },
+  "assetIds": [
+    "100151951125278",
+    "110349314200037",
+    "79279670144856",
+    "88208551738049"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Hacker Prism"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

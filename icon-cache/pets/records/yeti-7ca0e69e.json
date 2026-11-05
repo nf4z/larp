@@ -1,0 +1,21 @@
+{
+  "name": "Yeti",
+  "images": {
+    "Normal": "rbxassetid://72362663378287",
+    "Shiny": "rbxassetid://94321906391188",
+    "Mythic": "rbxassetid://85047278286277",
+    "MythicShiny": "rbxassetid://81913849006918"
+  },
+  "assetIds": [
+    "72362663378287",
+    "81913849006918",
+    "85047278286277",
+    "94321906391188"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Yeti"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

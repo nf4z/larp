@@ -1,0 +1,21 @@
+{
+  "name": "Doodlelord",
+  "images": {
+    "Normal": "rbxassetid://121000103503867",
+    "Shiny": "rbxassetid://126107726713409",
+    "Mythic": "rbxassetid://98793647243594",
+    "MythicShiny": "rbxassetid://92791917214918"
+  },
+  "assetIds": [
+    "121000103503867",
+    "126107726713409",
+    "92791917214918",
+    "98793647243594"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodlelord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

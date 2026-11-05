@@ -1,0 +1,21 @@
+{
+  "name": "Paragon",
+  "images": {
+    "Normal": "rbxassetid://78100924206879",
+    "Shiny": "rbxassetid://138065958421682",
+    "Mythic": "rbxassetid://125447159448278",
+    "MythicShiny": "rbxassetid://106042661499230"
+  },
+  "assetIds": [
+    "106042661499230",
+    "125447159448278",
+    "138065958421682",
+    "78100924206879"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Paragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

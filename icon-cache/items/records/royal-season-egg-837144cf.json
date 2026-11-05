@@ -1,0 +1,11 @@
+{
+  "name": "Royal Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Royal Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

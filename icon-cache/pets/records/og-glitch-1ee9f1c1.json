@@ -1,0 +1,21 @@
+{
+  "name": "OG Glitch",
+  "images": {
+    "Normal": "rbxassetid://125000268549888",
+    "Shiny": "rbxassetid://74713471477104",
+    "Mythic": "rbxassetid://95671002975348",
+    "MythicShiny": "rbxassetid://81150128339024"
+  },
+  "assetIds": [
+    "125000268549888",
+    "74713471477104",
+    "81150128339024",
+    "95671002975348"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Glitch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

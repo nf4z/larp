@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Elemental",
+  "images": {
+    "Normal": "rbxassetid://96306052243327",
+    "Shiny": "rbxassetid://113591369726290",
+    "Mythic": "rbxassetid://89121648625419",
+    "MythicShiny": "rbxassetid://121183972210189"
+  },
+  "assetIds": [
+    "113591369726290",
+    "121183972210189",
+    "89121648625419",
+    "96306052243327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

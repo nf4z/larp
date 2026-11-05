@@ -1,0 +1,17 @@
+{
+  "name": "Ice Dragon",
+  "images": {
+    "Normal": "rbxassetid://112167721231774",
+    "Shiny": "rbxassetid://94422986737598"
+  },
+  "assetIds": [
+    "112167721231774",
+    "94422986737598"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

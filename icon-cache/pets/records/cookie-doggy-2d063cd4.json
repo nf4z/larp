@@ -1,0 +1,17 @@
+{
+  "name": "Cookie Doggy",
+  "images": {
+    "Normal": "rbxassetid://75936439723222",
+    "Shiny": "rbxassetid://82637728005842"
+  },
+  "assetIds": [
+    "75936439723222",
+    "82637728005842"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cookie Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

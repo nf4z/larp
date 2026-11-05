@@ -1,0 +1,21 @@
+{
+  "name": "Royal Dogcat",
+  "images": {
+    "Normal": "rbxassetid://117346776328403",
+    "Shiny": "rbxassetid://131115211009804",
+    "Mythic": "rbxassetid://97041290367938",
+    "MythicShiny": "rbxassetid://97031443606155"
+  },
+  "assetIds": [
+    "117346776328403",
+    "131115211009804",
+    "97031443606155",
+    "97041290367938"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

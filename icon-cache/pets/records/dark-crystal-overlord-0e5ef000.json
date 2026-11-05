@@ -1,0 +1,17 @@
+{
+  "name": "Dark Crystal Overlord",
+  "images": {
+    "Normal": "rbxassetid://100819975793432",
+    "Shiny": "rbxassetid://127122491591411"
+  },
+  "assetIds": [
+    "100819975793432",
+    "127122491591411"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Crystal Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

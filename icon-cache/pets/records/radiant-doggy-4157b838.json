@@ -1,0 +1,17 @@
+{
+  "name": "Radiant Doggy",
+  "images": {
+    "Normal": "rbxassetid://70395359569026",
+    "Shiny": "rbxassetid://123340742536148"
+  },
+  "assetIds": [
+    "123340742536148",
+    "70395359569026"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

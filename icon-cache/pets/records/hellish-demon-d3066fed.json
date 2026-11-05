@@ -1,0 +1,17 @@
+{
+  "name": "Hellish Demon",
+  "images": {
+    "Normal": "rbxassetid://107263239935272",
+    "Shiny": "rbxassetid://123277886165615"
+  },
+  "assetIds": [
+    "107263239935272",
+    "123277886165615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellish Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

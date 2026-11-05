@@ -1,0 +1,17 @@
+{
+  "name": "Silverfish",
+  "images": {
+    "Normal": "rbxassetid://115562215203230",
+    "Shiny": "rbxassetid://74166328522931"
+  },
+  "assetIds": [
+    "115562215203230",
+    "74166328522931"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silverfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

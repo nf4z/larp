@@ -1,0 +1,17 @@
+{
+  "name": "The God of The Overworld",
+  "images": {
+    "Normal": "rbxassetid://123792656946388",
+    "Shiny": "rbxassetid://94013794366189"
+  },
+  "assetIds": [
+    "123792656946388",
+    "94013794366189"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The God of The Overworld"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

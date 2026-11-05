@@ -1,0 +1,21 @@
+{
+  "name": "Strawberry Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://101197747014068",
+    "Shiny": "rbxassetid://94309683692060",
+    "Mythic": "rbxassetid://120902727919127",
+    "MythicShiny": "rbxassetid://83837815621876"
+  },
+  "assetIds": [
+    "101197747014068",
+    "120902727919127",
+    "83837815621876",
+    "94309683692060"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Strawberry Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Neon Crystal Heart",
+  "images": {
+    "Normal": "rbxassetid://85207907182452",
+    "Shiny": "rbxassetid://102367176388850",
+    "Mythic": "rbxassetid://78645327384974",
+    "MythicShiny": "rbxassetid://75135176085575"
+  },
+  "assetIds": [
+    "102367176388850",
+    "75135176085575",
+    "78645327384974",
+    "85207907182452"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Crystal Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

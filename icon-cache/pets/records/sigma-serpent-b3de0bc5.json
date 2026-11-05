@@ -1,0 +1,21 @@
+{
+  "name": "Sigma Serpent",
+  "images": {
+    "Normal": "rbxassetid://120522753533593",
+    "Shiny": "rbxassetid://92927562755760",
+    "Mythic": "rbxassetid://118748493382296",
+    "MythicShiny": "rbxassetid://89326610971101"
+  },
+  "assetIds": [
+    "118748493382296",
+    "120522753533593",
+    "89326610971101",
+    "92927562755760"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sigma Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

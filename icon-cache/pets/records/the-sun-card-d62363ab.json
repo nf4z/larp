@@ -1,0 +1,17 @@
+{
+  "name": "The Sun Card",
+  "images": {
+    "Normal": "rbxassetid://124635244768974",
+    "Shiny": "rbxassetid://105807529159094"
+  },
+  "assetIds": [
+    "105807529159094",
+    "124635244768974"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Sun Card"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

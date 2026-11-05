@@ -1,0 +1,17 @@
+{
+  "name": "Disturbed Unicorn",
+  "images": {
+    "Normal": "rbxassetid://84815328343239",
+    "Shiny": "rbxassetid://100495555289239"
+  },
+  "assetIds": [
+    "100495555289239",
+    "84815328343239"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Disturbed Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

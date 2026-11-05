@@ -1,0 +1,17 @@
+{
+  "name": "Gilded Kitty",
+  "images": {
+    "Normal": "rbxassetid://79691873349836",
+    "Shiny": "rbxassetid://122305412156519"
+  },
+  "assetIds": [
+    "122305412156519",
+    "79691873349836"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gilded Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

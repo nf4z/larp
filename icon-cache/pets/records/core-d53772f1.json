@@ -1,0 +1,21 @@
+{
+  "name": "CORE",
+  "images": {
+    "Normal": "rbxassetid://121188259612988",
+    "Shiny": "rbxassetid://83040197758622",
+    "Mythic": "rbxassetid://112957875814590",
+    "MythicShiny": "rbxassetid://95973975932588"
+  },
+  "assetIds": [
+    "112957875814590",
+    "121188259612988",
+    "83040197758622",
+    "95973975932588"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "CORE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

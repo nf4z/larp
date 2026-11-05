@@ -1,0 +1,21 @@
+{
+  "name": "Void Dominus",
+  "images": {
+    "Normal": "rbxassetid://123066987737458",
+    "Shiny": "rbxassetid://92429276193658",
+    "Mythic": "rbxassetid://91168158064870",
+    "MythicShiny": "rbxassetid://82260066747564"
+  },
+  "assetIds": [
+    "123066987737458",
+    "82260066747564",
+    "91168158064870",
+    "92429276193658"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

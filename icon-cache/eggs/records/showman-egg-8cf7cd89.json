@@ -1,0 +1,12 @@
+{
+  "name": "Showman Egg",
+  "images": {
+    "Image": "rbxassetid://96741378385289"
+  },
+  "assetIds": [
+    "96741378385289"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

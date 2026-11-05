@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Sentinel",
+  "images": {
+    "Normal": "rbxassetid://119413329456775",
+    "Shiny": "rbxassetid://119645925292441"
+  },
+  "assetIds": [
+    "119413329456775",
+    "119645925292441"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

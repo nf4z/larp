@@ -1,0 +1,21 @@
+{
+  "name": "Carrot Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://114518137029852",
+    "Shiny": "rbxassetid://138990361148894",
+    "Mythic": "rbxassetid://85978723203535",
+    "MythicShiny": "rbxassetid://137063739338154"
+  },
+  "assetIds": [
+    "114518137029852",
+    "137063739338154",
+    "138990361148894",
+    "85978723203535"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carrot Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

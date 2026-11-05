@@ -1,0 +1,17 @@
+{
+  "name": "Cloudy Kitty",
+  "images": {
+    "Normal": "rbxassetid://128534870747497",
+    "Shiny": "rbxassetid://133735133508914"
+  },
+  "assetIds": [
+    "128534870747497",
+    "133735133508914"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudy Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

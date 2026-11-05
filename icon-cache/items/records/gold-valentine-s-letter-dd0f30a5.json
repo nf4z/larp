@@ -1,0 +1,15 @@
+{
+  "name": "Gold Valentine's Letter",
+  "images": {
+    "Image": "rbxassetid://91495935356267"
+  },
+  "assetIds": [
+    "91495935356267"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Gold Valentine's Letter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

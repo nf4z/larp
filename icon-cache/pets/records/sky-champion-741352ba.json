@@ -1,0 +1,21 @@
+{
+  "name": "Sky Champion",
+  "images": {
+    "Normal": "rbxassetid://82042965476541",
+    "Shiny": "rbxassetid://96443758764059",
+    "Mythic": "rbxassetid://111125406818722",
+    "MythicShiny": "rbxassetid://113859141509433"
+  },
+  "assetIds": [
+    "111125406818722",
+    "113859141509433",
+    "82042965476541",
+    "96443758764059"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sky Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Brainrot Shark",
+  "images": {
+    "Normal": "rbxassetid://119255053758942",
+    "Shiny": "rbxassetid://91726873099500",
+    "Mythic": "rbxassetid://112366841276928",
+    "MythicShiny": "rbxassetid://126751331076145"
+  },
+  "assetIds": [
+    "112366841276928",
+    "119255053758942",
+    "126751331076145",
+    "91726873099500"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Brainrot Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

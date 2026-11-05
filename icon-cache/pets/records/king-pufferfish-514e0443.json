@@ -1,0 +1,21 @@
+{
+  "name": "King Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://78891298142055",
+    "Shiny": "rbxassetid://135162856369456",
+    "Mythic": "rbxassetid://135672381979356",
+    "MythicShiny": "rbxassetid://123241517588205"
+  },
+  "assetIds": [
+    "123241517588205",
+    "135162856369456",
+    "135672381979356",
+    "78891298142055"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Corn Dragon",
+  "images": {
+    "Normal": "rbxassetid://140328828876708",
+    "Shiny": "rbxassetid://114002633483685",
+    "Mythic": "rbxassetid://82031902501141",
+    "MythicShiny": "rbxassetid://87967855211424"
+  },
+  "assetIds": [
+    "114002633483685",
+    "140328828876708",
+    "82031902501141",
+    "87967855211424"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corn Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

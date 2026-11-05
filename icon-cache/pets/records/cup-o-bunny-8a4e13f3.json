@@ -1,0 +1,21 @@
+{
+  "name": "Cup o' Bunny",
+  "images": {
+    "Normal": "rbxassetid://89026669443412",
+    "Shiny": "rbxassetid://84806104302456",
+    "Mythic": "rbxassetid://116661786453221",
+    "MythicShiny": "rbxassetid://74312042442970"
+  },
+  "assetIds": [
+    "116661786453221",
+    "74312042442970",
+    "84806104302456",
+    "89026669443412"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cup o' Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

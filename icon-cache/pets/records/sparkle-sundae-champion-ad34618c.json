@@ -1,0 +1,21 @@
+{
+  "name": "Sparkle Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://137734315938764",
+    "Shiny": "rbxassetid://123009383807565",
+    "Mythic": "rbxassetid://92975415767618",
+    "MythicShiny": "rbxassetid://103029071341650"
+  },
+  "assetIds": [
+    "103029071341650",
+    "123009383807565",
+    "137734315938764",
+    "92975415767618"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sparkle Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

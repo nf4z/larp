@@ -1,0 +1,21 @@
+{
+  "name": "TV BOT",
+  "images": {
+    "Normal": "rbxassetid://118958259827538",
+    "Shiny": "rbxassetid://70376736041640",
+    "Mythic": "rbxassetid://125671192776162",
+    "MythicShiny": "rbxassetid://103558596987852"
+  },
+  "assetIds": [
+    "103558596987852",
+    "118958259827538",
+    "125671192776162",
+    "70376736041640"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "TV BOT"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

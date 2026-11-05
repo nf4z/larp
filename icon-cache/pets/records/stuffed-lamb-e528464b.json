@@ -1,0 +1,17 @@
+{
+  "name": "Stuffed Lamb",
+  "images": {
+    "Normal": "rbxassetid://86454002154857",
+    "Shiny": "rbxassetid://94634604654805"
+  },
+  "assetIds": [
+    "86454002154857",
+    "94634604654805"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Lamb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

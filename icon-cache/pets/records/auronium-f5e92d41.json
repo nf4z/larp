@@ -1,0 +1,21 @@
+{
+  "name": "Auronium",
+  "images": {
+    "Normal": "rbxassetid://71544855781529",
+    "Shiny": "rbxassetid://88116876721654",
+    "Mythic": "rbxassetid://88487262444614",
+    "MythicShiny": "rbxassetid://75857819883650"
+  },
+  "assetIds": [
+    "71544855781529",
+    "75857819883650",
+    "88116876721654",
+    "88487262444614"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Auronium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

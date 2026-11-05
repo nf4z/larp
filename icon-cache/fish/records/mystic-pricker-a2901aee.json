@@ -1,0 +1,15 @@
+{
+  "name": "Mystic Pricker",
+  "images": {
+    "Image": "rbxassetid://76881115413020"
+  },
+  "assetIds": [
+    "76881115413020"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mystic Pricker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

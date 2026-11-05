@@ -1,0 +1,17 @@
+{
+  "name": "Witches' Brew",
+  "images": {
+    "Normal": "rbxassetid://133433019632244",
+    "Shiny": "rbxassetid://139539751177753"
+  },
+  "assetIds": [
+    "133433019632244",
+    "139539751177753"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witches' Brew"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

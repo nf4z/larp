@@ -1,0 +1,21 @@
+{
+  "name": "Tetra Cube",
+  "images": {
+    "Normal": "rbxassetid://125345212032130",
+    "Shiny": "rbxassetid://106328365442486",
+    "Mythic": "rbxassetid://125180481105196",
+    "MythicShiny": "rbxassetid://77297075622721"
+  },
+  "assetIds": [
+    "106328365442486",
+    "125180481105196",
+    "125345212032130",
+    "77297075622721"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tetra Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

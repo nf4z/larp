@@ -1,0 +1,17 @@
+{
+  "name": "Dice Leviathan",
+  "images": {
+    "Normal": "rbxassetid://100782884889778",
+    "Shiny": "rbxassetid://128616908061339"
+  },
+  "assetIds": [
+    "100782884889778",
+    "128616908061339"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

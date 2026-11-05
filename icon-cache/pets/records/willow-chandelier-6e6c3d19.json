@@ -1,0 +1,21 @@
+{
+  "name": "Willow Chandelier",
+  "images": {
+    "Normal": "rbxassetid://71257141985385",
+    "Shiny": "rbxassetid://126641344884180",
+    "Mythic": "rbxassetid://118459699048545",
+    "MythicShiny": "rbxassetid://128272945544214"
+  },
+  "assetIds": [
+    "118459699048545",
+    "126641344884180",
+    "128272945544214",
+    "71257141985385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Willow Chandelier"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

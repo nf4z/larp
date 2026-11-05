@@ -1,0 +1,11 @@
+{
+  "name": "Tier 3 Legendary Easter Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Tier 3 Legendary Easter Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

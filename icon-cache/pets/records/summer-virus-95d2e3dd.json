@@ -1,0 +1,21 @@
+{
+  "name": "Summer Virus",
+  "images": {
+    "Normal": "rbxassetid://99665754920223",
+    "Shiny": "rbxassetid://118419473920610",
+    "Mythic": "rbxassetid://104071408986353",
+    "MythicShiny": "rbxassetid://124322099947763"
+  },
+  "assetIds": [
+    "104071408986353",
+    "118419473920610",
+    "124322099947763",
+    "99665754920223"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Virus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

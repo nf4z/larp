@@ -1,0 +1,17 @@
+{
+  "name": "Stellar Doggy",
+  "images": {
+    "Normal": "rbxassetid://129608990167958",
+    "Shiny": "rbxassetid://98503985253762"
+  },
+  "assetIds": [
+    "129608990167958",
+    "98503985253762"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

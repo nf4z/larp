@@ -1,0 +1,15 @@
+{
+  "name": "Super Ticket",
+  "images": {
+    "Image": "rbxassetid://77421640991860"
+  },
+  "assetIds": [
+    "77421640991860"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Super Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

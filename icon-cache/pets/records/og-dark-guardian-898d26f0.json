@@ -1,0 +1,17 @@
+{
+  "name": "OG Dark Guardian",
+  "images": {
+    "Normal": "rbxassetid://111061504269021",
+    "Shiny": "rbxassetid://127756914680221"
+  },
+  "assetIds": [
+    "111061504269021",
+    "127756914680221"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Dark Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

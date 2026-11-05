@@ -1,0 +1,21 @@
+{
+  "name": "Reincarnation",
+  "images": {
+    "Normal": "rbxassetid://127546074392106",
+    "Shiny": "rbxassetid://133419439346247",
+    "Mythic": "rbxassetid://78297482091334",
+    "MythicShiny": "rbxassetid://119147916081168"
+  },
+  "assetIds": [
+    "119147916081168",
+    "127546074392106",
+    "133419439346247",
+    "78297482091334"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Reincarnation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

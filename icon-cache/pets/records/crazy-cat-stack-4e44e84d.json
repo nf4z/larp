@@ -1,0 +1,21 @@
+{
+  "name": "Crazy Cat Stack",
+  "images": {
+    "Normal": "rbxassetid://136203206946208",
+    "Shiny": "rbxassetid://139597209011808",
+    "Mythic": "rbxassetid://74868044030469",
+    "MythicShiny": "rbxassetid://115602096428474"
+  },
+  "assetIds": [
+    "115602096428474",
+    "136203206946208",
+    "139597209011808",
+    "74868044030469"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crazy Cat Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

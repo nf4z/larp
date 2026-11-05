@@ -1,0 +1,21 @@
+{
+  "name": "FutureWebsiteOwner Plushie",
+  "images": {
+    "Normal": "rbxassetid://102504025886297",
+    "Shiny": "rbxassetid://90815519307662",
+    "Mythic": "rbxassetid://74986633747301",
+    "MythicShiny": "rbxassetid://100560190366514"
+  },
+  "assetIds": [
+    "100560190366514",
+    "102504025886297",
+    "74986633747301",
+    "90815519307662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "FutureWebsiteOwner Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

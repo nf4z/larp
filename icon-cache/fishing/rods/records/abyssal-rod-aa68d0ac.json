@@ -1,0 +1,15 @@
+{
+  "name": "Abyssal Rod",
+  "images": {
+    "Image": "rbxassetid://71139393553137"
+  },
+  "assetIds": [
+    "71139393553137"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Abyssal Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

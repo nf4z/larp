@@ -1,0 +1,15 @@
+{
+  "name": "Summer Flounder",
+  "images": {
+    "Image": "rbxassetid://86616945179106"
+  },
+  "assetIds": [
+    "86616945179106"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Summer Flounder"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Ring",
+  "images": {
+    "Normal": "rbxassetid://122705466616030",
+    "Shiny": "rbxassetid://139284374515199",
+    "Mythic": "rbxassetid://116038928135018",
+    "MythicShiny": "rbxassetid://129415559925327"
+  },
+  "assetIds": [
+    "116038928135018",
+    "122705466616030",
+    "129415559925327",
+    "139284374515199"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Ring"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

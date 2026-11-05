@@ -1,0 +1,17 @@
+{
+  "name": "Pollination",
+  "images": {
+    "Normal": "rbxassetid://72478455729898",
+    "Shiny": "rbxassetid://102863841768269"
+  },
+  "assetIds": [
+    "102863841768269",
+    "72478455729898"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pollination"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

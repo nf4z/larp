@@ -1,0 +1,17 @@
+{
+  "name": "Hell Demon",
+  "images": {
+    "Normal": "rbxassetid://117345924701117",
+    "Shiny": "rbxassetid://95736804924877"
+  },
+  "assetIds": [
+    "117345924701117",
+    "95736804924877"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hell Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

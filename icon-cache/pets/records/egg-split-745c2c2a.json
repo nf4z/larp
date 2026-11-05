@@ -1,0 +1,21 @@
+{
+  "name": "Egg Split",
+  "images": {
+    "Normal": "rbxassetid://105409475152840",
+    "Shiny": "rbxassetid://72414642253205",
+    "Mythic": "rbxassetid://74520668452312",
+    "MythicShiny": "rbxassetid://131103553501894"
+  },
+  "assetIds": [
+    "105409475152840",
+    "131103553501894",
+    "72414642253205",
+    "74520668452312"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

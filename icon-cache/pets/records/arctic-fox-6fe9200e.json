@@ -1,0 +1,17 @@
+{
+  "name": "Arctic Fox",
+  "images": {
+    "Normal": "rbxassetid://84648172835601",
+    "Shiny": "rbxassetid://70562119955629"
+  },
+  "assetIds": [
+    "70562119955629",
+    "84648172835601"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Arctic Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

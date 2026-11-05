@@ -1,0 +1,17 @@
+{
+  "name": "2026 Kitty",
+  "images": {
+    "Normal": "rbxassetid://100871948390653",
+    "Shiny": "rbxassetid://102958385243527"
+  },
+  "assetIds": [
+    "100871948390653",
+    "102958385243527"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

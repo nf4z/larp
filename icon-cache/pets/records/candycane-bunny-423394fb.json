@@ -1,0 +1,17 @@
+{
+  "name": "Candycane Bunny",
+  "images": {
+    "Normal": "rbxassetid://117748950513378",
+    "Shiny": "rbxassetid://95444913915339"
+  },
+  "assetIds": [
+    "117748950513378",
+    "95444913915339"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candycane Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

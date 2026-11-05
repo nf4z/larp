@@ -1,0 +1,11 @@
+{
+  "name": "Spooky Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Spooky Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

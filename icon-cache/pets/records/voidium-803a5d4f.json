@@ -1,0 +1,17 @@
+{
+  "name": "VOIDIUM",
+  "images": {
+    "Normal": "rbxassetid://76427109155109",
+    "Shiny": "rbxassetid://100831861541395"
+  },
+  "assetIds": [
+    "100831861541395",
+    "76427109155109"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOIDIUM"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

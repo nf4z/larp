@@ -1,0 +1,21 @@
+{
+  "name": "God Tamer",
+  "images": {
+    "Normal": "rbxassetid://122455915130165",
+    "Shiny": "rbxassetid://90852373307512",
+    "Mythic": "rbxassetid://89474597376235",
+    "MythicShiny": "rbxassetid://103009746180703"
+  },
+  "assetIds": [
+    "103009746180703",
+    "122455915130165",
+    "89474597376235",
+    "90852373307512"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "God Tamer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

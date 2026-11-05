@@ -1,0 +1,17 @@
+{
+  "name": "Super Doggy",
+  "images": {
+    "Normal": "rbxassetid://117290191345868",
+    "Shiny": "rbxassetid://100165778885731"
+  },
+  "assetIds": [
+    "100165778885731",
+    "117290191345868"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

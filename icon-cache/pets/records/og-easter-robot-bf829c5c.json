@@ -1,0 +1,21 @@
+{
+  "name": "OG Easter Robot",
+  "images": {
+    "Normal": "rbxassetid://107859297665855",
+    "Shiny": "rbxassetid://72743730551011",
+    "Mythic": "rbxassetid://80606789871174",
+    "MythicShiny": "rbxassetid://118476888457687"
+  },
+  "assetIds": [
+    "107859297665855",
+    "118476888457687",
+    "72743730551011",
+    "80606789871174"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Easter Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

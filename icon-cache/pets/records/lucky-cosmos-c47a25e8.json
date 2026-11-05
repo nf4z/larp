@@ -1,0 +1,17 @@
+{
+  "name": "Lucky Cosmos",
+  "images": {
+    "Normal": "rbxassetid://110829031964379",
+    "Shiny": "rbxassetid://90991619092039"
+  },
+  "assetIds": [
+    "110829031964379",
+    "90991619092039"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Cosmos"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

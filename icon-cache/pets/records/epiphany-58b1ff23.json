@@ -1,0 +1,21 @@
+{
+  "name": "Epiphany",
+  "images": {
+    "Normal": "rbxassetid://132596030186789",
+    "Shiny": "rbxassetid://93544192272588",
+    "Mythic": "rbxassetid://86374778736549",
+    "MythicShiny": "rbxassetid://91353785590339"
+  },
+  "assetIds": [
+    "132596030186789",
+    "86374778736549",
+    "91353785590339",
+    "93544192272588"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Epiphany"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

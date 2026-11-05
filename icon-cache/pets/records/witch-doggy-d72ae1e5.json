@@ -1,0 +1,17 @@
+{
+  "name": "Witch Doggy",
+  "images": {
+    "Normal": "rbxassetid://111621243425321",
+    "Shiny": "rbxassetid://90079185667408"
+  },
+  "assetIds": [
+    "111621243425321",
+    "90079185667408"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witch Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

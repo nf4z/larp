@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Overlord",
+  "images": {
+    "Normal": "rbxassetid://136638810216144",
+    "Shiny": "rbxassetid://127051959086923",
+    "Mythic": "rbxassetid://128089357740963",
+    "MythicShiny": "rbxassetid://116893653059427"
+  },
+  "assetIds": [
+    "116893653059427",
+    "127051959086923",
+    "128089357740963",
+    "136638810216144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

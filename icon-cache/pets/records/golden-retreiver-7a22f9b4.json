@@ -1,0 +1,21 @@
+{
+  "name": "Golden Retreiver",
+  "images": {
+    "Normal": "rbxassetid://127335123723290",
+    "Shiny": "rbxassetid://126521070337235",
+    "Mythic": "rbxassetid://82892185379480",
+    "MythicShiny": "rbxassetid://87344982655598"
+  },
+  "assetIds": [
+    "126521070337235",
+    "127335123723290",
+    "82892185379480",
+    "87344982655598"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Retreiver"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

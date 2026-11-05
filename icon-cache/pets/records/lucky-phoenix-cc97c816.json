@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Phoenix",
+  "images": {
+    "Normal": "rbxassetid://107850483937326",
+    "Shiny": "rbxassetid://133835506675628",
+    "Mythic": "rbxassetid://124489978172757",
+    "MythicShiny": "rbxassetid://97074297616583"
+  },
+  "assetIds": [
+    "107850483937326",
+    "124489978172757",
+    "133835506675628",
+    "97074297616583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

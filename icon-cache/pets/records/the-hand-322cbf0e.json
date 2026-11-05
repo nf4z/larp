@@ -1,0 +1,21 @@
+{
+  "name": "The Hand",
+  "images": {
+    "Normal": "rbxassetid://101589645601865",
+    "Shiny": "rbxassetid://94709590272466",
+    "Mythic": "rbxassetid://126652030966399",
+    "MythicShiny": "rbxassetid://109211125292650"
+  },
+  "assetIds": [
+    "101589645601865",
+    "109211125292650",
+    "126652030966399",
+    "94709590272466"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Hand"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

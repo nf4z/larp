@@ -1,0 +1,21 @@
+{
+  "name": "Spirit Lantern",
+  "images": {
+    "Normal": "rbxassetid://122554653030547",
+    "Shiny": "rbxassetid://125679284706207",
+    "Mythic": "rbxassetid://108534656474680",
+    "MythicShiny": "rbxassetid://132427923033426"
+  },
+  "assetIds": [
+    "108534656474680",
+    "122554653030547",
+    "125679284706207",
+    "132427923033426"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spirit Lantern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

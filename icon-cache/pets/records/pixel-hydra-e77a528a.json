@@ -1,0 +1,21 @@
+{
+  "name": "Pixel Hydra",
+  "images": {
+    "Normal": "rbxassetid://73184694670330",
+    "Shiny": "rbxassetid://109430107092502",
+    "Mythic": "rbxassetid://140104315925840",
+    "MythicShiny": "rbxassetid://123769576253743"
+  },
+  "assetIds": [
+    "109430107092502",
+    "123769576253743",
+    "140104315925840",
+    "73184694670330"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pixel Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Series 2 Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Series 2 Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

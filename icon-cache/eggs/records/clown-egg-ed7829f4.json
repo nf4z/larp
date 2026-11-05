@@ -1,0 +1,12 @@
+{
+  "name": "Clown Egg",
+  "images": {
+    "Image": "rbxassetid://78666242758352"
+  },
+  "assetIds": [
+    "78666242758352"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

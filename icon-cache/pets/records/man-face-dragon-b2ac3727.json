@@ -1,0 +1,17 @@
+{
+  "name": "Man Face Dragon",
+  "images": {
+    "Normal": "rbxassetid://131975071432992",
+    "Shiny": "rbxassetid://82150672845260"
+  },
+  "assetIds": [
+    "131975071432992",
+    "82150672845260"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

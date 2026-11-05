@@ -1,0 +1,21 @@
+{
+  "name": "Lily Bud",
+  "images": {
+    "Normal": "rbxassetid://101018570331257",
+    "Shiny": "rbxassetid://135722576824038",
+    "Mythic": "rbxassetid://104960530136496",
+    "MythicShiny": "rbxassetid://117949036651099"
+  },
+  "assetIds": [
+    "101018570331257",
+    "104960530136496",
+    "117949036651099",
+    "135722576824038"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lily Bud"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

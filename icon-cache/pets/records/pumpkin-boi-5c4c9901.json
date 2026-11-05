@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Boi",
+  "images": {
+    "Normal": "rbxassetid://111849203968210",
+    "Shiny": "rbxassetid://81382220270103"
+  },
+  "assetIds": [
+    "111849203968210",
+    "81382220270103"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

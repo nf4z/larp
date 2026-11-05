@@ -1,0 +1,15 @@
+{
+  "name": "Blaze Shark",
+  "images": {
+    "Image": "rbxassetid://102440672269786"
+  },
+  "assetIds": [
+    "102440672269786"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Blaze Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Cheshire Cat",
+  "images": {
+    "Normal": "rbxassetid://135822138285884",
+    "Shiny": "rbxassetid://81128212407592",
+    "Mythic": "rbxassetid://139615793261316",
+    "MythicShiny": "rbxassetid://140662167267871"
+  },
+  "assetIds": [
+    "135822138285884",
+    "139615793261316",
+    "140662167267871",
+    "81128212407592"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cheshire Cat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

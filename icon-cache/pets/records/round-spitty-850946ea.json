@@ -1,0 +1,17 @@
+{
+  "name": "Round Spitty",
+  "images": {
+    "Normal": "rbxassetid://120569777088402",
+    "Shiny": "rbxassetid://85671031097646"
+  },
+  "assetIds": [
+    "120569777088402",
+    "85671031097646"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Round Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

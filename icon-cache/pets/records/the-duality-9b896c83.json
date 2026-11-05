@@ -1,0 +1,21 @@
+{
+  "name": "The Duality",
+  "images": {
+    "Normal": "rbxassetid://106320915906033",
+    "Shiny": "rbxassetid://84934984938806",
+    "Mythic": "rbxassetid://122509647455287",
+    "MythicShiny": "rbxassetid://96342876370857"
+  },
+  "assetIds": [
+    "106320915906033",
+    "122509647455287",
+    "84934984938806",
+    "96342876370857"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Duality"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

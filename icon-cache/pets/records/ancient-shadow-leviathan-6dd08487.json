@@ -1,0 +1,21 @@
+{
+  "name": "Ancient Shadow Leviathan",
+  "images": {
+    "Normal": "rbxassetid://73788945943936",
+    "Shiny": "rbxassetid://125379396731950",
+    "Mythic": "rbxassetid://131183987612243",
+    "MythicShiny": "rbxassetid://71857083912104"
+  },
+  "assetIds": [
+    "125379396731950",
+    "131183987612243",
+    "71857083912104",
+    "73788945943936"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ancient Shadow Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "EasterEggs",
+  "images": {
+    "Image": "rbxassetid://119309492370762"
+  },
+  "assetIds": [
+    "119309492370762"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "EasterEggs"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

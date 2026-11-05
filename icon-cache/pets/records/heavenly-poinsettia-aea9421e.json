@@ -1,0 +1,21 @@
+{
+  "name": "Heavenly Poinsettia",
+  "images": {
+    "Normal": "rbxassetid://124756981696935",
+    "Shiny": "rbxassetid://94463220386114",
+    "Mythic": "rbxassetid://129607391515581",
+    "MythicShiny": "rbxassetid://100857392345049"
+  },
+  "assetIds": [
+    "100857392345049",
+    "124756981696935",
+    "129607391515581",
+    "94463220386114"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Heavenly Poinsettia"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

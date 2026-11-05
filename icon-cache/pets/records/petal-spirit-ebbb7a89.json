@@ -1,0 +1,21 @@
+{
+  "name": "Petal Spirit",
+  "images": {
+    "Normal": "rbxassetid://133401753215552",
+    "Shiny": "rbxassetid://98293932334558",
+    "Mythic": "rbxassetid://133513375460681",
+    "MythicShiny": "rbxassetid://113558770037433"
+  },
+  "assetIds": [
+    "113558770037433",
+    "133401753215552",
+    "133513375460681",
+    "98293932334558"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Petal Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

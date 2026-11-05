@@ -1,0 +1,21 @@
+{
+  "name": "Spring Dragon",
+  "images": {
+    "Normal": "rbxassetid://94578017363090",
+    "Shiny": "rbxassetid://111531824644809",
+    "Mythic": "rbxassetid://124037703449368",
+    "MythicShiny": "rbxassetid://123207274843231"
+  },
+  "assetIds": [
+    "111531824644809",
+    "123207274843231",
+    "124037703449368",
+    "94578017363090"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

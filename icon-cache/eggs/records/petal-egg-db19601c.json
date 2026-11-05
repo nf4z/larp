@@ -1,0 +1,12 @@
+{
+  "name": "Petal Egg",
+  "images": {
+    "Image": "rbxassetid://77153193299098"
+  },
+  "assetIds": [
+    "77153193299098"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

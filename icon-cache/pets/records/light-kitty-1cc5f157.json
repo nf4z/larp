@@ -1,0 +1,17 @@
+{
+  "name": "Light Kitty",
+  "images": {
+    "Normal": "rbxassetid://88110391702067",
+    "Shiny": "rbxassetid://139600455210166"
+  },
+  "assetIds": [
+    "139600455210166",
+    "88110391702067"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

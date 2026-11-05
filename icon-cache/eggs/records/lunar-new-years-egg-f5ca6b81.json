@@ -1,0 +1,12 @@
+{
+  "name": "Lunar New Years Egg",
+  "images": {
+    "Image": "rbxassetid://112680511736532"
+  },
+  "assetIds": [
+    "112680511736532"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Destiny",
+  "images": {
+    "Normal": "rbxassetid://76239492436970",
+    "Shiny": "rbxassetid://121616679529545",
+    "Mythic": "rbxassetid://106033496606019",
+    "MythicShiny": "rbxassetid://120180495879401"
+  },
+  "assetIds": [
+    "106033496606019",
+    "120180495879401",
+    "121616679529545",
+    "76239492436970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Destiny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

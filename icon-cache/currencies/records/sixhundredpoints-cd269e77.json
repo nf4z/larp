@@ -1,0 +1,15 @@
+{
+  "name": "SixHundredPoints",
+  "images": {
+    "Image": "rbxassetid://103051080588339"
+  },
+  "assetIds": [
+    "103051080588339"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "SixHundredPoints"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

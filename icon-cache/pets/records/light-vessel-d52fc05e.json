@@ -1,0 +1,17 @@
+{
+  "name": "Light Vessel",
+  "images": {
+    "Normal": "rbxassetid://112368429737637",
+    "Shiny": "rbxassetid://85828804911905"
+  },
+  "assetIds": [
+    "112368429737637",
+    "85828804911905"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Vessel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

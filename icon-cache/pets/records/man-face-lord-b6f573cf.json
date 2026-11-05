@@ -1,0 +1,21 @@
+{
+  "name": "Man Face Lord",
+  "images": {
+    "Normal": "rbxassetid://115635982339275",
+    "Shiny": "rbxassetid://99079983873674",
+    "Mythic": "rbxassetid://101492142625882",
+    "MythicShiny": "rbxassetid://139955616272750"
+  },
+  "assetIds": [
+    "101492142625882",
+    "115635982339275",
+    "139955616272750",
+    "99079983873674"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

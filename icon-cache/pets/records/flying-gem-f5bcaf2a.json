@@ -1,0 +1,17 @@
+{
+  "name": "Flying Gem",
+  "images": {
+    "Normal": "rbxassetid://137058516278425",
+    "Shiny": "rbxassetid://138545612281855"
+  },
+  "assetIds": [
+    "137058516278425",
+    "138545612281855"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

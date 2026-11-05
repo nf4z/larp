@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Radiance",
+  "images": {
+    "Normal": "rbxassetid://131394678522361",
+    "Shiny": "rbxassetid://85206133979149",
+    "Mythic": "rbxassetid://88641520567805",
+    "MythicShiny": "rbxassetid://118021473442648"
+  },
+  "assetIds": [
+    "118021473442648",
+    "131394678522361",
+    "85206133979149",
+    "88641520567805"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Radiance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

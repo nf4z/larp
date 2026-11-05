@@ -1,0 +1,21 @@
+{
+  "name": "Almighty Hexarium",
+  "images": {
+    "Normal": "rbxassetid://119087049687673",
+    "Shiny": "rbxassetid://98934559609422",
+    "Mythic": "rbxassetid://113075340332246",
+    "MythicShiny": "rbxassetid://122958570719722"
+  },
+  "assetIds": [
+    "113075340332246",
+    "119087049687673",
+    "122958570719722",
+    "98934559609422"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Almighty Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

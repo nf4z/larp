@@ -1,0 +1,21 @@
+{
+  "name": "Snowglobe Hexarium",
+  "images": {
+    "Normal": "rbxassetid://104341565717038",
+    "Shiny": "rbxassetid://120690869314017",
+    "Mythic": "rbxassetid://94791340515866",
+    "MythicShiny": "rbxassetid://92316229667523"
+  },
+  "assetIds": [
+    "104341565717038",
+    "120690869314017",
+    "92316229667523",
+    "94791340515866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowglobe Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

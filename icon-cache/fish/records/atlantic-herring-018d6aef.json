@@ -1,0 +1,15 @@
+{
+  "name": "Atlantic Herring",
+  "images": {
+    "Image": "rbxassetid://116657694513312"
+  },
+  "assetIds": [
+    "116657694513312"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Atlantic Herring"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

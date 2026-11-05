@@ -1,0 +1,17 @@
+{
+  "name": "Orange Zero",
+  "images": {
+    "Normal": "rbxassetid://72771370215806",
+    "Shiny": "rbxassetid://94565797039876"
+  },
+  "assetIds": [
+    "72771370215806",
+    "94565797039876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Orange Zero"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

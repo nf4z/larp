@@ -1,0 +1,15 @@
+{
+  "name": "SantaPoints",
+  "images": {
+    "Image": "rbxassetid://130672598604073"
+  },
+  "assetIds": [
+    "130672598604073"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "SantaPoints"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

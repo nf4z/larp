@@ -1,0 +1,21 @@
+{
+  "name": "Minty Serpent",
+  "images": {
+    "Normal": "rbxassetid://129768332720621",
+    "Shiny": "rbxassetid://102383855034631",
+    "Mythic": "rbxassetid://127145491898449",
+    "MythicShiny": "rbxassetid://113564473466447"
+  },
+  "assetIds": [
+    "102383855034631",
+    "113564473466447",
+    "127145491898449",
+    "129768332720621"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Minty Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

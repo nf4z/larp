@@ -1,0 +1,17 @@
+{
+  "name": "Sheepish",
+  "images": {
+    "Normal": "rbxassetid://122169501860040",
+    "Shiny": "rbxassetid://96941775736413"
+  },
+  "assetIds": [
+    "122169501860040",
+    "96941775736413"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sheepish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

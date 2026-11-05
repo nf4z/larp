@@ -1,0 +1,21 @@
+{
+  "name": "Light Cube",
+  "images": {
+    "Normal": "rbxassetid://86073522116046",
+    "Shiny": "rbxassetid://121192560889587",
+    "Mythic": "rbxassetid://88491582611352",
+    "MythicShiny": "rbxassetid://129974200387692"
+  },
+  "assetIds": [
+    "121192560889587",
+    "129974200387692",
+    "86073522116046",
+    "88491582611352"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

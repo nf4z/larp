@@ -1,0 +1,21 @@
+{
+  "name": "Hacker Gem",
+  "images": {
+    "Normal": "rbxassetid://117458607591786",
+    "Shiny": "rbxassetid://98235951796449",
+    "Mythic": "rbxassetid://109706106408368",
+    "MythicShiny": "rbxassetid://127645372376300"
+  },
+  "assetIds": [
+    "109706106408368",
+    "117458607591786",
+    "127645372376300",
+    "98235951796449"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hacker Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

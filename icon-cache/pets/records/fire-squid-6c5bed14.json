@@ -1,0 +1,21 @@
+{
+  "name": "Fire Squid",
+  "images": {
+    "Normal": "rbxassetid://114501180012648",
+    "Shiny": "rbxassetid://120064746062526",
+    "Mythic": "rbxassetid://76070569515540",
+    "MythicShiny": "rbxassetid://113961307817036"
+  },
+  "assetIds": [
+    "113961307817036",
+    "114501180012648",
+    "120064746062526",
+    "76070569515540"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Squid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

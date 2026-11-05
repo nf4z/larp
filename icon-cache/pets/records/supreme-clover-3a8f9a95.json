@@ -1,0 +1,17 @@
+{
+  "name": "Supreme Clover",
+  "images": {
+    "Normal": "rbxassetid://83477131534287",
+    "Shiny": "rbxassetid://134946736586707"
+  },
+  "assetIds": [
+    "134946736586707",
+    "83477131534287"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Supreme Clover"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Clown Emoji",
+  "images": {
+    "Normal": "rbxassetid://139319398565612",
+    "Shiny": "rbxassetid://117893387398933"
+  },
+  "assetIds": [
+    "117893387398933",
+    "139319398565612"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Emoji"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

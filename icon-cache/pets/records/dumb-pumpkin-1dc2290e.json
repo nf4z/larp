@@ -1,0 +1,21 @@
+{
+  "name": "DUMB PUMPKIN",
+  "images": {
+    "Normal": "rbxassetid://135971030774266",
+    "Shiny": "rbxassetid://71349224679552",
+    "Mythic": "rbxassetid://85252549668080",
+    "MythicShiny": "rbxassetid://83239059785859"
+  },
+  "assetIds": [
+    "135971030774266",
+    "71349224679552",
+    "83239059785859",
+    "85252549668080"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "DUMB PUMPKIN"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

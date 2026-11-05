@@ -1,0 +1,21 @@
+{
+  "name": "Darkness",
+  "images": {
+    "Normal": "rbxassetid://86665037421293",
+    "Shiny": "rbxassetid://126742860574606",
+    "Mythic": "rbxassetid://134490643137871",
+    "MythicShiny": "rbxassetid://93385752946390"
+  },
+  "assetIds": [
+    "126742860574606",
+    "134490643137871",
+    "86665037421293",
+    "93385752946390"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkness"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

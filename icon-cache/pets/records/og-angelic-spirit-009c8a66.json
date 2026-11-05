@@ -1,0 +1,21 @@
+{
+  "name": "OG Angelic Spirit",
+  "images": {
+    "Normal": "rbxassetid://118700810360761",
+    "Shiny": "rbxassetid://122396025965861",
+    "Mythic": "rbxassetid://88771454228288",
+    "MythicShiny": "rbxassetid://76190181606893"
+  },
+  "assetIds": [
+    "118700810360761",
+    "122396025965861",
+    "76190181606893",
+    "88771454228288"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Angelic Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

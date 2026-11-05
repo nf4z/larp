@@ -1,0 +1,21 @@
+{
+  "name": "Doggy Tank Army",
+  "images": {
+    "Normal": "rbxassetid://140424082662809",
+    "Shiny": "rbxassetid://135689687852306",
+    "Mythic": "rbxassetid://73464714317781",
+    "MythicShiny": "rbxassetid://102837845056465"
+  },
+  "assetIds": [
+    "102837845056465",
+    "135689687852306",
+    "140424082662809",
+    "73464714317781"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy Tank Army"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Frostbite Barracuda",
+  "images": {
+    "Image": "rbxassetid://106290561979872"
+  },
+  "assetIds": [
+    "106290561979872"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Frostbite Barracuda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

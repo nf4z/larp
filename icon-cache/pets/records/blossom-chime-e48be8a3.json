@@ -1,0 +1,21 @@
+{
+  "name": "Blossom Chime",
+  "images": {
+    "Normal": "rbxassetid://116948004892294",
+    "Shiny": "rbxassetid://81809993977484",
+    "Mythic": "rbxassetid://88926039263827",
+    "MythicShiny": "rbxassetid://128236974209914"
+  },
+  "assetIds": [
+    "116948004892294",
+    "128236974209914",
+    "81809993977484",
+    "88926039263827"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blossom Chime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

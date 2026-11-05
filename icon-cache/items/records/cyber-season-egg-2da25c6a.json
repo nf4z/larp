@@ -1,0 +1,11 @@
+{
+  "name": "Cyber Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Cyber Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

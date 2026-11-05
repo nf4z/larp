@@ -1,0 +1,21 @@
+{
+  "name": "Avernus",
+  "images": {
+    "Normal": "rbxassetid://101820906833807",
+    "Shiny": "rbxassetid://121235836455795",
+    "Mythic": "rbxassetid://113077553823335",
+    "MythicShiny": "rbxassetid://105994587891116"
+  },
+  "assetIds": [
+    "101820906833807",
+    "105994587891116",
+    "113077553823335",
+    "121235836455795"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Avernus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

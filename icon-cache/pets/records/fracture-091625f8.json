@@ -1,0 +1,17 @@
+{
+  "name": "Fracture",
+  "images": {
+    "Normal": "rbxassetid://74529956686314",
+    "Shiny": "rbxassetid://116205027255427"
+  },
+  "assetIds": [
+    "116205027255427",
+    "74529956686314"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fracture"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Coral Turtle",
+  "images": {
+    "Normal": "rbxassetid://79576719995365",
+    "Shiny": "rbxassetid://130798286783506"
+  },
+  "assetIds": [
+    "130798286783506",
+    "79576719995365"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Turtle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

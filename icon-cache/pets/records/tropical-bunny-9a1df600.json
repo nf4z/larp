@@ -1,0 +1,17 @@
+{
+  "name": "Tropical Bunny",
+  "images": {
+    "Normal": "rbxassetid://116773553926863",
+    "Shiny": "rbxassetid://124129702405385"
+  },
+  "assetIds": [
+    "116773553926863",
+    "124129702405385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tropical Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Doodle Egg",
+  "images": {
+    "Image": "rbxassetid://91081651704728"
+  },
+  "assetIds": [
+    "91081651704728"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

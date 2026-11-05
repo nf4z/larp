@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Equinox",
+  "images": {
+    "Normal": "rbxassetid://101623420603080",
+    "Shiny": "rbxassetid://84877938876013",
+    "Mythic": "rbxassetid://81768079575071",
+    "MythicShiny": "rbxassetid://83449219478952"
+  },
+  "assetIds": [
+    "101623420603080",
+    "81768079575071",
+    "83449219478952",
+    "84877938876013"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Equinox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

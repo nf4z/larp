@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Serpent",
+  "images": {
+    "Normal": "rbxassetid://72409952288287",
+    "Shiny": "rbxassetid://133778634002878",
+    "Mythic": "rbxassetid://129721201697549",
+    "MythicShiny": "rbxassetid://76876858250583"
+  },
+  "assetIds": [
+    "129721201697549",
+    "133778634002878",
+    "72409952288287",
+    "76876858250583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

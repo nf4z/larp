@@ -1,0 +1,21 @@
+{
+  "name": "Abyssal Gryphon",
+  "images": {
+    "Normal": "rbxassetid://88545585475255",
+    "Shiny": "rbxassetid://83905544722982",
+    "Mythic": "rbxassetid://93179205947086",
+    "MythicShiny": "rbxassetid://118990524580361"
+  },
+  "assetIds": [
+    "118990524580361",
+    "83905544722982",
+    "88545585475255",
+    "93179205947086"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssal Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

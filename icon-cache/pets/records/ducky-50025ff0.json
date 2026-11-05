@@ -1,0 +1,17 @@
+{
+  "name": "Ducky",
+  "images": {
+    "Normal": "rbxassetid://103631469860129",
+    "Shiny": "rbxassetid://79736296658897"
+  },
+  "assetIds": [
+    "103631469860129",
+    "79736296658897"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ducky"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Jester Axolotl Plushie",
+  "images": {
+    "Normal": "rbxassetid://79867884342891",
+    "Shiny": "rbxassetid://81565635301887",
+    "Mythic": "rbxassetid://137350416199350",
+    "MythicShiny": "rbxassetid://134503858693700"
+  },
+  "assetIds": [
+    "134503858693700",
+    "137350416199350",
+    "79867884342891",
+    "81565635301887"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Axolotl Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

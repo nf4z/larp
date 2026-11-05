@@ -1,0 +1,17 @@
+{
+  "name": "Magma Fox",
+  "images": {
+    "Normal": "rbxassetid://71551279595708",
+    "Shiny": "rbxassetid://107430075457632"
+  },
+  "assetIds": [
+    "107430075457632",
+    "71551279595708"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

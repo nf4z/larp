@@ -1,0 +1,21 @@
+{
+  "name": "AFKVoid",
+  "images": {
+    "Normal": "rbxassetid://131581274718791",
+    "Shiny": "rbxassetid://83016325036772",
+    "Mythic": "rbxassetid://80171248310987",
+    "MythicShiny": "rbxassetid://137626351915374"
+  },
+  "assetIds": [
+    "131581274718791",
+    "137626351915374",
+    "80171248310987",
+    "83016325036772"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "AFKVoid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

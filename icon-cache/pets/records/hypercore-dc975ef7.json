@@ -1,0 +1,21 @@
+{
+  "name": "HYPERCORE",
+  "images": {
+    "Normal": "rbxassetid://127592784216339",
+    "Shiny": "rbxassetid://116165854551316",
+    "Mythic": "rbxassetid://133519049747500",
+    "MythicShiny": "rbxassetid://85754165787043"
+  },
+  "assetIds": [
+    "116165854551316",
+    "127592784216339",
+    "133519049747500",
+    "85754165787043"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "HYPERCORE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

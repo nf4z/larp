@@ -1,0 +1,17 @@
+{
+  "name": "Seal",
+  "images": {
+    "Normal": "rbxassetid://85535487223612",
+    "Shiny": "rbxassetid://138070530590608"
+  },
+  "assetIds": [
+    "138070530590608",
+    "85535487223612"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

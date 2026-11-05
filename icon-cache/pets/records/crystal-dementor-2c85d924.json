@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Dementor",
+  "images": {
+    "Normal": "rbxassetid://136838649019762",
+    "Shiny": "rbxassetid://119957879409682",
+    "Mythic": "rbxassetid://117194418148457",
+    "MythicShiny": "rbxassetid://80482580910327"
+  },
+  "assetIds": [
+    "117194418148457",
+    "119957879409682",
+    "136838649019762",
+    "80482580910327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Dementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

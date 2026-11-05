@@ -1,0 +1,21 @@
+{
+  "name": "Purble Vision",
+  "images": {
+    "Normal": "rbxassetid://136924075128979",
+    "Shiny": "rbxassetid://122767410104643",
+    "Mythic": "rbxassetid://108348960197031",
+    "MythicShiny": "rbxassetid://98275578314205"
+  },
+  "assetIds": [
+    "108348960197031",
+    "122767410104643",
+    "136924075128979",
+    "98275578314205"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Purble Vision"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

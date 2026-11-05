@@ -1,0 +1,21 @@
+{
+  "name": "Pumpkin Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://133104780616367",
+    "Shiny": "rbxassetid://86098545766221",
+    "Mythic": "rbxassetid://118956427315948",
+    "MythicShiny": "rbxassetid://126763720206242"
+  },
+  "assetIds": [
+    "118956427315948",
+    "126763720206242",
+    "133104780616367",
+    "86098545766221"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

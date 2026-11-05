@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Deeri",
+  "images": {
+    "Normal": "rbxassetid://138098449089876",
+    "Shiny": "rbxassetid://133107279294413"
+  },
+  "assetIds": [
+    "133107279294413",
+    "138098449089876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Deeri"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

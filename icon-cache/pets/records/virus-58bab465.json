@@ -1,0 +1,21 @@
+{
+  "name": "Virus",
+  "images": {
+    "Normal": "rbxassetid://110185755598723",
+    "Shiny": "rbxassetid://104208878857321",
+    "Mythic": "rbxassetid://123553243933827",
+    "MythicShiny": "rbxassetid://79500546432529"
+  },
+  "assetIds": [
+    "104208878857321",
+    "110185755598723",
+    "123553243933827",
+    "79500546432529"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Virus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

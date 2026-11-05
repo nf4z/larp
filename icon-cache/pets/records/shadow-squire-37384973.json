@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Squire",
+  "images": {
+    "Normal": "rbxassetid://89309218404190",
+    "Shiny": "rbxassetid://115530588639621",
+    "Mythic": "rbxassetid://134473349514460",
+    "MythicShiny": "rbxassetid://77713148680170"
+  },
+  "assetIds": [
+    "115530588639621",
+    "134473349514460",
+    "77713148680170",
+    "89309218404190"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Squire"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

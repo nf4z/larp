@@ -1,0 +1,17 @@
+{
+  "name": "Enlightened Kitty",
+  "images": {
+    "Normal": "rbxassetid://122259669272525",
+    "Shiny": "rbxassetid://116308362826258"
+  },
+  "assetIds": [
+    "116308362826258",
+    "122259669272525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Enlightened Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

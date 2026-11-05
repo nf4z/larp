@@ -1,0 +1,21 @@
+{
+  "name": "Super Silly Doggy",
+  "images": {
+    "Normal": "rbxassetid://108913024899003",
+    "Shiny": "rbxassetid://70666186666751",
+    "Mythic": "rbxassetid://136701088413192",
+    "MythicShiny": "rbxassetid://91557730618541"
+  },
+  "assetIds": [
+    "108913024899003",
+    "136701088413192",
+    "70666186666751",
+    "91557730618541"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Silly Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

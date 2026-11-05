@@ -1,0 +1,21 @@
+{
+  "name": "Elite Elemental",
+  "images": {
+    "Normal": "rbxassetid://140250633299422",
+    "Shiny": "rbxassetid://136250961451838",
+    "Mythic": "rbxassetid://110273845870144",
+    "MythicShiny": "rbxassetid://132100534518028"
+  },
+  "assetIds": [
+    "110273845870144",
+    "132100534518028",
+    "136250961451838",
+    "140250633299422"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

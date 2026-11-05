@@ -1,0 +1,17 @@
+{
+  "name": "Disco Ball",
+  "images": {
+    "Normal": "rbxassetid://107995513069739",
+    "Shiny": "rbxassetid://75097202660397"
+  },
+  "assetIds": [
+    "107995513069739",
+    "75097202660397"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Disco Ball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

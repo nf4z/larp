@@ -1,0 +1,21 @@
+{
+  "name": "Ring Master",
+  "images": {
+    "Normal": "rbxassetid://94556201329616",
+    "Shiny": "rbxassetid://116060388002599",
+    "Mythic": "rbxassetid://101907662087977",
+    "MythicShiny": "rbxassetid://107448565956594"
+  },
+  "assetIds": [
+    "101907662087977",
+    "107448565956594",
+    "116060388002599",
+    "94556201329616"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ring Master"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Prophetic Soul",
+  "images": {
+    "Normal": "rbxassetid://117418210207749",
+    "Shiny": "rbxassetid://98680788397368",
+    "Mythic": "rbxassetid://126230583958468",
+    "MythicShiny": "rbxassetid://120828763065024"
+  },
+  "assetIds": [
+    "117418210207749",
+    "120828763065024",
+    "126230583958468",
+    "98680788397368"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prophetic Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Contrast",
+  "images": {
+    "Normal": "rbxassetid://128659726854863",
+    "Shiny": "rbxassetid://107191928964165",
+    "Mythic": "rbxassetid://93051550988323",
+    "MythicShiny": "rbxassetid://91873412562051"
+  },
+  "assetIds": [
+    "107191928964165",
+    "128659726854863",
+    "91873412562051",
+    "93051550988323"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Contrast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

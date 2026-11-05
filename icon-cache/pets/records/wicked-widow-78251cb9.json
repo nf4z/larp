@@ -1,0 +1,21 @@
+{
+  "name": "Wicked Widow",
+  "images": {
+    "Normal": "rbxassetid://71004233024414",
+    "Shiny": "rbxassetid://137582353585937",
+    "Mythic": "rbxassetid://140716087711823",
+    "MythicShiny": "rbxassetid://90268422095702"
+  },
+  "assetIds": [
+    "137582353585937",
+    "140716087711823",
+    "71004233024414",
+    "90268422095702"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wicked Widow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

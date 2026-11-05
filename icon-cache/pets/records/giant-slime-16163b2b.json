@@ -1,0 +1,17 @@
+{
+  "name": "Giant Slime",
+  "images": {
+    "Normal": "rbxassetid://118551514089798",
+    "Shiny": "rbxassetid://113740705961589"
+  },
+  "assetIds": [
+    "113740705961589",
+    "118551514089798"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

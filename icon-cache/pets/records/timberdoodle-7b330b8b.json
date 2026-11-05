@@ -1,0 +1,17 @@
+{
+  "name": "Timberdoodle",
+  "images": {
+    "Normal": "rbxassetid://115964777626215",
+    "Shiny": "rbxassetid://76349671429082"
+  },
+  "assetIds": [
+    "115964777626215",
+    "76349671429082"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Timberdoodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Phantom Cube",
+  "images": {
+    "Normal": "rbxassetid://115573816514350",
+    "Shiny": "rbxassetid://90577228889241",
+    "Mythic": "rbxassetid://94807430000324",
+    "MythicShiny": "rbxassetid://113393009044874"
+  },
+  "assetIds": [
+    "113393009044874",
+    "115573816514350",
+    "90577228889241",
+    "94807430000324"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Phantom Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

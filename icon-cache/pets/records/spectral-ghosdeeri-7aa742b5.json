@@ -1,0 +1,21 @@
+{
+  "name": "Spectral Ghosdeeri",
+  "images": {
+    "Normal": "rbxassetid://92125795823707",
+    "Shiny": "rbxassetid://96622427783135",
+    "Mythic": "rbxassetid://83616102975160",
+    "MythicShiny": "rbxassetid://72478572786606"
+  },
+  "assetIds": [
+    "72478572786606",
+    "83616102975160",
+    "92125795823707",
+    "96622427783135"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spectral Ghosdeeri"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

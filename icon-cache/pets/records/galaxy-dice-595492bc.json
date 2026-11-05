@@ -1,0 +1,17 @@
+{
+  "name": "Galaxy Dice",
+  "images": {
+    "Normal": "rbxassetid://100110102987297",
+    "Shiny": "rbxassetid://101083588638682"
+  },
+  "assetIds": [
+    "100110102987297",
+    "101083588638682"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galaxy Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

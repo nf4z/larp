@@ -1,0 +1,15 @@
+{
+  "name": "Lemon Shark",
+  "images": {
+    "Image": "rbxassetid://99747724442642"
+  },
+  "assetIds": [
+    "99747724442642"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Lemon Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

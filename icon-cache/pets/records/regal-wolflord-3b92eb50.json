@@ -1,0 +1,21 @@
+{
+  "name": "Regal Wolflord",
+  "images": {
+    "Normal": "rbxassetid://122277080736656",
+    "Shiny": "rbxassetid://92997302277227",
+    "Mythic": "rbxassetid://99396021568617",
+    "MythicShiny": "rbxassetid://119091056542863"
+  },
+  "assetIds": [
+    "119091056542863",
+    "122277080736656",
+    "92997302277227",
+    "99396021568617"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Regal Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

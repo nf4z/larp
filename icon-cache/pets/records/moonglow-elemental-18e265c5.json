@@ -1,0 +1,21 @@
+{
+  "name": "Moonglow Elemental",
+  "images": {
+    "Normal": "rbxassetid://82786418665873",
+    "Shiny": "rbxassetid://78820276563157",
+    "Mythic": "rbxassetid://115762014246961",
+    "MythicShiny": "rbxassetid://104428316959057"
+  },
+  "assetIds": [
+    "104428316959057",
+    "115762014246961",
+    "78820276563157",
+    "82786418665873"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonglow Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

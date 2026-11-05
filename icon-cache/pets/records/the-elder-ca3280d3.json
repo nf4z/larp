@@ -1,0 +1,17 @@
+{
+  "name": "The Elder",
+  "images": {
+    "Normal": "rbxassetid://109791087917158",
+    "Shiny": "rbxassetid://106907223266855"
+  },
+  "assetIds": [
+    "106907223266855",
+    "109791087917158"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Elder"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Phantom Soul",
+  "images": {
+    "Normal": "rbxassetid://93099241185065",
+    "Shiny": "rbxassetid://82824840229414",
+    "Mythic": "rbxassetid://106764622055865",
+    "MythicShiny": "rbxassetid://100186694460293"
+  },
+  "assetIds": [
+    "100186694460293",
+    "106764622055865",
+    "82824840229414",
+    "93099241185065"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Phantom Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

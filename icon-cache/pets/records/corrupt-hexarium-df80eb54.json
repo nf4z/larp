@@ -1,0 +1,21 @@
+{
+  "name": "Corrupt Hexarium",
+  "images": {
+    "Normal": "rbxassetid://72938193966310",
+    "Shiny": "rbxassetid://79843058552885",
+    "Mythic": "rbxassetid://93967456133825",
+    "MythicShiny": "rbxassetid://107288224235764"
+  },
+  "assetIds": [
+    "107288224235764",
+    "72938193966310",
+    "79843058552885",
+    "93967456133825"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupt Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Dark Rift Egg",
+  "images": {
+    "Image": "rbxassetid://84135691527561"
+  },
+  "assetIds": [
+    "84135691527561"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Raven",
+  "images": {
+    "Normal": "rbxassetid://88922682131096",
+    "Shiny": "rbxassetid://93367473474858",
+    "Mythic": "rbxassetid://73671289972655",
+    "MythicShiny": "rbxassetid://116368970107753"
+  },
+  "assetIds": [
+    "116368970107753",
+    "73671289972655",
+    "88922682131096",
+    "93367473474858"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Raven"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

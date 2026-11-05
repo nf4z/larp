@@ -1,0 +1,17 @@
+{
+  "name": "Nightmare",
+  "images": {
+    "Normal": "rbxassetid://102289979986262",
+    "Shiny": "rbxassetid://71807534533005"
+  },
+  "assetIds": [
+    "102289979986262",
+    "71807534533005"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightmare"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

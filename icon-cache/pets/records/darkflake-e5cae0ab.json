@@ -1,0 +1,21 @@
+{
+  "name": "Darkflake",
+  "images": {
+    "Normal": "rbxassetid://85536243636045",
+    "Shiny": "rbxassetid://82303348462294",
+    "Mythic": "rbxassetid://101484786638832",
+    "MythicShiny": "rbxassetid://87917378149886"
+  },
+  "assetIds": [
+    "101484786638832",
+    "82303348462294",
+    "85536243636045",
+    "87917378149886"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkflake"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Maple Divinity",
+  "images": {
+    "Normal": "rbxassetid://74878395122205",
+    "Shiny": "rbxassetid://136836325141400",
+    "Mythic": "rbxassetid://105263739359522",
+    "MythicShiny": "rbxassetid://86287797428257"
+  },
+  "assetIds": [
+    "105263739359522",
+    "136836325141400",
+    "74878395122205",
+    "86287797428257"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Maple Divinity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Silly Egg",
+  "images": {},
+  "assetIds": [],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Choco Demon",
+  "images": {
+    "Normal": "rbxassetid://133072158809899",
+    "Shiny": "rbxassetid://122858958132637"
+  },
+  "assetIds": [
+    "122858958132637",
+    "133072158809899"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Choco Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

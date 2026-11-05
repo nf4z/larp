@@ -1,0 +1,21 @@
+{
+  "name": "Infernal",
+  "images": {
+    "Normal": "rbxassetid://92325458777920",
+    "Shiny": "rbxassetid://79498394985069",
+    "Mythic": "rbxassetid://79041379683435",
+    "MythicShiny": "rbxassetid://137596047110173"
+  },
+  "assetIds": [
+    "137596047110173",
+    "79041379683435",
+    "79498394985069",
+    "92325458777920"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Infernal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

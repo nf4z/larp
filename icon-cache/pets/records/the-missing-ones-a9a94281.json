@@ -1,0 +1,21 @@
+{
+  "name": "The Missing Ones",
+  "images": {
+    "Normal": "rbxassetid://116596847905121",
+    "Shiny": "rbxassetid://74756788799895",
+    "Mythic": "rbxassetid://90684237222970",
+    "MythicShiny": "rbxassetid://89473383596610"
+  },
+  "assetIds": [
+    "116596847905121",
+    "74756788799895",
+    "89473383596610",
+    "90684237222970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Missing Ones"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

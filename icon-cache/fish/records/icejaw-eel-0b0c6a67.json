@@ -1,0 +1,15 @@
+{
+  "name": "Icejaw Eel",
+  "images": {
+    "Image": "rbxassetid://127490507266460"
+  },
+  "assetIds": [
+    "127490507266460"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Icejaw Eel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

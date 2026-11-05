@@ -1,0 +1,17 @@
+{
+  "name": "Dark Koi",
+  "images": {
+    "Normal": "rbxassetid://108712135538290",
+    "Shiny": "rbxassetid://118867184576136"
+  },
+  "assetIds": [
+    "108712135538290",
+    "118867184576136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Trio Cube",
+  "images": {
+    "Normal": "rbxassetid://127311779883521",
+    "Shiny": "rbxassetid://123178696068725",
+    "Mythic": "rbxassetid://139575878499816",
+    "MythicShiny": "rbxassetid://85068003627303"
+  },
+  "assetIds": [
+    "123178696068725",
+    "127311779883521",
+    "139575878499816",
+    "85068003627303"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Trio Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG Advocate",
+  "images": {
+    "Normal": "rbxassetid://77590700448866",
+    "Shiny": "rbxassetid://129119203573985",
+    "Mythic": "rbxassetid://128546949589511",
+    "MythicShiny": "rbxassetid://106489090570192"
+  },
+  "assetIds": [
+    "106489090570192",
+    "128546949589511",
+    "129119203573985",
+    "77590700448866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Advocate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

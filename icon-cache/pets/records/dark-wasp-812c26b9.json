@@ -1,0 +1,21 @@
+{
+  "name": "Dark Wasp",
+  "images": {
+    "Normal": "rbxassetid://84677183221092",
+    "Shiny": "rbxassetid://134810860565731",
+    "Mythic": "rbxassetid://127513970767679",
+    "MythicShiny": "rbxassetid://128075207952653"
+  },
+  "assetIds": [
+    "127513970767679",
+    "128075207952653",
+    "134810860565731",
+    "84677183221092"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Wasp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

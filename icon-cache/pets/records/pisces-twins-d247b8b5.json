@@ -1,0 +1,21 @@
+{
+  "name": "Pisces Twins",
+  "images": {
+    "Normal": "rbxassetid://71800894686700",
+    "Shiny": "rbxassetid://133887445771808",
+    "Mythic": "rbxassetid://82592051569778",
+    "MythicShiny": "rbxassetid://72691370759722"
+  },
+  "assetIds": [
+    "133887445771808",
+    "71800894686700",
+    "72691370759722",
+    "82592051569778"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pisces Twins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

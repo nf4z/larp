@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Dragon",
+  "images": {
+    "Normal": "rbxassetid://96626008376400",
+    "Shiny": "rbxassetid://109498760417354",
+    "Mythic": "rbxassetid://91425929375118",
+    "MythicShiny": "rbxassetid://118571035653706"
+  },
+  "assetIds": [
+    "109498760417354",
+    "118571035653706",
+    "91425929375118",
+    "96626008376400"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

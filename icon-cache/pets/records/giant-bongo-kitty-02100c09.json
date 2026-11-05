@@ -1,0 +1,21 @@
+{
+  "name": "Giant Bongo Kitty",
+  "images": {
+    "Normal": "rbxassetid://122969553753294",
+    "Shiny": "rbxassetid://133627192910846",
+    "Mythic": "rbxassetid://88367037258354",
+    "MythicShiny": "rbxassetid://94268487892782"
+  },
+  "assetIds": [
+    "122969553753294",
+    "133627192910846",
+    "88367037258354",
+    "94268487892782"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Bongo Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

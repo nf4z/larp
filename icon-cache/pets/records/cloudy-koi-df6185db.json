@@ -1,0 +1,17 @@
+{
+  "name": "Cloudy Koi",
+  "images": {
+    "Normal": "rbxassetid://135180750348218",
+    "Shiny": "rbxassetid://91431370918662"
+  },
+  "assetIds": [
+    "135180750348218",
+    "91431370918662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudy Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

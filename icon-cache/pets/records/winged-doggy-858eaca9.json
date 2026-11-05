@@ -1,0 +1,17 @@
+{
+  "name": "Winged Doggy",
+  "images": {
+    "Normal": "rbxassetid://134212807772990",
+    "Shiny": "rbxassetid://89602221122511"
+  },
+  "assetIds": [
+    "134212807772990",
+    "89602221122511"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winged Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

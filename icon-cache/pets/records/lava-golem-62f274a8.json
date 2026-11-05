@@ -1,0 +1,17 @@
+{
+  "name": "Lava Golem",
+  "images": {
+    "Normal": "rbxassetid://102035083732870",
+    "Shiny": "rbxassetid://110289678813382"
+  },
+  "assetIds": [
+    "102035083732870",
+    "110289678813382"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lava Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

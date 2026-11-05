@@ -1,0 +1,15 @@
+{
+  "name": "Abyssal Fangtooth",
+  "images": {
+    "Image": "rbxassetid://113792948795229"
+  },
+  "assetIds": [
+    "113792948795229"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Abyssal Fangtooth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

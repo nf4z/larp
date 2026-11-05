@@ -1,0 +1,17 @@
+{
+  "name": "Fox",
+  "images": {
+    "Normal": "rbxassetid://103100921574135",
+    "Shiny": "rbxassetid://79433017308214"
+  },
+  "assetIds": [
+    "103100921574135",
+    "79433017308214"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

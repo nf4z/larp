@@ -1,0 +1,21 @@
+{
+  "name": "8 Blast",
+  "images": {
+    "Normal": "rbxassetid://89188217834274",
+    "Shiny": "rbxassetid://99207100291305",
+    "Mythic": "rbxassetid://111696956393839",
+    "MythicShiny": "rbxassetid://115768481753768"
+  },
+  "assetIds": [
+    "111696956393839",
+    "115768481753768",
+    "89188217834274",
+    "99207100291305"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "8 Blast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Cyber Egg",
+  "images": {
+    "Image": "rbxassetid://126905722128020"
+  },
+  "assetIds": [
+    "126905722128020"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

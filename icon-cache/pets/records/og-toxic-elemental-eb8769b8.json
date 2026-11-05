@@ -1,0 +1,17 @@
+{
+  "name": "OG Toxic Elemental",
+  "images": {
+    "Normal": "rbxassetid://130255434543436",
+    "Shiny": "rbxassetid://93385405453616"
+  },
+  "assetIds": [
+    "130255434543436",
+    "93385405453616"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Toxic Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

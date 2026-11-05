@@ -1,0 +1,21 @@
+{
+  "name": "Super Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://128471631363124",
+    "Shiny": "rbxassetid://125042573892981",
+    "Mythic": "rbxassetid://135312792265247",
+    "MythicShiny": "rbxassetid://108504982598405"
+  },
+  "assetIds": [
+    "108504982598405",
+    "125042573892981",
+    "128471631363124",
+    "135312792265247"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

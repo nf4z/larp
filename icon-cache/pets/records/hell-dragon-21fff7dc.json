@@ -1,0 +1,17 @@
+{
+  "name": "Hell Dragon",
+  "images": {
+    "Normal": "rbxassetid://91458267403650",
+    "Shiny": "rbxassetid://126841657900353"
+  },
+  "assetIds": [
+    "126841657900353",
+    "91458267403650"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hell Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

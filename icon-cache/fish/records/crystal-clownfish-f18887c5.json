@@ -1,0 +1,15 @@
+{
+  "name": "Crystal Clownfish",
+  "images": {
+    "Image": "rbxassetid://119049420226452"
+  },
+  "assetIds": [
+    "119049420226452"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Crystal Clownfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

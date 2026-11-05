@@ -1,0 +1,17 @@
+{
+  "name": "Ore Doggy",
+  "images": {
+    "Normal": "rbxassetid://121315665818556",
+    "Shiny": "rbxassetid://129563452272443"
+  },
+  "assetIds": [
+    "121315665818556",
+    "129563452272443"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ore Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

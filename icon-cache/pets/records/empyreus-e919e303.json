@@ -1,0 +1,21 @@
+{
+  "name": "Empyreus",
+  "images": {
+    "Normal": "rbxassetid://86162481693310",
+    "Shiny": "rbxassetid://75950962889775",
+    "Mythic": "rbxassetid://119839016357508",
+    "MythicShiny": "rbxassetid://78049788626759"
+  },
+  "assetIds": [
+    "119839016357508",
+    "75950962889775",
+    "78049788626759",
+    "86162481693310"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Empyreus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

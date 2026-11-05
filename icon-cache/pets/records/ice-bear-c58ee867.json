@@ -1,0 +1,17 @@
+{
+  "name": "Ice Bear",
+  "images": {
+    "Normal": "rbxassetid://72090919771744",
+    "Shiny": "rbxassetid://116826938587532"
+  },
+  "assetIds": [
+    "116826938587532",
+    "72090919771744"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Neon Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://97273653901131",
+    "Shiny": "rbxassetid://96823948101890",
+    "Mythic": "rbxassetid://81251704543193",
+    "MythicShiny": "rbxassetid://94020645886976"
+  },
+  "assetIds": [
+    "81251704543193",
+    "94020645886976",
+    "96823948101890",
+    "97273653901131"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

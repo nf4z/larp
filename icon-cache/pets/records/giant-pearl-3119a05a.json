@@ -1,0 +1,21 @@
+{
+  "name": "Giant Pearl",
+  "images": {
+    "Normal": "rbxassetid://119383026385515",
+    "Shiny": "rbxassetid://122186384763352",
+    "Mythic": "rbxassetid://73278989281247",
+    "MythicShiny": "rbxassetid://135146282835819"
+  },
+  "assetIds": [
+    "119383026385515",
+    "122186384763352",
+    "135146282835819",
+    "73278989281247"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Pearl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

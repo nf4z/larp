@@ -1,0 +1,21 @@
+{
+  "name": "Sunmallow",
+  "images": {
+    "Normal": "rbxassetid://77989536994136",
+    "Shiny": "rbxassetid://135786013331322",
+    "Mythic": "rbxassetid://110633240417004",
+    "MythicShiny": "rbxassetid://129296385353758"
+  },
+  "assetIds": [
+    "110633240417004",
+    "129296385353758",
+    "135786013331322",
+    "77989536994136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

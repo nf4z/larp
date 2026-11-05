@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Gryphon",
+  "images": {
+    "Normal": "rbxassetid://117999108648137",
+    "Shiny": "rbxassetid://134883911990513",
+    "Mythic": "rbxassetid://128600802524827",
+    "MythicShiny": "rbxassetid://92982824964049"
+  },
+  "assetIds": [
+    "117999108648137",
+    "128600802524827",
+    "134883911990513",
+    "92982824964049"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

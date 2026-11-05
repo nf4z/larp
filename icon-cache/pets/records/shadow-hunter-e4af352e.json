@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Hunter",
+  "images": {
+    "Normal": "rbxassetid://100949596645885",
+    "Shiny": "rbxassetid://94724196146876",
+    "Mythic": "rbxassetid://128788349400556",
+    "MythicShiny": "rbxassetid://138129063778379"
+  },
+  "assetIds": [
+    "100949596645885",
+    "128788349400556",
+    "138129063778379",
+    "94724196146876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Hunter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

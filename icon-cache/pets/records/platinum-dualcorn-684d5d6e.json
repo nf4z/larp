@@ -1,0 +1,21 @@
+{
+  "name": "Platinum Dualcorn",
+  "images": {
+    "Normal": "rbxassetid://100411838858715",
+    "Shiny": "rbxassetid://116053470442899",
+    "Mythic": "rbxassetid://115037012611943",
+    "MythicShiny": "rbxassetid://101376968358409"
+  },
+  "assetIds": [
+    "100411838858715",
+    "101376968358409",
+    "115037012611943",
+    "116053470442899"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Platinum Dualcorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

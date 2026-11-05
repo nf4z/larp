@@ -1,0 +1,17 @@
+{
+  "name": "Umbra",
+  "images": {
+    "Normal": "rbxassetid://125249100014282",
+    "Shiny": "rbxassetid://84695727888175"
+  },
+  "assetIds": [
+    "125249100014282",
+    "84695727888175"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Umbra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

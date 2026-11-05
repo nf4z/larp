@@ -1,0 +1,21 @@
+{
+  "name": "OG Soulflake",
+  "images": {
+    "Normal": "rbxassetid://127697461981672",
+    "Shiny": "rbxassetid://134217128548823",
+    "Mythic": "rbxassetid://138671087454873",
+    "MythicShiny": "rbxassetid://137130008397684"
+  },
+  "assetIds": [
+    "127697461981672",
+    "134217128548823",
+    "137130008397684",
+    "138671087454873"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Soulflake"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

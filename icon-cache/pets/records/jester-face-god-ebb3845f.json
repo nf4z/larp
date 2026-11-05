@@ -1,0 +1,21 @@
+{
+  "name": "JESTER FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://78986228070928",
+    "Shiny": "rbxassetid://113694332324063",
+    "Mythic": "rbxassetid://91183753042240",
+    "MythicShiny": "rbxassetid://87059089370996"
+  },
+  "assetIds": [
+    "113694332324063",
+    "78986228070928",
+    "87059089370996",
+    "91183753042240"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "JESTER FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

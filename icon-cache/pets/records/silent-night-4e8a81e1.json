@@ -1,0 +1,17 @@
+{
+  "name": "Silent Night",
+  "images": {
+    "Normal": "rbxassetid://137095168322855",
+    "Shiny": "rbxassetid://121244646707879"
+  },
+  "assetIds": [
+    "121244646707879",
+    "137095168322855"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silent Night"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

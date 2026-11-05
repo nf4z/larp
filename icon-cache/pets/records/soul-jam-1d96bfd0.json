@@ -1,0 +1,21 @@
+{
+  "name": "Soul Jam",
+  "images": {
+    "Normal": "rbxassetid://105817091797289",
+    "Shiny": "rbxassetid://100828723598077",
+    "Mythic": "rbxassetid://96576218411314",
+    "MythicShiny": "rbxassetid://89342042329544"
+  },
+  "assetIds": [
+    "100828723598077",
+    "105817091797289",
+    "89342042329544",
+    "96576218411314"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soul Jam"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

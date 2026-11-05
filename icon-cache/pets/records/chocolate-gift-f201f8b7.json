@@ -1,0 +1,21 @@
+{
+  "name": "Chocolate Gift",
+  "images": {
+    "Normal": "rbxassetid://118366116908948",
+    "Shiny": "rbxassetid://74803190846681",
+    "Mythic": "rbxassetid://75501989831144",
+    "MythicShiny": "rbxassetid://124263897767722"
+  },
+  "assetIds": [
+    "118366116908948",
+    "124263897767722",
+    "74803190846681",
+    "75501989831144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Gift"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

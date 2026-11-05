@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Blossom",
+  "images": {
+    "Normal": "rbxassetid://86549775439355",
+    "Shiny": "rbxassetid://89537577966978",
+    "Mythic": "rbxassetid://138242647392045",
+    "MythicShiny": "rbxassetid://91868199313796"
+  },
+  "assetIds": [
+    "138242647392045",
+    "86549775439355",
+    "89537577966978",
+    "91868199313796"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Blossom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

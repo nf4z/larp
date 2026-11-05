@@ -1,0 +1,17 @@
+{
+  "name": "Spookivus",
+  "images": {
+    "Normal": "rbxassetid://95138134756233",
+    "Shiny": "rbxassetid://125804504792050"
+  },
+  "assetIds": [
+    "125804504792050",
+    "95138134756233"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spookivus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Neon Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://81422782505738"
+  },
+  "assetIds": [
+    "81422782505738"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Neon Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

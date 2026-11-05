@@ -1,0 +1,21 @@
+{
+  "name": "Bionic Shard",
+  "images": {
+    "Normal": "rbxassetid://113926773562723",
+    "Shiny": "rbxassetid://99439972902415",
+    "Mythic": "rbxassetid://91891367979946",
+    "MythicShiny": "rbxassetid://112797928273116"
+  },
+  "assetIds": [
+    "112797928273116",
+    "113926773562723",
+    "91891367979946",
+    "99439972902415"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bionic Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

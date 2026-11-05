@@ -1,0 +1,17 @@
+{
+  "name": "Kitsune",
+  "images": {
+    "Normal": "rbxassetid://137454930152011",
+    "Shiny": "rbxassetid://81467799917609"
+  },
+  "assetIds": [
+    "137454930152011",
+    "81467799917609"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

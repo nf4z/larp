@@ -1,0 +1,21 @@
+{
+  "name": "The Cage",
+  "images": {
+    "Normal": "rbxassetid://136919778835401",
+    "Shiny": "rbxassetid://97306524673163",
+    "Mythic": "rbxassetid://128795112824115",
+    "MythicShiny": "rbxassetid://98710600172334"
+  },
+  "assetIds": [
+    "128795112824115",
+    "136919778835401",
+    "97306524673163",
+    "98710600172334"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Cage"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

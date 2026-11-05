@@ -1,0 +1,17 @@
+{
+  "name": "Jack O' Kitty",
+  "images": {
+    "Normal": "rbxassetid://129388204917589",
+    "Shiny": "rbxassetid://105545982889770"
+  },
+  "assetIds": [
+    "105545982889770",
+    "129388204917589"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jack O' Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

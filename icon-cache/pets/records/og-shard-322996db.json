@@ -1,0 +1,21 @@
+{
+  "name": "OG Shard",
+  "images": {
+    "Normal": "rbxassetid://112935467654396",
+    "Shiny": "rbxassetid://134547406687224",
+    "Mythic": "rbxassetid://76278848758948",
+    "MythicShiny": "rbxassetid://140614140442166"
+  },
+  "assetIds": [
+    "112935467654396",
+    "134547406687224",
+    "140614140442166",
+    "76278848758948"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

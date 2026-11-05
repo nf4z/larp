@@ -1,0 +1,17 @@
+{
+  "name": "Little Ornament",
+  "images": {
+    "Normal": "rbxassetid://95304946658809",
+    "Shiny": "rbxassetid://80897113638908"
+  },
+  "assetIds": [
+    "80897113638908",
+    "95304946658809"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Little Ornament"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

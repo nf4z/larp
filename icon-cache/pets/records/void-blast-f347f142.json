@@ -1,0 +1,21 @@
+{
+  "name": "Void Blast",
+  "images": {
+    "Normal": "rbxassetid://107544343308633",
+    "Shiny": "rbxassetid://100608593800657",
+    "Mythic": "rbxassetid://90220834095663",
+    "MythicShiny": "rbxassetid://110743251772500"
+  },
+  "assetIds": [
+    "100608593800657",
+    "107544343308633",
+    "110743251772500",
+    "90220834095663"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Blast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

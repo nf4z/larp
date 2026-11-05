@@ -1,0 +1,11 @@
+{
+  "name": "Frost Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Frost Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

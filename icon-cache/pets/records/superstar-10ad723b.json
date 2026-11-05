@@ -1,0 +1,17 @@
+{
+  "name": "Superstar",
+  "images": {
+    "Normal": "rbxassetid://97838044634552",
+    "Shiny": "rbxassetid://87856520888633"
+  },
+  "assetIds": [
+    "87856520888633",
+    "97838044634552"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Superstar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Milk Kitty",
+  "images": {
+    "Normal": "rbxassetid://119620807426498",
+    "Shiny": "rbxassetid://114095243143979"
+  },
+  "assetIds": [
+    "114095243143979",
+    "119620807426498"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Milk Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

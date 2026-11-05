@@ -1,0 +1,17 @@
+{
+  "name": "VOID HEART",
+  "images": {
+    "Normal": "rbxassetid://83341563051625",
+    "Shiny": "rbxassetid://77807485569943"
+  },
+  "assetIds": [
+    "77807485569943",
+    "83341563051625"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID HEART"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

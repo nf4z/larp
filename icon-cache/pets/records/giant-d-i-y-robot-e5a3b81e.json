@@ -1,0 +1,21 @@
+{
+  "name": "Giant D.I.Y Robot",
+  "images": {
+    "Normal": "rbxassetid://78321525863159",
+    "Shiny": "rbxassetid://138651511142097",
+    "Mythic": "rbxassetid://71201466871684",
+    "MythicShiny": "rbxassetid://120984420226777"
+  },
+  "assetIds": [
+    "120984420226777",
+    "138651511142097",
+    "71201466871684",
+    "78321525863159"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant D.I.Y Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

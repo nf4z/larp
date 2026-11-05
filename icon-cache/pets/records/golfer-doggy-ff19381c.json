@@ -1,0 +1,17 @@
+{
+  "name": "Golfer Doggy",
+  "images": {
+    "Normal": "rbxassetid://96102125960692",
+    "Shiny": "rbxassetid://108451226585777"
+  },
+  "assetIds": [
+    "108451226585777",
+    "96102125960692"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golfer Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

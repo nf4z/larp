@@ -1,0 +1,21 @@
+{
+  "name": "Kuuhenki",
+  "images": {
+    "Normal": "rbxassetid://77044865796798",
+    "Shiny": "rbxassetid://86076149573968",
+    "Mythic": "rbxassetid://132338494901470",
+    "MythicShiny": "rbxassetid://75856046449814"
+  },
+  "assetIds": [
+    "132338494901470",
+    "75856046449814",
+    "77044865796798",
+    "86076149573968"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kuuhenki"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

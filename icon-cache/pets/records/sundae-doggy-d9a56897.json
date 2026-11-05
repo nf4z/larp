@@ -1,0 +1,17 @@
+{
+  "name": "Sundae Doggy",
+  "images": {
+    "Normal": "rbxassetid://91508263053846",
+    "Shiny": "rbxassetid://131531651023571"
+  },
+  "assetIds": [
+    "131531651023571",
+    "91508263053846"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sundae Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Luminant Skull",
+  "images": {
+    "Normal": "rbxassetid://118173208632453",
+    "Shiny": "rbxassetid://86292942190924"
+  },
+  "assetIds": [
+    "118173208632453",
+    "86292942190924"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

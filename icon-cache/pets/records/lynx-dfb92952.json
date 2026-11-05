@@ -1,0 +1,21 @@
+{
+  "name": "Lynx",
+  "images": {
+    "Normal": "rbxassetid://89307486119335",
+    "Shiny": "rbxassetid://139208877378920",
+    "Mythic": "rbxassetid://138466503741420",
+    "MythicShiny": "rbxassetid://104977062058501"
+  },
+  "assetIds": [
+    "104977062058501",
+    "138466503741420",
+    "139208877378920",
+    "89307486119335"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lynx"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

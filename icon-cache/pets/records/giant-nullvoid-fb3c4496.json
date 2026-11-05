@@ -1,0 +1,21 @@
+{
+  "name": "Giant NULLvoid",
+  "images": {
+    "Normal": "rbxassetid://84112258349035",
+    "Shiny": "rbxassetid://111039890989086",
+    "Mythic": "rbxassetid://123111052987984",
+    "MythicShiny": "rbxassetid://115461318371101"
+  },
+  "assetIds": [
+    "111039890989086",
+    "115461318371101",
+    "123111052987984",
+    "84112258349035"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant NULLvoid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

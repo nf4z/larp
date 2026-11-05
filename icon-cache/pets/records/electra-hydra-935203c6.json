@@ -1,0 +1,17 @@
+{
+  "name": "Electra Hydra",
+  "images": {
+    "Normal": "rbxassetid://135131712275131",
+    "Shiny": "rbxassetid://138488373164398"
+  },
+  "assetIds": [
+    "135131712275131",
+    "138488373164398"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Electra Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

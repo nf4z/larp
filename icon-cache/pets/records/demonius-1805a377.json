@@ -1,0 +1,21 @@
+{
+  "name": "Demonius",
+  "images": {
+    "Normal": "rbxassetid://116567720493794",
+    "Shiny": "rbxassetid://131321789973842",
+    "Mythic": "rbxassetid://125078214869057",
+    "MythicShiny": "rbxassetid://123412052243412"
+  },
+  "assetIds": [
+    "116567720493794",
+    "123412052243412",
+    "125078214869057",
+    "131321789973842"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonius"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Cherry Season Egg",
+  "images": {
+    "Image": "rbxassetid://76616883199707"
+  },
+  "assetIds": [
+    "76616883199707"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

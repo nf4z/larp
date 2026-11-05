@@ -1,0 +1,12 @@
+{
+  "name": "Azure Egg",
+  "images": {
+    "Image": "rbxassetid://138202287276011"
+  },
+  "assetIds": [
+    "138202287276011"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

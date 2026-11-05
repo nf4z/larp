@@ -1,0 +1,21 @@
+{
+  "name": "Bubble Overlord",
+  "images": {
+    "Normal": "rbxassetid://112719359858180",
+    "Shiny": "rbxassetid://127122133683325",
+    "Mythic": "rbxassetid://127649890044565",
+    "MythicShiny": "rbxassetid://106317750253587"
+  },
+  "assetIds": [
+    "106317750253587",
+    "112719359858180",
+    "127122133683325",
+    "127649890044565"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubble Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

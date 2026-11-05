@@ -1,0 +1,12 @@
+{
+  "name": "Underworld Egg",
+  "images": {
+    "Image": "rbxassetid://112507738520697"
+  },
+  "assetIds": [
+    "112507738520697"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

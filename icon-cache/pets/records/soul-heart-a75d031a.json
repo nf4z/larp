@@ -1,0 +1,21 @@
+{
+  "name": "Soul Heart",
+  "images": {
+    "Normal": "rbxassetid://101204491138911",
+    "Shiny": "rbxassetid://123454024844359",
+    "Mythic": "rbxassetid://107158857370137",
+    "MythicShiny": "rbxassetid://110401693029895"
+  },
+  "assetIds": [
+    "101204491138911",
+    "107158857370137",
+    "110401693029895",
+    "123454024844359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soul Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

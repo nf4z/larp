@@ -1,0 +1,17 @@
+{
+  "name": "Competitor Doggy",
+  "images": {
+    "Normal": "rbxassetid://127208677869819",
+    "Shiny": "rbxassetid://89651347381678"
+  },
+  "assetIds": [
+    "127208677869819",
+    "89651347381678"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Competitor Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

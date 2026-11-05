@@ -1,0 +1,17 @@
+{
+  "name": "Big Coconut Boi",
+  "images": {
+    "Normal": "rbxassetid://139970097083937",
+    "Shiny": "rbxassetid://72234421360946"
+  },
+  "assetIds": [
+    "139970097083937",
+    "72234421360946"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Coconut Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

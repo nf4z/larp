@@ -1,0 +1,15 @@
+{
+  "name": "Planar Eel",
+  "images": {
+    "Image": "rbxassetid://98062603321272"
+  },
+  "assetIds": [
+    "98062603321272"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Planar Eel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

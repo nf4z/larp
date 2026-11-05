@@ -1,0 +1,12 @@
+{
+  "name": "Sweet Egg",
+  "images": {
+    "Image": "rbxassetid://90298326818642"
+  },
+  "assetIds": [
+    "90298326818642"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

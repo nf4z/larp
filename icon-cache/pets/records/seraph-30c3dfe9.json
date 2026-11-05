@@ -1,0 +1,21 @@
+{
+  "name": "Seraph",
+  "images": {
+    "Normal": "rbxassetid://89406259803728",
+    "Shiny": "rbxassetid://99697506225209",
+    "Mythic": "rbxassetid://72318360051013",
+    "MythicShiny": "rbxassetid://74573418733805"
+  },
+  "assetIds": [
+    "72318360051013",
+    "74573418733805",
+    "89406259803728",
+    "99697506225209"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seraph"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "D.I.Y Dumb Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://88200172210587",
+    "Shiny": "rbxassetid://116912714139378",
+    "Mythic": "rbxassetid://119194528926251",
+    "MythicShiny": "rbxassetid://85602240201782"
+  },
+  "assetIds": [
+    "116912714139378",
+    "119194528926251",
+    "85602240201782",
+    "88200172210587"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "D.I.Y Dumb Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

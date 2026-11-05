@@ -1,0 +1,21 @@
+{
+  "name": "Easter Robot",
+  "images": {
+    "Normal": "rbxassetid://83003772725771",
+    "Shiny": "rbxassetid://86727623225941",
+    "Mythic": "rbxassetid://82588783171068",
+    "MythicShiny": "rbxassetid://86846027908507"
+  },
+  "assetIds": [
+    "82588783171068",
+    "83003772725771",
+    "86727623225941",
+    "86846027908507"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

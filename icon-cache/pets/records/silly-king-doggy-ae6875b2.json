@@ -1,0 +1,21 @@
+{
+  "name": "Silly King Doggy",
+  "images": {
+    "Normal": "rbxassetid://74601992382120",
+    "Shiny": "rbxassetid://73244133369526",
+    "Mythic": "rbxassetid://96248988785139",
+    "MythicShiny": "rbxassetid://82638912630570"
+  },
+  "assetIds": [
+    "73244133369526",
+    "74601992382120",
+    "82638912630570",
+    "96248988785139"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly King Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

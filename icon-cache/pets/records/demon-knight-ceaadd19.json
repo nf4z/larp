@@ -1,0 +1,21 @@
+{
+  "name": "Demon Knight",
+  "images": {
+    "Normal": "rbxassetid://77280214118113",
+    "Shiny": "rbxassetid://111455130488482",
+    "Mythic": "rbxassetid://102897851307481",
+    "MythicShiny": "rbxassetid://135409738521289"
+  },
+  "assetIds": [
+    "102897851307481",
+    "111455130488482",
+    "135409738521289",
+    "77280214118113"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Knight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

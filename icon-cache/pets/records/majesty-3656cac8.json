@@ -1,0 +1,21 @@
+{
+  "name": "Majesty",
+  "images": {
+    "Normal": "rbxassetid://77312392680068",
+    "Shiny": "rbxassetid://136085807060978",
+    "Mythic": "rbxassetid://123027941202783",
+    "MythicShiny": "rbxassetid://89232688115746"
+  },
+  "assetIds": [
+    "123027941202783",
+    "136085807060978",
+    "77312392680068",
+    "89232688115746"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Majesty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

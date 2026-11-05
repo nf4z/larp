@@ -1,0 +1,17 @@
+{
+  "name": "Dowodle Pile",
+  "images": {
+    "Normal": "rbxassetid://72734736984620",
+    "Shiny": "rbxassetid://131737186146419"
+  },
+  "assetIds": [
+    "131737186146419",
+    "72734736984620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowodle Pile"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

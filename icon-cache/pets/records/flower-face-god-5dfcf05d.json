@@ -1,0 +1,21 @@
+{
+  "name": "FLOWER FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://105736224203744",
+    "Shiny": "rbxassetid://105126347643368",
+    "Mythic": "rbxassetid://91951043895711",
+    "MythicShiny": "rbxassetid://118007632845420"
+  },
+  "assetIds": [
+    "105126347643368",
+    "105736224203744",
+    "118007632845420",
+    "91951043895711"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "FLOWER FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

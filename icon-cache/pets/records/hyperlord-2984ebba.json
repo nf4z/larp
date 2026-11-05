@@ -1,0 +1,21 @@
+{
+  "name": "Hyperlord",
+  "images": {
+    "Normal": "rbxassetid://126683142464323",
+    "Shiny": "rbxassetid://130341290031838",
+    "Mythic": "rbxassetid://139059288950399",
+    "MythicShiny": "rbxassetid://80285828497583"
+  },
+  "assetIds": [
+    "126683142464323",
+    "130341290031838",
+    "139059288950399",
+    "80285828497583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

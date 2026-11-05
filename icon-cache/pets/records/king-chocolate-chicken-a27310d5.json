@@ -1,0 +1,21 @@
+{
+  "name": "King Chocolate Chicken",
+  "images": {
+    "Normal": "rbxassetid://86842801465743",
+    "Shiny": "rbxassetid://102178239825703",
+    "Mythic": "rbxassetid://90925826971858",
+    "MythicShiny": "rbxassetid://94160575006960"
+  },
+  "assetIds": [
+    "102178239825703",
+    "86842801465743",
+    "90925826971858",
+    "94160575006960"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Chocolate Chicken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

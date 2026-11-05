@@ -1,0 +1,17 @@
+{
+  "name": "Ore Dragon",
+  "images": {
+    "Normal": "rbxassetid://102186065685460",
+    "Shiny": "rbxassetid://96245617609682"
+  },
+  "assetIds": [
+    "102186065685460",
+    "96245617609682"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ore Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

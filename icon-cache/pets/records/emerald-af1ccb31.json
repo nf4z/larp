@@ -1,0 +1,17 @@
+{
+  "name": "Emerald",
+  "images": {
+    "Normal": "rbxassetid://105024812324888",
+    "Shiny": "rbxassetid://136008639768359"
+  },
+  "assetIds": [
+    "105024812324888",
+    "136008639768359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Emerald"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

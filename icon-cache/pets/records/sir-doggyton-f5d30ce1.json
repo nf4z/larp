@@ -1,0 +1,21 @@
+{
+  "name": "Sir Doggyton",
+  "images": {
+    "Normal": "rbxassetid://94063528820685",
+    "Shiny": "rbxassetid://132536969974047",
+    "Mythic": "rbxassetid://101305015300824",
+    "MythicShiny": "rbxassetid://104208913219293"
+  },
+  "assetIds": [
+    "101305015300824",
+    "104208913219293",
+    "132536969974047",
+    "94063528820685"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sir Doggyton"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

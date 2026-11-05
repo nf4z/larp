@@ -1,0 +1,17 @@
+{
+  "name": "Dinosaur",
+  "images": {
+    "Normal": "rbxassetid://136766308309953",
+    "Shiny": "rbxassetid://127253788491436"
+  },
+  "assetIds": [
+    "127253788491436",
+    "136766308309953"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dinosaur"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

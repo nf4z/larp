@@ -1,0 +1,12 @@
+{
+  "name": "Beach Egg",
+  "images": {
+    "Image": "rbxassetid://132463525027155"
+  },
+  "assetIds": [
+    "132463525027155"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

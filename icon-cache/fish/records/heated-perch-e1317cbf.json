@@ -1,0 +1,15 @@
+{
+  "name": "Heated Perch",
+  "images": {
+    "Image": "rbxassetid://110142480620895"
+  },
+  "assetIds": [
+    "110142480620895"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Heated Perch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

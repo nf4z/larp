@@ -1,0 +1,17 @@
+{
+  "name": "Cloudy Doggy",
+  "images": {
+    "Normal": "rbxassetid://75608113259832",
+    "Shiny": "rbxassetid://112452197019768"
+  },
+  "assetIds": [
+    "112452197019768",
+    "75608113259832"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudy Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

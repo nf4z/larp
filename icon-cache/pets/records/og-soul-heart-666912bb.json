@@ -1,0 +1,17 @@
+{
+  "name": "OG Soul Heart",
+  "images": {
+    "Normal": "rbxassetid://82746999088803",
+    "Shiny": "rbxassetid://110287510752477"
+  },
+  "assetIds": [
+    "110287510752477",
+    "82746999088803"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Soul Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

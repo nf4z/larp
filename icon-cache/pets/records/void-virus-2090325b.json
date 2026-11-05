@@ -1,0 +1,17 @@
+{
+  "name": "Void Virus",
+  "images": {
+    "Normal": "rbxassetid://113620652479226",
+    "Shiny": "rbxassetid://74661604636679"
+  },
+  "assetIds": [
+    "113620652479226",
+    "74661604636679"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Virus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

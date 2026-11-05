@@ -1,0 +1,17 @@
+{
+  "name": "Security System",
+  "images": {
+    "Normal": "rbxassetid://100801467305756",
+    "Shiny": "rbxassetid://75582435565995"
+  },
+  "assetIds": [
+    "100801467305756",
+    "75582435565995"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Security System"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

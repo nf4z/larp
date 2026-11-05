@@ -1,0 +1,21 @@
+{
+  "name": "Void Eye",
+  "images": {
+    "Normal": "rbxassetid://80857178900736",
+    "Shiny": "rbxassetid://70746893052553",
+    "Mythic": "rbxassetid://134868386467426",
+    "MythicShiny": "rbxassetid://80132700140870"
+  },
+  "assetIds": [
+    "134868386467426",
+    "70746893052553",
+    "80132700140870",
+    "80857178900736"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

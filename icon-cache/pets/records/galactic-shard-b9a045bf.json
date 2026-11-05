@@ -1,0 +1,17 @@
+{
+  "name": "Galactic Shard",
+  "images": {
+    "Normal": "rbxassetid://72061106232038",
+    "Shiny": "rbxassetid://81657629667109"
+  },
+  "assetIds": [
+    "72061106232038",
+    "81657629667109"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galactic Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

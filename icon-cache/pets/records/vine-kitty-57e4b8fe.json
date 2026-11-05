@@ -1,0 +1,17 @@
+{
+  "name": "Vine Kitty",
+  "images": {
+    "Normal": "rbxassetid://122855198546586",
+    "Shiny": "rbxassetid://110462667491841"
+  },
+  "assetIds": [
+    "110462667491841",
+    "122855198546586"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vine Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

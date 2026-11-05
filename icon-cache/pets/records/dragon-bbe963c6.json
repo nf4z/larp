@@ -1,0 +1,17 @@
+{
+  "name": "Dragon",
+  "images": {
+    "Normal": "rbxassetid://114651533539774",
+    "Shiny": "rbxassetid://76431034154587"
+  },
+  "assetIds": [
+    "114651533539774",
+    "76431034154587"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Dominus Overlord",
+  "images": {
+    "Normal": "rbxassetid://125071328216262",
+    "Shiny": "rbxassetid://139900920346595"
+  },
+  "assetIds": [
+    "125071328216262",
+    "139900920346595"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dominus Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

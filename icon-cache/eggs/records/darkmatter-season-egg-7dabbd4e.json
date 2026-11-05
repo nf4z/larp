@@ -1,0 +1,12 @@
+{
+  "name": "Darkmatter Season Egg",
+  "images": {
+    "Image": "rbxassetid://127626118819197"
+  },
+  "assetIds": [
+    "127626118819197"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

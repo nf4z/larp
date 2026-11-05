@@ -1,0 +1,15 @@
+{
+  "name": "Nert Photograph",
+  "images": {
+    "Image": "rbxassetid://79163939187526"
+  },
+  "assetIds": [
+    "79163939187526"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Nert Photograph"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

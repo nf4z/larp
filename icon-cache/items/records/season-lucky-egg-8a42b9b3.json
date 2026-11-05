@@ -1,0 +1,11 @@
+{
+  "name": "Season Lucky Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Season Lucky Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

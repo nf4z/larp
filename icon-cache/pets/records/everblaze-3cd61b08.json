@@ -1,0 +1,21 @@
+{
+  "name": "Everblaze",
+  "images": {
+    "Normal": "rbxassetid://109634170464084",
+    "Shiny": "rbxassetid://130633057237060",
+    "Mythic": "rbxassetid://100578834059310",
+    "MythicShiny": "rbxassetid://87547488111933"
+  },
+  "assetIds": [
+    "100578834059310",
+    "109634170464084",
+    "130633057237060",
+    "87547488111933"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Everblaze"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

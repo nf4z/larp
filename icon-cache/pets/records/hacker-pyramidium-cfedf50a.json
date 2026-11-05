@@ -1,0 +1,21 @@
+{
+  "name": "Hacker Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://112911373157148",
+    "Shiny": "rbxassetid://89207346745491",
+    "Mythic": "rbxassetid://85930849761682",
+    "MythicShiny": "rbxassetid://136713241289818"
+  },
+  "assetIds": [
+    "112911373157148",
+    "136713241289818",
+    "85930849761682",
+    "89207346745491"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hacker Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

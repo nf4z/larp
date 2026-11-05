@@ -1,0 +1,21 @@
+{
+  "name": "The Puppeteer",
+  "images": {
+    "Normal": "rbxassetid://124389771931036",
+    "Shiny": "rbxassetid://110739795371620",
+    "Mythic": "rbxassetid://119799363935671",
+    "MythicShiny": "rbxassetid://83283503262296"
+  },
+  "assetIds": [
+    "110739795371620",
+    "119799363935671",
+    "124389771931036",
+    "83283503262296"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Puppeteer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

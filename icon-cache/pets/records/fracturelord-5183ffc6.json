@@ -1,0 +1,21 @@
+{
+  "name": "Fracturelord",
+  "images": {
+    "Normal": "rbxassetid://110555319419125",
+    "Shiny": "rbxassetid://103910983035418",
+    "Mythic": "rbxassetid://95158671383298",
+    "MythicShiny": "rbxassetid://109980319476056"
+  },
+  "assetIds": [
+    "103910983035418",
+    "109980319476056",
+    "110555319419125",
+    "95158671383298"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fracturelord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

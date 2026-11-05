@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Doggy",
+  "images": {
+    "Normal": "rbxassetid://90227521826571",
+    "Shiny": "rbxassetid://93163564953991"
+  },
+  "assetIds": [
+    "90227521826571",
+    "93163564953991"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

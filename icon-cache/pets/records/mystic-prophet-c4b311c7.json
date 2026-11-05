@@ -1,0 +1,21 @@
+{
+  "name": "Mystic Prophet",
+  "images": {
+    "Normal": "rbxassetid://90510204693833",
+    "Shiny": "rbxassetid://110558394667576",
+    "Mythic": "rbxassetid://98857561132732",
+    "MythicShiny": "rbxassetid://76598463043488"
+  },
+  "assetIds": [
+    "110558394667576",
+    "76598463043488",
+    "90510204693833",
+    "98857561132732"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mystic Prophet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

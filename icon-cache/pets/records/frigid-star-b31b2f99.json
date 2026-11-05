@@ -1,0 +1,21 @@
+{
+  "name": "Frigid Star",
+  "images": {
+    "Normal": "rbxassetid://125516699043532",
+    "Shiny": "rbxassetid://114360302108153",
+    "Mythic": "rbxassetid://117839221696878",
+    "MythicShiny": "rbxassetid://120482181445163"
+  },
+  "assetIds": [
+    "114360302108153",
+    "117839221696878",
+    "120482181445163",
+    "125516699043532"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frigid Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

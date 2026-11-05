@@ -1,0 +1,21 @@
+{
+  "name": "Magma Cube",
+  "images": {
+    "Normal": "rbxassetid://77691298774428",
+    "Shiny": "rbxassetid://119409058732300",
+    "Mythic": "rbxassetid://115553355395615",
+    "MythicShiny": "rbxassetid://91334132820048"
+  },
+  "assetIds": [
+    "115553355395615",
+    "119409058732300",
+    "77691298774428",
+    "91334132820048"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

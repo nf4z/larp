@@ -1,0 +1,21 @@
+{
+  "name": "Bounty Basket",
+  "images": {
+    "Normal": "rbxassetid://96522565454050",
+    "Shiny": "rbxassetid://106328034189925",
+    "Mythic": "rbxassetid://125753575133565",
+    "MythicShiny": "rbxassetid://111748235257139"
+  },
+  "assetIds": [
+    "106328034189925",
+    "111748235257139",
+    "125753575133565",
+    "96522565454050"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bounty Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

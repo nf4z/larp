@@ -1,0 +1,21 @@
+{
+  "name": "King Spitty",
+  "images": {
+    "Normal": "rbxassetid://132342090595450",
+    "Shiny": "rbxassetid://105909687508851",
+    "Mythic": "rbxassetid://123391947411091",
+    "MythicShiny": "rbxassetid://136295665976789"
+  },
+  "assetIds": [
+    "105909687508851",
+    "123391947411091",
+    "132342090595450",
+    "136295665976789"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

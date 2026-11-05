@@ -1,0 +1,17 @@
+{
+  "name": "Space Mouse",
+  "images": {
+    "Normal": "rbxassetid://135043754095523",
+    "Shiny": "rbxassetid://112742089216721"
+  },
+  "assetIds": [
+    "112742089216721",
+    "135043754095523"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Space Mouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

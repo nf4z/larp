@@ -1,0 +1,21 @@
+{
+  "name": "The Leviathan",
+  "images": {
+    "Normal": "rbxassetid://98308351706347",
+    "Shiny": "rbxassetid://118672163651059",
+    "Mythic": "rbxassetid://100579099370222",
+    "MythicShiny": "rbxassetid://98773972129843"
+  },
+  "assetIds": [
+    "100579099370222",
+    "118672163651059",
+    "98308351706347",
+    "98773972129843"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

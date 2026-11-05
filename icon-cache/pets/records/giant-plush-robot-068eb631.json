@@ -1,0 +1,17 @@
+{
+  "name": "Giant Plush Robot",
+  "images": {
+    "Normal": "rbxassetid://132097283667391",
+    "Shiny": "rbxassetid://131266112705519"
+  },
+  "assetIds": [
+    "131266112705519",
+    "132097283667391"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Plush Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

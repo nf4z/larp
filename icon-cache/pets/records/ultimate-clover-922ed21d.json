@@ -1,0 +1,21 @@
+{
+  "name": "Ultimate Clover",
+  "images": {
+    "Normal": "rbxassetid://86150906052861",
+    "Shiny": "rbxassetid://124354862028821",
+    "Mythic": "rbxassetid://127413518696730",
+    "MythicShiny": "rbxassetid://115372802112543"
+  },
+  "assetIds": [
+    "115372802112543",
+    "124354862028821",
+    "127413518696730",
+    "86150906052861"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ultimate Clover"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

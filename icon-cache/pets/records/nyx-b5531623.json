@@ -1,0 +1,21 @@
+{
+  "name": "Nyx",
+  "images": {
+    "Normal": "rbxassetid://107793559180744",
+    "Shiny": "rbxassetid://93290634873356",
+    "Mythic": "rbxassetid://104571422530260",
+    "MythicShiny": "rbxassetid://114698888777311"
+  },
+  "assetIds": [
+    "104571422530260",
+    "107793559180744",
+    "114698888777311",
+    "93290634873356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nyx"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

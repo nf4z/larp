@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Dowodle",
+  "images": {
+    "Normal": "rbxassetid://89931973590637",
+    "Shiny": "rbxassetid://92089963659799",
+    "Mythic": "rbxassetid://92803726996171",
+    "MythicShiny": "rbxassetid://112065239984029"
+  },
+  "assetIds": [
+    "112065239984029",
+    "89931973590637",
+    "92089963659799",
+    "92803726996171"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

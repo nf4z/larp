@@ -1,0 +1,17 @@
+{
+  "name": "Mecha Kraken",
+  "images": {
+    "Normal": "rbxassetid://100608156367835",
+    "Shiny": "rbxassetid://76472799406843"
+  },
+  "assetIds": [
+    "100608156367835",
+    "76472799406843"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mecha Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Royal Trophy",
+  "images": {
+    "Normal": "rbxassetid://102016856452664",
+    "Shiny": "rbxassetid://103886175167440",
+    "Mythic": "rbxassetid://71734612734368",
+    "MythicShiny": "rbxassetid://87743556079640"
+  },
+  "assetIds": [
+    "102016856452664",
+    "103886175167440",
+    "71734612734368",
+    "87743556079640"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

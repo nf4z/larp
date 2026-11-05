@@ -1,0 +1,17 @@
+{
+  "name": "Scarecrow",
+  "images": {
+    "Normal": "rbxassetid://78441243827669",
+    "Shiny": "rbxassetid://101378110468964"
+  },
+  "assetIds": [
+    "101378110468964",
+    "78441243827669"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Scarecrow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

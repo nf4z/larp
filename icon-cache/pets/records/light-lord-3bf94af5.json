@@ -1,0 +1,17 @@
+{
+  "name": "Light Lord",
+  "images": {
+    "Normal": "rbxassetid://119087888924022",
+    "Shiny": "rbxassetid://122048931438933"
+  },
+  "assetIds": [
+    "119087888924022",
+    "122048931438933"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Panda",
+  "images": {
+    "Normal": "rbxassetid://91488017698621",
+    "Shiny": "rbxassetid://75252717226679"
+  },
+  "assetIds": [
+    "75252717226679",
+    "91488017698621"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Panda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

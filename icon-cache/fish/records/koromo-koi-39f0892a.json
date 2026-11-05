@@ -1,0 +1,15 @@
+{
+  "name": "Koromo Koi",
+  "images": {
+    "Image": "rbxassetid://139992837088918"
+  },
+  "assetIds": [
+    "139992837088918"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Koromo Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Wooden Crate",
+  "images": {
+    "Image": "rbxassetid://113273359469450"
+  },
+  "assetIds": [
+    "113273359469450"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Wooden Crate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

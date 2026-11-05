@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Shock",
+  "images": {
+    "Normal": "rbxassetid://85241550003667",
+    "Shiny": "rbxassetid://71674679127860",
+    "Mythic": "rbxassetid://98139095765559",
+    "MythicShiny": "rbxassetid://85001559460869"
+  },
+  "assetIds": [
+    "71674679127860",
+    "85001559460869",
+    "85241550003667",
+    "98139095765559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

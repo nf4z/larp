@@ -1,0 +1,17 @@
+{
+  "name": "Ore Bunny",
+  "images": {
+    "Normal": "rbxassetid://76948432540932",
+    "Shiny": "rbxassetid://101908425391389"
+  },
+  "assetIds": [
+    "101908425391389",
+    "76948432540932"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ore Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

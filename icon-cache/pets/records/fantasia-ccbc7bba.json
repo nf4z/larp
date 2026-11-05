@@ -1,0 +1,21 @@
+{
+  "name": "Fantasia",
+  "images": {
+    "Normal": "rbxassetid://137851566573075",
+    "Shiny": "rbxassetid://114414172181190",
+    "Mythic": "rbxassetid://90975896642515",
+    "MythicShiny": "rbxassetid://122019271891997"
+  },
+  "assetIds": [
+    "114414172181190",
+    "122019271891997",
+    "137851566573075",
+    "90975896642515"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fantasia"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

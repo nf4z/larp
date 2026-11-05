@@ -1,0 +1,21 @@
+{
+  "name": "Jackpot Gem",
+  "images": {
+    "Normal": "rbxassetid://96071898359462",
+    "Shiny": "rbxassetid://96710896842193",
+    "Mythic": "rbxassetid://97063408916951",
+    "MythicShiny": "rbxassetid://139225792205629"
+  },
+  "assetIds": [
+    "139225792205629",
+    "96071898359462",
+    "96710896842193",
+    "97063408916951"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jackpot Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

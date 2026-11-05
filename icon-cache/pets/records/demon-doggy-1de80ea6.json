@@ -1,0 +1,17 @@
+{
+  "name": "Demon Doggy",
+  "images": {
+    "Normal": "rbxassetid://101269692150333",
+    "Shiny": "rbxassetid://127440148513684"
+  },
+  "assetIds": [
+    "101269692150333",
+    "127440148513684"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

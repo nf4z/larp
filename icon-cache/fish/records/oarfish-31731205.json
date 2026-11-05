@@ -1,0 +1,15 @@
+{
+  "name": "Oarfish",
+  "images": {
+    "Image": "rbxassetid://86669556589201"
+  },
+  "assetIds": [
+    "86669556589201"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Oarfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

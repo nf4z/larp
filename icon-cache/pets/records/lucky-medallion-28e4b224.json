@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Medallion",
+  "images": {
+    "Normal": "rbxassetid://89552194794667",
+    "Shiny": "rbxassetid://104207462092855",
+    "Mythic": "rbxassetid://82386840148670",
+    "MythicShiny": "rbxassetid://96505991407313"
+  },
+  "assetIds": [
+    "104207462092855",
+    "82386840148670",
+    "89552194794667",
+    "96505991407313"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Medallion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

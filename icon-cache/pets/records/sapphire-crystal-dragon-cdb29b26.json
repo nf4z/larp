@@ -1,0 +1,21 @@
+{
+  "name": "Sapphire Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://140202107252644",
+    "Shiny": "rbxassetid://134750008426271",
+    "Mythic": "rbxassetid://124868406244475",
+    "MythicShiny": "rbxassetid://81497726082407"
+  },
+  "assetIds": [
+    "124868406244475",
+    "134750008426271",
+    "140202107252644",
+    "81497726082407"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sapphire Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

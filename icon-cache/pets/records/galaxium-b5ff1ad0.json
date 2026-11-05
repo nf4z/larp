@@ -1,0 +1,21 @@
+{
+  "name": "Galaxium",
+  "images": {
+    "Normal": "rbxassetid://122130293536833",
+    "Shiny": "rbxassetid://77510399477891",
+    "Mythic": "rbxassetid://100671015460269",
+    "MythicShiny": "rbxassetid://71583451791657"
+  },
+  "assetIds": [
+    "100671015460269",
+    "122130293536833",
+    "71583451791657",
+    "77510399477891"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galaxium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG King Skull",
+  "images": {
+    "Normal": "rbxassetid://80936013376709",
+    "Shiny": "rbxassetid://83853739161626",
+    "Mythic": "rbxassetid://75556574258764",
+    "MythicShiny": "rbxassetid://71225743431797"
+  },
+  "assetIds": [
+    "71225743431797",
+    "75556574258764",
+    "80936013376709",
+    "83853739161626"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG King Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Hallowed Spirit",
+  "images": {
+    "Normal": "rbxassetid://81808523099698",
+    "Shiny": "rbxassetid://85458215301878",
+    "Mythic": "rbxassetid://130261200073474",
+    "MythicShiny": "rbxassetid://94291160097486"
+  },
+  "assetIds": [
+    "130261200073474",
+    "81808523099698",
+    "85458215301878",
+    "94291160097486"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hallowed Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

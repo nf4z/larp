@@ -1,0 +1,15 @@
+{
+  "name": "Glacier Bass",
+  "images": {
+    "Image": "rbxassetid://131630772879365"
+  },
+  "assetIds": [
+    "131630772879365"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Glacier Bass"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

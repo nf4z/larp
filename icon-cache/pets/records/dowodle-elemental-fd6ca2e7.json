@@ -1,0 +1,21 @@
+{
+  "name": "Dowodle Elemental",
+  "images": {
+    "Normal": "rbxassetid://73481822763714",
+    "Shiny": "rbxassetid://134834597926055",
+    "Mythic": "rbxassetid://73266980928852",
+    "MythicShiny": "rbxassetid://88432904018378"
+  },
+  "assetIds": [
+    "134834597926055",
+    "73266980928852",
+    "73481822763714",
+    "88432904018378"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowodle Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

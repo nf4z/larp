@@ -1,0 +1,15 @@
+{
+  "name": "PrizeCoins",
+  "images": {
+    "Image": "rbxassetid://71667919449685"
+  },
+  "assetIds": [
+    "71667919449685"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "PrizeCoins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

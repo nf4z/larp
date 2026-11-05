@@ -1,0 +1,21 @@
+{
+  "name": "Kraken Couplet",
+  "images": {
+    "Normal": "rbxassetid://140127517908244",
+    "Shiny": "rbxassetid://86209201725579",
+    "Mythic": "rbxassetid://109954674638480",
+    "MythicShiny": "rbxassetid://137872182077639"
+  },
+  "assetIds": [
+    "109954674638480",
+    "137872182077639",
+    "140127517908244",
+    "86209201725579"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kraken Couplet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

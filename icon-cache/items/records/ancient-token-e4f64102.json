@@ -1,0 +1,15 @@
+{
+  "name": "Ancient Token",
+  "images": {
+    "Image": "rbxassetid://120970218578730"
+  },
+  "assetIds": [
+    "120970218578730"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Ancient Token"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

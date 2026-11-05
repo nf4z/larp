@@ -1,0 +1,17 @@
+{
+  "name": "OG Shade Demon",
+  "images": {
+    "Normal": "rbxassetid://115766794349353",
+    "Shiny": "rbxassetid://122828089929969"
+  },
+  "assetIds": [
+    "115766794349353",
+    "122828089929969"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Shade Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Gem",
+  "images": {
+    "Normal": "rbxassetid://99153381832357",
+    "Shiny": "rbxassetid://82894679237959",
+    "Mythic": "rbxassetid://93605797944050",
+    "MythicShiny": "rbxassetid://76674105283012"
+  },
+  "assetIds": [
+    "76674105283012",
+    "82894679237959",
+    "93605797944050",
+    "99153381832357"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

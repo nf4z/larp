@@ -1,0 +1,17 @@
+{
+  "name": "Azure Judgement",
+  "images": {
+    "Normal": "rbxassetid://101991069703508",
+    "Shiny": "rbxassetid://121474315308091"
+  },
+  "assetIds": [
+    "101991069703508",
+    "121474315308091"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Judgement"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Crowned Soul",
+  "images": {
+    "Normal": "rbxassetid://126210359923728",
+    "Shiny": "rbxassetid://91407482009325",
+    "Mythic": "rbxassetid://81852406507748",
+    "MythicShiny": "rbxassetid://116674065485532"
+  },
+  "assetIds": [
+    "116674065485532",
+    "126210359923728",
+    "81852406507748",
+    "91407482009325"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crowned Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

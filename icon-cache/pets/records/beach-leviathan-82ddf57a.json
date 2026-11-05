@@ -1,0 +1,21 @@
+{
+  "name": "Beach Leviathan",
+  "images": {
+    "Normal": "rbxassetid://92369059556634",
+    "Shiny": "rbxassetid://127374893142333",
+    "Mythic": "rbxassetid://125729354540932",
+    "MythicShiny": "rbxassetid://109298244617318"
+  },
+  "assetIds": [
+    "109298244617318",
+    "125729354540932",
+    "127374893142333",
+    "92369059556634"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beach Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

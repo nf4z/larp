@@ -1,0 +1,21 @@
+{
+  "name": "Fire Champion",
+  "images": {
+    "Normal": "rbxassetid://94921178809996",
+    "Shiny": "rbxassetid://75915838484722",
+    "Mythic": "rbxassetid://140569491153651",
+    "MythicShiny": "rbxassetid://108340178800634"
+  },
+  "assetIds": [
+    "108340178800634",
+    "140569491153651",
+    "75915838484722",
+    "94921178809996"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

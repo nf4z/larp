@@ -1,0 +1,21 @@
+{
+  "name": "Colossal Kraken",
+  "images": {
+    "Normal": "rbxassetid://106977004543602",
+    "Shiny": "rbxassetid://75028663780154",
+    "Mythic": "rbxassetid://77654776201235",
+    "MythicShiny": "rbxassetid://118924118765765"
+  },
+  "assetIds": [
+    "106977004543602",
+    "118924118765765",
+    "75028663780154",
+    "77654776201235"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Colossal Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

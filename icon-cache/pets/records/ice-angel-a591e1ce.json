@@ -1,0 +1,17 @@
+{
+  "name": "Ice Angel",
+  "images": {
+    "Normal": "rbxassetid://99944732911789",
+    "Shiny": "rbxassetid://96027547159670"
+  },
+  "assetIds": [
+    "96027547159670",
+    "99944732911789"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

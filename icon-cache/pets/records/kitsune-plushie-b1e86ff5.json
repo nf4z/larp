@@ -1,0 +1,21 @@
+{
+  "name": "Kitsune Plushie",
+  "images": {
+    "Normal": "rbxassetid://135634042343737",
+    "Shiny": "rbxassetid://93682257974937",
+    "Mythic": "rbxassetid://92590553657789",
+    "MythicShiny": "rbxassetid://102546273266771"
+  },
+  "assetIds": [
+    "102546273266771",
+    "135634042343737",
+    "92590553657789",
+    "93682257974937"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitsune Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

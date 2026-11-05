@@ -1,0 +1,15 @@
+{
+  "name": "Shadow Mystery Box",
+  "images": {
+    "Image": "rbxassetid://94201137725017"
+  },
+  "assetIds": [
+    "94201137725017"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Shadow Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

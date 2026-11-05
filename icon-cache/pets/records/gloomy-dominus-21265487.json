@@ -1,0 +1,17 @@
+{
+  "name": "Gloomy Dominus",
+  "images": {
+    "Normal": "rbxassetid://87139806439946",
+    "Shiny": "rbxassetid://93444404631381"
+  },
+  "assetIds": [
+    "87139806439946",
+    "93444404631381"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gloomy Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

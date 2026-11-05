@@ -1,0 +1,21 @@
+{
+  "name": "Galactic Bunny",
+  "images": {
+    "Normal": "rbxassetid://103260472815412",
+    "Shiny": "rbxassetid://109674936453495",
+    "Mythic": "rbxassetid://101411682401353",
+    "MythicShiny": "rbxassetid://96454586829650"
+  },
+  "assetIds": [
+    "101411682401353",
+    "103260472815412",
+    "109674936453495",
+    "96454586829650"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galactic Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

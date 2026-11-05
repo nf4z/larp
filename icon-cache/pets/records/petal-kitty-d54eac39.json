@@ -1,0 +1,17 @@
+{
+  "name": "Petal Kitty",
+  "images": {
+    "Normal": "rbxassetid://89026827908863",
+    "Shiny": "rbxassetid://92733642520855"
+  },
+  "assetIds": [
+    "89026827908863",
+    "92733642520855"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Petal Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Big Hyperwave Bunny",
+  "images": {
+    "Normal": "rbxassetid://91478929608103",
+    "Shiny": "rbxassetid://115594377759797"
+  },
+  "assetIds": [
+    "115594377759797",
+    "91478929608103"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Hyperwave Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Light Doggy",
+  "images": {
+    "Normal": "rbxassetid://134596924916143",
+    "Shiny": "rbxassetid://125684967508514"
+  },
+  "assetIds": [
+    "125684967508514",
+    "134596924916143"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

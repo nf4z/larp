@@ -1,0 +1,17 @@
+{
+  "name": "Jester Slime",
+  "images": {
+    "Normal": "rbxassetid://132101714337818",
+    "Shiny": "rbxassetid://102019763349121"
+  },
+  "assetIds": [
+    "102019763349121",
+    "132101714337818"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

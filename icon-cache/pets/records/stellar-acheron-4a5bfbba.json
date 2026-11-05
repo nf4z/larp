@@ -1,0 +1,21 @@
+{
+  "name": "Stellar Acheron",
+  "images": {
+    "Normal": "rbxassetid://104371370939280",
+    "Shiny": "rbxassetid://121090542251961",
+    "Mythic": "rbxassetid://117966253024042",
+    "MythicShiny": "rbxassetid://92061239709101"
+  },
+  "assetIds": [
+    "104371370939280",
+    "117966253024042",
+    "121090542251961",
+    "92061239709101"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Acheron"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

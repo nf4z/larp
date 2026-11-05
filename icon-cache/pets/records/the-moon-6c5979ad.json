@@ -1,0 +1,17 @@
+{
+  "name": "The Moon",
+  "images": {
+    "Normal": "rbxassetid://94569604837030",
+    "Shiny": "rbxassetid://99528811017451"
+  },
+  "assetIds": [
+    "94569604837030",
+    "99528811017451"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Moon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

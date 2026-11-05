@@ -1,0 +1,21 @@
+{
+  "name": "Shattered Soul",
+  "images": {
+    "Normal": "rbxassetid://134015608611496",
+    "Shiny": "rbxassetid://85055800906520",
+    "Mythic": "rbxassetid://88546086819095",
+    "MythicShiny": "rbxassetid://111175365715539"
+  },
+  "assetIds": [
+    "111175365715539",
+    "134015608611496",
+    "85055800906520",
+    "88546086819095"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shattered Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

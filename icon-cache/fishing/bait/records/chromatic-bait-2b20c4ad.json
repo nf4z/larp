@@ -1,0 +1,15 @@
+{
+  "name": "Chromatic Bait",
+  "images": {
+    "Image": "rbxassetid://70951395050303"
+  },
+  "assetIds": [
+    "70951395050303"
+  ],
+  "item": {
+    "Type": "Bait",
+    "Name": "Chromatic Bait"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingBait"
+}

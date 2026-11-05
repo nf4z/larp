@@ -1,0 +1,17 @@
+{
+  "name": "Lunar Fox",
+  "images": {
+    "Normal": "rbxassetid://79035300026236",
+    "Shiny": "rbxassetid://96789005954849"
+  },
+  "assetIds": [
+    "79035300026236",
+    "96789005954849"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

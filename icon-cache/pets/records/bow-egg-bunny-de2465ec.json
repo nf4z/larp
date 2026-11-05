@@ -1,0 +1,17 @@
+{
+  "name": "Bow Egg Bunny",
+  "images": {
+    "Normal": "rbxassetid://94929912467437",
+    "Shiny": "rbxassetid://107177316919802"
+  },
+  "assetIds": [
+    "107177316919802",
+    "94929912467437"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bow Egg Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

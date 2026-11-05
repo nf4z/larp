@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://104129656026984",
+    "Shiny": "rbxassetid://103150275408344",
+    "Mythic": "rbxassetid://106553953616180",
+    "MythicShiny": "rbxassetid://99921963003443"
+  },
+  "assetIds": [
+    "103150275408344",
+    "104129656026984",
+    "106553953616180",
+    "99921963003443"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

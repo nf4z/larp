@@ -1,0 +1,17 @@
+{
+  "name": "Mysterious Bloom",
+  "images": {
+    "Normal": "rbxassetid://84424628785673",
+    "Shiny": "rbxassetid://80095781267009"
+  },
+  "assetIds": [
+    "80095781267009",
+    "84424628785673"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mysterious Bloom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

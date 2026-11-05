@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://87523174603355",
+    "Shiny": "rbxassetid://103779257709179",
+    "Mythic": "rbxassetid://127456798461959",
+    "MythicShiny": "rbxassetid://138238831562422"
+  },
+  "assetIds": [
+    "103779257709179",
+    "127456798461959",
+    "138238831562422",
+    "87523174603355"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

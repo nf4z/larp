@@ -1,0 +1,11 @@
+{
+  "name": "Super Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Super Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

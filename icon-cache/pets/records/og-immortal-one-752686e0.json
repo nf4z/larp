@@ -1,0 +1,17 @@
+{
+  "name": "OG Immortal One",
+  "images": {
+    "Normal": "rbxassetid://72421454427289",
+    "Shiny": "rbxassetid://119753318047014"
+  },
+  "assetIds": [
+    "119753318047014",
+    "72421454427289"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Immortal One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

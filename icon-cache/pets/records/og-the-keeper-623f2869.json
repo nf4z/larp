@@ -1,0 +1,17 @@
+{
+  "name": "OG The Keeper",
+  "images": {
+    "Normal": "rbxassetid://95700347401424",
+    "Shiny": "rbxassetid://85913144785638"
+  },
+  "assetIds": [
+    "85913144785638",
+    "95700347401424"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG The Keeper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

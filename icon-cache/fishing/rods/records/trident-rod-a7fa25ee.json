@@ -1,0 +1,15 @@
+{
+  "name": "Trident Rod",
+  "images": {
+    "Image": "rbxassetid://98864069993656"
+  },
+  "assetIds": [
+    "98864069993656"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Trident Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

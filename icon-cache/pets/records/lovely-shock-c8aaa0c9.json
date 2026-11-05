@@ -1,0 +1,17 @@
+{
+  "name": "Lovely Shock",
+  "images": {
+    "Normal": "rbxassetid://127606697941903",
+    "Shiny": "rbxassetid://134114672595740"
+  },
+  "assetIds": [
+    "127606697941903",
+    "134114672595740"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovely Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

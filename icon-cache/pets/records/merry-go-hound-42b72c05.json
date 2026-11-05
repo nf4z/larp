@@ -1,0 +1,21 @@
+{
+  "name": "Merry-Go Hound",
+  "images": {
+    "Normal": "rbxassetid://126812081074158",
+    "Shiny": "rbxassetid://121996014529134",
+    "Mythic": "rbxassetid://84547825707303",
+    "MythicShiny": "rbxassetid://94649855633133"
+  },
+  "assetIds": [
+    "121996014529134",
+    "126812081074158",
+    "84547825707303",
+    "94649855633133"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Merry-Go Hound"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

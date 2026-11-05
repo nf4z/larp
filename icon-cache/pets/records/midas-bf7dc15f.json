@@ -1,0 +1,21 @@
+{
+  "name": "Midas",
+  "images": {
+    "Normal": "rbxassetid://89307911586165",
+    "Shiny": "rbxassetid://80438490583372",
+    "Mythic": "rbxassetid://115132249249329",
+    "MythicShiny": "rbxassetid://128269931598351"
+  },
+  "assetIds": [
+    "115132249249329",
+    "128269931598351",
+    "80438490583372",
+    "89307911586165"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Midas"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

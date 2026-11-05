@@ -1,0 +1,21 @@
+{
+  "name": "Summer Hydra",
+  "images": {
+    "Normal": "rbxassetid://131697745867990",
+    "Shiny": "rbxassetid://114904783532893",
+    "Mythic": "rbxassetid://90456966215019",
+    "MythicShiny": "rbxassetid://76449622614295"
+  },
+  "assetIds": [
+    "114904783532893",
+    "131697745867990",
+    "76449622614295",
+    "90456966215019"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

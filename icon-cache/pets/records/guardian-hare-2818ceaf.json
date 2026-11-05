@@ -1,0 +1,21 @@
+{
+  "name": "Guardian Hare",
+  "images": {
+    "Normal": "rbxassetid://71570181678481",
+    "Shiny": "rbxassetid://127691783706738",
+    "Mythic": "rbxassetid://115858841519952",
+    "MythicShiny": "rbxassetid://88971140574634"
+  },
+  "assetIds": [
+    "115858841519952",
+    "127691783706738",
+    "71570181678481",
+    "88971140574634"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian Hare"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

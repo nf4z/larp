@@ -1,0 +1,17 @@
+{
+  "name": "Dusk",
+  "images": {
+    "Normal": "rbxassetid://89066931313193",
+    "Shiny": "rbxassetid://126914744556808"
+  },
+  "assetIds": [
+    "126914744556808",
+    "89066931313193"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dusk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

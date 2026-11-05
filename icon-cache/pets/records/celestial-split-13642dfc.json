@@ -1,0 +1,21 @@
+{
+  "name": "Celestial Split",
+  "images": {
+    "Normal": "rbxassetid://120072810225379",
+    "Shiny": "rbxassetid://89716707976147",
+    "Mythic": "rbxassetid://89286939871535",
+    "MythicShiny": "rbxassetid://140363051523506"
+  },
+  "assetIds": [
+    "120072810225379",
+    "140363051523506",
+    "89286939871535",
+    "89716707976147"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Celestial Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

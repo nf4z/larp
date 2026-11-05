@@ -1,0 +1,21 @@
+{
+  "name": "Elegant Sakura",
+  "images": {
+    "Normal": "rbxassetid://71326642404479",
+    "Shiny": "rbxassetid://81073823991704",
+    "Mythic": "rbxassetid://125302144343389",
+    "MythicShiny": "rbxassetid://122715461493559"
+  },
+  "assetIds": [
+    "122715461493559",
+    "125302144343389",
+    "71326642404479",
+    "81073823991704"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elegant Sakura"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

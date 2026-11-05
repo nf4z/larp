@@ -1,0 +1,17 @@
+{
+  "name": "Bot In The Box",
+  "images": {
+    "Normal": "rbxassetid://81140008675727",
+    "Shiny": "rbxassetid://94516017859807"
+  },
+  "assetIds": [
+    "81140008675727",
+    "94516017859807"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bot In The Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

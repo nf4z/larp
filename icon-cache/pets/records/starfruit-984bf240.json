@@ -1,0 +1,17 @@
+{
+  "name": "Starfruit",
+  "images": {
+    "Normal": "rbxassetid://86142376353093",
+    "Shiny": "rbxassetid://134366673608527"
+  },
+  "assetIds": [
+    "134366673608527",
+    "86142376353093"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starfruit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

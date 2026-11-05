@@ -1,0 +1,17 @@
+{
+  "name": "Dark Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://114531154446030",
+    "Shiny": "rbxassetid://104094799650589"
+  },
+  "assetIds": [
+    "104094799650589",
+    "114531154446030"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

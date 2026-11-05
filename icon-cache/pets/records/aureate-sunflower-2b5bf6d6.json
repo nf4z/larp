@@ -1,0 +1,21 @@
+{
+  "name": "Aureate Sunflower",
+  "images": {
+    "Normal": "rbxassetid://120805786789317",
+    "Shiny": "rbxassetid://107580108042443",
+    "Mythic": "rbxassetid://122181065505074",
+    "MythicShiny": "rbxassetid://115454691738251"
+  },
+  "assetIds": [
+    "107580108042443",
+    "115454691738251",
+    "120805786789317",
+    "122181065505074"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aureate Sunflower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

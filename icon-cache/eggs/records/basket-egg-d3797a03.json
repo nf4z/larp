@@ -1,0 +1,12 @@
+{
+  "name": "Basket Egg",
+  "images": {
+    "Image": "rbxassetid://93711010535295"
+  },
+  "assetIds": [
+    "93711010535295"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

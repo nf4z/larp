@@ -1,0 +1,15 @@
+{
+  "name": "Permit",
+  "images": {
+    "Image": "rbxassetid://126424238344275"
+  },
+  "assetIds": [
+    "126424238344275"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Permit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

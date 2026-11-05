@@ -1,0 +1,15 @@
+{
+  "name": "Dice Key",
+  "images": {
+    "Image": "rbxassetid://135090414328876"
+  },
+  "assetIds": [
+    "135090414328876"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dice Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

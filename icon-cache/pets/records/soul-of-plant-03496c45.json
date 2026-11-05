@@ -1,0 +1,21 @@
+{
+  "name": "Soul of Plant",
+  "images": {
+    "Normal": "rbxassetid://71368488811009",
+    "Shiny": "rbxassetid://128766908680758",
+    "Mythic": "rbxassetid://117010643240415",
+    "MythicShiny": "rbxassetid://98957833982005"
+  },
+  "assetIds": [
+    "117010643240415",
+    "128766908680758",
+    "71368488811009",
+    "98957833982005"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soul of Plant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

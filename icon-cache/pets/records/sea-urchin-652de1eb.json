@@ -1,0 +1,21 @@
+{
+  "name": "Sea Urchin",
+  "images": {
+    "Normal": "rbxassetid://99444754868300",
+    "Shiny": "rbxassetid://111708239388565",
+    "Mythic": "rbxassetid://110943903443775",
+    "MythicShiny": "rbxassetid://116529632967815"
+  },
+  "assetIds": [
+    "110943903443775",
+    "111708239388565",
+    "116529632967815",
+    "99444754868300"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Urchin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

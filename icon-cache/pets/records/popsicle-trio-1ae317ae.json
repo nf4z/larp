@@ -1,0 +1,21 @@
+{
+  "name": "Popsicle Trio",
+  "images": {
+    "Normal": "rbxassetid://101226640896780",
+    "Shiny": "rbxassetid://121181274468883",
+    "Mythic": "rbxassetid://131493485238942",
+    "MythicShiny": "rbxassetid://74857872085191"
+  },
+  "assetIds": [
+    "101226640896780",
+    "121181274468883",
+    "131493485238942",
+    "74857872085191"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Popsicle Trio"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

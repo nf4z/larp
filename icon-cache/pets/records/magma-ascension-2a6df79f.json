@@ -1,0 +1,17 @@
+{
+  "name": "Magma Ascension",
+  "images": {
+    "Normal": "rbxassetid://121074730989018",
+    "Shiny": "rbxassetid://99626494291130"
+  },
+  "assetIds": [
+    "121074730989018",
+    "99626494291130"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Ascension"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

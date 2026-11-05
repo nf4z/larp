@@ -1,0 +1,15 @@
+{
+  "name": "Frost Trout",
+  "images": {
+    "Image": "rbxassetid://74796326408617"
+  },
+  "assetIds": [
+    "74796326408617"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Frost Trout"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

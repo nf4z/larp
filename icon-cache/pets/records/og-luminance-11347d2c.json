@@ -1,0 +1,21 @@
+{
+  "name": "OG Luminance",
+  "images": {
+    "Normal": "rbxassetid://138777093912821",
+    "Shiny": "rbxassetid://91104765802431",
+    "Mythic": "rbxassetid://108772163115532",
+    "MythicShiny": "rbxassetid://86818028368654"
+  },
+  "assetIds": [
+    "108772163115532",
+    "138777093912821",
+    "86818028368654",
+    "91104765802431"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Luminance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

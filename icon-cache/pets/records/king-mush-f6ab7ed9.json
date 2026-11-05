@@ -1,0 +1,21 @@
+{
+  "name": "King Mush",
+  "images": {
+    "Normal": "rbxassetid://125533929552979",
+    "Shiny": "rbxassetid://90625690575784",
+    "Mythic": "rbxassetid://87441881139690",
+    "MythicShiny": "rbxassetid://122608179960996"
+  },
+  "assetIds": [
+    "122608179960996",
+    "125533929552979",
+    "87441881139690",
+    "90625690575784"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Mush"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

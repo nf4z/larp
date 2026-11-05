@@ -1,0 +1,17 @@
+{
+  "name": "Seagull",
+  "images": {
+    "Normal": "rbxassetid://124738597084576",
+    "Shiny": "rbxassetid://79136354239885"
+  },
+  "assetIds": [
+    "124738597084576",
+    "79136354239885"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seagull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

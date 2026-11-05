@@ -1,0 +1,17 @@
+{
+  "name": "OG Vine Doggy",
+  "images": {
+    "Normal": "rbxassetid://88341884739654",
+    "Shiny": "rbxassetid://128041146042359"
+  },
+  "assetIds": [
+    "128041146042359",
+    "88341884739654"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Vine Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

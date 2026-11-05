@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Bunny",
+  "images": {
+    "Normal": "rbxassetid://71815037853847",
+    "Shiny": "rbxassetid://84626645182767"
+  },
+  "assetIds": [
+    "71815037853847",
+    "84626645182767"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

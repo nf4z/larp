@@ -1,0 +1,15 @@
+{
+  "name": "Dark Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://139754482687546"
+  },
+  "assetIds": [
+    "139754482687546"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dark Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

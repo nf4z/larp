@@ -1,0 +1,17 @@
+{
+  "name": "Winged Egg",
+  "images": {
+    "Normal": "rbxassetid://112976374320888",
+    "Shiny": "rbxassetid://114486035231451"
+  },
+  "assetIds": [
+    "112976374320888",
+    "114486035231451"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winged Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

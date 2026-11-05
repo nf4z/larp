@@ -1,0 +1,17 @@
+{
+  "name": "Light Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://97403366904866",
+    "Shiny": "rbxassetid://114459105572585"
+  },
+  "assetIds": [
+    "114459105572585",
+    "97403366904866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

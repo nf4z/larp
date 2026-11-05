@@ -1,0 +1,21 @@
+{
+  "name": "Lovely Omen",
+  "images": {
+    "Normal": "rbxassetid://106383230883902",
+    "Shiny": "rbxassetid://83132350031262",
+    "Mythic": "rbxassetid://108111338126933",
+    "MythicShiny": "rbxassetid://120617519555552"
+  },
+  "assetIds": [
+    "106383230883902",
+    "108111338126933",
+    "120617519555552",
+    "83132350031262"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovely Omen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

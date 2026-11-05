@@ -1,0 +1,21 @@
+{
+  "name": "Dark Seer",
+  "images": {
+    "Normal": "rbxassetid://137703371013661",
+    "Shiny": "rbxassetid://114867626283972",
+    "Mythic": "rbxassetid://95396923437287",
+    "MythicShiny": "rbxassetid://116134234169189"
+  },
+  "assetIds": [
+    "114867626283972",
+    "116134234169189",
+    "137703371013661",
+    "95396923437287"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Seer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

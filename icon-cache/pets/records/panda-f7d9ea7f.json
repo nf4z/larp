@@ -1,0 +1,17 @@
+{
+  "name": "Panda",
+  "images": {
+    "Normal": "rbxassetid://115022226771074",
+    "Shiny": "rbxassetid://100131755062535"
+  },
+  "assetIds": [
+    "100131755062535",
+    "115022226771074"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Panda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

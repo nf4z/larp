@@ -1,0 +1,12 @@
+{
+  "name": "Yuletide Egg",
+  "images": {
+    "Image": "rbxassetid://110500662095243"
+  },
+  "assetIds": [
+    "110500662095243"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

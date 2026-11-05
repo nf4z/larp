@@ -1,0 +1,21 @@
+{
+  "name": "The Ringmaster",
+  "images": {
+    "Normal": "rbxassetid://135718005973675",
+    "Shiny": "rbxassetid://124964175402860",
+    "Mythic": "rbxassetid://129256619879166",
+    "MythicShiny": "rbxassetid://100296880393699"
+  },
+  "assetIds": [
+    "100296880393699",
+    "124964175402860",
+    "129256619879166",
+    "135718005973675"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Ringmaster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

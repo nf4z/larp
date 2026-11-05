@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Overlord",
+  "images": {
+    "Normal": "rbxassetid://137928347040468",
+    "Shiny": "rbxassetid://136803228849192",
+    "Mythic": "rbxassetid://120703022819984",
+    "MythicShiny": "rbxassetid://103398671704792"
+  },
+  "assetIds": [
+    "103398671704792",
+    "120703022819984",
+    "136803228849192",
+    "137928347040468"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

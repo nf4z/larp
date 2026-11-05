@@ -1,0 +1,17 @@
+{
+  "name": "Mystical Galaxy",
+  "images": {
+    "Normal": "rbxassetid://87682384765966",
+    "Shiny": "rbxassetid://78936464919944"
+  },
+  "assetIds": [
+    "78936464919944",
+    "87682384765966"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mystical Galaxy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

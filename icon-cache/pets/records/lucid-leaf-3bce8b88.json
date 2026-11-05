@@ -1,0 +1,21 @@
+{
+  "name": "Lucid Leaf",
+  "images": {
+    "Normal": "rbxassetid://99561934913519",
+    "Shiny": "rbxassetid://84475371261758",
+    "Mythic": "rbxassetid://108108017182666",
+    "MythicShiny": "rbxassetid://115084887751569"
+  },
+  "assetIds": [
+    "108108017182666",
+    "115084887751569",
+    "84475371261758",
+    "99561934913519"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucid Leaf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

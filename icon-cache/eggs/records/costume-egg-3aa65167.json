@@ -1,0 +1,12 @@
+{
+  "name": "Costume Egg",
+  "images": {
+    "Image": "rbxassetid://112480713943915"
+  },
+  "assetIds": [
+    "112480713943915"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

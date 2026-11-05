@@ -1,0 +1,15 @@
+{
+  "name": "Christmas Key",
+  "images": {
+    "Image": "rbxassetid://122783503760899"
+  },
+  "assetIds": [
+    "122783503760899"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Christmas Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

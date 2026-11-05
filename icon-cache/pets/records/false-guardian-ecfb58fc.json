@@ -1,0 +1,17 @@
+{
+  "name": "False Guardian",
+  "images": {
+    "Normal": "rbxassetid://131278167787532",
+    "Shiny": "rbxassetid://134801065647873"
+  },
+  "assetIds": [
+    "131278167787532",
+    "134801065647873"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "False Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

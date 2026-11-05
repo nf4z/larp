@@ -1,0 +1,21 @@
+{
+  "name": "Dark Jellyfish",
+  "images": {
+    "Normal": "rbxassetid://92425882117634",
+    "Shiny": "rbxassetid://80040015148080",
+    "Mythic": "rbxassetid://124305340538195",
+    "MythicShiny": "rbxassetid://79213260547700"
+  },
+  "assetIds": [
+    "124305340538195",
+    "79213260547700",
+    "80040015148080",
+    "92425882117634"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Jellyfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

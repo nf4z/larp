@@ -1,0 +1,21 @@
+{
+  "name": "The Tower",
+  "images": {
+    "Normal": "rbxassetid://106729102728816",
+    "Shiny": "rbxassetid://77315550774019",
+    "Mythic": "rbxassetid://132635732808815",
+    "MythicShiny": "rbxassetid://133288901748967"
+  },
+  "assetIds": [
+    "106729102728816",
+    "132635732808815",
+    "133288901748967",
+    "77315550774019"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Tower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

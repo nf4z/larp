@@ -1,0 +1,21 @@
+{
+  "name": "Cartoon Overlord",
+  "images": {
+    "Normal": "rbxassetid://134965371321735",
+    "Shiny": "rbxassetid://106885184675188",
+    "Mythic": "rbxassetid://77825798419871",
+    "MythicShiny": "rbxassetid://71569478058583"
+  },
+  "assetIds": [
+    "106885184675188",
+    "134965371321735",
+    "71569478058583",
+    "77825798419871"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cartoon Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

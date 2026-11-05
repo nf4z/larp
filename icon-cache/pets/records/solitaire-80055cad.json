@@ -1,0 +1,21 @@
+{
+  "name": "Solitaire",
+  "images": {
+    "Normal": "rbxassetid://110442100003398",
+    "Shiny": "rbxassetid://76466186678179",
+    "Mythic": "rbxassetid://131142953728525",
+    "MythicShiny": "rbxassetid://138612386217700"
+  },
+  "assetIds": [
+    "110442100003398",
+    "131142953728525",
+    "138612386217700",
+    "76466186678179"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solitaire"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

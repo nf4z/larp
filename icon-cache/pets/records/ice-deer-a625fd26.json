@@ -1,0 +1,17 @@
+{
+  "name": "Ice Deer",
+  "images": {
+    "Normal": "rbxassetid://89234801506800",
+    "Shiny": "rbxassetid://90402327646631"
+  },
+  "assetIds": [
+    "89234801506800",
+    "90402327646631"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

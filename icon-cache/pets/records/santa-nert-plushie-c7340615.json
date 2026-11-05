@@ -1,0 +1,21 @@
+{
+  "name": "Santa Nert Plushie",
+  "images": {
+    "Normal": "rbxassetid://84629935238748",
+    "Shiny": "rbxassetid://86332883541791",
+    "Mythic": "rbxassetid://99525490153620",
+    "MythicShiny": "rbxassetid://96202401187431"
+  },
+  "assetIds": [
+    "84629935238748",
+    "86332883541791",
+    "96202401187431",
+    "99525490153620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Nert Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

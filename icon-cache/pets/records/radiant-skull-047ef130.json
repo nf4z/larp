@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Skull",
+  "images": {
+    "Normal": "rbxassetid://133606933336700",
+    "Shiny": "rbxassetid://95731231917942",
+    "Mythic": "rbxassetid://119952571144187",
+    "MythicShiny": "rbxassetid://82354037038211"
+  },
+  "assetIds": [
+    "119952571144187",
+    "133606933336700",
+    "82354037038211",
+    "95731231917942"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

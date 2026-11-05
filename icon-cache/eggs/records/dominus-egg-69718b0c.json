@@ -1,0 +1,12 @@
+{
+  "name": "Dominus Egg",
+  "images": {
+    "Image": "rbxassetid://94322773872605"
+  },
+  "assetIds": [
+    "94322773872605"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

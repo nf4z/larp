@@ -1,0 +1,21 @@
+{
+  "name": "Cursed Carving",
+  "images": {
+    "Normal": "rbxassetid://83125318775999",
+    "Shiny": "rbxassetid://71107720526101",
+    "Mythic": "rbxassetid://80900061616753",
+    "MythicShiny": "rbxassetid://107425478840604"
+  },
+  "assetIds": [
+    "107425478840604",
+    "71107720526101",
+    "80900061616753",
+    "83125318775999"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cursed Carving"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

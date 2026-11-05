@@ -1,0 +1,21 @@
+{
+  "name": "Devil's Skull",
+  "images": {
+    "Normal": "rbxassetid://112302906021196",
+    "Shiny": "rbxassetid://106521277817495",
+    "Mythic": "rbxassetid://120961524794389",
+    "MythicShiny": "rbxassetid://76931009878972"
+  },
+  "assetIds": [
+    "106521277817495",
+    "112302906021196",
+    "120961524794389",
+    "76931009878972"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Devil's Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

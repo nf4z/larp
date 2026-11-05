@@ -1,0 +1,12 @@
+{
+  "name": "Obsidian Egg",
+  "images": {
+    "Image": "rbxassetid://123546668972199"
+  },
+  "assetIds": [
+    "123546668972199"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Dark Kitty",
+  "images": {
+    "Normal": "rbxassetid://124590847637945",
+    "Shiny": "rbxassetid://130369468268567"
+  },
+  "assetIds": [
+    "124590847637945",
+    "130369468268567"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

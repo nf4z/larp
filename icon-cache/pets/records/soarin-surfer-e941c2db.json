@@ -1,0 +1,21 @@
+{
+  "name": "Soarin' Surfer",
+  "images": {
+    "Normal": "rbxassetid://73404794486926",
+    "Shiny": "rbxassetid://133090733032411",
+    "Mythic": "rbxassetid://95752114577641",
+    "MythicShiny": "rbxassetid://85679986690965"
+  },
+  "assetIds": [
+    "133090733032411",
+    "73404794486926",
+    "85679986690965",
+    "95752114577641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soarin' Surfer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

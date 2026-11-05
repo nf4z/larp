@@ -1,0 +1,17 @@
+{
+  "name": "Pink Easter Egg",
+  "images": {
+    "Normal": "rbxassetid://80870925189162",
+    "Shiny": "rbxassetid://79726173854232"
+  },
+  "assetIds": [
+    "79726173854232",
+    "80870925189162"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pink Easter Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

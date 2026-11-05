@@ -1,0 +1,15 @@
+{
+  "name": "Azure Reef Fish",
+  "images": {
+    "Image": "rbxassetid://138021158312076"
+  },
+  "assetIds": [
+    "138021158312076"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Azure Reef Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

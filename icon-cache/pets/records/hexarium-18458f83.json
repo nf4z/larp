@@ -1,0 +1,21 @@
+{
+  "name": "Hexarium",
+  "images": {
+    "Normal": "rbxassetid://71087965379129",
+    "Shiny": "rbxassetid://128101936411240",
+    "Mythic": "rbxassetid://86741891826454",
+    "MythicShiny": "rbxassetid://89823280118528"
+  },
+  "assetIds": [
+    "128101936411240",
+    "71087965379129",
+    "86741891826454",
+    "89823280118528"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

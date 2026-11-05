@@ -1,0 +1,17 @@
+{
+  "name": "Fenner's Bruh Moment",
+  "images": {
+    "Normal": "rbxassetid://97603486317942",
+    "Shiny": "rbxassetid://101436162985790"
+  },
+  "assetIds": [
+    "101436162985790",
+    "97603486317942"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fenner's Bruh Moment"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Giant Toybot",
+  "images": {
+    "Normal": "rbxassetid://96720912967897",
+    "Shiny": "rbxassetid://119074740061529",
+    "Mythic": "rbxassetid://115772481360049",
+    "MythicShiny": "rbxassetid://86343418134462"
+  },
+  "assetIds": [
+    "115772481360049",
+    "119074740061529",
+    "86343418134462",
+    "96720912967897"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Toybot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

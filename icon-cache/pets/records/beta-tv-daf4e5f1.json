@@ -1,0 +1,17 @@
+{
+  "name": "Beta TV",
+  "images": {
+    "Normal": "rbxassetid://131408473856024",
+    "Shiny": "rbxassetid://79852109630604"
+  },
+  "assetIds": [
+    "131408473856024",
+    "79852109630604"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beta TV"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

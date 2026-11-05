@@ -1,0 +1,17 @@
+{
+  "name": "Krampus",
+  "images": {
+    "Normal": "rbxassetid://116995546861869",
+    "Shiny": "rbxassetid://72588040972327"
+  },
+  "assetIds": [
+    "116995546861869",
+    "72588040972327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Krampus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

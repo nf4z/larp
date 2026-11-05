@@ -1,0 +1,15 @@
+{
+  "name": "Galaxy Rod",
+  "images": {
+    "Image": "rbxassetid://87432549904293"
+  },
+  "assetIds": [
+    "87432549904293"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Galaxy Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

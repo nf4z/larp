@@ -1,0 +1,12 @@
+{
+  "name": "Overlord Egg",
+  "images": {
+    "Image": "rbxassetid://118633151527833"
+  },
+  "assetIds": [
+    "118633151527833"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

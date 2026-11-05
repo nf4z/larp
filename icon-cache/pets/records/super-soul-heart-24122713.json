@@ -1,0 +1,17 @@
+{
+  "name": "Super Soul Heart",
+  "images": {
+    "Normal": "rbxassetid://122470859850977",
+    "Shiny": "rbxassetid://139661399403513"
+  },
+  "assetIds": [
+    "122470859850977",
+    "139661399403513"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Soul Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

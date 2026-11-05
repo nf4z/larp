@@ -1,0 +1,21 @@
+{
+  "name": "Pumpgeist",
+  "images": {
+    "Normal": "rbxassetid://110969194182795",
+    "Shiny": "rbxassetid://126623578986328",
+    "Mythic": "rbxassetid://75707938409455",
+    "MythicShiny": "rbxassetid://115012108622922"
+  },
+  "assetIds": [
+    "110969194182795",
+    "115012108622922",
+    "126623578986328",
+    "75707938409455"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpgeist"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

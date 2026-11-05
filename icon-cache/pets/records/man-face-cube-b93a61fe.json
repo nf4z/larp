@@ -1,0 +1,21 @@
+{
+  "name": "Man Face Cube",
+  "images": {
+    "Normal": "rbxassetid://83944540299498",
+    "Shiny": "rbxassetid://120829526902186",
+    "Mythic": "rbxassetid://117000445817734",
+    "MythicShiny": "rbxassetid://91495142665923"
+  },
+  "assetIds": [
+    "117000445817734",
+    "120829526902186",
+    "83944540299498",
+    "91495142665923"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

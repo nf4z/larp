@@ -1,0 +1,12 @@
+{
+  "name": "Cartoon Egg",
+  "images": {
+    "Image": "rbxassetid://134936714906945"
+  },
+  "assetIds": [
+    "134936714906945"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

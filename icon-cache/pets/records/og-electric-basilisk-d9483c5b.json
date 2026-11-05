@@ -1,0 +1,21 @@
+{
+  "name": "OG Electric Basilisk",
+  "images": {
+    "Normal": "rbxassetid://119267564965181",
+    "Shiny": "rbxassetid://106734418041864",
+    "Mythic": "rbxassetid://116770194914529",
+    "MythicShiny": "rbxassetid://93210214543257"
+  },
+  "assetIds": [
+    "106734418041864",
+    "116770194914529",
+    "119267564965181",
+    "93210214543257"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Electric Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

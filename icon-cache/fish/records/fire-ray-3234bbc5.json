@@ -1,0 +1,15 @@
+{
+  "name": "Fire Ray",
+  "images": {
+    "Image": "rbxassetid://86174317368448"
+  },
+  "assetIds": [
+    "86174317368448"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Fire Ray"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

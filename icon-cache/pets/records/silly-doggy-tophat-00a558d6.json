@@ -1,0 +1,21 @@
+{
+  "name": "Silly Doggy Tophat",
+  "images": {
+    "Normal": "rbxassetid://72905527235502",
+    "Shiny": "rbxassetid://93704344533072",
+    "Mythic": "rbxassetid://103388614006666",
+    "MythicShiny": "rbxassetid://89032126141083"
+  },
+  "assetIds": [
+    "103388614006666",
+    "72905527235502",
+    "89032126141083",
+    "93704344533072"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Doggy Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

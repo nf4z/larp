@@ -1,0 +1,15 @@
+{
+  "name": "Rune Rock",
+  "images": {
+    "Image": "rbxassetid://91850481820427"
+  },
+  "assetIds": [
+    "91850481820427"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Rune Rock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

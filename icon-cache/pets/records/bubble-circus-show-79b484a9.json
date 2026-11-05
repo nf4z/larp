@@ -1,0 +1,21 @@
+{
+  "name": "Bubble Circus Show",
+  "images": {
+    "Normal": "rbxassetid://138708088598533",
+    "Shiny": "rbxassetid://86246471764399",
+    "Mythic": "rbxassetid://134424532234622",
+    "MythicShiny": "rbxassetid://104760639261963"
+  },
+  "assetIds": [
+    "104760639261963",
+    "134424532234622",
+    "138708088598533",
+    "86246471764399"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubble Circus Show"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

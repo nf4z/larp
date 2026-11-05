@@ -1,0 +1,12 @@
+{
+  "name": "Sweet Season Egg",
+  "images": {
+    "Image": "rbxassetid://129721557264798"
+  },
+  "assetIds": [
+    "129721557264798"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

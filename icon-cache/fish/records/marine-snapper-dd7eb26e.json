@@ -1,0 +1,15 @@
+{
+  "name": "Marine Snapper",
+  "images": {
+    "Image": "rbxassetid://118313021761033"
+  },
+  "assetIds": [
+    "118313021761033"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Marine Snapper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

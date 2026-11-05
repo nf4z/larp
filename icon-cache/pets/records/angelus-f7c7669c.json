@@ -1,0 +1,21 @@
+{
+  "name": "Angelus",
+  "images": {
+    "Normal": "rbxassetid://122692749651540",
+    "Shiny": "rbxassetid://135967471031448",
+    "Mythic": "rbxassetid://75663695026260",
+    "MythicShiny": "rbxassetid://132554244492674"
+  },
+  "assetIds": [
+    "122692749651540",
+    "132554244492674",
+    "135967471031448",
+    "75663695026260"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

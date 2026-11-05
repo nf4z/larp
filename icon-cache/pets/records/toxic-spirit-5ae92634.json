@@ -1,0 +1,21 @@
+{
+  "name": "Toxic Spirit",
+  "images": {
+    "Normal": "rbxassetid://77773785032253",
+    "Shiny": "rbxassetid://122246905964790",
+    "Mythic": "rbxassetid://107235376806359",
+    "MythicShiny": "rbxassetid://94938472120041"
+  },
+  "assetIds": [
+    "107235376806359",
+    "122246905964790",
+    "77773785032253",
+    "94938472120041"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toxic Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

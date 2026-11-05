@@ -1,0 +1,17 @@
+{
+  "name": "VOID SHADOW LEVIATHAN",
+  "images": {
+    "Normal": "rbxassetid://83301883723350",
+    "Shiny": "rbxassetid://109936157460803"
+  },
+  "assetIds": [
+    "109936157460803",
+    "83301883723350"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID SHADOW LEVIATHAN"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

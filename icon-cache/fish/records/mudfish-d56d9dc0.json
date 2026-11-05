@@ -1,0 +1,15 @@
+{
+  "name": "Mudfish",
+  "images": {
+    "Image": "rbxassetid://96073470206869"
+  },
+  "assetIds": [
+    "96073470206869"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mudfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

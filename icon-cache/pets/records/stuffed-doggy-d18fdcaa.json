@@ -1,0 +1,17 @@
+{
+  "name": "Stuffed Doggy",
+  "images": {
+    "Normal": "rbxassetid://99789181112559",
+    "Shiny": "rbxassetid://98452821294402"
+  },
+  "assetIds": [
+    "98452821294402",
+    "99789181112559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

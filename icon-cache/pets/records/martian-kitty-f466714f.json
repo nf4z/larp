@@ -1,0 +1,17 @@
+{
+  "name": "Martian Kitty",
+  "images": {
+    "Normal": "rbxassetid://95865916555707",
+    "Shiny": "rbxassetid://128126875255924"
+  },
+  "assetIds": [
+    "128126875255924",
+    "95865916555707"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Martian Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

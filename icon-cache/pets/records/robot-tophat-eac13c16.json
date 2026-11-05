@@ -1,0 +1,21 @@
+{
+  "name": "Robot Tophat",
+  "images": {
+    "Normal": "rbxassetid://74758322435378",
+    "Shiny": "rbxassetid://92293267429689",
+    "Mythic": "rbxassetid://129642177143636",
+    "MythicShiny": "rbxassetid://133769247827924"
+  },
+  "assetIds": [
+    "129642177143636",
+    "133769247827924",
+    "74758322435378",
+    "92293267429689"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Robot Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

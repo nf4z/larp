@@ -1,0 +1,12 @@
+{
+  "name": "Bee Egg",
+  "images": {
+    "Image": "rbxassetid://127312185204113"
+  },
+  "assetIds": [
+    "127312185204113"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

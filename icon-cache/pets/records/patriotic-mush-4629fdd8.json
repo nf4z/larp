@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Mush",
+  "images": {
+    "Normal": "rbxassetid://122078719326076",
+    "Shiny": "rbxassetid://75902610551304",
+    "Mythic": "rbxassetid://93142514425572",
+    "MythicShiny": "rbxassetid://93185938169738"
+  },
+  "assetIds": [
+    "122078719326076",
+    "75902610551304",
+    "93142514425572",
+    "93185938169738"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Mush"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

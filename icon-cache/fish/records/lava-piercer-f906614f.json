@@ -1,0 +1,15 @@
+{
+  "name": "Lava Piercer",
+  "images": {
+    "Image": "rbxassetid://137058930783901"
+  },
+  "assetIds": [
+    "137058930783901"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Lava Piercer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

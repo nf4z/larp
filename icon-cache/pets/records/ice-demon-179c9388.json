@@ -1,0 +1,17 @@
+{
+  "name": "Ice Demon",
+  "images": {
+    "Normal": "rbxassetid://74858113577336",
+    "Shiny": "rbxassetid://111630543688038"
+  },
+  "assetIds": [
+    "111630543688038",
+    "74858113577336"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

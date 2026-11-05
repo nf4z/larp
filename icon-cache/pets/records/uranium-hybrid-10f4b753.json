@@ -1,0 +1,21 @@
+{
+  "name": "Uranium Hybrid",
+  "images": {
+    "Normal": "rbxassetid://107052320309471",
+    "Shiny": "rbxassetid://98410891294831",
+    "Mythic": "rbxassetid://134021287561841",
+    "MythicShiny": "rbxassetid://106885051234282"
+  },
+  "assetIds": [
+    "106885051234282",
+    "107052320309471",
+    "134021287561841",
+    "98410891294831"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Uranium Hybrid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

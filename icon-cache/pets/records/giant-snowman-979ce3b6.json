@@ -1,0 +1,21 @@
+{
+  "name": "Giant Snowman",
+  "images": {
+    "Normal": "rbxassetid://114653518689305",
+    "Shiny": "rbxassetid://131813452140216",
+    "Mythic": "rbxassetid://132997308106802",
+    "MythicShiny": "rbxassetid://116246812720942"
+  },
+  "assetIds": [
+    "114653518689305",
+    "116246812720942",
+    "131813452140216",
+    "132997308106802"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Snowman"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "All Seeing Shard",
+  "images": {
+    "Normal": "rbxassetid://115955484118615",
+    "Shiny": "rbxassetid://70452027011188",
+    "Mythic": "rbxassetid://135391305880322",
+    "MythicShiny": "rbxassetid://100211571386312"
+  },
+  "assetIds": [
+    "100211571386312",
+    "115955484118615",
+    "135391305880322",
+    "70452027011188"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "All Seeing Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

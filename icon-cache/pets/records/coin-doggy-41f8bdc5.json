@@ -1,0 +1,17 @@
+{
+  "name": "Coin Doggy",
+  "images": {
+    "Normal": "rbxassetid://113881848307770",
+    "Shiny": "rbxassetid://137260933058870"
+  },
+  "assetIds": [
+    "113881848307770",
+    "137260933058870"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coin Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

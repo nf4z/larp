@@ -1,0 +1,21 @@
+{
+  "name": "Exotic Seal",
+  "images": {
+    "Normal": "rbxassetid://72424719866194",
+    "Shiny": "rbxassetid://122305261665890",
+    "Mythic": "rbxassetid://91043677135825",
+    "MythicShiny": "rbxassetid://85627800170346"
+  },
+  "assetIds": [
+    "122305261665890",
+    "72424719866194",
+    "85627800170346",
+    "91043677135825"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Exotic Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

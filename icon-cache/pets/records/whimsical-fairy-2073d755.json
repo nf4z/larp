@@ -1,0 +1,17 @@
+{
+  "name": "Whimsical Fairy",
+  "images": {
+    "Normal": "rbxassetid://82765924248493",
+    "Shiny": "rbxassetid://94583753864173"
+  },
+  "assetIds": [
+    "82765924248493",
+    "94583753864173"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Whimsical Fairy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

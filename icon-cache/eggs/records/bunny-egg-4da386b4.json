@@ -1,0 +1,12 @@
+{
+  "name": "Bunny Egg",
+  "images": {
+    "Image": "rbxassetid://136636183189937"
+  },
+  "assetIds": [
+    "136636183189937"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

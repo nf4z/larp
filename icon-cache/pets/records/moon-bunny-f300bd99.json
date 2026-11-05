@@ -1,0 +1,17 @@
+{
+  "name": "Moon Bunny",
+  "images": {
+    "Normal": "rbxassetid://88554152326239",
+    "Shiny": "rbxassetid://83879873918305"
+  },
+  "assetIds": [
+    "83879873918305",
+    "88554152326239"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moon Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

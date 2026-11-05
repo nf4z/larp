@@ -1,0 +1,21 @@
+{
+  "name": "Christmas Elemental",
+  "images": {
+    "Normal": "rbxassetid://93553498706277",
+    "Shiny": "rbxassetid://74682105769248",
+    "Mythic": "rbxassetid://98700107928405",
+    "MythicShiny": "rbxassetid://71174369863951"
+  },
+  "assetIds": [
+    "71174369863951",
+    "74682105769248",
+    "93553498706277",
+    "98700107928405"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Christmas Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

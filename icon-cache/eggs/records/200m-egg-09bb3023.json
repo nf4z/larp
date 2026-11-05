@@ -1,0 +1,12 @@
+{
+  "name": "200M Egg",
+  "images": {
+    "Image": "rbxassetid://74520521384095"
+  },
+  "assetIds": [
+    "74520521384095"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

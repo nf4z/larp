@@ -1,0 +1,17 @@
+{
+  "name": "Cryptid Nightcrawler",
+  "images": {
+    "Normal": "rbxassetid://106995742940710",
+    "Shiny": "rbxassetid://89611309621217"
+  },
+  "assetIds": [
+    "106995742940710",
+    "89611309621217"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cryptid Nightcrawler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Gingerbread Shard",
+  "images": {
+    "Normal": "rbxassetid://118486306560520",
+    "Shiny": "rbxassetid://92104420772647",
+    "Mythic": "rbxassetid://85428653514414",
+    "MythicShiny": "rbxassetid://116256856458299"
+  },
+  "assetIds": [
+    "116256856458299",
+    "118486306560520",
+    "85428653514414",
+    "92104420772647"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gingerbread Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

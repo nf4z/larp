@@ -1,0 +1,17 @@
+{
+  "name": "Tropical Deer",
+  "images": {
+    "Normal": "rbxassetid://117602161651863",
+    "Shiny": "rbxassetid://86110945498934"
+  },
+  "assetIds": [
+    "117602161651863",
+    "86110945498934"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tropical Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

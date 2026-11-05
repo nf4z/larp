@@ -1,0 +1,17 @@
+{
+  "name": "Luminant Doggy",
+  "images": {
+    "Normal": "rbxassetid://82424945604452",
+    "Shiny": "rbxassetid://121730640885633"
+  },
+  "assetIds": [
+    "121730640885633",
+    "82424945604452"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

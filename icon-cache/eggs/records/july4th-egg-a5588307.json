@@ -1,0 +1,12 @@
+{
+  "name": "July4th Egg",
+  "images": {
+    "Image": "rbxassetid://123797999425970"
+  },
+  "assetIds": [
+    "123797999425970"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

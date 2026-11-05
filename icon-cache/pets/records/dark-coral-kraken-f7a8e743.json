@@ -1,0 +1,17 @@
+{
+  "name": "Dark Coral Kraken",
+  "images": {
+    "Normal": "rbxassetid://100821084210685",
+    "Shiny": "rbxassetid://74848804723828"
+  },
+  "assetIds": [
+    "100821084210685",
+    "74848804723828"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Coral Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Classic Overlord",
+  "images": {
+    "Normal": "rbxassetid://73368007016381",
+    "Shiny": "rbxassetid://119609074790810",
+    "Mythic": "rbxassetid://99242537925165",
+    "MythicShiny": "rbxassetid://94330837641585"
+  },
+  "assetIds": [
+    "119609074790810",
+    "73368007016381",
+    "94330837641585",
+    "99242537925165"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

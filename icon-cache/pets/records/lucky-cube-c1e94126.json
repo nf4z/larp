@@ -1,0 +1,17 @@
+{
+  "name": "Lucky Cube",
+  "images": {
+    "Normal": "rbxassetid://136435420496205",
+    "Shiny": "rbxassetid://78918397258399"
+  },
+  "assetIds": [
+    "136435420496205",
+    "78918397258399"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

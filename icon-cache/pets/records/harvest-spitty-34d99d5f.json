@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Spitty",
+  "images": {
+    "Normal": "rbxassetid://120980156445732",
+    "Shiny": "rbxassetid://89187188199921"
+  },
+  "assetIds": [
+    "120980156445732",
+    "89187188199921"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

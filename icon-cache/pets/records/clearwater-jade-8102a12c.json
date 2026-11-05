@@ -1,0 +1,17 @@
+{
+  "name": "Clearwater Jade",
+  "images": {
+    "Normal": "rbxassetid://73028547528744",
+    "Shiny": "rbxassetid://130403999058227"
+  },
+  "assetIds": [
+    "130403999058227",
+    "73028547528744"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clearwater Jade"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

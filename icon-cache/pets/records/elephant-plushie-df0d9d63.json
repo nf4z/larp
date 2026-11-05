@@ -1,0 +1,17 @@
+{
+  "name": "Elephant Plushie",
+  "images": {
+    "Normal": "rbxassetid://118431971681962",
+    "Shiny": "rbxassetid://82281468162907"
+  },
+  "assetIds": [
+    "118431971681962",
+    "82281468162907"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elephant Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

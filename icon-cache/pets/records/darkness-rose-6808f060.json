@@ -1,0 +1,21 @@
+{
+  "name": "Darkness Rose",
+  "images": {
+    "Normal": "rbxassetid://129428706543392",
+    "Shiny": "rbxassetid://94928132400661",
+    "Mythic": "rbxassetid://117415791547840",
+    "MythicShiny": "rbxassetid://126984119785839"
+  },
+  "assetIds": [
+    "117415791547840",
+    "126984119785839",
+    "129428706543392",
+    "94928132400661"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkness Rose"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

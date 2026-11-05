@@ -1,0 +1,21 @@
+{
+  "name": "Illusionary Hare",
+  "images": {
+    "Normal": "rbxassetid://131853608402329",
+    "Shiny": "rbxassetid://104104758198883",
+    "Mythic": "rbxassetid://128848832541829",
+    "MythicShiny": "rbxassetid://76886381451574"
+  },
+  "assetIds": [
+    "104104758198883",
+    "128848832541829",
+    "131853608402329",
+    "76886381451574"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Illusionary Hare"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

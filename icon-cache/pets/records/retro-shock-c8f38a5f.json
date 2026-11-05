@@ -1,0 +1,21 @@
+{
+  "name": "Retro Shock",
+  "images": {
+    "Normal": "rbxassetid://77533509410918",
+    "Shiny": "rbxassetid://121720966610107",
+    "Mythic": "rbxassetid://111980147885503",
+    "MythicShiny": "rbxassetid://112604619474497"
+  },
+  "assetIds": [
+    "111980147885503",
+    "112604619474497",
+    "121720966610107",
+    "77533509410918"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

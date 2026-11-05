@@ -1,0 +1,17 @@
+{
+  "name": "Leaf Kitty",
+  "images": {
+    "Normal": "rbxassetid://97766981875840",
+    "Shiny": "rbxassetid://77037159488939"
+  },
+  "assetIds": [
+    "77037159488939",
+    "97766981875840"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leaf Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

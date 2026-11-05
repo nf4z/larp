@@ -1,0 +1,21 @@
+{
+  "name": "Vampire's Goblet",
+  "images": {
+    "Normal": "rbxassetid://86046590243357",
+    "Shiny": "rbxassetid://133991591380801",
+    "Mythic": "rbxassetid://139160320038685",
+    "MythicShiny": "rbxassetid://102264742784160"
+  },
+  "assetIds": [
+    "102264742784160",
+    "133991591380801",
+    "139160320038685",
+    "86046590243357"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire's Goblet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

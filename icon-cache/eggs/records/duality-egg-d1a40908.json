@@ -1,0 +1,12 @@
+{
+  "name": "Duality Egg",
+  "images": {
+    "Image": "rbxassetid://100141519606390"
+  },
+  "assetIds": [
+    "100141519606390"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

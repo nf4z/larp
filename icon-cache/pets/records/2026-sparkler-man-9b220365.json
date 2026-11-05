@@ -1,0 +1,21 @@
+{
+  "name": "2026 Sparkler Man",
+  "images": {
+    "Normal": "rbxassetid://100763179097833",
+    "Shiny": "rbxassetid://92901665527901",
+    "Mythic": "rbxassetid://112204241499043",
+    "MythicShiny": "rbxassetid://126384143381638"
+  },
+  "assetIds": [
+    "100763179097833",
+    "112204241499043",
+    "126384143381638",
+    "92901665527901"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Sparkler Man"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

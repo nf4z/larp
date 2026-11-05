@@ -1,0 +1,12 @@
+{
+  "name": "Crystal Egg",
+  "images": {
+    "Image": "rbxassetid://140343951272706"
+  },
+  "assetIds": [
+    "140343951272706"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

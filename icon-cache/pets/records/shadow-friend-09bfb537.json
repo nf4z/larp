@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Friend",
+  "images": {
+    "Normal": "rbxassetid://139135511032843",
+    "Shiny": "rbxassetid://100692392872755",
+    "Mythic": "rbxassetid://130627996046556",
+    "MythicShiny": "rbxassetid://89701428746606"
+  },
+  "assetIds": [
+    "100692392872755",
+    "130627996046556",
+    "139135511032843",
+    "89701428746606"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Friend"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

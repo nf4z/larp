@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Void Realm Egg",
+  "images": {
+    "Image": "rbxassetid://78964625640945"
+  },
+  "assetIds": [
+    "78964625640945"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

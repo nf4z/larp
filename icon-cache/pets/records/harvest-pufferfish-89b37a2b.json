@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://128383727073279",
+    "Shiny": "rbxassetid://81153401238089"
+  },
+  "assetIds": [
+    "128383727073279",
+    "81153401238089"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

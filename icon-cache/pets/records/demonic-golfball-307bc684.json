@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Golfball",
+  "images": {
+    "Normal": "rbxassetid://124590269826369",
+    "Shiny": "rbxassetid://93630053166781",
+    "Mythic": "rbxassetid://128285557099291",
+    "MythicShiny": "rbxassetid://96438560992380"
+  },
+  "assetIds": [
+    "124590269826369",
+    "128285557099291",
+    "93630053166781",
+    "96438560992380"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Golfball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

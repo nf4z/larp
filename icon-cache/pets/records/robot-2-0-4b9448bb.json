@@ -1,0 +1,21 @@
+{
+  "name": "Robot 2.0",
+  "images": {
+    "Normal": "rbxassetid://80722081444367",
+    "Shiny": "rbxassetid://82128252377077",
+    "Mythic": "rbxassetid://85778667630084",
+    "MythicShiny": "rbxassetid://72790519733160"
+  },
+  "assetIds": [
+    "72790519733160",
+    "80722081444367",
+    "82128252377077",
+    "85778667630084"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Robot 2.0"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

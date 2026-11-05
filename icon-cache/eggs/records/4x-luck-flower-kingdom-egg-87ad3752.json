@@ -1,0 +1,13 @@
+{
+  "name": "4x Luck Flower Kingdom Egg",
+  "images": {
+    "Image": "rbxassetid://133884196228372"
+  },
+  "assetIds": [
+    "133884196228372",
+    "83289548091717"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

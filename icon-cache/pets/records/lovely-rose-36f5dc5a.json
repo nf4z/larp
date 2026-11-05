@@ -1,0 +1,21 @@
+{
+  "name": "Lovely Rose",
+  "images": {
+    "Normal": "rbxassetid://117659802454250",
+    "Shiny": "rbxassetid://92783839165221",
+    "Mythic": "rbxassetid://126833857400708",
+    "MythicShiny": "rbxassetid://120241866948798"
+  },
+  "assetIds": [
+    "117659802454250",
+    "120241866948798",
+    "126833857400708",
+    "92783839165221"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovely Rose"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

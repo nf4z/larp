@@ -1,0 +1,17 @@
+{
+  "name": "Freedom Jester",
+  "images": {
+    "Normal": "rbxassetid://100315750102851",
+    "Shiny": "rbxassetid://108089972116970"
+  },
+  "assetIds": [
+    "100315750102851",
+    "108089972116970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Freedom Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

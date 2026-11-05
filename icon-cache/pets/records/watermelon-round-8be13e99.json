@@ -1,0 +1,21 @@
+{
+  "name": "Watermelon Round",
+  "images": {
+    "Normal": "rbxassetid://103798515472949",
+    "Shiny": "rbxassetid://101518594382534",
+    "Mythic": "rbxassetid://85706658089406",
+    "MythicShiny": "rbxassetid://102202571403999"
+  },
+  "assetIds": [
+    "101518594382534",
+    "102202571403999",
+    "103798515472949",
+    "85706658089406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Watermelon Round"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

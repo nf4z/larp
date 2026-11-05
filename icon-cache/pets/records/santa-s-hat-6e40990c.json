@@ -1,0 +1,21 @@
+{
+  "name": "Santa's Hat",
+  "images": {
+    "Normal": "rbxassetid://108721114414317",
+    "Shiny": "rbxassetid://108439524520565",
+    "Mythic": "rbxassetid://133556432671932",
+    "MythicShiny": "rbxassetid://138538571125943"
+  },
+  "assetIds": [
+    "108439524520565",
+    "108721114414317",
+    "133556432671932",
+    "138538571125943"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa's Hat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

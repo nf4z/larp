@@ -1,0 +1,21 @@
+{
+  "name": "Fortune Prophet",
+  "images": {
+    "Normal": "rbxassetid://109543140905020",
+    "Shiny": "rbxassetid://98747273410932",
+    "Mythic": "rbxassetid://115219936775786",
+    "MythicShiny": "rbxassetid://100664942787278"
+  },
+  "assetIds": [
+    "100664942787278",
+    "109543140905020",
+    "115219936775786",
+    "98747273410932"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fortune Prophet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

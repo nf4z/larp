@@ -1,0 +1,12 @@
+{
+  "name": "Carnival Tickets",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Carnival Tickets",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

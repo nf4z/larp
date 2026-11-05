@@ -1,0 +1,17 @@
+{
+  "name": "Leprechaun Bunny",
+  "images": {
+    "Normal": "rbxassetid://95262894851780",
+    "Shiny": "rbxassetid://125035057372738"
+  },
+  "assetIds": [
+    "125035057372738",
+    "95262894851780"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leprechaun Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

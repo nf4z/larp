@@ -1,0 +1,17 @@
+{
+  "name": "Rainbow Leviathan",
+  "images": {
+    "Normal": "rbxassetid://102330538587988",
+    "Shiny": "rbxassetid://101235579192156"
+  },
+  "assetIds": [
+    "101235579192156",
+    "102330538587988"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

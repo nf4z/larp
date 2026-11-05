@@ -1,0 +1,21 @@
+{
+  "name": "King Bell",
+  "images": {
+    "Normal": "rbxassetid://140368245921090",
+    "Shiny": "rbxassetid://119335192106186",
+    "Mythic": "rbxassetid://124990092578403",
+    "MythicShiny": "rbxassetid://87039412217356"
+  },
+  "assetIds": [
+    "119335192106186",
+    "124990092578403",
+    "140368245921090",
+    "87039412217356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Bell"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

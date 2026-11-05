@@ -1,0 +1,15 @@
+{
+  "name": "Silver Shad",
+  "images": {
+    "Image": "rbxassetid://131955194222809"
+  },
+  "assetIds": [
+    "131955194222809"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Silver Shad"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

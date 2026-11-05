@@ -1,0 +1,21 @@
+{
+  "name": "Queen of Thorns",
+  "images": {
+    "Normal": "rbxassetid://78176295585791",
+    "Shiny": "rbxassetid://100094885777465",
+    "Mythic": "rbxassetid://121515177138507",
+    "MythicShiny": "rbxassetid://81544627471039"
+  },
+  "assetIds": [
+    "100094885777465",
+    "121515177138507",
+    "78176295585791",
+    "81544627471039"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen of Thorns"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

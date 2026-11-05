@@ -1,0 +1,17 @@
+{
+  "name": "Chance Dragon",
+  "images": {
+    "Normal": "rbxassetid://73996963777906",
+    "Shiny": "rbxassetid://95720020096683"
+  },
+  "assetIds": [
+    "73996963777906",
+    "95720020096683"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chance Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

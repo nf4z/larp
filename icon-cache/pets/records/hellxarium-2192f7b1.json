@@ -1,0 +1,21 @@
+{
+  "name": "Hellxarium",
+  "images": {
+    "Normal": "rbxassetid://114590308088111",
+    "Shiny": "rbxassetid://110172227011800",
+    "Mythic": "rbxassetid://116991362002147",
+    "MythicShiny": "rbxassetid://127556746283136"
+  },
+  "assetIds": [
+    "110172227011800",
+    "114590308088111",
+    "116991362002147",
+    "127556746283136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellxarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

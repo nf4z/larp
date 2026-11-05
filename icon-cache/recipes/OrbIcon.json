@@ -1,0 +1,7 @@
+{
+  "renderer": "ReplicatedStorage/Shared/Utils/Stats/ItemUtil/OrbIcon",
+  "assetIds": [
+    "108711580352701"
+  ],
+  "recipe": "Use the game renderer with the cached item Name/Level or Tier; retain native gradients."
+}

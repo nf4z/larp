@@ -1,0 +1,17 @@
+{
+  "name": "Vaporium",
+  "images": {
+    "Normal": "rbxassetid://130153986659837",
+    "Shiny": "rbxassetid://90896435492375"
+  },
+  "assetIds": [
+    "130153986659837",
+    "90896435492375"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vaporium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Force",
+  "images": {
+    "Normal": "rbxassetid://77861930437635",
+    "Shiny": "rbxassetid://114609255932972",
+    "Mythic": "rbxassetid://136539350697821",
+    "MythicShiny": "rbxassetid://84320675418542"
+  },
+  "assetIds": [
+    "114609255932972",
+    "136539350697821",
+    "77861930437635",
+    "84320675418542"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Force"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

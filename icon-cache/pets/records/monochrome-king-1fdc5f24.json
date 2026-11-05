@@ -1,0 +1,21 @@
+{
+  "name": "Monochrome King",
+  "images": {
+    "Normal": "rbxassetid://132387915610159",
+    "Shiny": "rbxassetid://121902157999085",
+    "Mythic": "rbxassetid://131518242129757",
+    "MythicShiny": "rbxassetid://130692053202025"
+  },
+  "assetIds": [
+    "121902157999085",
+    "130692053202025",
+    "131518242129757",
+    "132387915610159"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monochrome King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

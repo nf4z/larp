@@ -1,0 +1,12 @@
+{
+  "name": "Brainrot Egg",
+  "images": {
+    "Image": "rbxassetid://84056729044280"
+  },
+  "assetIds": [
+    "84056729044280"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

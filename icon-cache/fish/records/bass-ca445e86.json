@@ -1,0 +1,15 @@
+{
+  "name": "Bass",
+  "images": {
+    "Image": "rbxassetid://135616607372734"
+  },
+  "assetIds": [
+    "135616607372734"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Bass"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Corrupt Glitch",
+  "images": {
+    "Normal": "rbxassetid://135841550248902",
+    "Shiny": "rbxassetid://107162390911710",
+    "Mythic": "rbxassetid://134256729463822",
+    "MythicShiny": "rbxassetid://92932429383097"
+  },
+  "assetIds": [
+    "107162390911710",
+    "134256729463822",
+    "135841550248902",
+    "92932429383097"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupt Glitch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

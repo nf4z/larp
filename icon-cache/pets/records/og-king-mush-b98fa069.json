@@ -1,0 +1,17 @@
+{
+  "name": "OG King Mush",
+  "images": {
+    "Normal": "rbxassetid://117664173885065",
+    "Shiny": "rbxassetid://81786645445721"
+  },
+  "assetIds": [
+    "117664173885065",
+    "81786645445721"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG King Mush"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

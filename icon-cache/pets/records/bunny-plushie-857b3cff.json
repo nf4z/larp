@@ -1,0 +1,21 @@
+{
+  "name": "Bunny Plushie",
+  "images": {
+    "Normal": "rbxassetid://87433070414924",
+    "Shiny": "rbxassetid://90562214222128",
+    "Mythic": "rbxassetid://73396378650386",
+    "MythicShiny": "rbxassetid://137972424901393"
+  },
+  "assetIds": [
+    "137972424901393",
+    "73396378650386",
+    "87433070414924",
+    "90562214222128"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Neon Wire Eye",
+  "images": {
+    "Normal": "rbxassetid://76260255740988",
+    "Shiny": "rbxassetid://113845829936786",
+    "Mythic": "rbxassetid://90663311823833",
+    "MythicShiny": "rbxassetid://81999044282610"
+  },
+  "assetIds": [
+    "113845829936786",
+    "76260255740988",
+    "81999044282610",
+    "90663311823833"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Wire Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

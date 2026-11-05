@@ -1,0 +1,15 @@
+{
+  "name": "Rift Charm",
+  "images": {
+    "Image": "rbxassetid://81149561118405"
+  },
+  "assetIds": [
+    "81149561118405"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Rift Charm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

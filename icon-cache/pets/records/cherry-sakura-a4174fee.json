@@ -1,0 +1,21 @@
+{
+  "name": "Cherry Sakura",
+  "images": {
+    "Normal": "rbxassetid://99252773812992",
+    "Shiny": "rbxassetid://128027077328299",
+    "Mythic": "rbxassetid://106039276200929",
+    "MythicShiny": "rbxassetid://117358163307922"
+  },
+  "assetIds": [
+    "106039276200929",
+    "117358163307922",
+    "128027077328299",
+    "99252773812992"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cherry Sakura"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

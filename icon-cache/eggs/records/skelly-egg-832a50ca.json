@@ -1,0 +1,12 @@
+{
+  "name": "Skelly Egg",
+  "images": {
+    "Image": "rbxassetid://102761491122978"
+  },
+  "assetIds": [
+    "102761491122978"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

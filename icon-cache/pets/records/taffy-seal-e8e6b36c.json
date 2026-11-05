@@ -1,0 +1,21 @@
+{
+  "name": "Taffy Seal",
+  "images": {
+    "Normal": "rbxassetid://76418740470286",
+    "Shiny": "rbxassetid://106620350690715",
+    "Mythic": "rbxassetid://113236649491745",
+    "MythicShiny": "rbxassetid://107210443869943"
+  },
+  "assetIds": [
+    "106620350690715",
+    "107210443869943",
+    "113236649491745",
+    "76418740470286"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Taffy Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

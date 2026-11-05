@@ -1,0 +1,17 @@
+{
+  "name": "BGS Box",
+  "images": {
+    "Normal": "rbxassetid://83649473361659",
+    "Shiny": "rbxassetid://135960705773534"
+  },
+  "assetIds": [
+    "135960705773534",
+    "83649473361659"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BGS Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

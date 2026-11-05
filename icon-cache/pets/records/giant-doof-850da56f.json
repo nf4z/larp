@@ -1,0 +1,21 @@
+{
+  "name": "Giant DOOF",
+  "images": {
+    "Normal": "rbxassetid://76474626086587",
+    "Shiny": "rbxassetid://135702382190957",
+    "Mythic": "rbxassetid://122136750770595",
+    "MythicShiny": "rbxassetid://98480145371055"
+  },
+  "assetIds": [
+    "122136750770595",
+    "135702382190957",
+    "76474626086587",
+    "98480145371055"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant DOOF"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

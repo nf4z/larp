@@ -1,0 +1,17 @@
+{
+  "name": "The Genie",
+  "images": {
+    "Normal": "rbxassetid://71136604314421",
+    "Shiny": "rbxassetid://81643937422251"
+  },
+  "assetIds": [
+    "71136604314421",
+    "81643937422251"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Genie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Pirate Kitty",
+  "images": {
+    "Normal": "rbxassetid://81090912302581",
+    "Shiny": "rbxassetid://87905430880701"
+  },
+  "assetIds": [
+    "81090912302581",
+    "87905430880701"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pirate Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

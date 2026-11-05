@@ -1,0 +1,21 @@
+{
+  "name": "Taffy Leviathan",
+  "images": {
+    "Normal": "rbxassetid://79345406605104",
+    "Shiny": "rbxassetid://130548432831271",
+    "Mythic": "rbxassetid://122926133536438",
+    "MythicShiny": "rbxassetid://92378313270242"
+  },
+  "assetIds": [
+    "122926133536438",
+    "130548432831271",
+    "79345406605104",
+    "92378313270242"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Taffy Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

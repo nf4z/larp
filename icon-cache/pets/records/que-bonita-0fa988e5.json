@@ -1,0 +1,21 @@
+{
+  "name": "que bonita",
+  "images": {
+    "Normal": "rbxassetid://122370004046008",
+    "Shiny": "rbxassetid://114973527601343",
+    "Mythic": "rbxassetid://72387822900505",
+    "MythicShiny": "rbxassetid://93530950272297"
+  },
+  "assetIds": [
+    "114973527601343",
+    "122370004046008",
+    "72387822900505",
+    "93530950272297"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "que bonita"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

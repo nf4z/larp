@@ -1,0 +1,17 @@
+{
+  "name": "Quamatic's Creation",
+  "images": {
+    "Normal": "rbxassetid://140467654924698",
+    "Shiny": "rbxassetid://103595372365954"
+  },
+  "assetIds": [
+    "103595372365954",
+    "140467654924698"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Quamatic's Creation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

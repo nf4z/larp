@@ -1,0 +1,17 @@
+{
+  "name": "Skelly Bunny",
+  "images": {
+    "Normal": "rbxassetid://129683008877813",
+    "Shiny": "rbxassetid://105903752734338"
+  },
+  "assetIds": [
+    "105903752734338",
+    "129683008877813"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skelly Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

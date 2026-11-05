@@ -1,0 +1,21 @@
+{
+  "name": "Capybara Plushie",
+  "images": {
+    "Normal": "rbxassetid://112141171578736",
+    "Shiny": "rbxassetid://124634840337548",
+    "Mythic": "rbxassetid://85066469037815",
+    "MythicShiny": "rbxassetid://138902589022873"
+  },
+  "assetIds": [
+    "112141171578736",
+    "124634840337548",
+    "138902589022873",
+    "85066469037815"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Capybara Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

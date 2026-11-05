@@ -1,0 +1,17 @@
+{
+  "name": "Gingerbread Bunny",
+  "images": {
+    "Normal": "rbxassetid://125847759296398",
+    "Shiny": "rbxassetid://115053243005351"
+  },
+  "assetIds": [
+    "115053243005351",
+    "125847759296398"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gingerbread Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

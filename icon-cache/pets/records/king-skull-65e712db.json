@@ -1,0 +1,21 @@
+{
+  "name": "King Skull",
+  "images": {
+    "Normal": "rbxassetid://111154263669719",
+    "Shiny": "rbxassetid://91376569845437",
+    "Mythic": "rbxassetid://71637633863470",
+    "MythicShiny": "rbxassetid://109805661338686"
+  },
+  "assetIds": [
+    "109805661338686",
+    "111154263669719",
+    "71637633863470",
+    "91376569845437"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

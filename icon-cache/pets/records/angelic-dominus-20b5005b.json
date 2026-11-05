@@ -1,0 +1,17 @@
+{
+  "name": "Angelic Dominus",
+  "images": {
+    "Normal": "rbxassetid://140524872847112",
+    "Shiny": "rbxassetid://90602255745612"
+  },
+  "assetIds": [
+    "140524872847112",
+    "90602255745612"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelic Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

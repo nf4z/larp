@@ -1,0 +1,21 @@
+{
+  "name": "OG Leviathan",
+  "images": {
+    "Normal": "rbxassetid://115026013159237",
+    "Shiny": "rbxassetid://105042304125621",
+    "Mythic": "rbxassetid://83452542332371",
+    "MythicShiny": "rbxassetid://97054445007787"
+  },
+  "assetIds": [
+    "105042304125621",
+    "115026013159237",
+    "83452542332371",
+    "97054445007787"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

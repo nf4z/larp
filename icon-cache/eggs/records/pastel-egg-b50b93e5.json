@@ -1,0 +1,12 @@
+{
+  "name": "Pastel Egg",
+  "images": {
+    "Image": "rbxassetid://72274303112126"
+  },
+  "assetIds": [
+    "72274303112126"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

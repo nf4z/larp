@@ -1,0 +1,21 @@
+{
+  "name": "Giant Emerald Golem",
+  "images": {
+    "Normal": "rbxassetid://91050116836798",
+    "Shiny": "rbxassetid://94717609797370",
+    "Mythic": "rbxassetid://98743195995301",
+    "MythicShiny": "rbxassetid://114629209405015"
+  },
+  "assetIds": [
+    "114629209405015",
+    "91050116836798",
+    "94717609797370",
+    "98743195995301"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Emerald Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

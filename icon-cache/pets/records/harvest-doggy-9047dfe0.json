@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Doggy",
+  "images": {
+    "Normal": "rbxassetid://102534549273434",
+    "Shiny": "rbxassetid://110803319025470"
+  },
+  "assetIds": [
+    "102534549273434",
+    "110803319025470"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

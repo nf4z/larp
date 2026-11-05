@@ -1,0 +1,21 @@
+{
+  "name": "Easter Warden",
+  "images": {
+    "Normal": "rbxassetid://89357246714810",
+    "Shiny": "rbxassetid://118472497327790",
+    "Mythic": "rbxassetid://98843847869484",
+    "MythicShiny": "rbxassetid://132731827510053"
+  },
+  "assetIds": [
+    "118472497327790",
+    "132731827510053",
+    "89357246714810",
+    "98843847869484"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Warden"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

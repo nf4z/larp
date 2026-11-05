@@ -1,0 +1,15 @@
+{
+  "name": "Blue Marlin",
+  "images": {
+    "Image": "rbxassetid://86279196935399"
+  },
+  "assetIds": [
+    "86279196935399"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Blue Marlin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

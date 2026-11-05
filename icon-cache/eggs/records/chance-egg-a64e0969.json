@@ -1,0 +1,12 @@
+{
+  "name": "Chance Egg",
+  "images": {
+    "Image": "rbxassetid://73450478555093"
+  },
+  "assetIds": [
+    "73450478555093"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

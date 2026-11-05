@@ -1,0 +1,21 @@
+{
+  "name": "Christmas Tree",
+  "images": {
+    "Normal": "rbxassetid://89830372335495",
+    "Shiny": "rbxassetid://87966482634150",
+    "Mythic": "rbxassetid://103244398515574",
+    "MythicShiny": "rbxassetid://123512870888535"
+  },
+  "assetIds": [
+    "103244398515574",
+    "123512870888535",
+    "87966482634150",
+    "89830372335495"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Christmas Tree"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

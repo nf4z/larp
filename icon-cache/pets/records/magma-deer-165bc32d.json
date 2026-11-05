@@ -1,0 +1,17 @@
+{
+  "name": "Magma Deer",
+  "images": {
+    "Normal": "rbxassetid://73761576862071",
+    "Shiny": "rbxassetid://72419653767996"
+  },
+  "assetIds": [
+    "72419653767996",
+    "73761576862071"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

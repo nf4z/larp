@@ -1,0 +1,12 @@
+{
+  "name": "Patriotic Egg",
+  "images": {
+    "Image": "rbxassetid://117013726096029"
+  },
+  "assetIds": [
+    "117013726096029"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

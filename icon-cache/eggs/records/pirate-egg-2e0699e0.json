@@ -1,0 +1,12 @@
+{
+  "name": "Pirate Egg",
+  "images": {
+    "Image": "rbxassetid://125392031550319"
+  },
+  "assetIds": [
+    "125392031550319"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

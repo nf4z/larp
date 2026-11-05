@@ -1,0 +1,17 @@
+{
+  "name": "Giant Nekomata",
+  "images": {
+    "Normal": "rbxassetid://127878393826311",
+    "Shiny": "rbxassetid://96085518863170"
+  },
+  "assetIds": [
+    "127878393826311",
+    "96085518863170"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Nekomata"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Fortune Kraken",
+  "images": {
+    "Normal": "rbxassetid://75993761144720",
+    "Shiny": "rbxassetid://133138305352756",
+    "Mythic": "rbxassetid://95623312223550",
+    "MythicShiny": "rbxassetid://127958096388122"
+  },
+  "assetIds": [
+    "127958096388122",
+    "133138305352756",
+    "75993761144720",
+    "95623312223550"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fortune Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

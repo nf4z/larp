@@ -1,0 +1,21 @@
+{
+  "name": "THE BLACKHOLE",
+  "images": {
+    "Normal": "rbxassetid://127841726688451",
+    "Shiny": "rbxassetid://114837979178075",
+    "Mythic": "rbxassetid://74603567216356",
+    "MythicShiny": "rbxassetid://117025159804552"
+  },
+  "assetIds": [
+    "114837979178075",
+    "117025159804552",
+    "127841726688451",
+    "74603567216356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "THE BLACKHOLE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

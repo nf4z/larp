@@ -1,0 +1,17 @@
+{
+  "name": "Paper Doggy",
+  "images": {
+    "Normal": "rbxassetid://116412942676621",
+    "Shiny": "rbxassetid://107372964901806"
+  },
+  "assetIds": [
+    "107372964901806",
+    "116412942676621"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Paper Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

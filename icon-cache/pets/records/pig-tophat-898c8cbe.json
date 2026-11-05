@@ -1,0 +1,21 @@
+{
+  "name": "Pig Tophat",
+  "images": {
+    "Normal": "rbxassetid://86884178117330",
+    "Shiny": "rbxassetid://86659937783513",
+    "Mythic": "rbxassetid://95347617514472",
+    "MythicShiny": "rbxassetid://86113872321727"
+  },
+  "assetIds": [
+    "86113872321727",
+    "86659937783513",
+    "86884178117330",
+    "95347617514472"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pig Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

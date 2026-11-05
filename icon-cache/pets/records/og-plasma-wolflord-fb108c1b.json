@@ -1,0 +1,21 @@
+{
+  "name": "OG Plasma Wolflord",
+  "images": {
+    "Normal": "rbxassetid://85325017217291",
+    "Shiny": "rbxassetid://126103197441153",
+    "Mythic": "rbxassetid://115344092151546",
+    "MythicShiny": "rbxassetid://85995626272416"
+  },
+  "assetIds": [
+    "115344092151546",
+    "126103197441153",
+    "85325017217291",
+    "85995626272416"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Plasma Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

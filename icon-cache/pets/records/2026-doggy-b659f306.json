@@ -1,0 +1,17 @@
+{
+  "name": "2026 Doggy",
+  "images": {
+    "Normal": "rbxassetid://96999795297538",
+    "Shiny": "rbxassetid://94008019019766"
+  },
+  "assetIds": [
+    "94008019019766",
+    "96999795297538"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

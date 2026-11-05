@@ -1,0 +1,17 @@
+{
+  "name": "Chroma Defender",
+  "images": {
+    "Normal": "rbxassetid://91552721756040",
+    "Shiny": "rbxassetid://123222080526960"
+  },
+  "assetIds": [
+    "123222080526960",
+    "91552721756040"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chroma Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

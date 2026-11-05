@@ -1,0 +1,17 @@
+{
+  "name": "Radiant Hexarium",
+  "images": {
+    "Normal": "rbxassetid://122636018166104",
+    "Shiny": "rbxassetid://94881108654327"
+  },
+  "assetIds": [
+    "122636018166104",
+    "94881108654327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

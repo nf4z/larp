@@ -1,0 +1,21 @@
+{
+  "name": "Ananas Dragon",
+  "images": {
+    "Normal": "rbxassetid://97449973563985",
+    "Shiny": "rbxassetid://95237807592569",
+    "Mythic": "rbxassetid://75904131742632",
+    "MythicShiny": "rbxassetid://73554440021126"
+  },
+  "assetIds": [
+    "73554440021126",
+    "75904131742632",
+    "95237807592569",
+    "97449973563985"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ananas Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

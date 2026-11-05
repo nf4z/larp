@@ -1,0 +1,20 @@
+{
+  "name": "Bubbles",
+  "images": {
+    "Tier1": "rbxassetid://73789076047814",
+    "Tier2": "rbxassetid://109814229633998",
+    "Tier3": "rbxassetid://79208746991328"
+  },
+  "assetIds": [
+    "73789076047814",
+    "109814229633998",
+    "79208746991328"
+  ],
+  "item": {
+    "Type": "Rune",
+    "Name": "Bubbles",
+    "Tier": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Runes"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Rooted Ratio",
+  "images": {
+    "Normal": "rbxassetid://137048887998207",
+    "Shiny": "rbxassetid://133591265514549",
+    "Mythic": "rbxassetid://129820172701496",
+    "MythicShiny": "rbxassetid://122112347973250"
+  },
+  "assetIds": [
+    "122112347973250",
+    "129820172701496",
+    "133591265514549",
+    "137048887998207"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rooted Ratio"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

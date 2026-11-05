@@ -1,0 +1,21 @@
+{
+  "name": "Spring Critter",
+  "images": {
+    "Normal": "rbxassetid://86319924924071",
+    "Shiny": "rbxassetid://106596864861736",
+    "Mythic": "rbxassetid://114616018535973",
+    "MythicShiny": "rbxassetid://94084666079137"
+  },
+  "assetIds": [
+    "106596864861736",
+    "114616018535973",
+    "86319924924071",
+    "94084666079137"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Critter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

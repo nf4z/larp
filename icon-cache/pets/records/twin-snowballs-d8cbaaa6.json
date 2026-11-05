@@ -1,0 +1,21 @@
+{
+  "name": "Twin Snowballs",
+  "images": {
+    "Normal": "rbxassetid://119831542252739",
+    "Shiny": "rbxassetid://139683474178956",
+    "Mythic": "rbxassetid://134023064907280",
+    "MythicShiny": "rbxassetid://104320449780576"
+  },
+  "assetIds": [
+    "104320449780576",
+    "119831542252739",
+    "134023064907280",
+    "139683474178956"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Twin Snowballs"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Giftbox Doggy",
+  "images": {
+    "Normal": "rbxassetid://86492485721680",
+    "Shiny": "rbxassetid://110713578311862"
+  },
+  "assetIds": [
+    "110713578311862",
+    "86492485721680"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giftbox Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

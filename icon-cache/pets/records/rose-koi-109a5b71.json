@@ -1,0 +1,21 @@
+{
+  "name": "Rose Koi",
+  "images": {
+    "Normal": "rbxassetid://115341783663736",
+    "Shiny": "rbxassetid://109811455125776",
+    "Mythic": "rbxassetid://106385144727365",
+    "MythicShiny": "rbxassetid://85926245898004"
+  },
+  "assetIds": [
+    "106385144727365",
+    "109811455125776",
+    "115341783663736",
+    "85926245898004"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rose Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Giant Neon Elemental",
+  "images": {
+    "Normal": "rbxassetid://87822815620618",
+    "Shiny": "rbxassetid://73510878342207",
+    "Mythic": "rbxassetid://119632464230627",
+    "MythicShiny": "rbxassetid://130407331165463"
+  },
+  "assetIds": [
+    "119632464230627",
+    "130407331165463",
+    "73510878342207",
+    "87822815620618"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Neon Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

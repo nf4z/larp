@@ -1,0 +1,21 @@
+{
+  "name": "OG Lord Shock",
+  "images": {
+    "Normal": "rbxassetid://118340455700587",
+    "Shiny": "rbxassetid://115469805350283",
+    "Mythic": "rbxassetid://106638369080836",
+    "MythicShiny": "rbxassetid://91455440215348"
+  },
+  "assetIds": [
+    "106638369080836",
+    "115469805350283",
+    "118340455700587",
+    "91455440215348"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Lord Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

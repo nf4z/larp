@@ -1,0 +1,17 @@
+{
+  "name": "Squirrel",
+  "images": {
+    "Normal": "rbxassetid://139753633067284",
+    "Shiny": "rbxassetid://106712525134794"
+  },
+  "assetIds": [
+    "106712525134794",
+    "139753633067284"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Squirrel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Duskseeker",
+  "images": {
+    "Normal": "rbxassetid://81118149614837",
+    "Shiny": "rbxassetid://98216572773187",
+    "Mythic": "rbxassetid://128091039651228",
+    "MythicShiny": "rbxassetid://92309763374132"
+  },
+  "assetIds": [
+    "128091039651228",
+    "81118149614837",
+    "92309763374132",
+    "98216572773187"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Duskseeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

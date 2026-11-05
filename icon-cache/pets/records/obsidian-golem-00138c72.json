@@ -1,0 +1,17 @@
+{
+  "name": "Obsidian Golem",
+  "images": {
+    "Normal": "rbxassetid://125030636370241",
+    "Shiny": "rbxassetid://117417036977716"
+  },
+  "assetIds": [
+    "117417036977716",
+    "125030636370241"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

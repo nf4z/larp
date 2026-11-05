@@ -1,0 +1,17 @@
+{
+  "name": "Abyssal Serpent",
+  "images": {
+    "Normal": "rbxassetid://94985141402040",
+    "Shiny": "rbxassetid://92584576726374"
+  },
+  "assetIds": [
+    "92584576726374",
+    "94985141402040"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssal Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

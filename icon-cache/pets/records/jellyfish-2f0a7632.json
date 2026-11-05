@@ -1,0 +1,21 @@
+{
+  "name": "Jellyfish",
+  "images": {
+    "Normal": "rbxassetid://100752995484593",
+    "Shiny": "rbxassetid://85444449755661",
+    "Mythic": "rbxassetid://129723342078761",
+    "MythicShiny": "rbxassetid://134440458999993"
+  },
+  "assetIds": [
+    "100752995484593",
+    "129723342078761",
+    "134440458999993",
+    "85444449755661"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jellyfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

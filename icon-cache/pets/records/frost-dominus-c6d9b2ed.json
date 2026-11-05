@@ -1,0 +1,21 @@
+{
+  "name": "Frost Dominus",
+  "images": {
+    "Normal": "rbxassetid://91826859020168",
+    "Shiny": "rbxassetid://136685695398078",
+    "Mythic": "rbxassetid://128155225390774",
+    "MythicShiny": "rbxassetid://120925632584730"
+  },
+  "assetIds": [
+    "120925632584730",
+    "128155225390774",
+    "136685695398078",
+    "91826859020168"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

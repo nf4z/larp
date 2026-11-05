@@ -1,0 +1,21 @@
+{
+  "name": "Blizzard Dementor",
+  "images": {
+    "Normal": "rbxassetid://109456788212250",
+    "Shiny": "rbxassetid://72980705646222",
+    "Mythic": "rbxassetid://108586024036519",
+    "MythicShiny": "rbxassetid://98024425817836"
+  },
+  "assetIds": [
+    "108586024036519",
+    "109456788212250",
+    "72980705646222",
+    "98024425817836"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blizzard Dementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

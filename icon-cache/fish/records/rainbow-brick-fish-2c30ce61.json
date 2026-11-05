@@ -1,0 +1,15 @@
+{
+  "name": "Rainbow Brick Fish",
+  "images": {
+    "Image": "rbxassetid://85347774619915"
+  },
+  "assetIds": [
+    "85347774619915"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Rainbow Brick Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Virus Core",
+  "images": {
+    "Normal": "rbxassetid://88820450665362",
+    "Shiny": "rbxassetid://136536661504806"
+  },
+  "assetIds": [
+    "136536661504806",
+    "88820450665362"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Virus Core"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

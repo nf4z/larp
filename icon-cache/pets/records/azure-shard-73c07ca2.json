@@ -1,0 +1,21 @@
+{
+  "name": "Azure Shard",
+  "images": {
+    "Normal": "rbxassetid://115116902924267",
+    "Shiny": "rbxassetid://103201665814534",
+    "Mythic": "rbxassetid://127995894113003",
+    "MythicShiny": "rbxassetid://119729849340929"
+  },
+  "assetIds": [
+    "103201665814534",
+    "115116902924267",
+    "119729849340929",
+    "127995894113003"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ice Seal",
+  "images": {
+    "Normal": "rbxassetid://100529163972133",
+    "Shiny": "rbxassetid://121099272982916",
+    "Mythic": "rbxassetid://77195189996066",
+    "MythicShiny": "rbxassetid://92078142058735"
+  },
+  "assetIds": [
+    "100529163972133",
+    "121099272982916",
+    "77195189996066",
+    "92078142058735"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

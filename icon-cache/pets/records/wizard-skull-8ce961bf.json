@@ -1,0 +1,17 @@
+{
+  "name": "Wizard Skull",
+  "images": {
+    "Normal": "rbxassetid://89867534486062",
+    "Shiny": "rbxassetid://101988764930139"
+  },
+  "assetIds": [
+    "101988764930139",
+    "89867534486062"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wizard Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

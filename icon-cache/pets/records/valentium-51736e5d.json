@@ -1,0 +1,21 @@
+{
+  "name": "Valentium",
+  "images": {
+    "Normal": "rbxassetid://121956093032915",
+    "Shiny": "rbxassetid://131797878835829",
+    "Mythic": "rbxassetid://103062459346046",
+    "MythicShiny": "rbxassetid://74933585057762"
+  },
+  "assetIds": [
+    "103062459346046",
+    "121956093032915",
+    "131797878835829",
+    "74933585057762"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Valentium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

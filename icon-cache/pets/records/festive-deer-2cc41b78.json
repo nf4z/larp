@@ -1,0 +1,17 @@
+{
+  "name": "Festive Deer",
+  "images": {
+    "Normal": "rbxassetid://117073212040208",
+    "Shiny": "rbxassetid://87134492767505"
+  },
+  "assetIds": [
+    "117073212040208",
+    "87134492767505"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

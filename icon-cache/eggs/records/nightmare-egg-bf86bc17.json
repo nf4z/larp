@@ -1,0 +1,12 @@
+{
+  "name": "Nightmare Egg",
+  "images": {
+    "Image": "rbxassetid://78128449482196"
+  },
+  "assetIds": [
+    "78128449482196"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

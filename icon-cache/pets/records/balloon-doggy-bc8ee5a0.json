@@ -1,0 +1,17 @@
+{
+  "name": "Balloon Doggy",
+  "images": {
+    "Normal": "rbxassetid://108436321217944",
+    "Shiny": "rbxassetid://134278492171592"
+  },
+  "assetIds": [
+    "108436321217944",
+    "134278492171592"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Balloon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

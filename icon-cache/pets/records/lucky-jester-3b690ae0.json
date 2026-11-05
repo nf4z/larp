@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Jester",
+  "images": {
+    "Normal": "rbxassetid://126122859618238",
+    "Shiny": "rbxassetid://108738715555582",
+    "Mythic": "rbxassetid://121974011372823",
+    "MythicShiny": "rbxassetid://104864464419083"
+  },
+  "assetIds": [
+    "104864464419083",
+    "108738715555582",
+    "121974011372823",
+    "126122859618238"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

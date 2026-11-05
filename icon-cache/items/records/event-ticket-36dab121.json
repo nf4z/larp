@@ -1,0 +1,15 @@
+{
+  "name": "Event Ticket",
+  "images": {
+    "Image": "rbxassetid://78456213845714"
+  },
+  "assetIds": [
+    "78456213845714"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Event Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

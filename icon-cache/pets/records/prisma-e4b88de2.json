@@ -1,0 +1,21 @@
+{
+  "name": "Prisma",
+  "images": {
+    "Normal": "rbxassetid://74696055863223",
+    "Shiny": "rbxassetid://74325311407504",
+    "Mythic": "rbxassetid://85280166453487",
+    "MythicShiny": "rbxassetid://115783976485388"
+  },
+  "assetIds": [
+    "115783976485388",
+    "74325311407504",
+    "74696055863223",
+    "85280166453487"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prisma"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

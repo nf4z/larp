@@ -1,0 +1,21 @@
+{
+  "name": "The Beginning",
+  "images": {
+    "Normal": "rbxassetid://104265340242837",
+    "Shiny": "rbxassetid://74518874187351",
+    "Mythic": "rbxassetid://123442530347403",
+    "MythicShiny": "rbxassetid://118468906564024"
+  },
+  "assetIds": [
+    "104265340242837",
+    "118468906564024",
+    "123442530347403",
+    "74518874187351"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Beginning"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

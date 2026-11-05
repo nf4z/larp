@@ -1,0 +1,21 @@
+{
+  "name": "Gumdrop King",
+  "images": {
+    "Normal": "rbxassetid://77947652951781",
+    "Shiny": "rbxassetid://81229557286386",
+    "Mythic": "rbxassetid://110718364169100",
+    "MythicShiny": "rbxassetid://139933788109113"
+  },
+  "assetIds": [
+    "110718364169100",
+    "139933788109113",
+    "77947652951781",
+    "81229557286386"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gumdrop King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

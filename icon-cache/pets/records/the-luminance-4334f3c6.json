@@ -1,0 +1,21 @@
+{
+  "name": "The Luminance",
+  "images": {
+    "Normal": "rbxassetid://127427628629132",
+    "Shiny": "rbxassetid://128625244032881",
+    "Mythic": "rbxassetid://75603568574134",
+    "MythicShiny": "rbxassetid://89829394457385"
+  },
+  "assetIds": [
+    "127427628629132",
+    "128625244032881",
+    "75603568574134",
+    "89829394457385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Luminance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

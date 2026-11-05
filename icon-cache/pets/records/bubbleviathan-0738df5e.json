@@ -1,0 +1,21 @@
+{
+  "name": "Bubbleviathan",
+  "images": {
+    "Normal": "rbxassetid://137563140416421",
+    "Shiny": "rbxassetid://98393917639756",
+    "Mythic": "rbxassetid://126701871269010",
+    "MythicShiny": "rbxassetid://75127946601767"
+  },
+  "assetIds": [
+    "126701871269010",
+    "137563140416421",
+    "75127946601767",
+    "98393917639756"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubbleviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Lava Bat",
+  "images": {
+    "Normal": "rbxassetid://80856965896571",
+    "Shiny": "rbxassetid://128402926499064"
+  },
+  "assetIds": [
+    "128402926499064",
+    "80856965896571"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lava Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Evil Bunny",
+  "images": {
+    "Normal": "rbxassetid://133832338228681",
+    "Shiny": "rbxassetid://114714172062819"
+  },
+  "assetIds": [
+    "114714172062819",
+    "133832338228681"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Evil Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

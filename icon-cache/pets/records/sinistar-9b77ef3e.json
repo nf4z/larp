@@ -1,0 +1,21 @@
+{
+  "name": "Sinistar",
+  "images": {
+    "Normal": "rbxassetid://136104977531301",
+    "Shiny": "rbxassetid://135889961737045",
+    "Mythic": "rbxassetid://133617824562941",
+    "MythicShiny": "rbxassetid://102268901725605"
+  },
+  "assetIds": [
+    "102268901725605",
+    "133617824562941",
+    "135889961737045",
+    "136104977531301"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinistar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

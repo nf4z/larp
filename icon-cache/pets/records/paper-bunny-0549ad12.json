@@ -1,0 +1,17 @@
+{
+  "name": "Paper Bunny",
+  "images": {
+    "Normal": "rbxassetid://126388715768535",
+    "Shiny": "rbxassetid://70466841700556"
+  },
+  "assetIds": [
+    "126388715768535",
+    "70466841700556"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Paper Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

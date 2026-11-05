@@ -1,0 +1,21 @@
+{
+  "name": "World Bubble",
+  "images": {
+    "Normal": "rbxassetid://132485152949446",
+    "Shiny": "rbxassetid://123293440760597",
+    "Mythic": "rbxassetid://93554968257769",
+    "MythicShiny": "rbxassetid://122316741294154"
+  },
+  "assetIds": [
+    "122316741294154",
+    "123293440760597",
+    "132485152949446",
+    "93554968257769"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "World Bubble"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

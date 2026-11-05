@@ -1,0 +1,17 @@
+{
+  "name": "Neon Angel",
+  "images": {
+    "Normal": "rbxassetid://105451497230864",
+    "Shiny": "rbxassetid://106251176626352"
+  },
+  "assetIds": [
+    "105451497230864",
+    "106251176626352"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

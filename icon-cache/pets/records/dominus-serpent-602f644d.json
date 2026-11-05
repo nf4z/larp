@@ -1,0 +1,21 @@
+{
+  "name": "Dominus Serpent",
+  "images": {
+    "Normal": "rbxassetid://134769701644178",
+    "Shiny": "rbxassetid://132354931328757",
+    "Mythic": "rbxassetid://78425366889489",
+    "MythicShiny": "rbxassetid://93392226601733"
+  },
+  "assetIds": [
+    "132354931328757",
+    "134769701644178",
+    "78425366889489",
+    "93392226601733"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dominus Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

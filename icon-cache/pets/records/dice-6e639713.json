@@ -1,0 +1,17 @@
+{
+  "name": "Dice",
+  "images": {
+    "Normal": "rbxassetid://83487260287520",
+    "Shiny": "rbxassetid://88296235188315"
+  },
+  "assetIds": [
+    "83487260287520",
+    "88296235188315"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

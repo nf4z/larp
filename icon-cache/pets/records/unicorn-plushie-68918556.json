@@ -1,0 +1,17 @@
+{
+  "name": "Unicorn Plushie",
+  "images": {
+    "Normal": "rbxassetid://101831100307892",
+    "Shiny": "rbxassetid://84268744221184"
+  },
+  "assetIds": [
+    "101831100307892",
+    "84268744221184"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Unicorn Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

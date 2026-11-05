@@ -1,0 +1,21 @@
+{
+  "name": "Revelation",
+  "images": {
+    "Normal": "rbxassetid://122207918890409",
+    "Shiny": "rbxassetid://130397902449917",
+    "Mythic": "rbxassetid://103904620685576",
+    "MythicShiny": "rbxassetid://80804000660207"
+  },
+  "assetIds": [
+    "103904620685576",
+    "122207918890409",
+    "130397902449917",
+    "80804000660207"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Revelation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

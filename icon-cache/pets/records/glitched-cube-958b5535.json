@@ -1,0 +1,17 @@
+{
+  "name": "Glitched Cube",
+  "images": {
+    "Normal": "rbxassetid://129452624392694",
+    "Shiny": "rbxassetid://110169255452087"
+  },
+  "assetIds": [
+    "110169255452087",
+    "129452624392694"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Glitched Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Royal Slime",
+  "images": {
+    "Normal": "rbxassetid://84889828826259",
+    "Shiny": "rbxassetid://124074300637934"
+  },
+  "assetIds": [
+    "124074300637934",
+    "84889828826259"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

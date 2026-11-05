@@ -1,0 +1,17 @@
+{
+  "name": "Popcorn Kitty",
+  "images": {
+    "Normal": "rbxassetid://101595149483104",
+    "Shiny": "rbxassetid://112651920415094"
+  },
+  "assetIds": [
+    "101595149483104",
+    "112651920415094"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Popcorn Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

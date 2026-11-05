@@ -1,0 +1,21 @@
+{
+  "name": "OG Infinity Gem",
+  "images": {
+    "Normal": "rbxassetid://88780461791160",
+    "Shiny": "rbxassetid://98698772182013",
+    "Mythic": "rbxassetid://118597691850899",
+    "MythicShiny": "rbxassetid://137444015538252"
+  },
+  "assetIds": [
+    "118597691850899",
+    "137444015538252",
+    "88780461791160",
+    "98698772182013"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Infinity Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

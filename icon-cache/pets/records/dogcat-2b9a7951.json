@@ -1,0 +1,21 @@
+{
+  "name": "Dogcat",
+  "images": {
+    "Normal": "rbxassetid://99281159367732",
+    "Shiny": "rbxassetid://86315615137823",
+    "Mythic": "rbxassetid://93382691353129",
+    "MythicShiny": "rbxassetid://71248156613850"
+  },
+  "assetIds": [
+    "71248156613850",
+    "86315615137823",
+    "93382691353129",
+    "99281159367732"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Shadow Crystal Shard",
+  "images": {
+    "Normal": "rbxassetid://94291300233123",
+    "Shiny": "rbxassetid://135579526846147"
+  },
+  "assetIds": [
+    "135579526846147",
+    "94291300233123"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Crystal Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

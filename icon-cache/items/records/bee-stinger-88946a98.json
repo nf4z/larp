@@ -1,0 +1,15 @@
+{
+  "name": "Bee Stinger",
+  "images": {
+    "Image": "rbxassetid://115957556330519"
+  },
+  "assetIds": [
+    "115957556330519"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Bee Stinger"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

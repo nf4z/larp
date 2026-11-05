@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Jam",
+  "images": {
+    "Normal": "rbxassetid://119416866151289",
+    "Shiny": "rbxassetid://138303850718534",
+    "Mythic": "rbxassetid://72059513236858",
+    "MythicShiny": "rbxassetid://84959659085631"
+  },
+  "assetIds": [
+    "119416866151289",
+    "138303850718534",
+    "72059513236858",
+    "84959659085631"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Jam"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

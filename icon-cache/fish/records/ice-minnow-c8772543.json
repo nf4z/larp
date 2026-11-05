@@ -1,0 +1,15 @@
+{
+  "name": "Ice Minnow",
+  "images": {
+    "Image": "rbxassetid://121610590750874"
+  },
+  "assetIds": [
+    "121610590750874"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Ice Minnow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

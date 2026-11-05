@@ -1,0 +1,17 @@
+{
+  "name": "Ultra Heart",
+  "images": {
+    "Normal": "rbxassetid://117644064026347",
+    "Shiny": "rbxassetid://101746880782500"
+  },
+  "assetIds": [
+    "101746880782500",
+    "117644064026347"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ultra Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

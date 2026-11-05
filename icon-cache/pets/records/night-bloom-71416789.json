@@ -1,0 +1,21 @@
+{
+  "name": "Night Bloom",
+  "images": {
+    "Normal": "rbxassetid://119852784547060",
+    "Shiny": "rbxassetid://72082747889347",
+    "Mythic": "rbxassetid://118073575845985",
+    "MythicShiny": "rbxassetid://117468445745548"
+  },
+  "assetIds": [
+    "117468445745548",
+    "118073575845985",
+    "119852784547060",
+    "72082747889347"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Night Bloom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

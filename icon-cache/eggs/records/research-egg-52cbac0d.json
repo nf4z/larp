@@ -1,0 +1,12 @@
+{
+  "name": "Research Egg",
+  "images": {
+    "Image": "rbxassetid://119830549474587"
+  },
+  "assetIds": [
+    "119830549474587"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

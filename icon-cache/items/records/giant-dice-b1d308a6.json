@@ -1,0 +1,15 @@
+{
+  "name": "Giant Dice",
+  "images": {
+    "Image": "rbxassetid://114301337176020"
+  },
+  "assetIds": [
+    "114301337176020"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Giant Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

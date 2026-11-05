@@ -1,0 +1,12 @@
+{
+  "name": "Cannon Egg",
+  "images": {
+    "Image": "rbxassetid://138767180607349"
+  },
+  "assetIds": [
+    "138767180607349"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

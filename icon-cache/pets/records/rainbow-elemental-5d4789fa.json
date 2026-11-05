@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Elemental",
+  "images": {
+    "Normal": "rbxassetid://136792215939000",
+    "Shiny": "rbxassetid://94090124931641",
+    "Mythic": "rbxassetid://76022183768604",
+    "MythicShiny": "rbxassetid://121241773184703"
+  },
+  "assetIds": [
+    "121241773184703",
+    "136792215939000",
+    "76022183768604",
+    "94090124931641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Oceandeep Bounty",
+  "images": {
+    "Normal": "rbxassetid://80700384221797",
+    "Shiny": "rbxassetid://129410389304011"
+  },
+  "assetIds": [
+    "129410389304011",
+    "80700384221797"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Oceandeep Bounty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

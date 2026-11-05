@@ -1,0 +1,21 @@
+{
+  "name": "Heartbroken One",
+  "images": {
+    "Normal": "rbxassetid://108984175662093",
+    "Shiny": "rbxassetid://97993043894342",
+    "Mythic": "rbxassetid://91722456007198",
+    "MythicShiny": "rbxassetid://111691233846266"
+  },
+  "assetIds": [
+    "108984175662093",
+    "111691233846266",
+    "91722456007198",
+    "97993043894342"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Heartbroken One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

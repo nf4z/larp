@@ -1,0 +1,21 @@
+{
+  "name": "Jelly Trophy",
+  "images": {
+    "Normal": "rbxassetid://117205474077951",
+    "Shiny": "rbxassetid://73464914430488",
+    "Mythic": "rbxassetid://125103220543362",
+    "MythicShiny": "rbxassetid://124499100055742"
+  },
+  "assetIds": [
+    "117205474077951",
+    "124499100055742",
+    "125103220543362",
+    "73464914430488"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jelly Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

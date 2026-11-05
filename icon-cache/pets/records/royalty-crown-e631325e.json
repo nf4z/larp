@@ -1,0 +1,21 @@
+{
+  "name": "Royalty Crown",
+  "images": {
+    "Normal": "rbxassetid://122434301515524",
+    "Shiny": "rbxassetid://140249753002607",
+    "Mythic": "rbxassetid://84108035073000",
+    "MythicShiny": "rbxassetid://128426253178148"
+  },
+  "assetIds": [
+    "122434301515524",
+    "128426253178148",
+    "140249753002607",
+    "84108035073000"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royalty Crown"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

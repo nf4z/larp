@@ -1,0 +1,17 @@
+{
+  "name": "Isaac's Cursed Creation",
+  "images": {
+    "Normal": "rbxassetid://103288828245761",
+    "Shiny": "rbxassetid://128969535086633"
+  },
+  "assetIds": [
+    "103288828245761",
+    "128969535086633"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Isaac's Cursed Creation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

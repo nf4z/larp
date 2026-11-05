@@ -1,0 +1,17 @@
+{
+  "name": "Demon Spirit",
+  "images": {
+    "Normal": "rbxassetid://113849858621919",
+    "Shiny": "rbxassetid://136687769733302"
+  },
+  "assetIds": [
+    "113849858621919",
+    "136687769733302"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

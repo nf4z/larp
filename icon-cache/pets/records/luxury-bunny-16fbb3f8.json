@@ -1,0 +1,17 @@
+{
+  "name": "Luxury Bunny",
+  "images": {
+    "Normal": "rbxassetid://130782853103076",
+    "Shiny": "rbxassetid://121175704443146"
+  },
+  "assetIds": [
+    "121175704443146",
+    "130782853103076"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luxury Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

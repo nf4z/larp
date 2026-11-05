@@ -1,0 +1,17 @@
+{
+  "name": "Strawhat Dragon",
+  "images": {
+    "Normal": "rbxassetid://98527190135898",
+    "Shiny": "rbxassetid://73403613496150"
+  },
+  "assetIds": [
+    "73403613496150",
+    "98527190135898"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Strawhat Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

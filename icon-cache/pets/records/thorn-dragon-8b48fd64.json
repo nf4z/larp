@@ -1,0 +1,21 @@
+{
+  "name": "Thorn Dragon",
+  "images": {
+    "Normal": "rbxassetid://123183275686017",
+    "Shiny": "rbxassetid://78224699923848",
+    "Mythic": "rbxassetid://128660784726672",
+    "MythicShiny": "rbxassetid://111762226917002"
+  },
+  "assetIds": [
+    "111762226917002",
+    "123183275686017",
+    "128660784726672",
+    "78224699923848"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Thorn Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

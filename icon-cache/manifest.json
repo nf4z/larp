@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "sourceSHA256": "f693c03ba0e5a4734a2eed8e4ba3cea4f7bdb0e7fd0f593f82d15c79454d5084",
+  "categories": {
+    "Pets": {
+      "records": 2243,
+      "path": "icon-cache/pets/c02db8e8a4af7f7a608a.json"
+    },
+    "Eggs": {
+      "records": 224,
+      "path": "icon-cache/eggs/6405213f97595ca11853.json"
+    },
+    "Potions": {
+      "records": 53,
+      "path": "icon-cache/potions/1a118864dde19ad30b7c.json"
+    },
+    "Powerups": {
+      "records": 147,
+      "path": "icon-cache/items/4bebc8dd6f09f2fa9c1c.json"
+    },
+    "Runes": {
+      "records": 4,
+      "path": "icon-cache/runes/94300c82e67fcacb74cd.json"
+    },
+    "Currency": {
+      "records": 49,
+      "path": "icon-cache/currencies/b46ca67766fa727be10e.json"
+    },
+    "PermanentBuffs": {
+      "records": 3,
+      "path": "icon-cache/buffs/bce297260a2649fb763f.json"
+    },
+    "Fish": {
+      "records": 140,
+      "path": "icon-cache/fish/a1203d66075786101cf9.json"
+    },
+    "FishingRods": {
+      "records": 9,
+      "path": "icon-cache/fishing/rods/201dab1dfd4e6c587b92.json"
+    },
+    "FishingBait": {
+      "records": 6,
+      "path": "icon-cache/fishing/bait/6dde680cade1243467e7.json"
+    },
+    "FishingBobbers": {
+      "records": 1,
+      "path": "icon-cache/fishing/bobbers/6977768e97a959ca43fb.json"
+    }
+  },
+  "uniqueAssets": 7885,
+  "storage": "Roblox asset references and native rendering recipes; PNG mirrors require authorized access."
+}

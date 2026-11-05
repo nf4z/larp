@@ -1,0 +1,21 @@
+{
+  "name": "Ice Basilisk",
+  "images": {
+    "Normal": "rbxassetid://127291867634438",
+    "Shiny": "rbxassetid://101044252278631",
+    "Mythic": "rbxassetid://130907401549471",
+    "MythicShiny": "rbxassetid://92957408100512"
+  },
+  "assetIds": [
+    "101044252278631",
+    "127291867634438",
+    "130907401549471",
+    "92957408100512"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

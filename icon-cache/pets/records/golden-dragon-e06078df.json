@@ -1,0 +1,17 @@
+{
+  "name": "Golden Dragon",
+  "images": {
+    "Normal": "rbxassetid://116610852449123",
+    "Shiny": "rbxassetid://129336435638666"
+  },
+  "assetIds": [
+    "116610852449123",
+    "129336435638666"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

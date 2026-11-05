@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Casket",
+  "images": {
+    "Normal": "rbxassetid://72489909945684",
+    "Shiny": "rbxassetid://89182822037782",
+    "Mythic": "rbxassetid://86757061232712",
+    "MythicShiny": "rbxassetid://134524053423686"
+  },
+  "assetIds": [
+    "134524053423686",
+    "72489909945684",
+    "86757061232712",
+    "89182822037782"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Casket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

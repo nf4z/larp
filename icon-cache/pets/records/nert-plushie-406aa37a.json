@@ -1,0 +1,21 @@
+{
+  "name": "Nert Plushie",
+  "images": {
+    "Normal": "rbxassetid://78468881145529",
+    "Shiny": "rbxassetid://112723387366447",
+    "Mythic": "rbxassetid://120365119613393",
+    "MythicShiny": "rbxassetid://74087061963136"
+  },
+  "assetIds": [
+    "112723387366447",
+    "120365119613393",
+    "74087061963136",
+    "78468881145529"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nert Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Teddy",
+  "images": {
+    "Normal": "rbxassetid://75953640383275",
+    "Shiny": "rbxassetid://102781136298922",
+    "Mythic": "rbxassetid://84095805510172",
+    "MythicShiny": "rbxassetid://120948656338740"
+  },
+  "assetIds": [
+    "102781136298922",
+    "120948656338740",
+    "75953640383275",
+    "84095805510172"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Teddy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

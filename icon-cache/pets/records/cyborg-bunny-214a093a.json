@@ -1,0 +1,17 @@
+{
+  "name": "Cyborg Bunny",
+  "images": {
+    "Normal": "rbxassetid://123750572360760",
+    "Shiny": "rbxassetid://104516522688204"
+  },
+  "assetIds": [
+    "104516522688204",
+    "123750572360760"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyborg Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

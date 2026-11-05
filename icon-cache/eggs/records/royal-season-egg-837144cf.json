@@ -1,0 +1,12 @@
+{
+  "name": "Royal Season Egg",
+  "images": {
+    "Image": "rbxassetid://81900540078121"
+  },
+  "assetIds": [
+    "81900540078121"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Deep Sea Kraken",
+  "images": {
+    "Normal": "rbxassetid://104690686399423",
+    "Shiny": "rbxassetid://108764863671601",
+    "Mythic": "rbxassetid://103492100460894",
+    "MythicShiny": "rbxassetid://97482716769205"
+  },
+  "assetIds": [
+    "103492100460894",
+    "104690686399423",
+    "108764863671601",
+    "97482716769205"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Deep Sea Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

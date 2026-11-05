@@ -1,0 +1,21 @@
+{
+  "name": "Prismatic Sunflower",
+  "images": {
+    "Normal": "rbxassetid://117547023561109",
+    "Shiny": "rbxassetid://97869105774474",
+    "Mythic": "rbxassetid://130400929982166",
+    "MythicShiny": "rbxassetid://73007341345539"
+  },
+  "assetIds": [
+    "117547023561109",
+    "130400929982166",
+    "73007341345539",
+    "97869105774474"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prismatic Sunflower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

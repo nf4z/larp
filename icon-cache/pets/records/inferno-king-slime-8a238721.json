@@ -1,0 +1,21 @@
+{
+  "name": "Inferno King Slime",
+  "images": {
+    "Normal": "rbxassetid://102438024964742",
+    "Shiny": "rbxassetid://135519252658258",
+    "Mythic": "rbxassetid://82970138486922",
+    "MythicShiny": "rbxassetid://139890012279313"
+  },
+  "assetIds": [
+    "102438024964742",
+    "135519252658258",
+    "139890012279313",
+    "82970138486922"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno King Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

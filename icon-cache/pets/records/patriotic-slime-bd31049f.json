@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Slime",
+  "images": {
+    "Normal": "rbxassetid://120833675019547",
+    "Shiny": "rbxassetid://78082483721072"
+  },
+  "assetIds": [
+    "120833675019547",
+    "78082483721072"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

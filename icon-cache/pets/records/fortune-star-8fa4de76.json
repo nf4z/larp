@@ -1,0 +1,21 @@
+{
+  "name": "Fortune Star",
+  "images": {
+    "Normal": "rbxassetid://104472868611173",
+    "Shiny": "rbxassetid://88671431150069",
+    "Mythic": "rbxassetid://124140046505300",
+    "MythicShiny": "rbxassetid://126745464435336"
+  },
+  "assetIds": [
+    "104472868611173",
+    "124140046505300",
+    "126745464435336",
+    "88671431150069"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fortune Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

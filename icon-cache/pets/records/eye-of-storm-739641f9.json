@@ -1,0 +1,21 @@
+{
+  "name": "Eye of Storm",
+  "images": {
+    "Normal": "rbxassetid://130768230644538",
+    "Shiny": "rbxassetid://94399090217743",
+    "Mythic": "rbxassetid://76134998368260",
+    "MythicShiny": "rbxassetid://111419746637800"
+  },
+  "assetIds": [
+    "111419746637800",
+    "130768230644538",
+    "76134998368260",
+    "94399090217743"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eye of Storm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

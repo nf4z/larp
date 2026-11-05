@@ -1,0 +1,21 @@
+{
+  "name": "Sunshine",
+  "images": {
+    "Normal": "rbxassetid://90437170553240",
+    "Shiny": "rbxassetid://110045148832536",
+    "Mythic": "rbxassetid://133057890814539",
+    "MythicShiny": "rbxassetid://89351939954738"
+  },
+  "assetIds": [
+    "110045148832536",
+    "133057890814539",
+    "89351939954738",
+    "90437170553240"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunshine"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

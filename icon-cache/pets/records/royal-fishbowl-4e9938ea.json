@@ -1,0 +1,21 @@
+{
+  "name": "Royal Fishbowl",
+  "images": {
+    "Normal": "rbxassetid://135235081097603",
+    "Shiny": "rbxassetid://71950422852504",
+    "Mythic": "rbxassetid://122698138221308",
+    "MythicShiny": "rbxassetid://130033871585502"
+  },
+  "assetIds": [
+    "122698138221308",
+    "130033871585502",
+    "135235081097603",
+    "71950422852504"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Fishbowl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

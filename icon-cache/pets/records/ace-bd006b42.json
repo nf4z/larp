@@ -1,0 +1,21 @@
+{
+  "name": "ACE",
+  "images": {
+    "Normal": "rbxassetid://99845236765340",
+    "Shiny": "rbxassetid://94142524109467",
+    "Mythic": "rbxassetid://132808046657992",
+    "MythicShiny": "rbxassetid://108498138936847"
+  },
+  "assetIds": [
+    "108498138936847",
+    "132808046657992",
+    "94142524109467",
+    "99845236765340"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "ACE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Candy Winged Serpent",
+  "images": {
+    "Normal": "rbxassetid://114455446969017",
+    "Shiny": "rbxassetid://137871250565866"
+  },
+  "assetIds": [
+    "114455446969017",
+    "137871250565866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candy Winged Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

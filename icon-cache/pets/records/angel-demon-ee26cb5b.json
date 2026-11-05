@@ -1,0 +1,17 @@
+{
+  "name": "Angel Demon",
+  "images": {
+    "Normal": "rbxassetid://139322543033627",
+    "Shiny": "rbxassetid://80829870064240"
+  },
+  "assetIds": [
+    "139322543033627",
+    "80829870064240"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angel Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

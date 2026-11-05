@@ -1,0 +1,17 @@
+{
+  "name": "Christmas Bell",
+  "images": {
+    "Normal": "rbxassetid://111961903013354",
+    "Shiny": "rbxassetid://132217629718145"
+  },
+  "assetIds": [
+    "111961903013354",
+    "132217629718145"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Christmas Bell"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

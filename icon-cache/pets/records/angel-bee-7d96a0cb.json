@@ -1,0 +1,21 @@
+{
+  "name": "Angel Bee",
+  "images": {
+    "Normal": "rbxassetid://116349960207759",
+    "Shiny": "rbxassetid://112196516492245",
+    "Mythic": "rbxassetid://93089325394200",
+    "MythicShiny": "rbxassetid://80120389356167"
+  },
+  "assetIds": [
+    "112196516492245",
+    "116349960207759",
+    "80120389356167",
+    "93089325394200"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angel Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Classic Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://77351702131087",
+    "Shiny": "rbxassetid://121011691399756",
+    "Mythic": "rbxassetid://123137343896724",
+    "MythicShiny": "rbxassetid://115802731504823"
+  },
+  "assetIds": [
+    "115802731504823",
+    "121011691399756",
+    "123137343896724",
+    "77351702131087"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

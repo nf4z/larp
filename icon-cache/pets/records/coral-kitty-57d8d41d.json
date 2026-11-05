@@ -1,0 +1,17 @@
+{
+  "name": "Coral Kitty",
+  "images": {
+    "Normal": "rbxassetid://92037939912236",
+    "Shiny": "rbxassetid://103664675527400"
+  },
+  "assetIds": [
+    "103664675527400",
+    "92037939912236"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

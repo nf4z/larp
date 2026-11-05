@@ -1,0 +1,21 @@
+{
+  "name": "Mint Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://100844923085927",
+    "Shiny": "rbxassetid://95538067451707",
+    "Mythic": "rbxassetid://133398587406359",
+    "MythicShiny": "rbxassetid://134090985493663"
+  },
+  "assetIds": [
+    "100844923085927",
+    "133398587406359",
+    "134090985493663",
+    "95538067451707"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mint Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

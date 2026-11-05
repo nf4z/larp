@@ -1,0 +1,17 @@
+{
+  "name": "Festive Fox",
+  "images": {
+    "Normal": "rbxassetid://93938340764868",
+    "Shiny": "rbxassetid://139054147369605"
+  },
+  "assetIds": [
+    "139054147369605",
+    "93938340764868"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ThanksgivingShards",
+  "images": {
+    "Image": "rbxassetid://104106856719883"
+  },
+  "assetIds": [
+    "104106856719883"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "ThanksgivingShards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

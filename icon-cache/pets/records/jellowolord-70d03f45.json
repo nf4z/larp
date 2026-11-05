@@ -1,0 +1,21 @@
+{
+  "name": "JellOwOlord",
+  "images": {
+    "Normal": "rbxassetid://112307708024099",
+    "Shiny": "rbxassetid://102429322853155",
+    "Mythic": "rbxassetid://116264630681056",
+    "MythicShiny": "rbxassetid://121726547210348"
+  },
+  "assetIds": [
+    "102429322853155",
+    "112307708024099",
+    "116264630681056",
+    "121726547210348"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "JellOwOlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

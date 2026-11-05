@@ -1,0 +1,15 @@
+{
+  "name": "Commander Spearfish",
+  "images": {
+    "Image": "rbxassetid://88316956875410"
+  },
+  "assetIds": [
+    "88316956875410"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Commander Spearfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

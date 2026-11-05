@@ -1,0 +1,21 @@
+{
+  "name": "Overseer",
+  "images": {
+    "Normal": "rbxassetid://103066660441260",
+    "Shiny": "rbxassetid://135282468413670",
+    "Mythic": "rbxassetid://101438224606618",
+    "MythicShiny": "rbxassetid://111630848456135"
+  },
+  "assetIds": [
+    "101438224606618",
+    "103066660441260",
+    "111630848456135",
+    "135282468413670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overseer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

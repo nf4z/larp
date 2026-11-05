@@ -1,0 +1,17 @@
+{
+  "name": "Apple Rabbit",
+  "images": {
+    "Normal": "rbxassetid://140366035566171",
+    "Shiny": "rbxassetid://100002664681011"
+  },
+  "assetIds": [
+    "100002664681011",
+    "140366035566171"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Apple Rabbit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

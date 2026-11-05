@@ -1,0 +1,15 @@
+{
+  "name": "TropicalSeashells",
+  "images": {
+    "Image": "rbxassetid://134830041066605"
+  },
+  "assetIds": [
+    "134830041066605"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "TropicalSeashells"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

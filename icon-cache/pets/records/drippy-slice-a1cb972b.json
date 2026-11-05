@@ -1,0 +1,21 @@
+{
+  "name": "Drippy Slice",
+  "images": {
+    "Normal": "rbxassetid://115772278345271",
+    "Shiny": "rbxassetid://110086408858460",
+    "Mythic": "rbxassetid://93817566446512",
+    "MythicShiny": "rbxassetid://74034075509130"
+  },
+  "assetIds": [
+    "110086408858460",
+    "115772278345271",
+    "74034075509130",
+    "93817566446512"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Drippy Slice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

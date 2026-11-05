@@ -1,0 +1,17 @@
+{
+  "name": "Sylently's Pet",
+  "images": {
+    "Normal": "rbxassetid://131789469129066",
+    "Shiny": "rbxassetid://139973314222528"
+  },
+  "assetIds": [
+    "131789469129066",
+    "139973314222528"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sylently's Pet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

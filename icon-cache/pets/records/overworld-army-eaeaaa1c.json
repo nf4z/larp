@@ -1,0 +1,21 @@
+{
+  "name": "Overworld Army",
+  "images": {
+    "Normal": "rbxassetid://97239038197837",
+    "Shiny": "rbxassetid://107425808832444",
+    "Mythic": "rbxassetid://136755526463044",
+    "MythicShiny": "rbxassetid://82170044154395"
+  },
+  "assetIds": [
+    "107425808832444",
+    "136755526463044",
+    "82170044154395",
+    "97239038197837"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overworld Army"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

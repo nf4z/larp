@@ -1,0 +1,21 @@
+{
+  "name": "Almighty Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://108289666598126",
+    "Shiny": "rbxassetid://138834524534796",
+    "Mythic": "rbxassetid://71954045595109",
+    "MythicShiny": "rbxassetid://93122812448006"
+  },
+  "assetIds": [
+    "108289666598126",
+    "138834524534796",
+    "71954045595109",
+    "93122812448006"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Almighty Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

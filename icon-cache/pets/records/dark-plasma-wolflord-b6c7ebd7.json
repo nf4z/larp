@@ -1,0 +1,17 @@
+{
+  "name": "Dark Plasma Wolflord",
+  "images": {
+    "Normal": "rbxassetid://104845203944378",
+    "Shiny": "rbxassetid://76969422105435"
+  },
+  "assetIds": [
+    "104845203944378",
+    "76969422105435"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Plasma Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

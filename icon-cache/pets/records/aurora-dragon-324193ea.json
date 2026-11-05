@@ -1,0 +1,21 @@
+{
+  "name": "Aurora Dragon",
+  "images": {
+    "Normal": "rbxassetid://94017852658870",
+    "Shiny": "rbxassetid://116090388819540",
+    "Mythic": "rbxassetid://82601554358400",
+    "MythicShiny": "rbxassetid://108380045141831"
+  },
+  "assetIds": [
+    "108380045141831",
+    "116090388819540",
+    "82601554358400",
+    "94017852658870"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aurora Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

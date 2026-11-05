@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Gem",
+  "images": {
+    "Normal": "rbxassetid://133394630401908",
+    "Shiny": "rbxassetid://103992928650719"
+  },
+  "assetIds": [
+    "103992928650719",
+    "133394630401908"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

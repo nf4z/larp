@@ -1,0 +1,17 @@
+{
+  "name": "OG Cupcake",
+  "images": {
+    "Normal": "rbxassetid://105239599685467",
+    "Shiny": "rbxassetid://88180887932784"
+  },
+  "assetIds": [
+    "105239599685467",
+    "88180887932784"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Cupcake"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

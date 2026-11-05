@@ -1,0 +1,17 @@
+{
+  "name": "Demondeeri",
+  "images": {
+    "Normal": "rbxassetid://74739850592226",
+    "Shiny": "rbxassetid://114529211755973"
+  },
+  "assetIds": [
+    "114529211755973",
+    "74739850592226"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demondeeri"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

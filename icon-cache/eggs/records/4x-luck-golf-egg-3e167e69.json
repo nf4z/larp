@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Golf Egg",
+  "images": {
+    "Image": "rbxassetid://78257177363328"
+  },
+  "assetIds": [
+    "78257177363328"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

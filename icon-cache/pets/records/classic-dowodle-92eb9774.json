@@ -1,0 +1,21 @@
+{
+  "name": "Classic Dowodle",
+  "images": {
+    "Normal": "rbxassetid://109411385674646",
+    "Shiny": "rbxassetid://128367681428564",
+    "Mythic": "rbxassetid://71357361966220",
+    "MythicShiny": "rbxassetid://120951802607225"
+  },
+  "assetIds": [
+    "109411385674646",
+    "120951802607225",
+    "128367681428564",
+    "71357361966220"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

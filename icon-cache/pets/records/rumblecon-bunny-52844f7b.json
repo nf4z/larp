@@ -1,0 +1,17 @@
+{
+  "name": "Rumblecon Bunny",
+  "images": {
+    "Normal": "rbxassetid://80626100969039",
+    "Shiny": "rbxassetid://103328291710507"
+  },
+  "assetIds": [
+    "103328291710507",
+    "80626100969039"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

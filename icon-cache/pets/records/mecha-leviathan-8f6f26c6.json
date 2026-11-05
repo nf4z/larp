@@ -1,0 +1,21 @@
+{
+  "name": "Mecha Leviathan",
+  "images": {
+    "Normal": "rbxassetid://129430993787702",
+    "Shiny": "rbxassetid://72041499255544",
+    "Mythic": "rbxassetid://96232643579248",
+    "MythicShiny": "rbxassetid://84475220417265"
+  },
+  "assetIds": [
+    "129430993787702",
+    "72041499255544",
+    "84475220417265",
+    "96232643579248"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mecha Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

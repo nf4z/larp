@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Shock",
+  "images": {
+    "Normal": "rbxassetid://127874280456327",
+    "Shiny": "rbxassetid://115715560290252",
+    "Mythic": "rbxassetid://91844679639630",
+    "MythicShiny": "rbxassetid://126450222559873"
+  },
+  "assetIds": [
+    "115715560290252",
+    "126450222559873",
+    "127874280456327",
+    "91844679639630"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

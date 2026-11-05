@@ -1,0 +1,17 @@
+{
+  "name": "The Everdiamond",
+  "images": {
+    "Normal": "rbxassetid://132611012522464",
+    "Shiny": "rbxassetid://94346343090971"
+  },
+  "assetIds": [
+    "132611012522464",
+    "94346343090971"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Everdiamond"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Dice",
+  "images": {
+    "Image": "rbxassetid://116941925962932"
+  },
+  "assetIds": [
+    "116941925962932"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

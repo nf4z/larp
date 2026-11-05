@@ -1,0 +1,21 @@
+{
+  "name": "Music Elemental",
+  "images": {
+    "Normal": "rbxassetid://124984084485505",
+    "Shiny": "rbxassetid://104663258620349",
+    "Mythic": "rbxassetid://127650650157188",
+    "MythicShiny": "rbxassetid://121090371176115"
+  },
+  "assetIds": [
+    "104663258620349",
+    "121090371176115",
+    "124984084485505",
+    "127650650157188"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Music Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

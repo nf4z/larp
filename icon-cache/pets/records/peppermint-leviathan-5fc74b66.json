@@ -1,0 +1,21 @@
+{
+  "name": "Peppermint Leviathan",
+  "images": {
+    "Normal": "rbxassetid://113143796251970",
+    "Shiny": "rbxassetid://138136701834215",
+    "Mythic": "rbxassetid://85690067944324",
+    "MythicShiny": "rbxassetid://87791992516327"
+  },
+  "assetIds": [
+    "113143796251970",
+    "138136701834215",
+    "85690067944324",
+    "87791992516327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Peppermint Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

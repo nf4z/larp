@@ -1,0 +1,17 @@
+{
+  "name": "Orange Deer",
+  "images": {
+    "Normal": "rbxassetid://96265808091408",
+    "Shiny": "rbxassetid://104447143767793"
+  },
+  "assetIds": [
+    "104447143767793",
+    "96265808091408"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Orange Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

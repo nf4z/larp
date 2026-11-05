@@ -1,0 +1,21 @@
+{
+  "name": "Hellshard",
+  "images": {
+    "Normal": "rbxassetid://95765188507524",
+    "Shiny": "rbxassetid://104738830815586",
+    "Mythic": "rbxassetid://136182907694952",
+    "MythicShiny": "rbxassetid://70965058869193"
+  },
+  "assetIds": [
+    "104738830815586",
+    "136182907694952",
+    "70965058869193",
+    "95765188507524"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellshard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

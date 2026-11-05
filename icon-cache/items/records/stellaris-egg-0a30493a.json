@@ -1,0 +1,11 @@
+{
+  "name": "Stellaris Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Stellaris Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

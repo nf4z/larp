@@ -1,0 +1,16 @@
+{
+  "name": "Epic Artifact Totem",
+  "images": {
+    "Image": "rbxassetid://77489216159801"
+  },
+  "assetIds": [
+    "77489216159801"
+  ],
+  "item": {
+    "Type": "Potion",
+    "Name": "Epic Artifact Totem",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Starglitcher",
+  "images": {
+    "Normal": "rbxassetid://98866991050070",
+    "Shiny": "rbxassetid://136538562852482",
+    "Mythic": "rbxassetid://73028068488302",
+    "MythicShiny": "rbxassetid://133415925193021"
+  },
+  "assetIds": [
+    "133415925193021",
+    "136538562852482",
+    "73028068488302",
+    "98866991050070"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starglitcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

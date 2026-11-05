@@ -1,0 +1,21 @@
+{
+  "name": "Flagbearer",
+  "images": {
+    "Normal": "rbxassetid://104477427659372",
+    "Shiny": "rbxassetid://131955343340227",
+    "Mythic": "rbxassetid://118585497897814",
+    "MythicShiny": "rbxassetid://90344246840779"
+  },
+  "assetIds": [
+    "104477427659372",
+    "118585497897814",
+    "131955343340227",
+    "90344246840779"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flagbearer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

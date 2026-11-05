@@ -1,0 +1,21 @@
+{
+  "name": "Captain Monkey",
+  "images": {
+    "Normal": "rbxassetid://87937861341146",
+    "Shiny": "rbxassetid://105769121092521",
+    "Mythic": "rbxassetid://88377926928596",
+    "MythicShiny": "rbxassetid://128362577169234"
+  },
+  "assetIds": [
+    "105769121092521",
+    "128362577169234",
+    "87937861341146",
+    "88377926928596"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Captain Monkey"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

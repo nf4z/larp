@@ -1,0 +1,17 @@
+{
+  "name": "Galactic Shock",
+  "images": {
+    "Normal": "rbxassetid://128521900890105",
+    "Shiny": "rbxassetid://81902723641407"
+  },
+  "assetIds": [
+    "128521900890105",
+    "81902723641407"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galactic Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Silly Dragon",
+  "images": {
+    "Normal": "rbxassetid://137237820585347",
+    "Shiny": "rbxassetid://119836136330933"
+  },
+  "assetIds": [
+    "119836136330933",
+    "137237820585347"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

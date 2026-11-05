@@ -1,0 +1,21 @@
+{
+  "name": "Azure Lily",
+  "images": {
+    "Normal": "rbxassetid://130668651447814",
+    "Shiny": "rbxassetid://134834051903552",
+    "Mythic": "rbxassetid://112494796572869",
+    "MythicShiny": "rbxassetid://127139815304733"
+  },
+  "assetIds": [
+    "112494796572869",
+    "127139815304733",
+    "130668651447814",
+    "134834051903552"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Lily"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ice Golem",
+  "images": {
+    "Normal": "rbxassetid://81589829855731",
+    "Shiny": "rbxassetid://110490778422577"
+  },
+  "assetIds": [
+    "110490778422577",
+    "81589829855731"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

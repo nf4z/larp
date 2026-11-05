@@ -1,0 +1,21 @@
+{
+  "name": "Lonely Rose",
+  "images": {
+    "Normal": "rbxassetid://81652074337020",
+    "Shiny": "rbxassetid://105731168140351",
+    "Mythic": "rbxassetid://122574352301420",
+    "MythicShiny": "rbxassetid://118183395162705"
+  },
+  "assetIds": [
+    "105731168140351",
+    "118183395162705",
+    "122574352301420",
+    "81652074337020"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lonely Rose"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

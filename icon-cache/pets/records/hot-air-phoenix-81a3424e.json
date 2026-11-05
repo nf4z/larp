@@ -1,0 +1,21 @@
+{
+  "name": "Hot Air Phoenix",
+  "images": {
+    "Normal": "rbxassetid://96138112915087",
+    "Shiny": "rbxassetid://126046773151670",
+    "Mythic": "rbxassetid://92384851201956",
+    "MythicShiny": "rbxassetid://82554550734447"
+  },
+  "assetIds": [
+    "126046773151670",
+    "82554550734447",
+    "92384851201956",
+    "96138112915087"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hot Air Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

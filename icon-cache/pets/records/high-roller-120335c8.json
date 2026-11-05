@@ -1,0 +1,21 @@
+{
+  "name": "High Roller",
+  "images": {
+    "Normal": "rbxassetid://71150414146670",
+    "Shiny": "rbxassetid://100984945309181",
+    "Mythic": "rbxassetid://75005332295951",
+    "MythicShiny": "rbxassetid://139360109589154"
+  },
+  "assetIds": [
+    "100984945309181",
+    "139360109589154",
+    "71150414146670",
+    "75005332295951"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "High Roller"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

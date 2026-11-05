@@ -1,0 +1,21 @@
+{
+  "name": "Solstice",
+  "images": {
+    "Normal": "rbxassetid://115365919856916",
+    "Shiny": "rbxassetid://91869565955777",
+    "Mythic": "rbxassetid://117768285682691",
+    "MythicShiny": "rbxassetid://91628313403252"
+  },
+  "assetIds": [
+    "115365919856916",
+    "117768285682691",
+    "91628313403252",
+    "91869565955777"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solstice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

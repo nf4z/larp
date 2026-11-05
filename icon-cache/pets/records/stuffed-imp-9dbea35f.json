@@ -1,0 +1,21 @@
+{
+  "name": "Stuffed Imp",
+  "images": {
+    "Normal": "rbxassetid://97887667918658",
+    "Shiny": "rbxassetid://95775406053519",
+    "Mythic": "rbxassetid://108342572261393",
+    "MythicShiny": "rbxassetid://115252174431754"
+  },
+  "assetIds": [
+    "108342572261393",
+    "115252174431754",
+    "95775406053519",
+    "97887667918658"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Imp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

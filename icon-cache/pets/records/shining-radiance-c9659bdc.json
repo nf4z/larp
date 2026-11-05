@@ -1,0 +1,21 @@
+{
+  "name": "Shining Radiance",
+  "images": {
+    "Normal": "rbxassetid://72762911630887",
+    "Shiny": "rbxassetid://94311581079199",
+    "Mythic": "rbxassetid://128294978834356",
+    "MythicShiny": "rbxassetid://140513538937854"
+  },
+  "assetIds": [
+    "128294978834356",
+    "140513538937854",
+    "72762911630887",
+    "94311581079199"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shining Radiance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

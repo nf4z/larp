@@ -1,0 +1,17 @@
+{
+  "name": "Dark Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://138805437461202",
+    "Shiny": "rbxassetid://139628084641278"
+  },
+  "assetIds": [
+    "138805437461202",
+    "139628084641278"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

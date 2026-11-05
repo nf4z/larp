@@ -1,0 +1,17 @@
+{
+  "name": "Dragon Tophat",
+  "images": {
+    "Normal": "rbxassetid://100645063256238",
+    "Shiny": "rbxassetid://77642307285146"
+  },
+  "assetIds": [
+    "100645063256238",
+    "77642307285146"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragon Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

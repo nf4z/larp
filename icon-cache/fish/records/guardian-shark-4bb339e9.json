@@ -1,0 +1,15 @@
+{
+  "name": "Guardian Shark",
+  "images": {
+    "Image": "rbxassetid://123428718660161"
+  },
+  "assetIds": [
+    "123428718660161"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Guardian Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

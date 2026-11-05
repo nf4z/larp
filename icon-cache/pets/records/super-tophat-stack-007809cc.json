@@ -1,0 +1,21 @@
+{
+  "name": "Super Tophat Stack",
+  "images": {
+    "Normal": "rbxassetid://76763826172264",
+    "Shiny": "rbxassetid://80672339019969",
+    "Mythic": "rbxassetid://73077064276844",
+    "MythicShiny": "rbxassetid://101771651325476"
+  },
+  "assetIds": [
+    "101771651325476",
+    "73077064276844",
+    "76763826172264",
+    "80672339019969"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Tophat Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

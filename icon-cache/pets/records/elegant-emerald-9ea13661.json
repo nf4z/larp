@@ -1,0 +1,21 @@
+{
+  "name": "Elegant Emerald",
+  "images": {
+    "Normal": "rbxassetid://82689172411667",
+    "Shiny": "rbxassetid://79081800582349",
+    "Mythic": "rbxassetid://100982947202925",
+    "MythicShiny": "rbxassetid://85759460442260"
+  },
+  "assetIds": [
+    "100982947202925",
+    "79081800582349",
+    "82689172411667",
+    "85759460442260"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elegant Emerald"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

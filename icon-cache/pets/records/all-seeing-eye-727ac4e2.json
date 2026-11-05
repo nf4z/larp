@@ -1,0 +1,21 @@
+{
+  "name": "All Seeing Eye",
+  "images": {
+    "Normal": "rbxassetid://110711977650989",
+    "Shiny": "rbxassetid://136496519809970",
+    "Mythic": "rbxassetid://138677935711646",
+    "MythicShiny": "rbxassetid://76726674966878"
+  },
+  "assetIds": [
+    "110711977650989",
+    "136496519809970",
+    "138677935711646",
+    "76726674966878"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "All Seeing Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

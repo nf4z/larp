@@ -1,0 +1,17 @@
+{
+  "name": "VOID DEMENTOR",
+  "images": {
+    "Normal": "rbxassetid://129327701481304",
+    "Shiny": "rbxassetid://132485067131878"
+  },
+  "assetIds": [
+    "129327701481304",
+    "132485067131878"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID DEMENTOR"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

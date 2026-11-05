@@ -1,0 +1,21 @@
+{
+  "name": "Monolith",
+  "images": {
+    "Normal": "rbxassetid://121283153389134",
+    "Shiny": "rbxassetid://85067019516525",
+    "Mythic": "rbxassetid://115764635311190",
+    "MythicShiny": "rbxassetid://128013440489350"
+  },
+  "assetIds": [
+    "115764635311190",
+    "121283153389134",
+    "128013440489350",
+    "85067019516525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monolith"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

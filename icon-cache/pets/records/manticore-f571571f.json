@@ -1,0 +1,21 @@
+{
+  "name": "Manticore",
+  "images": {
+    "Normal": "rbxassetid://94995211086495",
+    "Shiny": "rbxassetid://139048231788530",
+    "Mythic": "rbxassetid://97687800034768",
+    "MythicShiny": "rbxassetid://137721691550561"
+  },
+  "assetIds": [
+    "137721691550561",
+    "139048231788530",
+    "94995211086495",
+    "97687800034768"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Manticore"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

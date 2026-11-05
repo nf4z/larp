@@ -1,0 +1,21 @@
+{
+  "name": "Uranium",
+  "images": {
+    "Normal": "rbxassetid://99828982813372",
+    "Shiny": "rbxassetid://73135375676514",
+    "Mythic": "rbxassetid://121259646240512",
+    "MythicShiny": "rbxassetid://140306111082263"
+  },
+  "assetIds": [
+    "121259646240512",
+    "140306111082263",
+    "73135375676514",
+    "99828982813372"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Uranium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

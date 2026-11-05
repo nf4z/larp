@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Overlord",
+  "images": {
+    "Normal": "rbxassetid://91995474316055",
+    "Shiny": "rbxassetid://98912413899526",
+    "Mythic": "rbxassetid://74744661400659",
+    "MythicShiny": "rbxassetid://104138473833658"
+  },
+  "assetIds": [
+    "104138473833658",
+    "74744661400659",
+    "91995474316055",
+    "98912413899526"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

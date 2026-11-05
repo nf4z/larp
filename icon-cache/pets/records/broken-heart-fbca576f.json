@@ -1,0 +1,17 @@
+{
+  "name": "Broken Heart",
+  "images": {
+    "Normal": "rbxassetid://92538155975717",
+    "Shiny": "rbxassetid://113036392212553"
+  },
+  "assetIds": [
+    "113036392212553",
+    "92538155975717"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Broken Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

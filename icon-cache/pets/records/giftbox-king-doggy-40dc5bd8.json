@@ -1,0 +1,21 @@
+{
+  "name": "Giftbox King Doggy",
+  "images": {
+    "Normal": "rbxassetid://73177783889290",
+    "Shiny": "rbxassetid://114899135367401",
+    "Mythic": "rbxassetid://122664332948089",
+    "MythicShiny": "rbxassetid://132078041651233"
+  },
+  "assetIds": [
+    "114899135367401",
+    "122664332948089",
+    "132078041651233",
+    "73177783889290"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giftbox King Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

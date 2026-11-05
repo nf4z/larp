@@ -1,0 +1,12 @@
+{
+  "name": "Iceshard Egg",
+  "images": {
+    "Image": "rbxassetid://97260247088392"
+  },
+  "assetIds": [
+    "97260247088392"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

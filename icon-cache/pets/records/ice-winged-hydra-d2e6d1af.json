@@ -1,0 +1,21 @@
+{
+  "name": "Ice Winged Hydra",
+  "images": {
+    "Normal": "rbxassetid://137000095928184",
+    "Shiny": "rbxassetid://127192957305005",
+    "Mythic": "rbxassetid://124364107807291",
+    "MythicShiny": "rbxassetid://121668711029703"
+  },
+  "assetIds": [
+    "121668711029703",
+    "124364107807291",
+    "127192957305005",
+    "137000095928184"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Winged Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

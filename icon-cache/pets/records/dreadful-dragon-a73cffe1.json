@@ -1,0 +1,21 @@
+{
+  "name": "Dreadful Dragon",
+  "images": {
+    "Normal": "rbxassetid://94941190487313",
+    "Shiny": "rbxassetid://140123040452372",
+    "Mythic": "rbxassetid://103208946325159",
+    "MythicShiny": "rbxassetid://96002468360"
+  },
+  "assetIds": [
+    "103208946325159",
+    "140123040452372",
+    "94941190487313",
+    "96002468360"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dreadful Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Festive Serpent",
+  "images": {
+    "Normal": "rbxassetid://94048022318062",
+    "Shiny": "rbxassetid://105245090939388",
+    "Mythic": "rbxassetid://139677963400036",
+    "MythicShiny": "rbxassetid://74261227016744"
+  },
+  "assetIds": [
+    "105245090939388",
+    "139677963400036",
+    "74261227016744",
+    "94048022318062"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

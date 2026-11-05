@@ -1,0 +1,21 @@
+{
+  "name": "Super Electra",
+  "images": {
+    "Normal": "rbxassetid://129158729619450",
+    "Shiny": "rbxassetid://96018291141465",
+    "Mythic": "rbxassetid://71711576335547",
+    "MythicShiny": "rbxassetid://106229691535434"
+  },
+  "assetIds": [
+    "106229691535434",
+    "129158729619450",
+    "71711576335547",
+    "96018291141465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Electra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

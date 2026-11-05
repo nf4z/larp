@@ -1,0 +1,21 @@
+{
+  "name": "Azure Angel",
+  "images": {
+    "Normal": "rbxassetid://101650705016588",
+    "Shiny": "rbxassetid://86278413443034",
+    "Mythic": "rbxassetid://71536267921554",
+    "MythicShiny": "rbxassetid://97242377054015"
+  },
+  "assetIds": [
+    "101650705016588",
+    "71536267921554",
+    "86278413443034",
+    "97242377054015"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

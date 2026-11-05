@@ -1,0 +1,17 @@
+{
+  "name": "Dark Radiance",
+  "images": {
+    "Normal": "rbxassetid://73681042623989",
+    "Shiny": "rbxassetid://109716837258591"
+  },
+  "assetIds": [
+    "109716837258591",
+    "73681042623989"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Radiance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

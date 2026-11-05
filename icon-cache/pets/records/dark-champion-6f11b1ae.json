@@ -1,0 +1,21 @@
+{
+  "name": "Dark Champion",
+  "images": {
+    "Normal": "rbxassetid://127964939984883",
+    "Shiny": "rbxassetid://131092006928889",
+    "Mythic": "rbxassetid://129695478743053",
+    "MythicShiny": "rbxassetid://127766797610794"
+  },
+  "assetIds": [
+    "127766797610794",
+    "127964939984883",
+    "129695478743053",
+    "131092006928889"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Earl Federation",
+  "images": {
+    "Normal": "rbxassetid://72023142067184",
+    "Shiny": "rbxassetid://131894820500594"
+  },
+  "assetIds": [
+    "131894820500594",
+    "72023142067184"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Earl Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

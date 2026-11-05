@@ -1,0 +1,21 @@
+{
+  "name": "Skyramidium",
+  "images": {
+    "Normal": "rbxassetid://106286494357509",
+    "Shiny": "rbxassetid://84320630692693",
+    "Mythic": "rbxassetid://75437263412918",
+    "MythicShiny": "rbxassetid://135838022383153"
+  },
+  "assetIds": [
+    "106286494357509",
+    "135838022383153",
+    "75437263412918",
+    "84320630692693"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

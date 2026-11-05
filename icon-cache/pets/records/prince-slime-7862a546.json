@@ -1,0 +1,21 @@
+{
+  "name": "Prince Slime",
+  "images": {
+    "Normal": "rbxassetid://86439792986726",
+    "Shiny": "rbxassetid://123332904000850",
+    "Mythic": "rbxassetid://124470625398077",
+    "MythicShiny": "rbxassetid://122359451151880"
+  },
+  "assetIds": [
+    "122359451151880",
+    "123332904000850",
+    "124470625398077",
+    "86439792986726"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prince Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

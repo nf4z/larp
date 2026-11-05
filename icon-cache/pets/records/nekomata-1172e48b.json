@@ -1,0 +1,19 @@
+{
+  "name": "Nekomata",
+  "images": {
+    "Normal": "rbxassetid://130490272869514",
+    "Shiny": "rbxassetid://129391687771561",
+    "Mythic": "rbxassetid://130490272869514",
+    "MythicShiny": "rbxassetid://129391687771561"
+  },
+  "assetIds": [
+    "129391687771561",
+    "130490272869514"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nekomata"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

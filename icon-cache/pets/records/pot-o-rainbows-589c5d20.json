@@ -1,0 +1,17 @@
+{
+  "name": "Pot O' Rainbows",
+  "images": {
+    "Normal": "rbxassetid://89757393676352",
+    "Shiny": "rbxassetid://96970557829431"
+  },
+  "assetIds": [
+    "89757393676352",
+    "96970557829431"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pot O' Rainbows"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

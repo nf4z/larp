@@ -1,0 +1,21 @@
+{
+  "name": "Celestial Bruh",
+  "images": {
+    "Normal": "rbxassetid://78332010265803",
+    "Shiny": "rbxassetid://94953525849525",
+    "Mythic": "rbxassetid://120183176414521",
+    "MythicShiny": "rbxassetid://89659528495149"
+  },
+  "assetIds": [
+    "120183176414521",
+    "78332010265803",
+    "89659528495149",
+    "94953525849525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Celestial Bruh"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

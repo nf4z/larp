@@ -1,0 +1,21 @@
+{
+  "name": "Crescent Empress",
+  "images": {
+    "Normal": "rbxassetid://138592293670867",
+    "Shiny": "rbxassetid://77931849920370",
+    "Mythic": "rbxassetid://84884643955388",
+    "MythicShiny": "rbxassetid://114377918544383"
+  },
+  "assetIds": [
+    "114377918544383",
+    "138592293670867",
+    "77931849920370",
+    "84884643955388"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crescent Empress"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

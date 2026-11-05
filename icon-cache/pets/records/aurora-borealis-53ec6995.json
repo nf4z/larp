@@ -1,0 +1,21 @@
+{
+  "name": "Aurora Borealis",
+  "images": {
+    "Normal": "rbxassetid://121688660225683",
+    "Shiny": "rbxassetid://82941023020525",
+    "Mythic": "rbxassetid://84109334634309",
+    "MythicShiny": "rbxassetid://118463908071046"
+  },
+  "assetIds": [
+    "118463908071046",
+    "121688660225683",
+    "82941023020525",
+    "84109334634309"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aurora Borealis"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

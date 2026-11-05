@@ -1,0 +1,21 @@
+{
+  "name": "Gigantic Seal",
+  "images": {
+    "Normal": "rbxassetid://135101052146848",
+    "Shiny": "rbxassetid://87245506996120",
+    "Mythic": "rbxassetid://76021879093430",
+    "MythicShiny": "rbxassetid://89963633297774"
+  },
+  "assetIds": [
+    "135101052146848",
+    "76021879093430",
+    "87245506996120",
+    "89963633297774"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gigantic Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "MISSING OBJECT",
+  "images": {
+    "Normal": "rbxassetid://75023163089307",
+    "Shiny": "rbxassetid://92219196890783"
+  },
+  "assetIds": [
+    "75023163089307",
+    "92219196890783"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "MISSING OBJECT"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Infernal Revenant",
+  "images": {
+    "Normal": "rbxassetid://89132654546584",
+    "Shiny": "rbxassetid://83229068409806"
+  },
+  "assetIds": [
+    "83229068409806",
+    "89132654546584"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Infernal Revenant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

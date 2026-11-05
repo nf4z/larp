@@ -1,0 +1,21 @@
+{
+  "name": "Night Dweller",
+  "images": {
+    "Normal": "rbxassetid://132784785346400",
+    "Shiny": "rbxassetid://129385410956868",
+    "Mythic": "rbxassetid://105612774338494",
+    "MythicShiny": "rbxassetid://137007705167091"
+  },
+  "assetIds": [
+    "105612774338494",
+    "129385410956868",
+    "132784785346400",
+    "137007705167091"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Night Dweller"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

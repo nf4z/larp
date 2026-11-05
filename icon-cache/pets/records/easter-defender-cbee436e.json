@@ -1,0 +1,21 @@
+{
+  "name": "Easter Defender",
+  "images": {
+    "Normal": "rbxassetid://126742550888714",
+    "Shiny": "rbxassetid://109494775248956",
+    "Mythic": "rbxassetid://124567397459806",
+    "MythicShiny": "rbxassetid://140032765214992"
+  },
+  "assetIds": [
+    "109494775248956",
+    "124567397459806",
+    "126742550888714",
+    "140032765214992"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

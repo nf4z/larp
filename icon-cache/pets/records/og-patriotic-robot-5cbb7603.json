@@ -1,0 +1,17 @@
+{
+  "name": "OG Patriotic Robot",
+  "images": {
+    "Normal": "rbxassetid://75585107088791",
+    "Shiny": "rbxassetid://133741555756337"
+  },
+  "assetIds": [
+    "133741555756337",
+    "75585107088791"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Patriotic Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

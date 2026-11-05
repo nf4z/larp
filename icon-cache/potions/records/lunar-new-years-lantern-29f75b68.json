@@ -1,0 +1,12 @@
+{
+  "name": "Lunar New Years Lantern",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Potion",
+    "Name": "Lunar New Years Lantern",
+    "Level": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Potions"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Sunset Crystalfish",
+  "images": {
+    "Image": "rbxassetid://87517568155876"
+  },
+  "assetIds": [
+    "87517568155876"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sunset Crystalfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

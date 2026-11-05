@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Basilisk",
+  "images": {
+    "Normal": "rbxassetid://92833316770018",
+    "Shiny": "rbxassetid://140218468096179",
+    "Mythic": "rbxassetid://111918023407855",
+    "MythicShiny": "rbxassetid://133922899958733"
+  },
+  "assetIds": [
+    "111918023407855",
+    "133922899958733",
+    "140218468096179",
+    "92833316770018"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

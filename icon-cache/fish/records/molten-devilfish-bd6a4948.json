@@ -1,0 +1,15 @@
+{
+  "name": "Molten Devilfish",
+  "images": {
+    "Image": "rbxassetid://87004694442918"
+  },
+  "assetIds": [
+    "87004694442918"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Molten Devilfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

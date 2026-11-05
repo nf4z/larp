@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Bee",
+  "images": {
+    "Normal": "rbxassetid://87304056887622",
+    "Shiny": "rbxassetid://137060437032024"
+  },
+  "assetIds": [
+    "137060437032024",
+    "87304056887622"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

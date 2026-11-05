@@ -1,0 +1,21 @@
+{
+  "name": "Eternal Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://86541277675089",
+    "Shiny": "rbxassetid://111899072806158",
+    "Mythic": "rbxassetid://117606887414635",
+    "MythicShiny": "rbxassetid://130230847821268"
+  },
+  "assetIds": [
+    "111899072806158",
+    "117606887414635",
+    "130230847821268",
+    "86541277675089"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eternal Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

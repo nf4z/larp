@@ -1,0 +1,21 @@
+{
+  "name": "Silly Unicorn",
+  "images": {
+    "Normal": "rbxassetid://91626525972998",
+    "Shiny": "rbxassetid://127328322893524",
+    "Mythic": "rbxassetid://83851113440542",
+    "MythicShiny": "rbxassetid://104315113224654"
+  },
+  "assetIds": [
+    "104315113224654",
+    "127328322893524",
+    "83851113440542",
+    "91626525972998"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

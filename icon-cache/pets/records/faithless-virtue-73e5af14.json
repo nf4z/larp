@@ -1,0 +1,17 @@
+{
+  "name": "Faithless Virtue",
+  "images": {
+    "Normal": "rbxassetid://80612644187580",
+    "Shiny": "rbxassetid://108073103258138"
+  },
+  "assetIds": [
+    "108073103258138",
+    "80612644187580"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Faithless Virtue"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

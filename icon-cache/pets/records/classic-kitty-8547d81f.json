@@ -1,0 +1,17 @@
+{
+  "name": "Classic Kitty",
+  "images": {
+    "Normal": "rbxassetid://135142424754563",
+    "Shiny": "rbxassetid://97156878646573"
+  },
+  "assetIds": [
+    "135142424754563",
+    "97156878646573"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Giftbox Kitty",
+  "images": {
+    "Normal": "rbxassetid://110949464678833",
+    "Shiny": "rbxassetid://131178051711334"
+  },
+  "assetIds": [
+    "110949464678833",
+    "131178051711334"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giftbox Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

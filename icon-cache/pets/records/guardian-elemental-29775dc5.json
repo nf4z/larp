@@ -1,0 +1,21 @@
+{
+  "name": "Guardian Elemental",
+  "images": {
+    "Normal": "rbxassetid://134806175231506",
+    "Shiny": "rbxassetid://119597780145730",
+    "Mythic": "rbxassetid://83842564713588",
+    "MythicShiny": "rbxassetid://78103582780420"
+  },
+  "assetIds": [
+    "119597780145730",
+    "134806175231506",
+    "78103582780420",
+    "83842564713588"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

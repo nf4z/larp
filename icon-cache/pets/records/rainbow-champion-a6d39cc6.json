@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Champion",
+  "images": {
+    "Normal": "rbxassetid://135184406771306",
+    "Shiny": "rbxassetid://128051809037533",
+    "Mythic": "rbxassetid://140044527061780",
+    "MythicShiny": "rbxassetid://94579802417342"
+  },
+  "assetIds": [
+    "128051809037533",
+    "135184406771306",
+    "140044527061780",
+    "94579802417342"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

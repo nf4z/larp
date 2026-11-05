@@ -1,0 +1,21 @@
+{
+  "name": "Hope Candle",
+  "images": {
+    "Normal": "rbxassetid://119186165864875",
+    "Shiny": "rbxassetid://82724416420753",
+    "Mythic": "rbxassetid://114983463414316",
+    "MythicShiny": "rbxassetid://95460880640170"
+  },
+  "assetIds": [
+    "114983463414316",
+    "119186165864875",
+    "82724416420753",
+    "95460880640170"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hope Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

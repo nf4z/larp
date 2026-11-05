@@ -1,0 +1,17 @@
+{
+  "name": "Pink Flower",
+  "images": {
+    "Normal": "rbxassetid://99509254594838",
+    "Shiny": "rbxassetid://107836828265075"
+  },
+  "assetIds": [
+    "107836828265075",
+    "99509254594838"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pink Flower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

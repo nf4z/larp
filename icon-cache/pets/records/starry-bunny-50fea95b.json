@@ -1,0 +1,17 @@
+{
+  "name": "Starry Bunny",
+  "images": {
+    "Normal": "rbxassetid://85890970163163",
+    "Shiny": "rbxassetid://139755051587216"
+  },
+  "assetIds": [
+    "139755051587216",
+    "85890970163163"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

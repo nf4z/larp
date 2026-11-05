@@ -1,0 +1,15 @@
+{
+  "name": "Guineafowl Pufferfish",
+  "images": {
+    "Image": "rbxassetid://80992449378110"
+  },
+  "assetIds": [
+    "80992449378110"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Guineafowl Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

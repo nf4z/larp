@@ -1,0 +1,15 @@
+{
+  "name": "Clam",
+  "images": {
+    "Image": "rbxassetid://88739209204524"
+  },
+  "assetIds": [
+    "88739209204524"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Clam"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Chick",
+  "images": {
+    "Normal": "rbxassetid://127105044346831",
+    "Shiny": "rbxassetid://134455766324730"
+  },
+  "assetIds": [
+    "127105044346831",
+    "134455766324730"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Chick"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

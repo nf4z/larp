@@ -1,0 +1,17 @@
+{
+  "name": "Skelly Doggy",
+  "images": {
+    "Normal": "rbxassetid://79866599052638",
+    "Shiny": "rbxassetid://124301177903487"
+  },
+  "assetIds": [
+    "124301177903487",
+    "79866599052638"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skelly Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

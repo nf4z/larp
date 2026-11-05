@@ -1,0 +1,21 @@
+{
+  "name": "Mirror Gem",
+  "images": {
+    "Normal": "rbxassetid://110612945513259",
+    "Shiny": "rbxassetid://124180874418790",
+    "Mythic": "rbxassetid://82093281778752",
+    "MythicShiny": "rbxassetid://93446491393304"
+  },
+  "assetIds": [
+    "110612945513259",
+    "124180874418790",
+    "82093281778752",
+    "93446491393304"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mirror Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shinigami",
+  "images": {
+    "Normal": "rbxassetid://71160474087777",
+    "Shiny": "rbxassetid://80332630135186",
+    "Mythic": "rbxassetid://110833558930183",
+    "MythicShiny": "rbxassetid://100283922824934"
+  },
+  "assetIds": [
+    "100283922824934",
+    "110833558930183",
+    "71160474087777",
+    "80332630135186"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shinigami"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

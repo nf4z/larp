@@ -1,0 +1,17 @@
+{
+  "name": "Winged Deer",
+  "images": {
+    "Normal": "rbxassetid://128726162303638",
+    "Shiny": "rbxassetid://80236590600093"
+  },
+  "assetIds": [
+    "128726162303638",
+    "80236590600093"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winged Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

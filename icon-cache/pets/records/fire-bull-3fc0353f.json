@@ -1,0 +1,17 @@
+{
+  "name": "Fire Bull",
+  "images": {
+    "Normal": "rbxassetid://73758663963663",
+    "Shiny": "rbxassetid://114432936336911"
+  },
+  "assetIds": [
+    "114432936336911",
+    "73758663963663"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Bull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

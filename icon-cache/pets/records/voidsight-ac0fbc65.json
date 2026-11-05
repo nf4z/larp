@@ -1,0 +1,17 @@
+{
+  "name": "Voidsight",
+  "images": {
+    "Normal": "rbxassetid://115079710727032",
+    "Shiny": "rbxassetid://82687987006359"
+  },
+  "assetIds": [
+    "115079710727032",
+    "82687987006359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Voidsight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

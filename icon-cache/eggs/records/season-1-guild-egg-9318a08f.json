@@ -1,0 +1,12 @@
+{
+  "name": "Season 1 Guild Egg",
+  "images": {
+    "Image": "rbxassetid://139367236215815"
+  },
+  "assetIds": [
+    "139367236215815"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Gems",
+  "images": {
+    "Image": "rbxassetid://122003296498191"
+  },
+  "assetIds": [
+    "122003296498191"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Gems"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

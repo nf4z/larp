@@ -1,0 +1,21 @@
+{
+  "name": "Giant Space Mouse",
+  "images": {
+    "Normal": "rbxassetid://74209309721410",
+    "Shiny": "rbxassetid://96834485720235",
+    "Mythic": "rbxassetid://126385164555444",
+    "MythicShiny": "rbxassetid://129576312309880"
+  },
+  "assetIds": [
+    "126385164555444",
+    "129576312309880",
+    "74209309721410",
+    "96834485720235"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Space Mouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

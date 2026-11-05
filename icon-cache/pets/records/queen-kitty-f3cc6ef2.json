@@ -1,0 +1,21 @@
+{
+  "name": "Queen Kitty",
+  "images": {
+    "Normal": "rbxassetid://137170650603605",
+    "Shiny": "rbxassetid://133386500280616",
+    "Mythic": "rbxassetid://95790796143151",
+    "MythicShiny": "rbxassetid://122591618247775"
+  },
+  "assetIds": [
+    "122591618247775",
+    "133386500280616",
+    "137170650603605",
+    "95790796143151"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Mystic Snapper",
+  "images": {
+    "Image": "rbxassetid://132253121068920"
+  },
+  "assetIds": [
+    "132253121068920"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mystic Snapper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

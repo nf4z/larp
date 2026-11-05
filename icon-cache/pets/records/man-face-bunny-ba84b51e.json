@@ -1,0 +1,17 @@
+{
+  "name": "Man Face Bunny",
+  "images": {
+    "Normal": "rbxassetid://71602900452169",
+    "Shiny": "rbxassetid://96019513900238"
+  },
+  "assetIds": [
+    "71602900452169",
+    "96019513900238"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

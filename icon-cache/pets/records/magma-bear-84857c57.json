@@ -1,0 +1,17 @@
+{
+  "name": "Magma Bear",
+  "images": {
+    "Normal": "rbxassetid://121803513129635",
+    "Shiny": "rbxassetid://126554662078892"
+  },
+  "assetIds": [
+    "121803513129635",
+    "126554662078892"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

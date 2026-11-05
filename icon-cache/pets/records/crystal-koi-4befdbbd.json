@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Koi",
+  "images": {
+    "Normal": "rbxassetid://117776699926783",
+    "Shiny": "rbxassetid://90793933335106",
+    "Mythic": "rbxassetid://83017805090620",
+    "MythicShiny": "rbxassetid://128663223862541"
+  },
+  "assetIds": [
+    "117776699926783",
+    "128663223862541",
+    "83017805090620",
+    "90793933335106"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

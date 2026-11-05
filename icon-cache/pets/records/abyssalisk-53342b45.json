@@ -1,0 +1,21 @@
+{
+  "name": "Abyssalisk",
+  "images": {
+    "Normal": "rbxassetid://75805348541919",
+    "Shiny": "rbxassetid://119778484397754",
+    "Mythic": "rbxassetid://109728604591236",
+    "MythicShiny": "rbxassetid://119941520434439"
+  },
+  "assetIds": [
+    "109728604591236",
+    "119778484397754",
+    "119941520434439",
+    "75805348541919"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssalisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

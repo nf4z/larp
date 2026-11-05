@@ -1,0 +1,17 @@
+{
+  "name": "Lunar Catcher",
+  "images": {
+    "Normal": "rbxassetid://130967125010674",
+    "Shiny": "rbxassetid://114838948785032"
+  },
+  "assetIds": [
+    "114838948785032",
+    "130967125010674"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

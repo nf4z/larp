@@ -1,0 +1,21 @@
+{
+  "name": "Dragon Lily",
+  "images": {
+    "Normal": "rbxassetid://117124734831416",
+    "Shiny": "rbxassetid://73022517322090",
+    "Mythic": "rbxassetid://114533478989439",
+    "MythicShiny": "rbxassetid://117096021614701"
+  },
+  "assetIds": [
+    "114533478989439",
+    "117096021614701",
+    "117124734831416",
+    "73022517322090"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragon Lily"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Seeing Eye",
+  "images": {
+    "Normal": "rbxassetid://115746311846945",
+    "Shiny": "rbxassetid://140409338771050",
+    "Mythic": "rbxassetid://121146174560843",
+    "MythicShiny": "rbxassetid://99195894254907"
+  },
+  "assetIds": [
+    "115746311846945",
+    "121146174560843",
+    "140409338771050",
+    "99195894254907"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Seeing Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

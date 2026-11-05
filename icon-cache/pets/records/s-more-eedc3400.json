@@ -1,0 +1,17 @@
+{
+  "name": "S'more",
+  "images": {
+    "Normal": "rbxassetid://106194742849315",
+    "Shiny": "rbxassetid://133744389376599"
+  },
+  "assetIds": [
+    "106194742849315",
+    "133744389376599"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "S'more"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

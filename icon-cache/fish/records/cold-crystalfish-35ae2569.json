@@ -1,0 +1,15 @@
+{
+  "name": "Cold Crystalfish",
+  "images": {
+    "Image": "rbxassetid://108717530630591"
+  },
+  "assetIds": [
+    "108717530630591"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Cold Crystalfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

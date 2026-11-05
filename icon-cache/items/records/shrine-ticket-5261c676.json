@@ -1,0 +1,15 @@
+{
+  "name": "Shrine Ticket",
+  "images": {
+    "Image": "rbxassetid://87557146098557"
+  },
+  "assetIds": [
+    "87557146098557"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Shrine Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

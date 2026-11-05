@@ -1,0 +1,17 @@
+{
+  "name": "Starry Angel",
+  "images": {
+    "Normal": "rbxassetid://114221989431247",
+    "Shiny": "rbxassetid://122606077070539"
+  },
+  "assetIds": [
+    "114221989431247",
+    "122606077070539"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

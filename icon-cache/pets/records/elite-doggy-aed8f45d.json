@@ -1,0 +1,17 @@
+{
+  "name": "Elite Doggy",
+  "images": {
+    "Normal": "rbxassetid://92820282417551",
+    "Shiny": "rbxassetid://134421632567558"
+  },
+  "assetIds": [
+    "134421632567558",
+    "92820282417551"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

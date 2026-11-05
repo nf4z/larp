@@ -1,0 +1,17 @@
+{
+  "name": "SEVEN SOULS",
+  "images": {
+    "Normal": "rbxassetid://76233577886185",
+    "Shiny": "rbxassetid://99850782366253"
+  },
+  "assetIds": [
+    "76233577886185",
+    "99850782366253"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "SEVEN SOULS"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

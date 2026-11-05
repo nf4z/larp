@@ -1,0 +1,17 @@
+{
+  "name": "Vine Deer",
+  "images": {
+    "Normal": "rbxassetid://77009920622912",
+    "Shiny": "rbxassetid://73617347215950"
+  },
+  "assetIds": [
+    "73617347215950",
+    "77009920622912"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vine Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

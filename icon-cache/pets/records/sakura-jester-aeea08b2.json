@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Jester",
+  "images": {
+    "Normal": "rbxassetid://90567000198298",
+    "Shiny": "rbxassetid://71844695293635",
+    "Mythic": "rbxassetid://140589357580815",
+    "MythicShiny": "rbxassetid://124335348384106"
+  },
+  "assetIds": [
+    "124335348384106",
+    "140589357580815",
+    "71844695293635",
+    "90567000198298"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "NERTLING",
+  "images": {
+    "Normal": "rbxassetid://126269584449332",
+    "Shiny": "rbxassetid://111656033316247"
+  },
+  "assetIds": [
+    "111656033316247",
+    "126269584449332"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "NERTLING"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

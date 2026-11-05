@@ -1,0 +1,17 @@
+{
+  "name": "Manicorn",
+  "images": {
+    "Normal": "rbxassetid://125187740011203",
+    "Shiny": "rbxassetid://136834173199830"
+  },
+  "assetIds": [
+    "125187740011203",
+    "136834173199830"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Manicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

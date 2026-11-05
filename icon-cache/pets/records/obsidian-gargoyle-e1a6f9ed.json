@@ -1,0 +1,21 @@
+{
+  "name": "Obsidian Gargoyle",
+  "images": {
+    "Normal": "rbxassetid://109192929516985",
+    "Shiny": "rbxassetid://129976642325394",
+    "Mythic": "rbxassetid://98838653141202",
+    "MythicShiny": "rbxassetid://138124868268414"
+  },
+  "assetIds": [
+    "109192929516985",
+    "129976642325394",
+    "138124868268414",
+    "98838653141202"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Gargoyle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

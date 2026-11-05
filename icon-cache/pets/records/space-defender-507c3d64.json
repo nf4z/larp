@@ -1,0 +1,21 @@
+{
+  "name": "Space Defender",
+  "images": {
+    "Normal": "rbxassetid://108496214279001",
+    "Shiny": "rbxassetid://131235688603698",
+    "Mythic": "rbxassetid://101670568249910",
+    "MythicShiny": "rbxassetid://129992248358206"
+  },
+  "assetIds": [
+    "101670568249910",
+    "108496214279001",
+    "129992248358206",
+    "131235688603698"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Space Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

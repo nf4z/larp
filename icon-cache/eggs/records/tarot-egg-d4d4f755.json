@@ -1,0 +1,12 @@
+{
+  "name": "Tarot Egg",
+  "images": {
+    "Image": "rbxassetid://97223793870597"
+  },
+  "assetIds": [
+    "97223793870597"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

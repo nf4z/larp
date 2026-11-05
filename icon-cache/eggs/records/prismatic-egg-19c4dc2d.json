@@ -1,0 +1,12 @@
+{
+  "name": "Prismatic Egg",
+  "images": {
+    "Image": "rbxassetid://124444600521442"
+  },
+  "assetIds": [
+    "124444600521442"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Royal Tamer",
+  "images": {
+    "Normal": "rbxassetid://136392972969624",
+    "Shiny": "rbxassetid://127659672166757"
+  },
+  "assetIds": [
+    "127659672166757",
+    "136392972969624"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Tamer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

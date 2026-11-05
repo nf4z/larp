@@ -1,0 +1,21 @@
+{
+  "name": "OG Unicore",
+  "images": {
+    "Normal": "rbxassetid://132504672371619",
+    "Shiny": "rbxassetid://75140165527554",
+    "Mythic": "rbxassetid://102816229101332",
+    "MythicShiny": "rbxassetid://125647559544914"
+  },
+  "assetIds": [
+    "102816229101332",
+    "125647559544914",
+    "132504672371619",
+    "75140165527554"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Unicore"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

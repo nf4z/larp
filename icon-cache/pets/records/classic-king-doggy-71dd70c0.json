@@ -1,0 +1,21 @@
+{
+  "name": "Classic King Doggy",
+  "images": {
+    "Normal": "rbxassetid://99609278293165",
+    "Shiny": "rbxassetid://103800949983398",
+    "Mythic": "rbxassetid://94073363938846",
+    "MythicShiny": "rbxassetid://122302035014000"
+  },
+  "assetIds": [
+    "103800949983398",
+    "122302035014000",
+    "94073363938846",
+    "99609278293165"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic King Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

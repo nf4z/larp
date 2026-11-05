@@ -1,0 +1,21 @@
+{
+  "name": "Hellfire",
+  "images": {
+    "Normal": "rbxassetid://78110597989875",
+    "Shiny": "rbxassetid://139984845256705",
+    "Mythic": "rbxassetid://96276569874949",
+    "MythicShiny": "rbxassetid://81946592150218"
+  },
+  "assetIds": [
+    "139984845256705",
+    "78110597989875",
+    "81946592150218",
+    "96276569874949"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellfire"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

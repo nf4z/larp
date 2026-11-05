@@ -1,0 +1,17 @@
+{
+  "name": "Prototype DR4G0N",
+  "images": {
+    "Normal": "rbxassetid://88555865414815",
+    "Shiny": "rbxassetid://93279882371514"
+  },
+  "assetIds": [
+    "88555865414815",
+    "93279882371514"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prototype DR4G0N"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

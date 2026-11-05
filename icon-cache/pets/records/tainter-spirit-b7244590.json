@@ -1,0 +1,21 @@
+{
+  "name": "Tainter Spirit",
+  "images": {
+    "Normal": "rbxassetid://83314675837710",
+    "Shiny": "rbxassetid://124654943187209",
+    "Mythic": "rbxassetid://134684026649274",
+    "MythicShiny": "rbxassetid://106979795378879"
+  },
+  "assetIds": [
+    "106979795378879",
+    "124654943187209",
+    "134684026649274",
+    "83314675837710"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tainter Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Karma",
+  "images": {
+    "Normal": "rbxassetid://110064776689829",
+    "Shiny": "rbxassetid://123751035723802"
+  },
+  "assetIds": [
+    "110064776689829",
+    "123751035723802"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Karma"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

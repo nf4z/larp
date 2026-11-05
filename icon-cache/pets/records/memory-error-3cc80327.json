@@ -1,0 +1,21 @@
+{
+  "name": "Memory Error",
+  "images": {
+    "Normal": "rbxassetid://73966949357899",
+    "Shiny": "rbxassetid://92478616870331",
+    "Mythic": "rbxassetid://73626644032321",
+    "MythicShiny": "rbxassetid://121748773271779"
+  },
+  "assetIds": [
+    "121748773271779",
+    "73626644032321",
+    "73966949357899",
+    "92478616870331"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Memory Error"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Rumblecon Dragon",
+  "images": {
+    "Normal": "rbxassetid://106218096436233",
+    "Shiny": "rbxassetid://83785460372166"
+  },
+  "assetIds": [
+    "106218096436233",
+    "83785460372166"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

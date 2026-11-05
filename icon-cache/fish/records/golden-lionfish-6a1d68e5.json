@@ -1,0 +1,15 @@
+{
+  "name": "Golden Lionfish",
+  "images": {
+    "Image": "rbxassetid://127779048387460"
+  },
+  "assetIds": [
+    "127779048387460"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Golden Lionfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

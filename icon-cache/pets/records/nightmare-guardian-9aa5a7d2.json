@@ -1,0 +1,17 @@
+{
+  "name": "Nightmare Guardian",
+  "images": {
+    "Normal": "rbxassetid://73856311037268",
+    "Shiny": "rbxassetid://104460828847943"
+  },
+  "assetIds": [
+    "104460828847943",
+    "73856311037268"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightmare Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

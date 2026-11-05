@@ -1,0 +1,17 @@
+{
+  "name": "Sorrow",
+  "images": {
+    "Normal": "rbxassetid://75346600921482",
+    "Shiny": "rbxassetid://92284665908595"
+  },
+  "assetIds": [
+    "75346600921482",
+    "92284665908595"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sorrow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

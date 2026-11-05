@@ -1,0 +1,21 @@
+{
+  "name": "OG Morning Star",
+  "images": {
+    "Normal": "rbxassetid://121545179693117",
+    "Shiny": "rbxassetid://124377738844530",
+    "Mythic": "rbxassetid://115159367084571",
+    "MythicShiny": "rbxassetid://79730492583834"
+  },
+  "assetIds": [
+    "115159367084571",
+    "121545179693117",
+    "124377738844530",
+    "79730492583834"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Morning Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

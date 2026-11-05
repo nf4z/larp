@@ -1,0 +1,17 @@
+{
+  "name": "Kitty Wick",
+  "images": {
+    "Normal": "rbxassetid://132886929548617",
+    "Shiny": "rbxassetid://87706262559641"
+  },
+  "assetIds": [
+    "132886929548617",
+    "87706262559641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitty Wick"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ethereal Bunny",
+  "images": {
+    "Normal": "rbxassetid://93656019204074",
+    "Shiny": "rbxassetid://130649018220152",
+    "Mythic": "rbxassetid://91749246237791",
+    "MythicShiny": "rbxassetid://121742387238600"
+  },
+  "assetIds": [
+    "121742387238600",
+    "130649018220152",
+    "91749246237791",
+    "93656019204074"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ethereal Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

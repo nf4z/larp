@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Moon",
+  "images": {
+    "Normal": "rbxassetid://93127465728455",
+    "Shiny": "rbxassetid://88305983718218",
+    "Mythic": "rbxassetid://99245015533751",
+    "MythicShiny": "rbxassetid://139431755262401"
+  },
+  "assetIds": [
+    "139431755262401",
+    "88305983718218",
+    "93127465728455",
+    "99245015533751"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Moon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

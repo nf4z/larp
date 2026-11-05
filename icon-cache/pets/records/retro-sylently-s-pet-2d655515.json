@@ -1,0 +1,21 @@
+{
+  "name": "Retro Sylently's Pet",
+  "images": {
+    "Normal": "rbxassetid://78212164176179",
+    "Shiny": "rbxassetid://120120915726389",
+    "Mythic": "rbxassetid://85659747258206",
+    "MythicShiny": "rbxassetid://135644386205501"
+  },
+  "assetIds": [
+    "120120915726389",
+    "135644386205501",
+    "78212164176179",
+    "85659747258206"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Sylently's Pet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

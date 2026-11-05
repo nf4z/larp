@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://72869557635337",
+    "Shiny": "rbxassetid://86558619183196",
+    "Mythic": "rbxassetid://92489291920383",
+    "MythicShiny": "rbxassetid://102145536516322"
+  },
+  "assetIds": [
+    "102145536516322",
+    "72869557635337",
+    "86558619183196",
+    "92489291920383"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

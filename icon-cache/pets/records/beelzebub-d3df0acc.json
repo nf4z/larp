@@ -1,0 +1,21 @@
+{
+  "name": "Beelzebub",
+  "images": {
+    "Normal": "rbxassetid://116544948346631",
+    "Shiny": "rbxassetid://74964732493862",
+    "Mythic": "rbxassetid://109770882225456",
+    "MythicShiny": "rbxassetid://76851480824331"
+  },
+  "assetIds": [
+    "109770882225456",
+    "116544948346631",
+    "74964732493862",
+    "76851480824331"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beelzebub"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

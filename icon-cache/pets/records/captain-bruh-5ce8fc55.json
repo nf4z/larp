@@ -1,0 +1,17 @@
+{
+  "name": "Captain Bruh",
+  "images": {
+    "Normal": "rbxassetid://132904054950453",
+    "Shiny": "rbxassetid://118820482047254"
+  },
+  "assetIds": [
+    "118820482047254",
+    "132904054950453"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Captain Bruh"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

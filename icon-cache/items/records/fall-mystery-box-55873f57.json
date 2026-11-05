@@ -1,0 +1,15 @@
+{
+  "name": "Fall Mystery Box",
+  "images": {
+    "Image": "rbxassetid://85343830826121"
+  },
+  "assetIds": [
+    "85343830826121"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Fall Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bee Bee Bee",
+  "images": {
+    "Normal": "rbxassetid://86177122893343",
+    "Shiny": "rbxassetid://97611528840594",
+    "Mythic": "rbxassetid://126219270019459",
+    "MythicShiny": "rbxassetid://138001976760358"
+  },
+  "assetIds": [
+    "126219270019459",
+    "138001976760358",
+    "86177122893343",
+    "97611528840594"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bee Bee Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

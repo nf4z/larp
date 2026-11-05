@@ -1,0 +1,17 @@
+{
+  "name": "Wolf",
+  "images": {
+    "Normal": "rbxassetid://132286741561024",
+    "Shiny": "rbxassetid://139001767570631"
+  },
+  "assetIds": [
+    "132286741561024",
+    "139001767570631"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Golden Koi",
+  "images": {
+    "Image": "rbxassetid://106998273913004"
+  },
+  "assetIds": [
+    "106998273913004"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Golden Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

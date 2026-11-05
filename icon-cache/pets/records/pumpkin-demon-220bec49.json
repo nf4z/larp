@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Demon",
+  "images": {
+    "Normal": "rbxassetid://137398373003748",
+    "Shiny": "rbxassetid://74774934026038"
+  },
+  "assetIds": [
+    "137398373003748",
+    "74774934026038"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Dark Lord",
+  "images": {
+    "Normal": "rbxassetid://116068259071465",
+    "Shiny": "rbxassetid://103208133391728"
+  },
+  "assetIds": [
+    "103208133391728",
+    "116068259071465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

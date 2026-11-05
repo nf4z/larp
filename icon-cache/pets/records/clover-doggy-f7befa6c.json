@@ -1,0 +1,17 @@
+{
+  "name": "Clover Doggy",
+  "images": {
+    "Normal": "rbxassetid://99045704690673",
+    "Shiny": "rbxassetid://131077395614766"
+  },
+  "assetIds": [
+    "131077395614766",
+    "99045704690673"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clover Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

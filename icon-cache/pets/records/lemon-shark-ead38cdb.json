@@ -1,0 +1,21 @@
+{
+  "name": "Lemon Shark",
+  "images": {
+    "Normal": "rbxassetid://127309428893133",
+    "Shiny": "rbxassetid://130367139532378",
+    "Mythic": "rbxassetid://118603209863829",
+    "MythicShiny": "rbxassetid://78240878171650"
+  },
+  "assetIds": [
+    "118603209863829",
+    "127309428893133",
+    "130367139532378",
+    "78240878171650"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lemon Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

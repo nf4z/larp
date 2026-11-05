@@ -1,0 +1,21 @@
+{
+  "name": "Jingle Orb",
+  "images": {
+    "Normal": "rbxassetid://77734121839744",
+    "Shiny": "rbxassetid://119872082056681",
+    "Mythic": "rbxassetid://75676491415058",
+    "MythicShiny": "rbxassetid://78601884641016"
+  },
+  "assetIds": [
+    "119872082056681",
+    "75676491415058",
+    "77734121839744",
+    "78601884641016"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jingle Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

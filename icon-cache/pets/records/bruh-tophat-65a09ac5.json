@@ -1,0 +1,21 @@
+{
+  "name": "Bruh Tophat",
+  "images": {
+    "Normal": "rbxassetid://82183746408134",
+    "Shiny": "rbxassetid://85613471069726",
+    "Mythic": "rbxassetid://106714123546042",
+    "MythicShiny": "rbxassetid://96470050066900"
+  },
+  "assetIds": [
+    "106714123546042",
+    "82183746408134",
+    "85613471069726",
+    "96470050066900"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bruh Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

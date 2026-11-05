@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Spirit",
+  "images": {
+    "Normal": "rbxassetid://116826292214528",
+    "Shiny": "rbxassetid://95492186173987",
+    "Mythic": "rbxassetid://132742278796902",
+    "MythicShiny": "rbxassetid://91375056652703"
+  },
+  "assetIds": [
+    "116826292214528",
+    "132742278796902",
+    "91375056652703",
+    "95492186173987"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

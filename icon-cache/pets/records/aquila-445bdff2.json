@@ -1,0 +1,21 @@
+{
+  "name": "Aquila",
+  "images": {
+    "Normal": "rbxassetid://136849463104315",
+    "Shiny": "rbxassetid://138919398044253",
+    "Mythic": "rbxassetid://130653252267202",
+    "MythicShiny": "rbxassetid://126714379746607"
+  },
+  "assetIds": [
+    "126714379746607",
+    "130653252267202",
+    "136849463104315",
+    "138919398044253"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aquila"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

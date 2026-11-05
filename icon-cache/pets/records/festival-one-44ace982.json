@@ -1,0 +1,21 @@
+{
+  "name": "Festival One",
+  "images": {
+    "Normal": "rbxassetid://112063080915776",
+    "Shiny": "rbxassetid://134911694862993",
+    "Mythic": "rbxassetid://98159370828371",
+    "MythicShiny": "rbxassetid://101984529577730"
+  },
+  "assetIds": [
+    "101984529577730",
+    "112063080915776",
+    "134911694862993",
+    "98159370828371"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festival One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

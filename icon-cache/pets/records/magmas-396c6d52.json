@@ -1,0 +1,21 @@
+{
+  "name": "Magmas",
+  "images": {
+    "Normal": "rbxassetid://125225288285850",
+    "Shiny": "rbxassetid://83592309171830",
+    "Mythic": "rbxassetid://80649552245148",
+    "MythicShiny": "rbxassetid://107724917918022"
+  },
+  "assetIds": [
+    "107724917918022",
+    "125225288285850",
+    "80649552245148",
+    "83592309171830"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magmas"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

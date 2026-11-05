@@ -1,0 +1,21 @@
+{
+  "name": "Demon Dragon",
+  "images": {
+    "Normal": "rbxassetid://114403567604995",
+    "Shiny": "rbxassetid://111746688009839",
+    "Mythic": "rbxassetid://139589388291877",
+    "MythicShiny": "rbxassetid://133915980015393"
+  },
+  "assetIds": [
+    "111746688009839",
+    "114403567604995",
+    "133915980015393",
+    "139589388291877"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

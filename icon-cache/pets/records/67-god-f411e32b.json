@@ -1,0 +1,21 @@
+{
+  "name": "67 GOD",
+  "images": {
+    "Normal": "rbxassetid://102345530766211",
+    "Shiny": "rbxassetid://71101428226085",
+    "Mythic": "rbxassetid://119184757273138",
+    "MythicShiny": "rbxassetid://110328800225246"
+  },
+  "assetIds": [
+    "102345530766211",
+    "110328800225246",
+    "119184757273138",
+    "71101428226085"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "67 GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

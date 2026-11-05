@@ -1,0 +1,21 @@
+{
+  "name": "Witches Pot",
+  "images": {
+    "Normal": "rbxassetid://135610331704617",
+    "Shiny": "rbxassetid://113079935587525",
+    "Mythic": "rbxassetid://79877658215901",
+    "MythicShiny": "rbxassetid://93975887094719"
+  },
+  "assetIds": [
+    "113079935587525",
+    "135610331704617",
+    "79877658215901",
+    "93975887094719"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witches Pot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

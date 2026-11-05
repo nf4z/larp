@@ -1,0 +1,12 @@
+{
+  "name": "Summer Egg",
+  "images": {
+    "Image": "rbxassetid://102041225639765"
+  },
+  "assetIds": [
+    "102041225639765"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

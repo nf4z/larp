@@ -1,0 +1,17 @@
+{
+  "name": "Tourist Doggy",
+  "images": {
+    "Normal": "rbxassetid://72344214522280",
+    "Shiny": "rbxassetid://85846603004081"
+  },
+  "assetIds": [
+    "72344214522280",
+    "85846603004081"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tourist Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

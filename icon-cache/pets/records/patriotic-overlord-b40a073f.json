@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Overlord",
+  "images": {
+    "Normal": "rbxassetid://75332522499375",
+    "Shiny": "rbxassetid://107554359436358",
+    "Mythic": "rbxassetid://109724875251340",
+    "MythicShiny": "rbxassetid://89352887573981"
+  },
+  "assetIds": [
+    "107554359436358",
+    "109724875251340",
+    "75332522499375",
+    "89352887573981"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

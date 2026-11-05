@@ -1,0 +1,15 @@
+{
+  "name": "Frozen Key",
+  "images": {
+    "Image": "rbxassetid://75340014547982"
+  },
+  "assetIds": [
+    "75340014547982"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Frozen Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

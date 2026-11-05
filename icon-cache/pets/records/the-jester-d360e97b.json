@@ -1,0 +1,21 @@
+{
+  "name": "The Jester",
+  "images": {
+    "Normal": "rbxassetid://104905923912438",
+    "Shiny": "rbxassetid://129443593669215",
+    "Mythic": "rbxassetid://137906134307254",
+    "MythicShiny": "rbxassetid://135741804168417"
+  },
+  "assetIds": [
+    "104905923912438",
+    "129443593669215",
+    "135741804168417",
+    "137906134307254"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

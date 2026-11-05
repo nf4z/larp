@@ -1,0 +1,21 @@
+{
+  "name": "OG Strawberry Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://116413986760242",
+    "Shiny": "rbxassetid://124471600465134",
+    "Mythic": "rbxassetid://79016134613260",
+    "MythicShiny": "rbxassetid://126551392408509"
+  },
+  "assetIds": [
+    "116413986760242",
+    "124471600465134",
+    "126551392408509",
+    "79016134613260"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Strawberry Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

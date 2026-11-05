@@ -1,0 +1,15 @@
+{
+  "name": "1 Billion Mystery Box",
+  "images": {
+    "Image": "rbxassetid://93814573625245"
+  },
+  "assetIds": [
+    "93814573625245"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "1 Billion Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

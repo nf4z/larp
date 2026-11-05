@@ -1,0 +1,21 @@
+{
+  "name": "Eternal Cucumber",
+  "images": {
+    "Normal": "rbxassetid://91133492706109",
+    "Shiny": "rbxassetid://103129183664729",
+    "Mythic": "rbxassetid://71851474131710",
+    "MythicShiny": "rbxassetid://109898765723198"
+  },
+  "assetIds": [
+    "103129183664729",
+    "109898765723198",
+    "71851474131710",
+    "91133492706109"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eternal Cucumber"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

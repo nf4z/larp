@@ -1,0 +1,17 @@
+{
+  "name": "Prince Skull",
+  "images": {
+    "Normal": "rbxassetid://81992133682898",
+    "Shiny": "rbxassetid://118899365380545"
+  },
+  "assetIds": [
+    "118899365380545",
+    "81992133682898"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prince Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

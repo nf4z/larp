@@ -1,0 +1,15 @@
+{
+  "name": "Queen Parrotfish",
+  "images": {
+    "Image": "rbxassetid://73763057558541"
+  },
+  "assetIds": [
+    "73763057558541"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Queen Parrotfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

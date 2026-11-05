@@ -1,0 +1,15 @@
+{
+  "name": "Blaze Eel",
+  "images": {
+    "Image": "rbxassetid://127047243780432"
+  },
+  "assetIds": [
+    "127047243780432"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Blaze Eel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

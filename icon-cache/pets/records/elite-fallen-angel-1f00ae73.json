@@ -1,0 +1,21 @@
+{
+  "name": "Elite Fallen Angel",
+  "images": {
+    "Normal": "rbxassetid://103033048091952",
+    "Shiny": "rbxassetid://77865993121050",
+    "Mythic": "rbxassetid://112910992740088",
+    "MythicShiny": "rbxassetid://116521350727043"
+  },
+  "assetIds": [
+    "103033048091952",
+    "112910992740088",
+    "116521350727043",
+    "77865993121050"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Fallen Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

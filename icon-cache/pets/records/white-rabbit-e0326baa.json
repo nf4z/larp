@@ -1,0 +1,17 @@
+{
+  "name": "White Rabbit",
+  "images": {
+    "Normal": "rbxassetid://89709783951857",
+    "Shiny": "rbxassetid://128823821675431"
+  },
+  "assetIds": [
+    "128823821675431",
+    "89709783951857"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "White Rabbit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

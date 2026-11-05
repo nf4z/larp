@@ -1,0 +1,12 @@
+{
+  "name": "Super OG Egg",
+  "images": {
+    "Image": "rbxassetid://109240971731746"
+  },
+  "assetIds": [
+    "109240971731746"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

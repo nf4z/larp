@@ -1,0 +1,21 @@
+{
+  "name": "Starlight",
+  "images": {
+    "Normal": "rbxassetid://87591100580978",
+    "Shiny": "rbxassetid://111120928324007",
+    "Mythic": "rbxassetid://116635719928804",
+    "MythicShiny": "rbxassetid://92718980367388"
+  },
+  "assetIds": [
+    "111120928324007",
+    "116635719928804",
+    "87591100580978",
+    "92718980367388"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starlight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Elite Leviathan",
+  "images": {
+    "Normal": "rbxassetid://120427740791771",
+    "Shiny": "rbxassetid://131133398797724",
+    "Mythic": "rbxassetid://90827567929194",
+    "MythicShiny": "rbxassetid://116458592207652"
+  },
+  "assetIds": [
+    "116458592207652",
+    "120427740791771",
+    "131133398797724",
+    "90827567929194"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

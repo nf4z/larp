@@ -1,0 +1,12 @@
+{
+  "name": "Fossil Egg",
+  "images": {
+    "Image": "rbxassetid://83896646032286"
+  },
+  "assetIds": [
+    "83896646032286"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

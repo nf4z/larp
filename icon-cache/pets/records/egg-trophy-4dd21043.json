@@ -1,0 +1,21 @@
+{
+  "name": "Egg Trophy",
+  "images": {
+    "Normal": "rbxassetid://116143294029320",
+    "Shiny": "rbxassetid://92111231570005",
+    "Mythic": "rbxassetid://87694901141643",
+    "MythicShiny": "rbxassetid://79889770146392"
+  },
+  "assetIds": [
+    "116143294029320",
+    "79889770146392",
+    "87694901141643",
+    "92111231570005"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

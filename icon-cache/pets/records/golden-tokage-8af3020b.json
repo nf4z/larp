@@ -1,0 +1,21 @@
+{
+  "name": "Golden Tokage",
+  "images": {
+    "Normal": "rbxassetid://79470064086156",
+    "Shiny": "rbxassetid://98625498421940",
+    "Mythic": "rbxassetid://100585084134551",
+    "MythicShiny": "rbxassetid://92654995790713"
+  },
+  "assetIds": [
+    "100585084134551",
+    "79470064086156",
+    "92654995790713",
+    "98625498421940"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Tokage"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

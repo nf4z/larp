@@ -1,0 +1,11 @@
+{
+  "name": "Bubble Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Bubble Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

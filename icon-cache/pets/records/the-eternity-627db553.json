@@ -1,0 +1,21 @@
+{
+  "name": "The Eternity",
+  "images": {
+    "Normal": "rbxassetid://77204842040739",
+    "Shiny": "rbxassetid://129292333251261",
+    "Mythic": "rbxassetid://95518437358743",
+    "MythicShiny": "rbxassetid://99994274574727"
+  },
+  "assetIds": [
+    "129292333251261",
+    "77204842040739",
+    "95518437358743",
+    "99994274574727"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Eternity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

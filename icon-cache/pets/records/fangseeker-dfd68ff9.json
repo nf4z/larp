@@ -1,0 +1,21 @@
+{
+  "name": "Fangseeker",
+  "images": {
+    "Normal": "rbxassetid://124085705342167",
+    "Shiny": "rbxassetid://75571135614371",
+    "Mythic": "rbxassetid://83287078977156",
+    "MythicShiny": "rbxassetid://73282900726828"
+  },
+  "assetIds": [
+    "124085705342167",
+    "73282900726828",
+    "75571135614371",
+    "83287078977156"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fangseeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

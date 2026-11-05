@@ -1,0 +1,21 @@
+{
+  "name": "Dualcorn",
+  "images": {
+    "Normal": "rbxassetid://101605071887404",
+    "Shiny": "rbxassetid://93628728332738",
+    "Mythic": "rbxassetid://82858029797469",
+    "MythicShiny": "rbxassetid://85766838746496"
+  },
+  "assetIds": [
+    "101605071887404",
+    "82858029797469",
+    "85766838746496",
+    "93628728332738"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dualcorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

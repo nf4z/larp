@@ -1,0 +1,17 @@
+{
+  "name": "Rainbow Blitz",
+  "images": {
+    "Normal": "rbxassetid://82248376257636",
+    "Shiny": "rbxassetid://127263373580765"
+  },
+  "assetIds": [
+    "127263373580765",
+    "82248376257636"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Blitz"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

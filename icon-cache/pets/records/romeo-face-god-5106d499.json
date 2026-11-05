@@ -1,0 +1,17 @@
+{
+  "name": "Romeo Face God",
+  "images": {
+    "Normal": "rbxassetid://135573558662842",
+    "Shiny": "rbxassetid://88301297799108"
+  },
+  "assetIds": [
+    "135573558662842",
+    "88301297799108"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Romeo Face God"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

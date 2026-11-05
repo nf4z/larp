@@ -1,0 +1,21 @@
+{
+  "name": "Techarium",
+  "images": {
+    "Normal": "rbxassetid://130161794557274",
+    "Shiny": "rbxassetid://125936163013713",
+    "Mythic": "rbxassetid://86606149963550",
+    "MythicShiny": "rbxassetid://72600959019645"
+  },
+  "assetIds": [
+    "125936163013713",
+    "130161794557274",
+    "72600959019645",
+    "86606149963550"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Techarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

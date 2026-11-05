@@ -1,0 +1,21 @@
+{
+  "name": "Golfball Dragon",
+  "images": {
+    "Normal": "rbxassetid://92780121290989",
+    "Shiny": "rbxassetid://126351453917488",
+    "Mythic": "rbxassetid://85351752602605",
+    "MythicShiny": "rbxassetid://120896024724028"
+  },
+  "assetIds": [
+    "120896024724028",
+    "126351453917488",
+    "85351752602605",
+    "92780121290989"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golfball Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

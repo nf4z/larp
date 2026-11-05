@@ -1,0 +1,17 @@
+{
+  "name": "Dice Deer",
+  "images": {
+    "Normal": "rbxassetid://130084877228496",
+    "Shiny": "rbxassetid://112051020700611"
+  },
+  "assetIds": [
+    "112051020700611",
+    "130084877228496"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

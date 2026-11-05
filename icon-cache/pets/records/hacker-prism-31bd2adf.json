@@ -1,0 +1,21 @@
+{
+  "name": "Hacker Prism",
+  "images": {
+    "Normal": "rbxassetid://88764484645152",
+    "Shiny": "rbxassetid://107346758048276",
+    "Mythic": "rbxassetid://84850053637294",
+    "MythicShiny": "rbxassetid://97661041967973"
+  },
+  "assetIds": [
+    "107346758048276",
+    "84850053637294",
+    "88764484645152",
+    "97661041967973"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hacker Prism"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

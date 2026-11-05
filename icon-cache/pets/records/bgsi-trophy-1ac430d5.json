@@ -1,0 +1,17 @@
+{
+  "name": "BGSI Trophy",
+  "images": {
+    "Normal": "rbxassetid://140499595057652",
+    "Shiny": "rbxassetid://117258502792341"
+  },
+  "assetIds": [
+    "117258502792341",
+    "140499595057652"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BGSI Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

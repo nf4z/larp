@@ -1,0 +1,21 @@
+{
+  "name": "Aureate Koi",
+  "images": {
+    "Normal": "rbxassetid://84963105726765",
+    "Shiny": "rbxassetid://127169382960829",
+    "Mythic": "rbxassetid://95857949986372",
+    "MythicShiny": "rbxassetid://121137409495872"
+  },
+  "assetIds": [
+    "121137409495872",
+    "127169382960829",
+    "84963105726765",
+    "95857949986372"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aureate Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

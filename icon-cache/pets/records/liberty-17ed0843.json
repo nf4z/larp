@@ -1,0 +1,21 @@
+{
+  "name": "Liberty",
+  "images": {
+    "Normal": "rbxassetid://115655687836962",
+    "Shiny": "rbxassetid://120964894066464",
+    "Mythic": "rbxassetid://96802518075008",
+    "MythicShiny": "rbxassetid://109086629944904"
+  },
+  "assetIds": [
+    "109086629944904",
+    "115655687836962",
+    "120964894066464",
+    "96802518075008"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Liberty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Pristine Hybrid",
+  "images": {
+    "Normal": "rbxassetid://139960247517478",
+    "Shiny": "rbxassetid://135253993272482",
+    "Mythic": "rbxassetid://92387814022080",
+    "MythicShiny": "rbxassetid://98835201985501"
+  },
+  "assetIds": [
+    "135253993272482",
+    "139960247517478",
+    "92387814022080",
+    "98835201985501"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pristine Hybrid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

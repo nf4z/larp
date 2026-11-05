@@ -1,0 +1,17 @@
+{
+  "name": "Lantern Koi",
+  "images": {
+    "Normal": "rbxassetid://95891316420016",
+    "Shiny": "rbxassetid://110974328888619"
+  },
+  "assetIds": [
+    "110974328888619",
+    "95891316420016"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lantern Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

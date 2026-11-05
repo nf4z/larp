@@ -1,0 +1,17 @@
+{
+  "name": "Sea Serpent",
+  "images": {
+    "Normal": "rbxassetid://123551970635989",
+    "Shiny": "rbxassetid://71312037650230"
+  },
+  "assetIds": [
+    "123551970635989",
+    "71312037650230"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

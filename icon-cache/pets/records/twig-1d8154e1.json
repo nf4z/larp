@@ -1,0 +1,17 @@
+{
+  "name": "Twig",
+  "images": {
+    "Normal": "rbxassetid://118772365069948",
+    "Shiny": "rbxassetid://78549766144735"
+  },
+  "assetIds": [
+    "118772365069948",
+    "78549766144735"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Twig"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

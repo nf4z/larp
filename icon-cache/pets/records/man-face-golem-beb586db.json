@@ -1,0 +1,17 @@
+{
+  "name": "Man Face Golem",
+  "images": {
+    "Normal": "rbxassetid://105499078133845",
+    "Shiny": "rbxassetid://119335606193165"
+  },
+  "assetIds": [
+    "105499078133845",
+    "119335606193165"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Neon Elemental",
+  "images": {
+    "Normal": "rbxassetid://76900428773295",
+    "Shiny": "rbxassetid://75299135501237",
+    "Mythic": "rbxassetid://98823105797670",
+    "MythicShiny": "rbxassetid://115321521110239"
+  },
+  "assetIds": [
+    "115321521110239",
+    "75299135501237",
+    "76900428773295",
+    "98823105797670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

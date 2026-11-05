@@ -1,0 +1,17 @@
+{
+  "name": "Violet Kitty",
+  "images": {
+    "Normal": "rbxassetid://106473411308572",
+    "Shiny": "rbxassetid://114415203843295"
+  },
+  "assetIds": [
+    "106473411308572",
+    "114415203843295"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Violet Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

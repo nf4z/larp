@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Soul",
+  "images": {
+    "Normal": "rbxassetid://92820671132723",
+    "Shiny": "rbxassetid://95956348284933",
+    "Mythic": "rbxassetid://101367304535641",
+    "MythicShiny": "rbxassetid://103605555278840"
+  },
+  "assetIds": [
+    "101367304535641",
+    "103605555278840",
+    "92820671132723",
+    "95956348284933"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ice Queen Slime",
+  "images": {
+    "Normal": "rbxassetid://104690414154172",
+    "Shiny": "rbxassetid://100689340195236",
+    "Mythic": "rbxassetid://103140617953395",
+    "MythicShiny": "rbxassetid://86858670522222"
+  },
+  "assetIds": [
+    "100689340195236",
+    "103140617953395",
+    "104690414154172",
+    "86858670522222"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Queen Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

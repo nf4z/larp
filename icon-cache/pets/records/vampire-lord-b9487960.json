@@ -1,0 +1,21 @@
+{
+  "name": "Vampire Lord",
+  "images": {
+    "Normal": "rbxassetid://130615666119654",
+    "Shiny": "rbxassetid://132209698058607",
+    "Mythic": "rbxassetid://71216018751005",
+    "MythicShiny": "rbxassetid://138631103932901"
+  },
+  "assetIds": [
+    "130615666119654",
+    "132209698058607",
+    "138631103932901",
+    "71216018751005"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

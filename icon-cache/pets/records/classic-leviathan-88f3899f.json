@@ -1,0 +1,21 @@
+{
+  "name": "Classic Leviathan",
+  "images": {
+    "Normal": "rbxassetid://138892992688889",
+    "Shiny": "rbxassetid://120288384759958",
+    "Mythic": "rbxassetid://79452261729888",
+    "MythicShiny": "rbxassetid://102190186047173"
+  },
+  "assetIds": [
+    "102190186047173",
+    "120288384759958",
+    "138892992688889",
+    "79452261729888"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

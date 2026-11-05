@@ -1,0 +1,12 @@
+{
+  "name": "Super Halloween Egg",
+  "images": {
+    "Image": "rbxassetid://94887812966688"
+  },
+  "assetIds": [
+    "94887812966688"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

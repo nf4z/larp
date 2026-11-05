@@ -1,0 +1,17 @@
+{
+  "name": "Void Dragon",
+  "images": {
+    "Normal": "rbxassetid://84886283578799",
+    "Shiny": "rbxassetid://137947493777958"
+  },
+  "assetIds": [
+    "137947493777958",
+    "84886283578799"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

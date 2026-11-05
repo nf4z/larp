@@ -1,0 +1,17 @@
+{
+  "name": "Abyssal Sea Dragon",
+  "images": {
+    "Normal": "rbxassetid://107262249525496",
+    "Shiny": "rbxassetid://116729138160793"
+  },
+  "assetIds": [
+    "107262249525496",
+    "116729138160793"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssal Sea Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

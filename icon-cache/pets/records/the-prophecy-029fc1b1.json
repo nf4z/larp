@@ -1,0 +1,21 @@
+{
+  "name": "The Prophecy",
+  "images": {
+    "Normal": "rbxassetid://105055137871487",
+    "Shiny": "rbxassetid://83716605545478",
+    "Mythic": "rbxassetid://107083331428228",
+    "MythicShiny": "rbxassetid://102100859108304"
+  },
+  "assetIds": [
+    "102100859108304",
+    "105055137871487",
+    "107083331428228",
+    "83716605545478"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Prophecy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

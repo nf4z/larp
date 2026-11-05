@@ -1,0 +1,21 @@
+{
+  "name": "Amethyst",
+  "images": {
+    "Normal": "rbxassetid://85348868317726",
+    "Shiny": "rbxassetid://131953554224090",
+    "Mythic": "rbxassetid://138181369034481",
+    "MythicShiny": "rbxassetid://71963281772352"
+  },
+  "assetIds": [
+    "131953554224090",
+    "138181369034481",
+    "71963281772352",
+    "85348868317726"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Amethyst"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

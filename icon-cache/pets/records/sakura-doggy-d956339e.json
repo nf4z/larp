@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Doggy",
+  "images": {
+    "Normal": "rbxassetid://73606916356788",
+    "Shiny": "rbxassetid://97837872763689"
+  },
+  "assetIds": [
+    "73606916356788",
+    "97837872763689"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Disturbed Dragon",
+  "images": {
+    "Normal": "rbxassetid://100643436781631",
+    "Shiny": "rbxassetid://127382886043009"
+  },
+  "assetIds": [
+    "100643436781631",
+    "127382886043009"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Disturbed Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

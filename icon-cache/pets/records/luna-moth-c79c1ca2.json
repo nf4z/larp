@@ -1,0 +1,21 @@
+{
+  "name": "Luna Moth",
+  "images": {
+    "Normal": "rbxassetid://122016449991596",
+    "Shiny": "rbxassetid://131536249730506",
+    "Mythic": "rbxassetid://73333900564327",
+    "MythicShiny": "rbxassetid://85239074908107"
+  },
+  "assetIds": [
+    "122016449991596",
+    "131536249730506",
+    "73333900564327",
+    "85239074908107"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luna Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

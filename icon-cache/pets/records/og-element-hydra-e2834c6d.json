@@ -1,0 +1,21 @@
+{
+  "name": "OG Element Hydra",
+  "images": {
+    "Normal": "rbxassetid://119674981554405",
+    "Shiny": "rbxassetid://110851811551992",
+    "Mythic": "rbxassetid://84420960249779",
+    "MythicShiny": "rbxassetid://110937797471806"
+  },
+  "assetIds": [
+    "110851811551992",
+    "110937797471806",
+    "119674981554405",
+    "84420960249779"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Element Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

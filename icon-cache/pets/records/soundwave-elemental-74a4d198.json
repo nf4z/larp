@@ -1,0 +1,21 @@
+{
+  "name": "Soundwave Elemental",
+  "images": {
+    "Normal": "rbxassetid://131351323159116",
+    "Shiny": "rbxassetid://116795841271699",
+    "Mythic": "rbxassetid://110298474884824",
+    "MythicShiny": "rbxassetid://107855652586792"
+  },
+  "assetIds": [
+    "107855652586792",
+    "110298474884824",
+    "116795841271699",
+    "131351323159116"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soundwave Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

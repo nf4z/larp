@@ -1,0 +1,21 @@
+{
+  "name": "Nert Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://87034063876259",
+    "Shiny": "rbxassetid://123560448297879",
+    "Mythic": "rbxassetid://117163953970525",
+    "MythicShiny": "rbxassetid://106611013238426"
+  },
+  "assetIds": [
+    "106611013238426",
+    "117163953970525",
+    "123560448297879",
+    "87034063876259"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nert Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

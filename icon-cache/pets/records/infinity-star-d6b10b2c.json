@@ -1,0 +1,17 @@
+{
+  "name": "Infinity Star",
+  "images": {
+    "Normal": "rbxassetid://97020018021911",
+    "Shiny": "rbxassetid://134444747209600"
+  },
+  "assetIds": [
+    "134444747209600",
+    "97020018021911"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Infinity Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

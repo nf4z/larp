@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Koi",
+  "images": {
+    "Normal": "rbxassetid://122990829965943",
+    "Shiny": "rbxassetid://88104987746177",
+    "Mythic": "rbxassetid://82204816462377",
+    "MythicShiny": "rbxassetid://113384371026057"
+  },
+  "assetIds": [
+    "113384371026057",
+    "122990829965943",
+    "82204816462377",
+    "88104987746177"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

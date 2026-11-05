@@ -1,0 +1,21 @@
+{
+  "name": "Water Serpent",
+  "images": {
+    "Normal": "rbxassetid://104556327849618",
+    "Shiny": "rbxassetid://110322062822153",
+    "Mythic": "rbxassetid://136636308571012",
+    "MythicShiny": "rbxassetid://85621191897737"
+  },
+  "assetIds": [
+    "104556327849618",
+    "110322062822153",
+    "136636308571012",
+    "85621191897737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Water Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

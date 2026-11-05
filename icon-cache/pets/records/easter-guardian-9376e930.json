@@ -1,0 +1,21 @@
+{
+  "name": "Easter Guardian",
+  "images": {
+    "Normal": "rbxassetid://94190430861793",
+    "Shiny": "rbxassetid://131713952787158",
+    "Mythic": "rbxassetid://140292785563815",
+    "MythicShiny": "rbxassetid://130346593576296"
+  },
+  "assetIds": [
+    "130346593576296",
+    "131713952787158",
+    "140292785563815",
+    "94190430861793"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

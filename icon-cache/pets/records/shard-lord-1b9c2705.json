@@ -1,0 +1,21 @@
+{
+  "name": "Shard Lord",
+  "images": {
+    "Normal": "rbxassetid://133505524159501",
+    "Shiny": "rbxassetid://133120079604805",
+    "Mythic": "rbxassetid://104117053494242",
+    "MythicShiny": "rbxassetid://121377820731773"
+  },
+  "assetIds": [
+    "104117053494242",
+    "121377820731773",
+    "133120079604805",
+    "133505524159501"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shard Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

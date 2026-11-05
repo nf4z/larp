@@ -1,0 +1,15 @@
+{
+  "name": "Classic Shark",
+  "images": {
+    "Image": "rbxassetid://118482836980049"
+  },
+  "assetIds": [
+    "118482836980049"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

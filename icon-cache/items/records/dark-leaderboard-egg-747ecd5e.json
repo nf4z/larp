@@ -1,0 +1,11 @@
+{
+  "name": "Dark Leaderboard Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dark Leaderboard Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

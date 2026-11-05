@@ -1,0 +1,12 @@
+{
+  "name": "Exotic Egg",
+  "images": {
+    "Image": "rbxassetid://74971256975981"
+  },
+  "assetIds": [
+    "74971256975981"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

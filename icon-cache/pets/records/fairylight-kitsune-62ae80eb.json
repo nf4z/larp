@@ -1,0 +1,17 @@
+{
+  "name": "Fairylight Kitsune",
+  "images": {
+    "Normal": "rbxassetid://119143888425246",
+    "Shiny": "rbxassetid://76372062866645"
+  },
+  "assetIds": [
+    "119143888425246",
+    "76372062866645"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fairylight Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

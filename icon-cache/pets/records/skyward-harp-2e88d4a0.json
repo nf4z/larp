@@ -1,0 +1,21 @@
+{
+  "name": "Skyward Harp",
+  "images": {
+    "Normal": "rbxassetid://131731115841381",
+    "Shiny": "rbxassetid://96495154460611",
+    "Mythic": "rbxassetid://138207672755050",
+    "MythicShiny": "rbxassetid://96620371667029"
+  },
+  "assetIds": [
+    "131731115841381",
+    "138207672755050",
+    "96495154460611",
+    "96620371667029"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skyward Harp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

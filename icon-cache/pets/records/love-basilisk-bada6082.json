@@ -1,0 +1,21 @@
+{
+  "name": "Love Basilisk",
+  "images": {
+    "Normal": "rbxassetid://76470220487930",
+    "Shiny": "rbxassetid://72965233726912",
+    "Mythic": "rbxassetid://117920512096865",
+    "MythicShiny": "rbxassetid://96179912261748"
+  },
+  "assetIds": [
+    "117920512096865",
+    "72965233726912",
+    "76470220487930",
+    "96179912261748"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Love Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

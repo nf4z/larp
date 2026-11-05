@@ -1,0 +1,21 @@
+{
+  "name": "BIG KING DOGGY",
+  "images": {
+    "Normal": "rbxassetid://101780488400060",
+    "Shiny": "rbxassetid://75849543059252",
+    "Mythic": "rbxassetid://105903479334957",
+    "MythicShiny": "rbxassetid://101180526741490"
+  },
+  "assetIds": [
+    "101180526741490",
+    "101780488400060",
+    "105903479334957",
+    "75849543059252"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BIG KING DOGGY"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

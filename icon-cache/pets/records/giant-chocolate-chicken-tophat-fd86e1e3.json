@@ -1,0 +1,21 @@
+{
+  "name": "Giant Chocolate Chicken Tophat",
+  "images": {
+    "Normal": "rbxassetid://108831488447184",
+    "Shiny": "rbxassetid://95877393367603",
+    "Mythic": "rbxassetid://99275778518082",
+    "MythicShiny": "rbxassetid://103576475114242"
+  },
+  "assetIds": [
+    "103576475114242",
+    "108831488447184",
+    "95877393367603",
+    "99275778518082"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Chocolate Chicken Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

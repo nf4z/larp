@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://117997634562227",
+    "Shiny": "rbxassetid://75469560240703",
+    "Mythic": "rbxassetid://126953604599645",
+    "MythicShiny": "rbxassetid://117887139534455"
+  },
+  "assetIds": [
+    "117887139534455",
+    "117997634562227",
+    "126953604599645",
+    "75469560240703"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

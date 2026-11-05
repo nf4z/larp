@@ -1,0 +1,21 @@
+{
+  "name": "Galactic Paladin",
+  "images": {
+    "Normal": "rbxassetid://124735024295170",
+    "Shiny": "rbxassetid://132951390927189",
+    "Mythic": "rbxassetid://92078693018150",
+    "MythicShiny": "rbxassetid://111780009455167"
+  },
+  "assetIds": [
+    "111780009455167",
+    "124735024295170",
+    "132951390927189",
+    "92078693018150"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galactic Paladin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

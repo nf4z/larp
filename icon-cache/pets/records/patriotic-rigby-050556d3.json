@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Rigby",
+  "images": {
+    "Normal": "rbxassetid://100976539337155",
+    "Shiny": "rbxassetid://101236134312392"
+  },
+  "assetIds": [
+    "100976539337155",
+    "101236134312392"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

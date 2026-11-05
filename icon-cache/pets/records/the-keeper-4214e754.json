@@ -1,0 +1,21 @@
+{
+  "name": "The Keeper",
+  "images": {
+    "Normal": "rbxassetid://73224678536860",
+    "Shiny": "rbxassetid://129729876727147",
+    "Mythic": "rbxassetid://135421671840522",
+    "MythicShiny": "rbxassetid://73945498485815"
+  },
+  "assetIds": [
+    "129729876727147",
+    "135421671840522",
+    "73224678536860",
+    "73945498485815"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Keeper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

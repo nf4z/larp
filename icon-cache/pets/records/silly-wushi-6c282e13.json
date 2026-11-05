@@ -1,0 +1,21 @@
+{
+  "name": "Silly Wushi",
+  "images": {
+    "Normal": "rbxassetid://99760826414215",
+    "Shiny": "rbxassetid://106729369331830",
+    "Mythic": "rbxassetid://95493814573168",
+    "MythicShiny": "rbxassetid://101921786157307"
+  },
+  "assetIds": [
+    "101921786157307",
+    "106729369331830",
+    "95493814573168",
+    "99760826414215"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Wushi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

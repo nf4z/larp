@@ -1,0 +1,21 @@
+{
+  "name": "Toilet Puffer",
+  "images": {
+    "Normal": "rbxassetid://83721380839465",
+    "Shiny": "rbxassetid://97396105697713",
+    "Mythic": "rbxassetid://133297826822072",
+    "MythicShiny": "rbxassetid://123619992711386"
+  },
+  "assetIds": [
+    "123619992711386",
+    "133297826822072",
+    "83721380839465",
+    "97396105697713"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toilet Puffer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

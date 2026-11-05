@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Dragon",
+  "images": {
+    "Normal": "rbxassetid://126973075736687",
+    "Shiny": "rbxassetid://121185162499812",
+    "Mythic": "rbxassetid://100476005975237",
+    "MythicShiny": "rbxassetid://86959618790790"
+  },
+  "assetIds": [
+    "100476005975237",
+    "121185162499812",
+    "126973075736687",
+    "86959618790790"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

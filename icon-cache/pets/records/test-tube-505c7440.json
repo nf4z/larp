@@ -1,0 +1,21 @@
+{
+  "name": "Test Tube",
+  "images": {
+    "Normal": "rbxassetid://101662667780903",
+    "Shiny": "rbxassetid://127482746186210",
+    "Mythic": "rbxassetid://79112947109409",
+    "MythicShiny": "rbxassetid://87661156379768"
+  },
+  "assetIds": [
+    "101662667780903",
+    "127482746186210",
+    "79112947109409",
+    "87661156379768"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Test Tube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

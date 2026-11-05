@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Snowman",
+  "images": {
+    "Normal": "rbxassetid://87295987829197",
+    "Shiny": "rbxassetid://138434058096444",
+    "Mythic": "rbxassetid://107796195655320",
+    "MythicShiny": "rbxassetid://87171703966483"
+  },
+  "assetIds": [
+    "107796195655320",
+    "138434058096444",
+    "87171703966483",
+    "87295987829197"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Snowman"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

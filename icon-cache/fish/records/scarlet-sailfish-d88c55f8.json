@@ -1,0 +1,15 @@
+{
+  "name": "Scarlet Sailfish",
+  "images": {
+    "Image": "rbxassetid://81172661324326"
+  },
+  "assetIds": [
+    "81172661324326"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Scarlet Sailfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Dogcat",
+  "images": {
+    "Normal": "rbxassetid://75144039920000",
+    "Shiny": "rbxassetid://97109885242363",
+    "Mythic": "rbxassetid://136378611708440",
+    "MythicShiny": "rbxassetid://139213379850132"
+  },
+  "assetIds": [
+    "136378611708440",
+    "139213379850132",
+    "75144039920000",
+    "97109885242363"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

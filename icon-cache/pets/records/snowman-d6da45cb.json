@@ -1,0 +1,21 @@
+{
+  "name": "Snowman",
+  "images": {
+    "Normal": "rbxassetid://114358173354200",
+    "Shiny": "rbxassetid://122363269612698",
+    "Mythic": "rbxassetid://128865387567718",
+    "MythicShiny": "rbxassetid://103892283085121"
+  },
+  "assetIds": [
+    "103892283085121",
+    "114358173354200",
+    "122363269612698",
+    "128865387567718"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowman"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

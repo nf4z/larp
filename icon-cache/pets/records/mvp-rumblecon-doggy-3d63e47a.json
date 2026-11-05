@@ -1,0 +1,21 @@
+{
+  "name": "MVP Rumblecon Doggy",
+  "images": {
+    "Normal": "rbxassetid://81090372853847",
+    "Shiny": "rbxassetid://123202526904120",
+    "Mythic": "rbxassetid://129794111080394",
+    "MythicShiny": "rbxassetid://72058580760301"
+  },
+  "assetIds": [
+    "123202526904120",
+    "129794111080394",
+    "72058580760301",
+    "81090372853847"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "MVP Rumblecon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Hexarium",
+  "images": {
+    "Normal": "rbxassetid://136410802303648",
+    "Shiny": "rbxassetid://82003997046134",
+    "Mythic": "rbxassetid://110459647433098",
+    "MythicShiny": "rbxassetid://70570552386283"
+  },
+  "assetIds": [
+    "110459647433098",
+    "136410802303648",
+    "70570552386283",
+    "82003997046134"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "River Carp",
+  "images": {
+    "Image": "rbxassetid://127756392478432"
+  },
+  "assetIds": [
+    "127756392478432"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "River Carp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

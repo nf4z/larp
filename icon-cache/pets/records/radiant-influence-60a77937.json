@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Influence",
+  "images": {
+    "Normal": "rbxassetid://103576715248624",
+    "Shiny": "rbxassetid://100820170950312",
+    "Mythic": "rbxassetid://72737765036676",
+    "MythicShiny": "rbxassetid://89221483955474"
+  },
+  "assetIds": [
+    "100820170950312",
+    "103576715248624",
+    "72737765036676",
+    "89221483955474"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Influence"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

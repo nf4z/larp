@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Vectorlord",
+  "images": {
+    "Normal": "rbxassetid://104721590353103",
+    "Shiny": "rbxassetid://105086909899063"
+  },
+  "assetIds": [
+    "104721590353103",
+    "105086909899063"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Vectorlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

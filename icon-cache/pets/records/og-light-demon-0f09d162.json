@@ -1,0 +1,17 @@
+{
+  "name": "OG Light Demon",
+  "images": {
+    "Normal": "rbxassetid://130514658430547",
+    "Shiny": "rbxassetid://130954147351036"
+  },
+  "assetIds": [
+    "130514658430547",
+    "130954147351036"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Light Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

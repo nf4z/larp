@@ -1,0 +1,21 @@
+{
+  "name": "Cup O' Cocoa",
+  "images": {
+    "Normal": "rbxassetid://74247779030432",
+    "Shiny": "rbxassetid://94633373068673",
+    "Mythic": "rbxassetid://128998096571091",
+    "MythicShiny": "rbxassetid://97332475825694"
+  },
+  "assetIds": [
+    "128998096571091",
+    "74247779030432",
+    "94633373068673",
+    "97332475825694"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cup O' Cocoa"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

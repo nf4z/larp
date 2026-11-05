@@ -1,0 +1,17 @@
+{
+  "name": "Split",
+  "images": {
+    "Normal": "rbxassetid://91042780128683",
+    "Shiny": "rbxassetid://98670406201060"
+  },
+  "assetIds": [
+    "91042780128683",
+    "98670406201060"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

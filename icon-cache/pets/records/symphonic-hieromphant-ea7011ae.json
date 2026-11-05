@@ -1,0 +1,21 @@
+{
+  "name": "Symphonic Hieromphant",
+  "images": {
+    "Normal": "rbxassetid://97736996761478",
+    "Shiny": "rbxassetid://77867404453653",
+    "Mythic": "rbxassetid://136164259917710",
+    "MythicShiny": "rbxassetid://85461199619934"
+  },
+  "assetIds": [
+    "136164259917710",
+    "77867404453653",
+    "85461199619934",
+    "97736996761478"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Symphonic Hieromphant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

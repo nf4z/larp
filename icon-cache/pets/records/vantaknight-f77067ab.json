@@ -1,0 +1,21 @@
+{
+  "name": "Vantaknight",
+  "images": {
+    "Normal": "rbxassetid://132121750959647",
+    "Shiny": "rbxassetid://123238557826523",
+    "Mythic": "rbxassetid://121933006675362",
+    "MythicShiny": "rbxassetid://100535171738267"
+  },
+  "assetIds": [
+    "100535171738267",
+    "121933006675362",
+    "123238557826523",
+    "132121750959647"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vantaknight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

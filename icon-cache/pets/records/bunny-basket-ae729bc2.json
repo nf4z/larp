@@ -1,0 +1,21 @@
+{
+  "name": "Bunny Basket",
+  "images": {
+    "Normal": "rbxassetid://127821826775680",
+    "Shiny": "rbxassetid://111448240441826",
+    "Mythic": "rbxassetid://106768674341070",
+    "MythicShiny": "rbxassetid://112904199602201"
+  },
+  "assetIds": [
+    "106768674341070",
+    "111448240441826",
+    "112904199602201",
+    "127821826775680"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

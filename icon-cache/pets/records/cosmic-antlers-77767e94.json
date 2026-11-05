@@ -1,0 +1,17 @@
+{
+  "name": "Cosmic Antlers",
+  "images": {
+    "Normal": "rbxassetid://127873646720244",
+    "Shiny": "rbxassetid://95499430397954"
+  },
+  "assetIds": [
+    "127873646720244",
+    "95499430397954"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cosmic Antlers"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

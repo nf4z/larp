@@ -1,0 +1,15 @@
+{
+  "name": "Ashen Carp",
+  "images": {
+    "Image": "rbxassetid://122357267168330"
+  },
+  "assetIds": [
+    "122357267168330"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Ashen Carp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

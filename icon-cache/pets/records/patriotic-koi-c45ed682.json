@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Koi",
+  "images": {
+    "Normal": "rbxassetid://94452646393427",
+    "Shiny": "rbxassetid://88241555018278",
+    "Mythic": "rbxassetid://111459352133194",
+    "MythicShiny": "rbxassetid://128194439362886"
+  },
+  "assetIds": [
+    "111459352133194",
+    "128194439362886",
+    "88241555018278",
+    "94452646393427"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

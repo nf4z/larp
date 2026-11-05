@@ -1,0 +1,21 @@
+{
+  "name": "Pumpkin Pie",
+  "images": {
+    "Normal": "rbxassetid://117632059624719",
+    "Shiny": "rbxassetid://111225925314122",
+    "Mythic": "rbxassetid://109688408975430",
+    "MythicShiny": "rbxassetid://72079366881385"
+  },
+  "assetIds": [
+    "109688408975430",
+    "111225925314122",
+    "117632059624719",
+    "72079366881385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Pie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

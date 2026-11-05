@@ -1,0 +1,21 @@
+{
+  "name": "Ocelot",
+  "images": {
+    "Normal": "rbxassetid://93484251149196",
+    "Shiny": "rbxassetid://110626904810643",
+    "Mythic": "rbxassetid://133771961930464",
+    "MythicShiny": "rbxassetid://114769523665056"
+  },
+  "assetIds": [
+    "110626904810643",
+    "114769523665056",
+    "133771961930464",
+    "93484251149196"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ocelot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

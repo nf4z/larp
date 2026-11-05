@@ -1,0 +1,17 @@
+{
+  "name": "Jackpot Doggy",
+  "images": {
+    "Normal": "rbxassetid://121059704131113",
+    "Shiny": "rbxassetid://124054216181863"
+  },
+  "assetIds": [
+    "121059704131113",
+    "124054216181863"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jackpot Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

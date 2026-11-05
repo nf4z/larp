@@ -1,0 +1,17 @@
+{
+  "name": "Snowglobe",
+  "images": {
+    "Normal": "rbxassetid://86219921386929",
+    "Shiny": "rbxassetid://129356963317093"
+  },
+  "assetIds": [
+    "129356963317093",
+    "86219921386929"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowglobe"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

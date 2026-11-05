@@ -1,0 +1,17 @@
+{
+  "name": "Witch Bat",
+  "images": {
+    "Normal": "rbxassetid://94120563277929",
+    "Shiny": "rbxassetid://111276662031326"
+  },
+  "assetIds": [
+    "111276662031326",
+    "94120563277929"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witch Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

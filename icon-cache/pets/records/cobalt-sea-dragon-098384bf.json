@@ -1,0 +1,21 @@
+{
+  "name": "Cobalt Sea Dragon",
+  "images": {
+    "Normal": "rbxassetid://101997508969649",
+    "Shiny": "rbxassetid://93934006079044",
+    "Mythic": "rbxassetid://75713364151353",
+    "MythicShiny": "rbxassetid://119536009315773"
+  },
+  "assetIds": [
+    "101997508969649",
+    "119536009315773",
+    "75713364151353",
+    "93934006079044"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cobalt Sea Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

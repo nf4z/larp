@@ -1,0 +1,17 @@
+{
+  "name": "Robo Kitty",
+  "images": {
+    "Normal": "rbxassetid://126153630042093",
+    "Shiny": "rbxassetid://126245004235143"
+  },
+  "assetIds": [
+    "126153630042093",
+    "126245004235143"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Robo Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

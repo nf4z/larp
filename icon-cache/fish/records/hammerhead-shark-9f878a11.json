@@ -1,0 +1,15 @@
+{
+  "name": "Hammerhead Shark",
+  "images": {
+    "Image": "rbxassetid://132399372455143"
+  },
+  "assetIds": [
+    "132399372455143"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Hammerhead Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

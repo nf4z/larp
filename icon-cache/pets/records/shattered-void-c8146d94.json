@@ -1,0 +1,21 @@
+{
+  "name": "Shattered Void",
+  "images": {
+    "Normal": "rbxassetid://78876593508588",
+    "Shiny": "rbxassetid://87288518170682",
+    "Mythic": "rbxassetid://104425100411409",
+    "MythicShiny": "rbxassetid://79099592536396"
+  },
+  "assetIds": [
+    "104425100411409",
+    "78876593508588",
+    "79099592536396",
+    "87288518170682"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shattered Void"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

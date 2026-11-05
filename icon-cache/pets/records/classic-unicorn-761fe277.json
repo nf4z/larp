@@ -1,0 +1,21 @@
+{
+  "name": "Classic Unicorn",
+  "images": {
+    "Normal": "rbxassetid://116487677051546",
+    "Shiny": "rbxassetid://80611375183501",
+    "Mythic": "rbxassetid://137405150415729",
+    "MythicShiny": "rbxassetid://97773356527131"
+  },
+  "assetIds": [
+    "116487677051546",
+    "137405150415729",
+    "80611375183501",
+    "97773356527131"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

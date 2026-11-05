@@ -1,0 +1,21 @@
+{
+  "name": "Flower Pot",
+  "images": {
+    "Normal": "rbxassetid://95295567466355",
+    "Shiny": "rbxassetid://89371896624367",
+    "Mythic": "rbxassetid://133232388815041",
+    "MythicShiny": "rbxassetid://72060440471665"
+  },
+  "assetIds": [
+    "133232388815041",
+    "72060440471665",
+    "89371896624367",
+    "95295567466355"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flower Pot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

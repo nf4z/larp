@@ -1,0 +1,21 @@
+{
+  "name": "Dark Avernus",
+  "images": {
+    "Normal": "rbxassetid://134356882417437",
+    "Shiny": "rbxassetid://129304858107580",
+    "Mythic": "rbxassetid://97066430574960",
+    "MythicShiny": "rbxassetid://71404717369449"
+  },
+  "assetIds": [
+    "129304858107580",
+    "134356882417437",
+    "71404717369449",
+    "97066430574960"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Avernus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

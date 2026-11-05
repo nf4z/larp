@@ -1,0 +1,12 @@
+{
+  "name": "Lunar Egg",
+  "images": {
+    "Image": "rbxassetid://83785616369556"
+  },
+  "assetIds": [
+    "83785616369556"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

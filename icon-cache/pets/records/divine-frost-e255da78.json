@@ -1,0 +1,21 @@
+{
+  "name": "Divine Frost",
+  "images": {
+    "Normal": "rbxassetid://114935451471984",
+    "Shiny": "rbxassetid://70554167036112",
+    "Mythic": "rbxassetid://107243624238524",
+    "MythicShiny": "rbxassetid://80984375836098"
+  },
+  "assetIds": [
+    "107243624238524",
+    "114935451471984",
+    "70554167036112",
+    "80984375836098"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Divine Frost"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

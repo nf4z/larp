@@ -1,0 +1,21 @@
+{
+  "name": "Cloudy Hydra",
+  "images": {
+    "Normal": "rbxassetid://139458610444443",
+    "Shiny": "rbxassetid://81221599310831",
+    "Mythic": "rbxassetid://134299047164922",
+    "MythicShiny": "rbxassetid://83470077940025"
+  },
+  "assetIds": [
+    "134299047164922",
+    "139458610444443",
+    "81221599310831",
+    "83470077940025"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudy Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

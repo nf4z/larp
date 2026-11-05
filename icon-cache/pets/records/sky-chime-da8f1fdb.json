@@ -1,0 +1,21 @@
+{
+  "name": "Sky Chime",
+  "images": {
+    "Normal": "rbxassetid://80575146414552",
+    "Shiny": "rbxassetid://127871297957643",
+    "Mythic": "rbxassetid://82578395438058",
+    "MythicShiny": "rbxassetid://101009722958180"
+  },
+  "assetIds": [
+    "101009722958180",
+    "127871297957643",
+    "80575146414552",
+    "82578395438058"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sky Chime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

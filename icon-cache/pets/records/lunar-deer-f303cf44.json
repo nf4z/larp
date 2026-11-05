@@ -1,0 +1,17 @@
+{
+  "name": "Lunar Deer",
+  "images": {
+    "Normal": "rbxassetid://89077161392655",
+    "Shiny": "rbxassetid://135994042860280"
+  },
+  "assetIds": [
+    "135994042860280",
+    "89077161392655"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

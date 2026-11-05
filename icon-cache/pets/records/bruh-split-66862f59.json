@@ -1,0 +1,21 @@
+{
+  "name": "Bruh Split",
+  "images": {
+    "Normal": "rbxassetid://91628840379180",
+    "Shiny": "rbxassetid://110753254166353",
+    "Mythic": "rbxassetid://111643284817091",
+    "MythicShiny": "rbxassetid://84284272277115"
+  },
+  "assetIds": [
+    "110753254166353",
+    "111643284817091",
+    "84284272277115",
+    "91628840379180"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bruh Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

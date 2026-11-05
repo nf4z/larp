@@ -1,0 +1,21 @@
+{
+  "name": "Excabot",
+  "images": {
+    "Normal": "rbxassetid://128875113312567",
+    "Shiny": "rbxassetid://135514526403640",
+    "Mythic": "rbxassetid://129664198937490",
+    "MythicShiny": "rbxassetid://81499563561257"
+  },
+  "assetIds": [
+    "128875113312567",
+    "129664198937490",
+    "135514526403640",
+    "81499563561257"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Excabot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

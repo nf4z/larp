@@ -1,0 +1,21 @@
+{
+  "name": "Pet Cards",
+  "images": {
+    "Normal": "rbxassetid://120093234682019",
+    "Shiny": "rbxassetid://75560842646067",
+    "Mythic": "rbxassetid://91669691046244",
+    "MythicShiny": "rbxassetid://89466670443147"
+  },
+  "assetIds": [
+    "120093234682019",
+    "75560842646067",
+    "89466670443147",
+    "91669691046244"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pet Cards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

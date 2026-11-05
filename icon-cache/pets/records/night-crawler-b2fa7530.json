@@ -1,0 +1,17 @@
+{
+  "name": "Night Crawler",
+  "images": {
+    "Normal": "rbxassetid://131225854531088",
+    "Shiny": "rbxassetid://87587834256377"
+  },
+  "assetIds": [
+    "131225854531088",
+    "87587834256377"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Night Crawler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Wisp Doggy",
+  "images": {
+    "Normal": "rbxassetid://96018062632480",
+    "Shiny": "rbxassetid://83933194065050"
+  },
+  "assetIds": [
+    "83933194065050",
+    "96018062632480"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wisp Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

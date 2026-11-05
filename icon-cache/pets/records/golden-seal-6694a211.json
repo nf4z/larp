@@ -1,0 +1,17 @@
+{
+  "name": "Golden Seal",
+  "images": {
+    "Normal": "rbxassetid://97169865978279",
+    "Shiny": "rbxassetid://88337088971927"
+  },
+  "assetIds": [
+    "88337088971927",
+    "97169865978279"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

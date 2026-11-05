@@ -1,0 +1,17 @@
+{
+  "name": "Vampire Wolf",
+  "images": {
+    "Normal": "rbxassetid://73978751598968",
+    "Shiny": "rbxassetid://106149479692666"
+  },
+  "assetIds": [
+    "106149479692666",
+    "73978751598968"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

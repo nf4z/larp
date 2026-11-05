@@ -1,0 +1,21 @@
+{
+  "name": "Tidal God",
+  "images": {
+    "Normal": "rbxassetid://86486124208077",
+    "Shiny": "rbxassetid://114886864746379",
+    "Mythic": "rbxassetid://134565986370535",
+    "MythicShiny": "rbxassetid://126436699598890"
+  },
+  "assetIds": [
+    "114886864746379",
+    "126436699598890",
+    "134565986370535",
+    "86486124208077"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tidal God"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

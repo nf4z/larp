@@ -1,0 +1,15 @@
+{
+  "name": "Super Key",
+  "images": {
+    "Image": "rbxassetid://103604090182960"
+  },
+  "assetIds": [
+    "103604090182960"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Super Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

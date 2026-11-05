@@ -1,0 +1,12 @@
+{
+  "name": "Neon Crystal Egg",
+  "images": {
+    "Image": "rbxassetid://104025685748792"
+  },
+  "assetIds": [
+    "104025685748792"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

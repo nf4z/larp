@@ -1,0 +1,21 @@
+{
+  "name": "Wheat Angel",
+  "images": {
+    "Normal": "rbxassetid://127690612046946",
+    "Shiny": "rbxassetid://85268003330308",
+    "Mythic": "rbxassetid://83073217238886",
+    "MythicShiny": "rbxassetid://90483731828358"
+  },
+  "assetIds": [
+    "127690612046946",
+    "83073217238886",
+    "85268003330308",
+    "90483731828358"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wheat Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

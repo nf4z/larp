@@ -1,0 +1,17 @@
+{
+  "name": "Da Cool Trio",
+  "images": {
+    "Normal": "rbxassetid://118449459003357",
+    "Shiny": "rbxassetid://84157122170916"
+  },
+  "assetIds": [
+    "118449459003357",
+    "84157122170916"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Da Cool Trio"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

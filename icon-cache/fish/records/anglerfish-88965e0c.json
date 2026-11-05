@@ -1,0 +1,15 @@
+{
+  "name": "Anglerfish",
+  "images": {
+    "Image": "rbxassetid://95455786120377"
+  },
+  "assetIds": [
+    "95455786120377"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Anglerfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

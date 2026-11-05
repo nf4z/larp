@@ -1,0 +1,21 @@
+{
+  "name": "Moonlight",
+  "images": {
+    "Normal": "rbxassetid://105329662848956",
+    "Shiny": "rbxassetid://89009838742526",
+    "Mythic": "rbxassetid://89913946001230",
+    "MythicShiny": "rbxassetid://101837907789199"
+  },
+  "assetIds": [
+    "101837907789199",
+    "105329662848956",
+    "89009838742526",
+    "89913946001230"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonlight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

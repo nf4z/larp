@@ -1,0 +1,17 @@
+{
+  "name": "Omega Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://127450075023992",
+    "Shiny": "rbxassetid://86511317737536"
+  },
+  "assetIds": [
+    "127450075023992",
+    "86511317737536"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Omega Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

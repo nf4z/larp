@@ -1,0 +1,17 @@
+{
+  "name": "Inferno Demon",
+  "images": {
+    "Normal": "rbxassetid://84427036623497",
+    "Shiny": "rbxassetid://88056809847000"
+  },
+  "assetIds": [
+    "84427036623497",
+    "88056809847000"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

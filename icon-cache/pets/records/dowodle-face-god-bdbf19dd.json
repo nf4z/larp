@@ -1,0 +1,21 @@
+{
+  "name": "DOWODLE FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://130929791053324",
+    "Shiny": "rbxassetid://139062091070741",
+    "Mythic": "rbxassetid://106207855186486",
+    "MythicShiny": "rbxassetid://139532592118140"
+  },
+  "assetIds": [
+    "106207855186486",
+    "130929791053324",
+    "139062091070741",
+    "139532592118140"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "DOWODLE FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

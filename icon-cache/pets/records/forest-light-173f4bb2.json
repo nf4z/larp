@@ -1,0 +1,21 @@
+{
+  "name": "Forest Light",
+  "images": {
+    "Normal": "rbxassetid://95154643089087",
+    "Shiny": "rbxassetid://88385203503895",
+    "Mythic": "rbxassetid://97146614653001",
+    "MythicShiny": "rbxassetid://117150105583984"
+  },
+  "assetIds": [
+    "117150105583984",
+    "88385203503895",
+    "95154643089087",
+    "97146614653001"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forest Light"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

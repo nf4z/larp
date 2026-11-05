@@ -1,0 +1,21 @@
+{
+  "name": "The Infinity Gem",
+  "images": {
+    "Normal": "rbxassetid://76886476315020",
+    "Shiny": "rbxassetid://101222206793913",
+    "Mythic": "rbxassetid://88088733019459",
+    "MythicShiny": "rbxassetid://134631220616758"
+  },
+  "assetIds": [
+    "101222206793913",
+    "134631220616758",
+    "76886476315020",
+    "88088733019459"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Infinity Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

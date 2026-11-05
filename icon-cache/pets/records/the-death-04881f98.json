@@ -1,0 +1,21 @@
+{
+  "name": "The Death",
+  "images": {
+    "Normal": "rbxassetid://73850159942156",
+    "Shiny": "rbxassetid://109412146842608",
+    "Mythic": "rbxassetid://81078259715331",
+    "MythicShiny": "rbxassetid://74546150463304"
+  },
+  "assetIds": [
+    "109412146842608",
+    "73850159942156",
+    "74546150463304",
+    "81078259715331"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Death"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

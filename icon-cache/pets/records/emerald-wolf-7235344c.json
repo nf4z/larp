@@ -1,0 +1,17 @@
+{
+  "name": "Emerald Wolf",
+  "images": {
+    "Normal": "rbxassetid://70582788554359",
+    "Shiny": "rbxassetid://120045936302928"
+  },
+  "assetIds": [
+    "120045936302928",
+    "70582788554359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Emerald Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

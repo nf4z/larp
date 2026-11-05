@@ -1,0 +1,21 @@
+{
+  "name": "Circus Monster",
+  "images": {
+    "Normal": "rbxassetid://137498279191234",
+    "Shiny": "rbxassetid://112975100794592",
+    "Mythic": "rbxassetid://71611652241079",
+    "MythicShiny": "rbxassetid://127927247213524"
+  },
+  "assetIds": [
+    "112975100794592",
+    "127927247213524",
+    "137498279191234",
+    "71611652241079"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Circus Monster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Nephalem",
+  "images": {
+    "Normal": "rbxassetid://118566288896667",
+    "Shiny": "rbxassetid://93096812498816"
+  },
+  "assetIds": [
+    "118566288896667",
+    "93096812498816"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nephalem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

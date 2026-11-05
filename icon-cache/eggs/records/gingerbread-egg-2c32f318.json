@@ -1,0 +1,12 @@
+{
+  "name": "Gingerbread Egg",
+  "images": {
+    "Image": "rbxassetid://101685994713892"
+  },
+  "assetIds": [
+    "101685994713892"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

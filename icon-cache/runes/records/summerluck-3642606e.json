@@ -1,0 +1,20 @@
+{
+  "name": "SummerLuck",
+  "images": {
+    "Tier1": "rbxassetid://128890022796501",
+    "Tier2": "rbxassetid://92787638277810",
+    "Tier3": "rbxassetid://73976719134379"
+  },
+  "assetIds": [
+    "128890022796501",
+    "92787638277810",
+    "73976719134379"
+  ],
+  "item": {
+    "Type": "Rune",
+    "Name": "SummerLuck",
+    "Tier": 1
+  },
+  "recipe": "native-item",
+  "sourceModule": "Runes"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Runic Prism",
+  "images": {
+    "Normal": "rbxassetid://131677443933580",
+    "Shiny": "rbxassetid://108049462761252"
+  },
+  "assetIds": [
+    "108049462761252",
+    "131677443933580"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Runic Prism"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

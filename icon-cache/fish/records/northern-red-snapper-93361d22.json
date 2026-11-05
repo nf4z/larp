@@ -1,0 +1,15 @@
+{
+  "name": "Northern Red Snapper",
+  "images": {
+    "Image": "rbxassetid://95357059079253"
+  },
+  "assetIds": [
+    "95357059079253"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Northern Red Snapper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

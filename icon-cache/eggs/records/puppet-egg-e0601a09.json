@@ -1,0 +1,12 @@
+{
+  "name": "Puppet Egg",
+  "images": {
+    "Image": "rbxassetid://126048718039552"
+  },
+  "assetIds": [
+    "126048718039552"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

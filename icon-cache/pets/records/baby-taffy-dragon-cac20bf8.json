@@ -1,0 +1,17 @@
+{
+  "name": "Baby Taffy Dragon",
+  "images": {
+    "Normal": "rbxassetid://121424849127136",
+    "Shiny": "rbxassetid://113005873217115"
+  },
+  "assetIds": [
+    "113005873217115",
+    "121424849127136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Baby Taffy Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

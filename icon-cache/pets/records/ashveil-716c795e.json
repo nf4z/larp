@@ -1,0 +1,21 @@
+{
+  "name": "Ashveil",
+  "images": {
+    "Normal": "rbxassetid://103631251276430",
+    "Shiny": "rbxassetid://88416257578281",
+    "Mythic": "rbxassetid://105867537780378",
+    "MythicShiny": "rbxassetid://111489009062563"
+  },
+  "assetIds": [
+    "103631251276430",
+    "105867537780378",
+    "111489009062563",
+    "88416257578281"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ashveil"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

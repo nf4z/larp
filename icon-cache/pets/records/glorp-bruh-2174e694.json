@@ -1,0 +1,17 @@
+{
+  "name": "Glorp Bruh",
+  "images": {
+    "Normal": "rbxassetid://103738237217377",
+    "Shiny": "rbxassetid://119985938889479"
+  },
+  "assetIds": [
+    "103738237217377",
+    "119985938889479"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Glorp Bruh"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

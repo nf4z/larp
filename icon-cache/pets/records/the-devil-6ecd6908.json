@@ -1,0 +1,21 @@
+{
+  "name": "The Devil",
+  "images": {
+    "Normal": "rbxassetid://99649994506358",
+    "Shiny": "rbxassetid://103582889893074",
+    "Mythic": "rbxassetid://130977080804108",
+    "MythicShiny": "rbxassetid://70937842205371"
+  },
+  "assetIds": [
+    "103582889893074",
+    "130977080804108",
+    "70937842205371",
+    "99649994506358"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Devil"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

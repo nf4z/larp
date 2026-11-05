@@ -1,0 +1,21 @@
+{
+  "name": "Molten Wyvern",
+  "images": {
+    "Normal": "rbxassetid://100751532829891",
+    "Shiny": "rbxassetid://132217848840583",
+    "Mythic": "rbxassetid://96004072321099",
+    "MythicShiny": "rbxassetid://115266152732027"
+  },
+  "assetIds": [
+    "100751532829891",
+    "115266152732027",
+    "132217848840583",
+    "96004072321099"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Molten Wyvern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

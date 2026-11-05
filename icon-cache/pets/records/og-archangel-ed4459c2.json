@@ -1,0 +1,21 @@
+{
+  "name": "OG Archangel",
+  "images": {
+    "Normal": "rbxassetid://93528805470152",
+    "Shiny": "rbxassetid://82028661586643",
+    "Mythic": "rbxassetid://83773867101441",
+    "MythicShiny": "rbxassetid://89976355518642"
+  },
+  "assetIds": [
+    "82028661586643",
+    "83773867101441",
+    "89976355518642",
+    "93528805470152"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Archangel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

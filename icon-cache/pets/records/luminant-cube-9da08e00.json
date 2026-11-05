@@ -1,0 +1,17 @@
+{
+  "name": "Luminant Cube",
+  "images": {
+    "Normal": "rbxassetid://89408262042333",
+    "Shiny": "rbxassetid://120700400098602"
+  },
+  "assetIds": [
+    "120700400098602",
+    "89408262042333"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

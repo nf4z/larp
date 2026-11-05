@@ -1,0 +1,21 @@
+{
+  "name": "Toilet Doggy",
+  "images": {
+    "Normal": "rbxassetid://76051602216392",
+    "Shiny": "rbxassetid://95615548115868",
+    "Mythic": "rbxassetid://123679361775726",
+    "MythicShiny": "rbxassetid://88821017578387"
+  },
+  "assetIds": [
+    "123679361775726",
+    "76051602216392",
+    "88821017578387",
+    "95615548115868"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toilet Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

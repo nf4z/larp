@@ -1,0 +1,21 @@
+{
+  "name": "Void Crystal Parasite",
+  "images": {
+    "Normal": "rbxassetid://90334958112971",
+    "Shiny": "rbxassetid://112834999344280",
+    "Mythic": "rbxassetid://101906145207899",
+    "MythicShiny": "rbxassetid://70698353781943"
+  },
+  "assetIds": [
+    "101906145207899",
+    "112834999344280",
+    "70698353781943",
+    "90334958112971"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Crystal Parasite"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

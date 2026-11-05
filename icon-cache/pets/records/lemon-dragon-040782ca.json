@@ -1,0 +1,17 @@
+{
+  "name": "Lemon Dragon",
+  "images": {
+    "Normal": "rbxassetid://93066434249555",
+    "Shiny": "rbxassetid://77266061394472"
+  },
+  "assetIds": [
+    "77266061394472",
+    "93066434249555"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lemon Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

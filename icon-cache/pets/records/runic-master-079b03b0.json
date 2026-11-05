@@ -1,0 +1,17 @@
+{
+  "name": "Runic Master",
+  "images": {
+    "Normal": "rbxassetid://127053290227721",
+    "Shiny": "rbxassetid://129561123780597"
+  },
+  "assetIds": [
+    "127053290227721",
+    "129561123780597"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Runic Master"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

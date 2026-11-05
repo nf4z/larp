@@ -1,0 +1,21 @@
+{
+  "name": "Dark Prophet",
+  "images": {
+    "Normal": "rbxassetid://124340927664816",
+    "Shiny": "rbxassetid://77868366743244",
+    "Mythic": "rbxassetid://97376836792532",
+    "MythicShiny": "rbxassetid://126654658119516"
+  },
+  "assetIds": [
+    "124340927664816",
+    "126654658119516",
+    "77868366743244",
+    "97376836792532"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Prophet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Lucky Penguin",
+  "images": {
+    "Normal": "rbxassetid://102781587698187",
+    "Shiny": "rbxassetid://116605530633768"
+  },
+  "assetIds": [
+    "102781587698187",
+    "116605530633768"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Penguin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

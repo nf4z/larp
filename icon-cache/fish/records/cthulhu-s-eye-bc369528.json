@@ -1,0 +1,15 @@
+{
+  "name": "Cthulhu's Eye",
+  "images": {
+    "Image": "rbxassetid://103229932714425"
+  },
+  "assetIds": [
+    "103229932714425"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Cthulhu's Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

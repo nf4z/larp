@@ -1,0 +1,17 @@
+{
+  "name": "Chroma Slime",
+  "images": {
+    "Normal": "rbxassetid://118674867734050",
+    "Shiny": "rbxassetid://118018650946602"
+  },
+  "assetIds": [
+    "118018650946602",
+    "118674867734050"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chroma Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dual Dreamers",
+  "images": {
+    "Normal": "rbxassetid://103106181133502",
+    "Shiny": "rbxassetid://95469813280968",
+    "Mythic": "rbxassetid://118469203241627",
+    "MythicShiny": "rbxassetid://71726761746068"
+  },
+  "assetIds": [
+    "103106181133502",
+    "118469203241627",
+    "71726761746068",
+    "95469813280968"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dual Dreamers"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

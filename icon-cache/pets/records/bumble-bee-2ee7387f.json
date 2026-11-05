@@ -1,0 +1,17 @@
+{
+  "name": "Bumble Bee",
+  "images": {
+    "Normal": "rbxassetid://134995043336831",
+    "Shiny": "rbxassetid://107881625250043"
+  },
+  "assetIds": [
+    "107881625250043",
+    "134995043336831"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bumble Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

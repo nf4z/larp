@@ -1,0 +1,21 @@
+{
+  "name": "Blackened Heart",
+  "images": {
+    "Normal": "rbxassetid://107488115213135",
+    "Shiny": "rbxassetid://119003908954716",
+    "Mythic": "rbxassetid://103950003476770",
+    "MythicShiny": "rbxassetid://101843264322732"
+  },
+  "assetIds": [
+    "101843264322732",
+    "103950003476770",
+    "107488115213135",
+    "119003908954716"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blackened Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

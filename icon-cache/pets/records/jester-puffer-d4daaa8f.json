@@ -1,0 +1,17 @@
+{
+  "name": "Jester Puffer",
+  "images": {
+    "Normal": "rbxassetid://136829789619901",
+    "Shiny": "rbxassetid://85053545866505"
+  },
+  "assetIds": [
+    "136829789619901",
+    "85053545866505"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Puffer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

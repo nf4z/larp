@@ -1,0 +1,17 @@
+{
+  "name": "Poison Spirit",
+  "images": {
+    "Normal": "rbxassetid://79339701505556",
+    "Shiny": "rbxassetid://104686111369324"
+  },
+  "assetIds": [
+    "104686111369324",
+    "79339701505556"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Poison Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Candled Doggy",
+  "images": {
+    "Normal": "rbxassetid://121427003451417",
+    "Shiny": "rbxassetid://116830549234392"
+  },
+  "assetIds": [
+    "116830549234392",
+    "121427003451417"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candled Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

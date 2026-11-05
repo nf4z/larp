@@ -1,0 +1,17 @@
+{
+  "name": "Floral Kraken",
+  "images": {
+    "Normal": "rbxassetid://92811304539298",
+    "Shiny": "rbxassetid://107005779765464"
+  },
+  "assetIds": [
+    "107005779765464",
+    "92811304539298"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Floral Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

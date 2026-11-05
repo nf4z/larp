@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Specter",
+  "images": {
+    "Normal": "rbxassetid://77236446220624",
+    "Shiny": "rbxassetid://117103562213255",
+    "Mythic": "rbxassetid://104373588614351",
+    "MythicShiny": "rbxassetid://131145764935019"
+  },
+  "assetIds": [
+    "104373588614351",
+    "117103562213255",
+    "131145764935019",
+    "77236446220624"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Specter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

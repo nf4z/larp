@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Knight",
+  "images": {
+    "Normal": "rbxassetid://111700180623833",
+    "Shiny": "rbxassetid://87791780011457",
+    "Mythic": "rbxassetid://97082063775846",
+    "MythicShiny": "rbxassetid://126137737215216"
+  },
+  "assetIds": [
+    "111700180623833",
+    "126137737215216",
+    "87791780011457",
+    "97082063775846"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Knight"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

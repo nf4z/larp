@@ -1,0 +1,17 @@
+{
+  "name": "Brainrot Mouse",
+  "images": {
+    "Normal": "rbxassetid://137526965719527",
+    "Shiny": "rbxassetid://137586684565722"
+  },
+  "assetIds": [
+    "137526965719527",
+    "137586684565722"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Brainrot Mouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

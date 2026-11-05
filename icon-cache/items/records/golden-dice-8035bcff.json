@@ -1,0 +1,15 @@
+{
+  "name": "Golden Dice",
+  "images": {
+    "Image": "rbxassetid://86442151035697"
+  },
+  "assetIds": [
+    "86442151035697"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Golden Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

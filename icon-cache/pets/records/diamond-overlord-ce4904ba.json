@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Overlord",
+  "images": {
+    "Normal": "rbxassetid://86647850626124",
+    "Shiny": "rbxassetid://76058422066314",
+    "Mythic": "rbxassetid://111455756740541",
+    "MythicShiny": "rbxassetid://82390597228536"
+  },
+  "assetIds": [
+    "111455756740541",
+    "76058422066314",
+    "82390597228536",
+    "86647850626124"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

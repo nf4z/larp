@@ -1,0 +1,21 @@
+{
+  "name": "Big Egg Bunny",
+  "images": {
+    "Normal": "rbxassetid://74072792108260",
+    "Shiny": "rbxassetid://115577570726489",
+    "Mythic": "rbxassetid://71084870663826",
+    "MythicShiny": "rbxassetid://83215677529081"
+  },
+  "assetIds": [
+    "115577570726489",
+    "71084870663826",
+    "74072792108260",
+    "83215677529081"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Egg Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

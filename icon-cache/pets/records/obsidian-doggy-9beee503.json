@@ -1,0 +1,17 @@
+{
+  "name": "Obsidian Doggy",
+  "images": {
+    "Normal": "rbxassetid://123297184629912",
+    "Shiny": "rbxassetid://122118626375048"
+  },
+  "assetIds": [
+    "122118626375048",
+    "123297184629912"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

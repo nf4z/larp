@@ -1,0 +1,17 @@
+{
+  "name": "Neon Prototype",
+  "images": {
+    "Normal": "rbxassetid://93175160632087",
+    "Shiny": "rbxassetid://128403128078588"
+  },
+  "assetIds": [
+    "128403128078588",
+    "93175160632087"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Prototype"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

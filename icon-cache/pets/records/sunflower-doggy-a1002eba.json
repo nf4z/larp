@@ -1,0 +1,17 @@
+{
+  "name": "Sunflower Doggy",
+  "images": {
+    "Normal": "rbxassetid://120450122044824",
+    "Shiny": "rbxassetid://85806483605088"
+  },
+  "assetIds": [
+    "120450122044824",
+    "85806483605088"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunflower Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

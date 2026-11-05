@@ -1,0 +1,21 @@
+{
+  "name": "Witchdeeri",
+  "images": {
+    "Normal": "rbxassetid://131492159948771",
+    "Shiny": "rbxassetid://109143172490865",
+    "Mythic": "rbxassetid://91368653004464",
+    "MythicShiny": "rbxassetid://83882348816382"
+  },
+  "assetIds": [
+    "109143172490865",
+    "131492159948771",
+    "83882348816382",
+    "91368653004464"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witchdeeri"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

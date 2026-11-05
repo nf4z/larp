@@ -1,0 +1,17 @@
+{
+  "name": "Golfer Kitty",
+  "images": {
+    "Normal": "rbxassetid://140228690187064",
+    "Shiny": "rbxassetid://133390484092192"
+  },
+  "assetIds": [
+    "133390484092192",
+    "140228690187064"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golfer Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

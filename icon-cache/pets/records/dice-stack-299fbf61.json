@@ -1,0 +1,21 @@
+{
+  "name": "Dice Stack",
+  "images": {
+    "Normal": "rbxassetid://77608050965247",
+    "Shiny": "rbxassetid://97312037124980",
+    "Mythic": "rbxassetid://106085441092624",
+    "MythicShiny": "rbxassetid://127643298773776"
+  },
+  "assetIds": [
+    "106085441092624",
+    "127643298773776",
+    "77608050965247",
+    "97312037124980"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dice Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

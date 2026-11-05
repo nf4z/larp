@@ -1,0 +1,17 @@
+{
+  "name": "Creepy Hydra",
+  "images": {
+    "Normal": "rbxassetid://98352627616321",
+    "Shiny": "rbxassetid://113284989549362"
+  },
+  "assetIds": [
+    "113284989549362",
+    "98352627616321"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Creepy Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

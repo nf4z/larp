@@ -1,0 +1,21 @@
+{
+  "name": "Prismatic",
+  "images": {
+    "Normal": "rbxassetid://137362257274764",
+    "Shiny": "rbxassetid://115656000957403",
+    "Mythic": "rbxassetid://72752700487333",
+    "MythicShiny": "rbxassetid://116524561767135"
+  },
+  "assetIds": [
+    "115656000957403",
+    "116524561767135",
+    "137362257274764",
+    "72752700487333"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prismatic"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

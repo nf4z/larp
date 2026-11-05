@@ -1,0 +1,17 @@
+{
+  "name": "Flying Bunny",
+  "images": {
+    "Normal": "rbxassetid://132767819077599",
+    "Shiny": "rbxassetid://130968037860846"
+  },
+  "assetIds": [
+    "130968037860846",
+    "132767819077599"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Illumina",
+  "images": {
+    "Normal": "rbxassetid://135578141281646",
+    "Shiny": "rbxassetid://96997223951303",
+    "Mythic": "rbxassetid://115264946337514",
+    "MythicShiny": "rbxassetid://123087804326822"
+  },
+  "assetIds": [
+    "115264946337514",
+    "123087804326822",
+    "135578141281646",
+    "96997223951303"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Illumina"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Leviathan Golfball",
+  "images": {
+    "Normal": "rbxassetid://89797934147715",
+    "Shiny": "rbxassetid://73713369651475",
+    "Mythic": "rbxassetid://105508580911795",
+    "MythicShiny": "rbxassetid://91350744279383"
+  },
+  "assetIds": [
+    "105508580911795",
+    "73713369651475",
+    "89797934147715",
+    "91350744279383"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leviathan Golfball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

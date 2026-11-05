@@ -1,0 +1,17 @@
+{
+  "name": "Winged Bunny",
+  "images": {
+    "Normal": "rbxassetid://120818775592922",
+    "Shiny": "rbxassetid://130297790376477"
+  },
+  "assetIds": [
+    "120818775592922",
+    "130297790376477"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winged Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

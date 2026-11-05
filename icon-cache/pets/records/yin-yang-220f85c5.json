@@ -1,0 +1,21 @@
+{
+  "name": "Yin Yang",
+  "images": {
+    "Normal": "rbxassetid://103858147586323",
+    "Shiny": "rbxassetid://80315058959332",
+    "Mythic": "rbxassetid://75703326973849",
+    "MythicShiny": "rbxassetid://95944658645186"
+  },
+  "assetIds": [
+    "103858147586323",
+    "75703326973849",
+    "80315058959332",
+    "95944658645186"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Yin Yang"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

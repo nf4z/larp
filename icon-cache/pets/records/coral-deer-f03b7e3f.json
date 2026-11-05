@@ -1,0 +1,17 @@
+{
+  "name": "Coral Deer",
+  "images": {
+    "Normal": "rbxassetid://126436709924321",
+    "Shiny": "rbxassetid://92741661255322"
+  },
+  "assetIds": [
+    "126436709924321",
+    "92741661255322"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

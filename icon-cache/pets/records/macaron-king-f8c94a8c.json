@@ -1,0 +1,21 @@
+{
+  "name": "Macaron King",
+  "images": {
+    "Normal": "rbxassetid://113620995215629",
+    "Shiny": "rbxassetid://73200916145421",
+    "Mythic": "rbxassetid://95558819618717",
+    "MythicShiny": "rbxassetid://79777832801676"
+  },
+  "assetIds": [
+    "113620995215629",
+    "73200916145421",
+    "79777832801676",
+    "95558819618717"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Macaron King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

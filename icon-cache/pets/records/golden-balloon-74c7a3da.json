@@ -1,0 +1,21 @@
+{
+  "name": "Golden Balloon",
+  "images": {
+    "Normal": "rbxassetid://81409193358592",
+    "Shiny": "rbxassetid://85566776152041",
+    "Mythic": "rbxassetid://107669147200085",
+    "MythicShiny": "rbxassetid://80716028545898"
+  },
+  "assetIds": [
+    "107669147200085",
+    "80716028545898",
+    "81409193358592",
+    "85566776152041"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Balloon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

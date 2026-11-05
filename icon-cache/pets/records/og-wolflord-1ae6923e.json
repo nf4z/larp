@@ -1,0 +1,17 @@
+{
+  "name": "OG Wolflord",
+  "images": {
+    "Normal": "rbxassetid://74705571303105",
+    "Shiny": "rbxassetid://71673875350142"
+  },
+  "assetIds": [
+    "71673875350142",
+    "74705571303105"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

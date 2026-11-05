@@ -1,0 +1,21 @@
+{
+  "name": "Aurora Guardian",
+  "images": {
+    "Normal": "rbxassetid://118974398030192",
+    "Shiny": "rbxassetid://120144420981588",
+    "Mythic": "rbxassetid://139060912134039",
+    "MythicShiny": "rbxassetid://75575649862150"
+  },
+  "assetIds": [
+    "118974398030192",
+    "120144420981588",
+    "139060912134039",
+    "75575649862150"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aurora Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

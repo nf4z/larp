@@ -1,0 +1,17 @@
+{
+  "name": "Pirate Doggy",
+  "images": {
+    "Normal": "rbxassetid://101756307091281",
+    "Shiny": "rbxassetid://132296151494978"
+  },
+  "assetIds": [
+    "101756307091281",
+    "132296151494978"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pirate Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Ice Pike",
+  "images": {
+    "Image": "rbxassetid://118235949982730"
+  },
+  "assetIds": [
+    "118235949982730"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Ice Pike"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Festive Deity",
+  "images": {
+    "Normal": "rbxassetid://80677585689251",
+    "Shiny": "rbxassetid://116834259202810",
+    "Mythic": "rbxassetid://132878160003944",
+    "MythicShiny": "rbxassetid://78120505262517"
+  },
+  "assetIds": [
+    "116834259202810",
+    "132878160003944",
+    "78120505262517",
+    "80677585689251"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Deity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

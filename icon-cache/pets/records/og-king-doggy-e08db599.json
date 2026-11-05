@@ -1,0 +1,21 @@
+{
+  "name": "OG King Doggy",
+  "images": {
+    "Normal": "rbxassetid://122718386551917",
+    "Shiny": "rbxassetid://112628744030018",
+    "Mythic": "rbxassetid://83219758982137",
+    "MythicShiny": "rbxassetid://102055986874986"
+  },
+  "assetIds": [
+    "102055986874986",
+    "112628744030018",
+    "122718386551917",
+    "83219758982137"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG King Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

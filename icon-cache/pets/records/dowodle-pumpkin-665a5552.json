@@ -1,0 +1,21 @@
+{
+  "name": "Dowodle Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://131639716505175",
+    "Shiny": "rbxassetid://96290672901198",
+    "Mythic": "rbxassetid://133468093028810",
+    "MythicShiny": "rbxassetid://139258936964046"
+  },
+  "assetIds": [
+    "131639716505175",
+    "133468093028810",
+    "139258936964046",
+    "96290672901198"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowodle Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

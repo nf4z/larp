@@ -1,0 +1,21 @@
+{
+  "name": "King Crab",
+  "images": {
+    "Normal": "rbxassetid://70457065744706",
+    "Shiny": "rbxassetid://116946764252393",
+    "Mythic": "rbxassetid://103944710286481",
+    "MythicShiny": "rbxassetid://114658933363868"
+  },
+  "assetIds": [
+    "103944710286481",
+    "114658933363868",
+    "116946764252393",
+    "70457065744706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

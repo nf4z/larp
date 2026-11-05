@@ -1,0 +1,21 @@
+{
+  "name": "Pineapple Tourist",
+  "images": {
+    "Normal": "rbxassetid://105032534618001",
+    "Shiny": "rbxassetid://79356426336189",
+    "Mythic": "rbxassetid://122029232797109",
+    "MythicShiny": "rbxassetid://87507876461968"
+  },
+  "assetIds": [
+    "105032534618001",
+    "122029232797109",
+    "79356426336189",
+    "87507876461968"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pineapple Tourist"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

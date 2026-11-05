@@ -1,0 +1,12 @@
+{
+  "name": "Harvest Egg",
+  "images": {
+    "Image": "rbxassetid://127651233625746"
+  },
+  "assetIds": [
+    "127651233625746"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

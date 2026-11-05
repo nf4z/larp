@@ -1,0 +1,17 @@
+{
+  "name": "Rainbow Shock Tophat",
+  "images": {
+    "Normal": "rbxassetid://109524435375462",
+    "Shiny": "rbxassetid://89737473194759"
+  },
+  "assetIds": [
+    "109524435375462",
+    "89737473194759"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Shock Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "2026 Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://73707335078200",
+    "Shiny": "rbxassetid://110082743130801"
+  },
+  "assetIds": [
+    "110082743130801",
+    "73707335078200"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

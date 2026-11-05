@@ -1,0 +1,17 @@
+{
+  "name": "Autumn Leaf",
+  "images": {
+    "Normal": "rbxassetid://115256267550975",
+    "Shiny": "rbxassetid://118106032290289"
+  },
+  "assetIds": [
+    "115256267550975",
+    "118106032290289"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Leaf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

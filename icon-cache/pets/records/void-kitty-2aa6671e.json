@@ -1,0 +1,17 @@
+{
+  "name": "Void Kitty",
+  "images": {
+    "Normal": "rbxassetid://106486623692692",
+    "Shiny": "rbxassetid://98299711588470"
+  },
+  "assetIds": [
+    "106486623692692",
+    "98299711588470"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

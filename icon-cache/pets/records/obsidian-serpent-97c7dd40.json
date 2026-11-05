@@ -1,0 +1,21 @@
+{
+  "name": "Obsidian Serpent",
+  "images": {
+    "Normal": "rbxassetid://77877208033004",
+    "Shiny": "rbxassetid://87956219454742",
+    "Mythic": "rbxassetid://122641047256074",
+    "MythicShiny": "rbxassetid://124456490790969"
+  },
+  "assetIds": [
+    "122641047256074",
+    "124456490790969",
+    "77877208033004",
+    "87956219454742"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

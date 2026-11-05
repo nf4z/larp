@@ -1,0 +1,21 @@
+{
+  "name": "Super Leviathan",
+  "images": {
+    "Normal": "rbxassetid://121002451763819",
+    "Shiny": "rbxassetid://125967702441665",
+    "Mythic": "rbxassetid://74787808319544",
+    "MythicShiny": "rbxassetid://127824313054470"
+  },
+  "assetIds": [
+    "121002451763819",
+    "125967702441665",
+    "127824313054470",
+    "74787808319544"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

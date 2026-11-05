@@ -1,0 +1,21 @@
+{
+  "name": "Chocolate Bond",
+  "images": {
+    "Normal": "rbxassetid://102496984131530",
+    "Shiny": "rbxassetid://72222068266843",
+    "Mythic": "rbxassetid://133096421242778",
+    "MythicShiny": "rbxassetid://101409033949853"
+  },
+  "assetIds": [
+    "101409033949853",
+    "102496984131530",
+    "133096421242778",
+    "72222068266843"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Bond"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

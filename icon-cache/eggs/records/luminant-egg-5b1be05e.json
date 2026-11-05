@@ -1,0 +1,12 @@
+{
+  "name": "Luminant Egg",
+  "images": {
+    "Image": "rbxassetid://71560669149259"
+  },
+  "assetIds": [
+    "71560669149259"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

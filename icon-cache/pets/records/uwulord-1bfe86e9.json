@@ -1,0 +1,21 @@
+{
+  "name": "UwUlord",
+  "images": {
+    "Normal": "rbxassetid://73258733997016",
+    "Shiny": "rbxassetid://119039599874183",
+    "Mythic": "rbxassetid://116611163152761",
+    "MythicShiny": "rbxassetid://110791394177118"
+  },
+  "assetIds": [
+    "110791394177118",
+    "116611163152761",
+    "119039599874183",
+    "73258733997016"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "UwUlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

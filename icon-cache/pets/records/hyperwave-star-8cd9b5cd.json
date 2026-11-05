@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Star",
+  "images": {
+    "Normal": "rbxassetid://118798124195087",
+    "Shiny": "rbxassetid://122576469283187",
+    "Mythic": "rbxassetid://100946851890253",
+    "MythicShiny": "rbxassetid://130017546897847"
+  },
+  "assetIds": [
+    "100946851890253",
+    "118798124195087",
+    "122576469283187",
+    "130017546897847"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

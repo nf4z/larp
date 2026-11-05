@@ -1,0 +1,21 @@
+{
+  "name": "Biohazard",
+  "images": {
+    "Normal": "rbxassetid://115305219832871",
+    "Shiny": "rbxassetid://132405548404371",
+    "Mythic": "rbxassetid://137696447319096",
+    "MythicShiny": "rbxassetid://83155790673641"
+  },
+  "assetIds": [
+    "115305219832871",
+    "132405548404371",
+    "137696447319096",
+    "83155790673641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Biohazard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

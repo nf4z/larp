@@ -1,0 +1,17 @@
+{
+  "name": "Old Dolly",
+  "images": {
+    "Normal": "rbxassetid://101347241283255",
+    "Shiny": "rbxassetid://125973610875271"
+  },
+  "assetIds": [
+    "101347241283255",
+    "125973610875271"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Old Dolly"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

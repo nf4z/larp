@@ -1,0 +1,21 @@
+{
+  "name": "Ethereal One",
+  "images": {
+    "Normal": "rbxassetid://134255090663427",
+    "Shiny": "rbxassetid://139329372522999",
+    "Mythic": "rbxassetid://100285635170212",
+    "MythicShiny": "rbxassetid://111506216400435"
+  },
+  "assetIds": [
+    "100285635170212",
+    "111506216400435",
+    "134255090663427",
+    "139329372522999"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ethereal One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

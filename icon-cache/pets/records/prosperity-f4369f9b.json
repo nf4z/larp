@@ -1,0 +1,21 @@
+{
+  "name": "Prosperity",
+  "images": {
+    "Normal": "rbxassetid://88328583861747",
+    "Shiny": "rbxassetid://135538382340887",
+    "Mythic": "rbxassetid://106977885412477",
+    "MythicShiny": "rbxassetid://106183396209956"
+  },
+  "assetIds": [
+    "106183396209956",
+    "106977885412477",
+    "135538382340887",
+    "88328583861747"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prosperity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

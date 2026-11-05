@@ -1,0 +1,21 @@
+{
+  "name": "King Seahorse",
+  "images": {
+    "Normal": "rbxassetid://74088378776125",
+    "Shiny": "rbxassetid://108444937614915",
+    "Mythic": "rbxassetid://109302235133089",
+    "MythicShiny": "rbxassetid://98492861519235"
+  },
+  "assetIds": [
+    "108444937614915",
+    "109302235133089",
+    "74088378776125",
+    "98492861519235"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Seahorse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

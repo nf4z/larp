@@ -1,0 +1,17 @@
+{
+  "name": "Bruh",
+  "images": {
+    "Normal": "rbxassetid://102512297499278",
+    "Shiny": "rbxassetid://92978048183915"
+  },
+  "assetIds": [
+    "102512297499278",
+    "92978048183915"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bruh"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

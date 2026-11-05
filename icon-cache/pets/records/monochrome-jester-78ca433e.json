@@ -1,0 +1,17 @@
+{
+  "name": "Monochrome Jester",
+  "images": {
+    "Normal": "rbxassetid://109874776930341",
+    "Shiny": "rbxassetid://132079661537918"
+  },
+  "assetIds": [
+    "109874776930341",
+    "132079661537918"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monochrome Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

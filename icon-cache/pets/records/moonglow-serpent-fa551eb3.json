@@ -1,0 +1,21 @@
+{
+  "name": "Moonglow Serpent",
+  "images": {
+    "Normal": "rbxassetid://89522925855983",
+    "Shiny": "rbxassetid://128854118379134",
+    "Mythic": "rbxassetid://135535269026658",
+    "MythicShiny": "rbxassetid://101114346971574"
+  },
+  "assetIds": [
+    "101114346971574",
+    "128854118379134",
+    "135535269026658",
+    "89522925855983"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonglow Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

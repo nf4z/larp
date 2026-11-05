@@ -1,0 +1,21 @@
+{
+  "name": "King Leviathan",
+  "images": {
+    "Normal": "rbxassetid://109839314406352",
+    "Shiny": "rbxassetid://108934615990774",
+    "Mythic": "rbxassetid://110199480250656",
+    "MythicShiny": "rbxassetid://140171448847469"
+  },
+  "assetIds": [
+    "108934615990774",
+    "109839314406352",
+    "110199480250656",
+    "140171448847469"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

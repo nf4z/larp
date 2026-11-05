@@ -1,0 +1,15 @@
+{
+  "name": "Admin Mystery Box",
+  "images": {
+    "Image": "rbxassetid://92095265605440"
+  },
+  "assetIds": [
+    "92095265605440"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Admin Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

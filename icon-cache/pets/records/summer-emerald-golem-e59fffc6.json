@@ -1,0 +1,21 @@
+{
+  "name": "Summer Emerald Golem",
+  "images": {
+    "Normal": "rbxassetid://112819570820605",
+    "Shiny": "rbxassetid://123813657039534",
+    "Mythic": "rbxassetid://77032090031663",
+    "MythicShiny": "rbxassetid://82057223209304"
+  },
+  "assetIds": [
+    "112819570820605",
+    "123813657039534",
+    "77032090031663",
+    "82057223209304"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Emerald Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Cyber Shard",
+  "images": {
+    "Normal": "rbxassetid://91121358947062",
+    "Shiny": "rbxassetid://122858938498886"
+  },
+  "assetIds": [
+    "122858938498886",
+    "91121358947062"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyber Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

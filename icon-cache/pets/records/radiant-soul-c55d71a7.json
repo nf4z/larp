@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Soul",
+  "images": {
+    "Normal": "rbxassetid://92924853955760",
+    "Shiny": "rbxassetid://111190773821507",
+    "Mythic": "rbxassetid://136348860486735",
+    "MythicShiny": "rbxassetid://103015021674139"
+  },
+  "assetIds": [
+    "103015021674139",
+    "111190773821507",
+    "136348860486735",
+    "92924853955760"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

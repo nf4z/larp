@@ -1,0 +1,21 @@
+{
+  "name": "Lunar Serpent",
+  "images": {
+    "Normal": "rbxassetid://129923067225161",
+    "Shiny": "rbxassetid://71831968325737",
+    "Mythic": "rbxassetid://128746247448355",
+    "MythicShiny": "rbxassetid://124361472417361"
+  },
+  "assetIds": [
+    "124361472417361",
+    "128746247448355",
+    "129923067225161",
+    "71831968325737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

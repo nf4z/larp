@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Soul",
+  "images": {
+    "Normal": "rbxassetid://84517774549295",
+    "Shiny": "rbxassetid://93169772638954",
+    "Mythic": "rbxassetid://99078512086856",
+    "MythicShiny": "rbxassetid://115492835994075"
+  },
+  "assetIds": [
+    "115492835994075",
+    "84517774549295",
+    "93169772638954",
+    "99078512086856"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

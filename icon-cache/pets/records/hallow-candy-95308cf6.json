@@ -1,0 +1,17 @@
+{
+  "name": "Hallow Candy",
+  "images": {
+    "Normal": "rbxassetid://137590648367465",
+    "Shiny": "rbxassetid://107135608872163"
+  },
+  "assetIds": [
+    "107135608872163",
+    "137590648367465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hallow Candy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

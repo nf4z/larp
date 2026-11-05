@@ -1,0 +1,21 @@
+{
+  "name": "Summer Serpent",
+  "images": {
+    "Normal": "rbxassetid://83933552580008",
+    "Shiny": "rbxassetid://123149589970269",
+    "Mythic": "rbxassetid://79377938978726",
+    "MythicShiny": "rbxassetid://130813901718627"
+  },
+  "assetIds": [
+    "123149589970269",
+    "130813901718627",
+    "79377938978726",
+    "83933552580008"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

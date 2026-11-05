@@ -1,0 +1,21 @@
+{
+  "name": "Royal Guardian",
+  "images": {
+    "Normal": "rbxassetid://128199977390934",
+    "Shiny": "rbxassetid://104507361092477",
+    "Mythic": "rbxassetid://95522630551520",
+    "MythicShiny": "rbxassetid://97197795445737"
+  },
+  "assetIds": [
+    "104507361092477",
+    "128199977390934",
+    "95522630551520",
+    "97197795445737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

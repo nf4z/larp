@@ -1,0 +1,21 @@
+{
+  "name": "Sundae Cone",
+  "images": {
+    "Normal": "rbxassetid://78793706301299",
+    "Shiny": "rbxassetid://130276098288067",
+    "Mythic": "rbxassetid://97323750603098",
+    "MythicShiny": "rbxassetid://132366918399483"
+  },
+  "assetIds": [
+    "130276098288067",
+    "132366918399483",
+    "78793706301299",
+    "97323750603098"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sundae Cone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

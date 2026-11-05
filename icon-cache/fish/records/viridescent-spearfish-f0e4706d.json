@@ -1,0 +1,15 @@
+{
+  "name": "Viridescent Spearfish",
+  "images": {
+    "Image": "rbxassetid://90750575933684"
+  },
+  "assetIds": [
+    "90750575933684"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Viridescent Spearfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

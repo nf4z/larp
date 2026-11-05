@@ -1,0 +1,17 @@
+{
+  "name": "The Flower King",
+  "images": {
+    "Normal": "rbxassetid://132754193993628",
+    "Shiny": "rbxassetid://81575239353681"
+  },
+  "assetIds": [
+    "132754193993628",
+    "81575239353681"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Flower King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

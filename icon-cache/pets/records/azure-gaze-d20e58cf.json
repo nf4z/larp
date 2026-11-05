@@ -1,0 +1,21 @@
+{
+  "name": "Azure Gaze",
+  "images": {
+    "Normal": "rbxassetid://92560945027932",
+    "Shiny": "rbxassetid://92259098835993",
+    "Mythic": "rbxassetid://98303803873897",
+    "MythicShiny": "rbxassetid://88203263972731"
+  },
+  "assetIds": [
+    "88203263972731",
+    "92259098835993",
+    "92560945027932",
+    "98303803873897"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Gaze"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

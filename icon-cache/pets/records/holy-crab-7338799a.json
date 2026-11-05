@@ -1,0 +1,21 @@
+{
+  "name": "Holy Crab",
+  "images": {
+    "Normal": "rbxassetid://125461537982289",
+    "Shiny": "rbxassetid://96885611135459",
+    "Mythic": "rbxassetid://137302362916849",
+    "MythicShiny": "rbxassetid://129451317736437"
+  },
+  "assetIds": [
+    "125461537982289",
+    "129451317736437",
+    "137302362916849",
+    "96885611135459"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holy Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Harvest King",
+  "images": {
+    "Normal": "rbxassetid://131069352684053",
+    "Shiny": "rbxassetid://117823921603040",
+    "Mythic": "rbxassetid://106499742232748",
+    "MythicShiny": "rbxassetid://114505542503439"
+  },
+  "assetIds": [
+    "106499742232748",
+    "114505542503439",
+    "117823921603040",
+    "131069352684053"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Holy Bell",
+  "images": {
+    "Normal": "rbxassetid://82364224110158",
+    "Shiny": "rbxassetid://110773129964939",
+    "Mythic": "rbxassetid://110121989250518",
+    "MythicShiny": "rbxassetid://105223619301127"
+  },
+  "assetIds": [
+    "105223619301127",
+    "110121989250518",
+    "110773129964939",
+    "82364224110158"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holy Bell"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Peppermint Heart",
+  "images": {
+    "Normal": "rbxassetid://137331714599393",
+    "Shiny": "rbxassetid://70428055860291",
+    "Mythic": "rbxassetid://88579146192126",
+    "MythicShiny": "rbxassetid://116706768486050"
+  },
+  "assetIds": [
+    "116706768486050",
+    "137331714599393",
+    "70428055860291",
+    "88579146192126"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Peppermint Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "King Overlord",
+  "images": {
+    "Normal": "rbxassetid://132178725322133",
+    "Shiny": "rbxassetid://131039789413193",
+    "Mythic": "rbxassetid://123547014330111",
+    "MythicShiny": "rbxassetid://89334274528791"
+  },
+  "assetIds": [
+    "123547014330111",
+    "131039789413193",
+    "132178725322133",
+    "89334274528791"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

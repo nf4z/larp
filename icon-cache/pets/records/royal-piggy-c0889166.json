@@ -1,0 +1,17 @@
+{
+  "name": "Royal Piggy",
+  "images": {
+    "Normal": "rbxassetid://80551187852952",
+    "Shiny": "rbxassetid://103736918849479"
+  },
+  "assetIds": [
+    "103736918849479",
+    "80551187852952"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Piggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

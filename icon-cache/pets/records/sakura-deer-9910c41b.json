@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Deer",
+  "images": {
+    "Normal": "rbxassetid://76115094407365",
+    "Shiny": "rbxassetid://121838758291856"
+  },
+  "assetIds": [
+    "121838758291856",
+    "76115094407365"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

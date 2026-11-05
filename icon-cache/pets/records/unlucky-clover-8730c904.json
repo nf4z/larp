@@ -1,0 +1,21 @@
+{
+  "name": "Unlucky Clover",
+  "images": {
+    "Normal": "rbxassetid://87260482213311",
+    "Shiny": "rbxassetid://136403976295307",
+    "Mythic": "rbxassetid://138027272385946",
+    "MythicShiny": "rbxassetid://87271088783459"
+  },
+  "assetIds": [
+    "136403976295307",
+    "138027272385946",
+    "87260482213311",
+    "87271088783459"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Unlucky Clover"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

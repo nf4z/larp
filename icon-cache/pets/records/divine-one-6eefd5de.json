@@ -1,0 +1,17 @@
+{
+  "name": "Divine One",
+  "images": {
+    "Normal": "rbxassetid://76691010362653",
+    "Shiny": "rbxassetid://94129699349229"
+  },
+  "assetIds": [
+    "76691010362653",
+    "94129699349229"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Divine One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

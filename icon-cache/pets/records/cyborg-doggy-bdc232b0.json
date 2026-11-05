@@ -1,0 +1,17 @@
+{
+  "name": "Cyborg Doggy",
+  "images": {
+    "Normal": "rbxassetid://72476009279606",
+    "Shiny": "rbxassetid://70954770688278"
+  },
+  "assetIds": [
+    "70954770688278",
+    "72476009279606"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyborg Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

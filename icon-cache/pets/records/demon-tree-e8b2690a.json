@@ -1,0 +1,21 @@
+{
+  "name": "Demon Tree",
+  "images": {
+    "Normal": "rbxassetid://85734107751228",
+    "Shiny": "rbxassetid://134055446773083",
+    "Mythic": "rbxassetid://129077601024287",
+    "MythicShiny": "rbxassetid://116533911513261"
+  },
+  "assetIds": [
+    "116533911513261",
+    "129077601024287",
+    "134055446773083",
+    "85734107751228"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Tree"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

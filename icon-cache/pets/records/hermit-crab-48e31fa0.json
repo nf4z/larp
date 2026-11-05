@@ -1,0 +1,17 @@
+{
+  "name": "Hermit Crab",
+  "images": {
+    "Normal": "rbxassetid://71826572830758",
+    "Shiny": "rbxassetid://77619988571418"
+  },
+  "assetIds": [
+    "71826572830758",
+    "77619988571418"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hermit Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

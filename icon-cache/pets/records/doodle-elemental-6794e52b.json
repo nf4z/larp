@@ -1,0 +1,17 @@
+{
+  "name": "Doodle Elemental",
+  "images": {
+    "Normal": "rbxassetid://136183766545856",
+    "Shiny": "rbxassetid://71211139416859"
+  },
+  "assetIds": [
+    "136183766545856",
+    "71211139416859"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodle Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

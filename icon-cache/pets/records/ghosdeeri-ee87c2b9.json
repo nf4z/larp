@@ -1,0 +1,21 @@
+{
+  "name": "Ghosdeeri",
+  "images": {
+    "Normal": "rbxassetid://70626661187287",
+    "Shiny": "rbxassetid://126499475691036",
+    "Mythic": "rbxassetid://105217322727442",
+    "MythicShiny": "rbxassetid://104790916846584"
+  },
+  "assetIds": [
+    "104790916846584",
+    "105217322727442",
+    "126499475691036",
+    "70626661187287"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghosdeeri"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

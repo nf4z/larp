@@ -1,0 +1,21 @@
+{
+  "name": "Dark Wispful Fox",
+  "images": {
+    "Normal": "rbxassetid://119676472885196",
+    "Shiny": "rbxassetid://110985139105194",
+    "Mythic": "rbxassetid://76392132696590",
+    "MythicShiny": "rbxassetid://131988055334098"
+  },
+  "assetIds": [
+    "110985139105194",
+    "119676472885196",
+    "131988055334098",
+    "76392132696590"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Wispful Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

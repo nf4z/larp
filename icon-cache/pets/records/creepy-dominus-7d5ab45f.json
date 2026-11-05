@@ -1,0 +1,21 @@
+{
+  "name": "Creepy Dominus",
+  "images": {
+    "Normal": "rbxassetid://104656949453067",
+    "Shiny": "rbxassetid://89735204624828",
+    "Mythic": "rbxassetid://130812577188551",
+    "MythicShiny": "rbxassetid://112128864124932"
+  },
+  "assetIds": [
+    "104656949453067",
+    "112128864124932",
+    "130812577188551",
+    "89735204624828"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Creepy Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Jackpot Cube",
+  "images": {
+    "Normal": "rbxassetid://95364777907610",
+    "Shiny": "rbxassetid://112087954653683"
+  },
+  "assetIds": [
+    "112087954653683",
+    "95364777907610"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jackpot Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Festive Snow Jar",
+  "images": {
+    "Normal": "rbxassetid://123941102178707",
+    "Shiny": "rbxassetid://99271214505833",
+    "Mythic": "rbxassetid://107156653944593",
+    "MythicShiny": "rbxassetid://121850270985128"
+  },
+  "assetIds": [
+    "107156653944593",
+    "121850270985128",
+    "123941102178707",
+    "99271214505833"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Snow Jar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

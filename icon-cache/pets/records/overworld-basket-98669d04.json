@@ -1,0 +1,21 @@
+{
+  "name": "Overworld Basket",
+  "images": {
+    "Normal": "rbxassetid://134328999197403",
+    "Shiny": "rbxassetid://82917857521452",
+    "Mythic": "rbxassetid://139880623349548",
+    "MythicShiny": "rbxassetid://132778324794007"
+  },
+  "assetIds": [
+    "132778324794007",
+    "134328999197403",
+    "139880623349548",
+    "82917857521452"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overworld Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

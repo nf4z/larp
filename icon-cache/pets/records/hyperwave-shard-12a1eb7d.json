@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Shard",
+  "images": {
+    "Normal": "rbxassetid://97970689250433",
+    "Shiny": "rbxassetid://117173809241994",
+    "Mythic": "rbxassetid://89908795170670",
+    "MythicShiny": "rbxassetid://83064681205730"
+  },
+  "assetIds": [
+    "117173809241994",
+    "83064681205730",
+    "89908795170670",
+    "97970689250433"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

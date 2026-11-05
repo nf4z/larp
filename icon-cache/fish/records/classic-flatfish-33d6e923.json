@@ -1,0 +1,15 @@
+{
+  "name": "Classic Flatfish",
+  "images": {
+    "Image": "rbxassetid://75830083440068"
+  },
+  "assetIds": [
+    "75830083440068"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Flatfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

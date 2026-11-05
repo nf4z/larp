@@ -1,0 +1,21 @@
+{
+  "name": "Abyssal Dragon",
+  "images": {
+    "Normal": "rbxassetid://140555653696845",
+    "Shiny": "rbxassetid://72350437169534",
+    "Mythic": "rbxassetid://125134238005840",
+    "MythicShiny": "rbxassetid://92178733155291"
+  },
+  "assetIds": [
+    "125134238005840",
+    "140555653696845",
+    "72350437169534",
+    "92178733155291"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

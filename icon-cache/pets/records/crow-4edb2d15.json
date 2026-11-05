@@ -1,0 +1,17 @@
+{
+  "name": "Crow",
+  "images": {
+    "Normal": "rbxassetid://107340019994099",
+    "Shiny": "rbxassetid://140344725543559"
+  },
+  "assetIds": [
+    "107340019994099",
+    "140344725543559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

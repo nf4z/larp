@@ -1,0 +1,21 @@
+{
+  "name": "Cartoon Hexarium",
+  "images": {
+    "Normal": "rbxassetid://129304193093934",
+    "Shiny": "rbxassetid://73565558138249",
+    "Mythic": "rbxassetid://108179484951281",
+    "MythicShiny": "rbxassetid://107382495890724"
+  },
+  "assetIds": [
+    "107382495890724",
+    "108179484951281",
+    "129304193093934",
+    "73565558138249"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cartoon Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Santa Capybara Plushie",
+  "images": {
+    "Normal": "rbxassetid://137762767032085",
+    "Shiny": "rbxassetid://71853933061897",
+    "Mythic": "rbxassetid://102332049509516",
+    "MythicShiny": "rbxassetid://104141194152857"
+  },
+  "assetIds": [
+    "102332049509516",
+    "104141194152857",
+    "137762767032085",
+    "71853933061897"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Capybara Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

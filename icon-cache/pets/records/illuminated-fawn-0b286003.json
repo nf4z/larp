@@ -1,0 +1,21 @@
+{
+  "name": "Illuminated Fawn",
+  "images": {
+    "Normal": "rbxassetid://130123778850842",
+    "Shiny": "rbxassetid://85163037824557",
+    "Mythic": "rbxassetid://124768281650917",
+    "MythicShiny": "rbxassetid://118630245680260"
+  },
+  "assetIds": [
+    "118630245680260",
+    "124768281650917",
+    "130123778850842",
+    "85163037824557"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Illuminated Fawn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

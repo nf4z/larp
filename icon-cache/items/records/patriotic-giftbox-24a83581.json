@@ -1,0 +1,15 @@
+{
+  "name": "Patriotic Giftbox",
+  "images": {
+    "Image": "rbxassetid://139702503258193"
+  },
+  "assetIds": [
+    "139702503258193"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Patriotic Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

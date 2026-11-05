@@ -1,0 +1,17 @@
+{
+  "name": "Cute Dice",
+  "images": {
+    "Normal": "rbxassetid://125672193339107",
+    "Shiny": "rbxassetid://86768138630719"
+  },
+  "assetIds": [
+    "125672193339107",
+    "86768138630719"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cute Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Travel Bunny",
+  "images": {
+    "Normal": "rbxassetid://79156963494409",
+    "Shiny": "rbxassetid://108640607815323",
+    "Mythic": "rbxassetid://117847070447217",
+    "MythicShiny": "rbxassetid://82523343165301"
+  },
+  "assetIds": [
+    "108640607815323",
+    "117847070447217",
+    "79156963494409",
+    "82523343165301"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Travel Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

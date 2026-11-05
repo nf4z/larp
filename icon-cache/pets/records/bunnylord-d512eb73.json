@@ -1,0 +1,17 @@
+{
+  "name": "Bunnylord",
+  "images": {
+    "Normal": "rbxassetid://72602321302279",
+    "Shiny": "rbxassetid://77880188255811"
+  },
+  "assetIds": [
+    "72602321302279",
+    "77880188255811"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunnylord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

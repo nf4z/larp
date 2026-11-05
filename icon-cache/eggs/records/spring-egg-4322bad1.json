@@ -1,0 +1,12 @@
+{
+  "name": "Spring Egg",
+  "images": {
+    "Image": "rbxassetid://85667460467780"
+  },
+  "assetIds": [
+    "85667460467780"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

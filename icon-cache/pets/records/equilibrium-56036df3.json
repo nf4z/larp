@@ -1,0 +1,21 @@
+{
+  "name": "Equilibrium",
+  "images": {
+    "Normal": "rbxassetid://90900462753559",
+    "Shiny": "rbxassetid://78356993129871",
+    "Mythic": "rbxassetid://81794050459563",
+    "MythicShiny": "rbxassetid://101582870243843"
+  },
+  "assetIds": [
+    "101582870243843",
+    "78356993129871",
+    "81794050459563",
+    "90900462753559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Equilibrium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

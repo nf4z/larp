@@ -1,0 +1,21 @@
+{
+  "name": "Rumblecon Halftime Show",
+  "images": {
+    "Normal": "rbxassetid://140690472355407",
+    "Shiny": "rbxassetid://131134510619936",
+    "Mythic": "rbxassetid://99673027010764",
+    "MythicShiny": "rbxassetid://74774310277065"
+  },
+  "assetIds": [
+    "131134510619936",
+    "140690472355407",
+    "74774310277065",
+    "99673027010764"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Halftime Show"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

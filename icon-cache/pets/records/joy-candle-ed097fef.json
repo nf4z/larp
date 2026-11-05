@@ -1,0 +1,21 @@
+{
+  "name": "Joy Candle",
+  "images": {
+    "Normal": "rbxassetid://116953482799901",
+    "Shiny": "rbxassetid://98877511079679",
+    "Mythic": "rbxassetid://106669270810100",
+    "MythicShiny": "rbxassetid://113139177456875"
+  },
+  "assetIds": [
+    "106669270810100",
+    "113139177456875",
+    "116953482799901",
+    "98877511079679"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Joy Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

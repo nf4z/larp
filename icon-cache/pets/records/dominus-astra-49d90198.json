@@ -1,0 +1,21 @@
+{
+  "name": "Dominus Astra",
+  "images": {
+    "Normal": "rbxassetid://139732896865842",
+    "Shiny": "rbxassetid://135841981490653",
+    "Mythic": "rbxassetid://71549580201426",
+    "MythicShiny": "rbxassetid://111659029413591"
+  },
+  "assetIds": [
+    "111659029413591",
+    "135841981490653",
+    "139732896865842",
+    "71549580201426"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dominus Astra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

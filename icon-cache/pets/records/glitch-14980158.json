@@ -1,0 +1,21 @@
+{
+  "name": "Glitch",
+  "images": {
+    "Normal": "rbxassetid://86855837175524",
+    "Shiny": "rbxassetid://81000276099122",
+    "Mythic": "rbxassetid://122368587979370",
+    "MythicShiny": "rbxassetid://94005364806117"
+  },
+  "assetIds": [
+    "122368587979370",
+    "81000276099122",
+    "86855837175524",
+    "94005364806117"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Glitch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

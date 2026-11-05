@@ -1,0 +1,17 @@
+{
+  "name": "Void Doggy",
+  "images": {
+    "Normal": "rbxassetid://124572487334973",
+    "Shiny": "rbxassetid://103453702866225"
+  },
+  "assetIds": [
+    "103453702866225",
+    "124572487334973"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

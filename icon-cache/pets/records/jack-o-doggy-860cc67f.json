@@ -1,0 +1,21 @@
+{
+  "name": "Jack O' Doggy",
+  "images": {
+    "Normal": "rbxassetid://128875206259565",
+    "Shiny": "rbxassetid://130410706964459",
+    "Mythic": "rbxassetid://132362133041670",
+    "MythicShiny": "rbxassetid://124303956751462"
+  },
+  "assetIds": [
+    "124303956751462",
+    "128875206259565",
+    "130410706964459",
+    "132362133041670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jack O' Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

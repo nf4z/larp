@@ -1,0 +1,17 @@
+{
+  "name": "Doggy Tophat",
+  "images": {
+    "Normal": "rbxassetid://102507717185606",
+    "Shiny": "rbxassetid://130335773944006"
+  },
+  "assetIds": [
+    "102507717185606",
+    "130335773944006"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

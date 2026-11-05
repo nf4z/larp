@@ -1,0 +1,21 @@
+{
+  "name": "Doofus Dingus & Bingus",
+  "images": {
+    "Normal": "rbxassetid://98489883556324",
+    "Shiny": "rbxassetid://130356422555954",
+    "Mythic": "rbxassetid://89424246727020",
+    "MythicShiny": "rbxassetid://84161600440868"
+  },
+  "assetIds": [
+    "130356422555954",
+    "84161600440868",
+    "89424246727020",
+    "98489883556324"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doofus Dingus & Bingus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

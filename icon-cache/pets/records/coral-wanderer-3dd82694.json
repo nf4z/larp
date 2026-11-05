@@ -1,0 +1,21 @@
+{
+  "name": "Coral Wanderer",
+  "images": {
+    "Normal": "rbxassetid://109495997453272",
+    "Shiny": "rbxassetid://89247127906816",
+    "Mythic": "rbxassetid://136312686853970",
+    "MythicShiny": "rbxassetid://113352500201667"
+  },
+  "assetIds": [
+    "109495997453272",
+    "113352500201667",
+    "136312686853970",
+    "89247127906816"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Wanderer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

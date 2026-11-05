@@ -1,0 +1,17 @@
+{
+  "name": "Dark Robot",
+  "images": {
+    "Normal": "rbxassetid://139963842743898",
+    "Shiny": "rbxassetid://120183976652221"
+  },
+  "assetIds": [
+    "120183976652221",
+    "139963842743898"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

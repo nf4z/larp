@@ -1,0 +1,21 @@
+{
+  "name": "Easter Bunny Plushie",
+  "images": {
+    "Normal": "rbxassetid://137809422145175",
+    "Shiny": "rbxassetid://111747549373153",
+    "Mythic": "rbxassetid://104632928310120",
+    "MythicShiny": "rbxassetid://104390506736878"
+  },
+  "assetIds": [
+    "104390506736878",
+    "104632928310120",
+    "111747549373153",
+    "137809422145175"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Bunny Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

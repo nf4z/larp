@@ -1,0 +1,21 @@
+{
+  "name": "Bloodstone",
+  "images": {
+    "Normal": "rbxassetid://84599346229171",
+    "Shiny": "rbxassetid://128520712371055",
+    "Mythic": "rbxassetid://118251999326346",
+    "MythicShiny": "rbxassetid://85124514480426"
+  },
+  "assetIds": [
+    "118251999326346",
+    "128520712371055",
+    "84599346229171",
+    "85124514480426"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bloodstone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

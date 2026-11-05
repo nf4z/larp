@@ -1,0 +1,21 @@
+{
+  "name": "Trophy",
+  "images": {
+    "Normal": "rbxassetid://103122222862861",
+    "Shiny": "rbxassetid://121517880247526",
+    "Mythic": "rbxassetid://79048793658168",
+    "MythicShiny": "rbxassetid://127616502195239"
+  },
+  "assetIds": [
+    "103122222862861",
+    "121517880247526",
+    "127616502195239",
+    "79048793658168"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

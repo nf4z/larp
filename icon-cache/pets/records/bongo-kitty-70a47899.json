@@ -1,0 +1,21 @@
+{
+  "name": "Bongo Kitty",
+  "images": {
+    "Normal": "rbxassetid://136663195599197",
+    "Shiny": "rbxassetid://136416967901658",
+    "Mythic": "rbxassetid://71107162400654",
+    "MythicShiny": "rbxassetid://77677594709772"
+  },
+  "assetIds": [
+    "136416967901658",
+    "136663195599197",
+    "71107162400654",
+    "77677594709772"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bongo Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Air Basilisk",
+  "images": {
+    "Normal": "rbxassetid://139778028181938",
+    "Shiny": "rbxassetid://99346272180580",
+    "Mythic": "rbxassetid://73453792484233",
+    "MythicShiny": "rbxassetid://78115323049103"
+  },
+  "assetIds": [
+    "139778028181938",
+    "73453792484233",
+    "78115323049103",
+    "99346272180580"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Air Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

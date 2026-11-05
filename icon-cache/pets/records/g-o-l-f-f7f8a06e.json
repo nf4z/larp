@@ -1,0 +1,21 @@
+{
+  "name": "G O L F",
+  "images": {
+    "Normal": "rbxassetid://108118146269512",
+    "Shiny": "rbxassetid://110427054055723",
+    "Mythic": "rbxassetid://111139256382725",
+    "MythicShiny": "rbxassetid://102340966880920"
+  },
+  "assetIds": [
+    "102340966880920",
+    "108118146269512",
+    "110427054055723",
+    "111139256382725"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "G O L F"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

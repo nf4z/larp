@@ -1,0 +1,21 @@
+{
+  "name": "Dark Omen",
+  "images": {
+    "Normal": "rbxassetid://128185693508839",
+    "Shiny": "rbxassetid://130248622389583",
+    "Mythic": "rbxassetid://135230906373885",
+    "MythicShiny": "rbxassetid://84451631200236"
+  },
+  "assetIds": [
+    "128185693508839",
+    "130248622389583",
+    "135230906373885",
+    "84451631200236"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Omen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

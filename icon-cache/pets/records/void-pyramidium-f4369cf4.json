@@ -1,0 +1,17 @@
+{
+  "name": "VOID PYRAMIDIUM",
+  "images": {
+    "Normal": "rbxassetid://71373017208067",
+    "Shiny": "rbxassetid://122004633311245"
+  },
+  "assetIds": [
+    "122004633311245",
+    "71373017208067"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID PYRAMIDIUM"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

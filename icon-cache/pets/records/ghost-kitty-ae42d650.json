@@ -1,0 +1,17 @@
+{
+  "name": "Ghost Kitty",
+  "images": {
+    "Normal": "rbxassetid://90200655154204",
+    "Shiny": "rbxassetid://84026785404573"
+  },
+  "assetIds": [
+    "84026785404573",
+    "90200655154204"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghost Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Solstice Shock",
+  "images": {
+    "Normal": "rbxassetid://79894789965385",
+    "Shiny": "rbxassetid://87652435890026",
+    "Mythic": "rbxassetid://140517518807061",
+    "MythicShiny": "rbxassetid://135985957986776"
+  },
+  "assetIds": [
+    "135985957986776",
+    "140517518807061",
+    "79894789965385",
+    "87652435890026"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solstice Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

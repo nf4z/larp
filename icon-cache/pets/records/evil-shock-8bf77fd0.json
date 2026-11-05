@@ -1,0 +1,17 @@
+{
+  "name": "Evil Shock",
+  "images": {
+    "Normal": "rbxassetid://74756358022770",
+    "Shiny": "rbxassetid://82993807418706"
+  },
+  "assetIds": [
+    "74756358022770",
+    "82993807418706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Evil Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

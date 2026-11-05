@@ -1,0 +1,21 @@
+{
+  "name": "OG Gem Overlord",
+  "images": {
+    "Normal": "rbxassetid://129410444591503",
+    "Shiny": "rbxassetid://94764373261634",
+    "Mythic": "rbxassetid://111505125895138",
+    "MythicShiny": "rbxassetid://102147427901399"
+  },
+  "assetIds": [
+    "102147427901399",
+    "111505125895138",
+    "129410444591503",
+    "94764373261634"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Gem Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

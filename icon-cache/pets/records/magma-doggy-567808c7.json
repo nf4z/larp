@@ -1,0 +1,17 @@
+{
+  "name": "Magma Doggy",
+  "images": {
+    "Normal": "rbxassetid://119124196440746",
+    "Shiny": "rbxassetid://139545348445279"
+  },
+  "assetIds": [
+    "119124196440746",
+    "139545348445279"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magma Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

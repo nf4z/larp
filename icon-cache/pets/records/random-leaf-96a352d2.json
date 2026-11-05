@@ -1,0 +1,17 @@
+{
+  "name": "Random Leaf",
+  "images": {
+    "Normal": "rbxassetid://88551876885502",
+    "Shiny": "rbxassetid://139056756175907"
+  },
+  "assetIds": [
+    "139056756175907",
+    "88551876885502"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Random Leaf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

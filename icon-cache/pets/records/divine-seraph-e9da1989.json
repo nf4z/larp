@@ -1,0 +1,21 @@
+{
+  "name": "Divine Seraph",
+  "images": {
+    "Normal": "rbxassetid://107854883889698",
+    "Shiny": "rbxassetid://128067716208784",
+    "Mythic": "rbxassetid://128223010633742",
+    "MythicShiny": "rbxassetid://102023402088613"
+  },
+  "assetIds": [
+    "102023402088613",
+    "107854883889698",
+    "128067716208784",
+    "128223010633742"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Divine Seraph"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Coral Dragon",
+  "images": {
+    "Normal": "rbxassetid://114371426089835",
+    "Shiny": "rbxassetid://82993705527788",
+    "Mythic": "rbxassetid://122850642004007",
+    "MythicShiny": "rbxassetid://83206739467753"
+  },
+  "assetIds": [
+    "114371426089835",
+    "122850642004007",
+    "82993705527788",
+    "83206739467753"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

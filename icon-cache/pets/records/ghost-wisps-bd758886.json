@@ -1,0 +1,21 @@
+{
+  "name": "Ghost Wisps",
+  "images": {
+    "Normal": "rbxassetid://89276266068329",
+    "Shiny": "rbxassetid://136801342388540",
+    "Mythic": "rbxassetid://79203903564142",
+    "MythicShiny": "rbxassetid://114141556068609"
+  },
+  "assetIds": [
+    "114141556068609",
+    "136801342388540",
+    "79203903564142",
+    "89276266068329"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghost Wisps"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Easter Serpent",
+  "images": {
+    "Normal": "rbxassetid://98938067959398",
+    "Shiny": "rbxassetid://125443598339397",
+    "Mythic": "rbxassetid://128879026211802",
+    "MythicShiny": "rbxassetid://114527045780663"
+  },
+  "assetIds": [
+    "114527045780663",
+    "125443598339397",
+    "128879026211802",
+    "98938067959398"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

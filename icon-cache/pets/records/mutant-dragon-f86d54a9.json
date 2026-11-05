@@ -1,0 +1,17 @@
+{
+  "name": "Mutant Dragon",
+  "images": {
+    "Normal": "rbxassetid://70664158761252",
+    "Shiny": "rbxassetid://116984101022676"
+  },
+  "assetIds": [
+    "116984101022676",
+    "70664158761252"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mutant Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

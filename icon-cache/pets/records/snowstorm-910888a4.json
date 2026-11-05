@@ -1,0 +1,21 @@
+{
+  "name": "Snowstorm",
+  "images": {
+    "Normal": "rbxassetid://84469334530806",
+    "Shiny": "rbxassetid://117205000705983",
+    "Mythic": "rbxassetid://127161498283138",
+    "MythicShiny": "rbxassetid://130415225609849"
+  },
+  "assetIds": [
+    "117205000705983",
+    "127161498283138",
+    "130415225609849",
+    "84469334530806"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowstorm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

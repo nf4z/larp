@@ -1,0 +1,15 @@
+{
+  "name": "Arctic Grayling",
+  "images": {
+    "Image": "rbxassetid://82002881429663"
+  },
+  "assetIds": [
+    "82002881429663"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Arctic Grayling"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

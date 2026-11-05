@@ -1,0 +1,11 @@
+{
+  "name": "Celebration Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Celebration Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

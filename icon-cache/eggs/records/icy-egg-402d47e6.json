@@ -1,0 +1,12 @@
+{
+  "name": "Icy Egg",
+  "images": {
+    "Image": "rbxassetid://104818085496024"
+  },
+  "assetIds": [
+    "104818085496024"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Eternal Heart",
+  "images": {
+    "Normal": "rbxassetid://129003361309759",
+    "Shiny": "rbxassetid://128945426474751"
+  },
+  "assetIds": [
+    "128945426474751",
+    "129003361309759"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eternal Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

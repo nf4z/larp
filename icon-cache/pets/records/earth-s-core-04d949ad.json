@@ -1,0 +1,17 @@
+{
+  "name": "Earth's Core",
+  "images": {
+    "Normal": "rbxassetid://121408410148500",
+    "Shiny": "rbxassetid://94431912126215"
+  },
+  "assetIds": [
+    "121408410148500",
+    "94431912126215"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Earth's Core"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

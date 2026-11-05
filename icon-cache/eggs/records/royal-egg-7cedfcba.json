@@ -1,0 +1,12 @@
+{
+  "name": "Royal Egg",
+  "images": {
+    "Image": "rbxassetid://79809336170609"
+  },
+  "assetIds": [
+    "79809336170609"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

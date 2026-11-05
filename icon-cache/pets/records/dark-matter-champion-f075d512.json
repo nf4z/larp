@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Champion",
+  "images": {
+    "Normal": "rbxassetid://93364251127850",
+    "Shiny": "rbxassetid://119999117565567",
+    "Mythic": "rbxassetid://70995020145457",
+    "MythicShiny": "rbxassetid://70427912789725"
+  },
+  "assetIds": [
+    "119999117565567",
+    "70427912789725",
+    "70995020145457",
+    "93364251127850"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

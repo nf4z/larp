@@ -1,0 +1,21 @@
+{
+  "name": "Spring Bunny",
+  "images": {
+    "Normal": "rbxassetid://98712216966825",
+    "Shiny": "rbxassetid://134578734771978",
+    "Mythic": "rbxassetid://121985530967768",
+    "MythicShiny": "rbxassetid://93229108161647"
+  },
+  "assetIds": [
+    "121985530967768",
+    "134578734771978",
+    "93229108161647",
+    "98712216966825"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

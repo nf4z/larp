@@ -1,0 +1,21 @@
+{
+  "name": "King Slime",
+  "images": {
+    "Normal": "rbxassetid://126998603810585",
+    "Shiny": "rbxassetid://129458974326143",
+    "Mythic": "rbxassetid://92599501613578",
+    "MythicShiny": "rbxassetid://131806652480856"
+  },
+  "assetIds": [
+    "126998603810585",
+    "129458974326143",
+    "131806652480856",
+    "92599501613578"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

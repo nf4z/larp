@@ -1,0 +1,21 @@
+{
+  "name": "Giftbox Dark Phoenix",
+  "images": {
+    "Normal": "rbxassetid://83052857171704",
+    "Shiny": "rbxassetid://80653169090142",
+    "Mythic": "rbxassetid://84589862929617",
+    "MythicShiny": "rbxassetid://133139910568224"
+  },
+  "assetIds": [
+    "133139910568224",
+    "80653169090142",
+    "83052857171704",
+    "84589862929617"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giftbox Dark Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

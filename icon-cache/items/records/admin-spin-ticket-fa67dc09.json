@@ -1,0 +1,15 @@
+{
+  "name": "Admin Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://108350116225782"
+  },
+  "assetIds": [
+    "108350116225782"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Admin Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

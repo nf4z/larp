@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Doggy",
+  "images": {
+    "Normal": "rbxassetid://134410194887423",
+    "Shiny": "rbxassetid://80554862534344"
+  },
+  "assetIds": [
+    "134410194887423",
+    "80554862534344"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

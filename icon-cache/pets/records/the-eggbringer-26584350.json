@@ -1,0 +1,21 @@
+{
+  "name": "The Eggbringer",
+  "images": {
+    "Normal": "rbxassetid://79300695578245",
+    "Shiny": "rbxassetid://95486277956693",
+    "Mythic": "rbxassetid://77700650684340",
+    "MythicShiny": "rbxassetid://108285929351944"
+  },
+  "assetIds": [
+    "108285929351944",
+    "77700650684340",
+    "79300695578245",
+    "95486277956693"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Eggbringer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

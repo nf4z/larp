@@ -1,0 +1,21 @@
+{
+  "name": "Coral Whale",
+  "images": {
+    "Normal": "rbxassetid://105901693017962",
+    "Shiny": "rbxassetid://98109392085970",
+    "Mythic": "rbxassetid://131691432400416",
+    "MythicShiny": "rbxassetid://114973691527931"
+  },
+  "assetIds": [
+    "105901693017962",
+    "114973691527931",
+    "131691432400416",
+    "98109392085970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Whale"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

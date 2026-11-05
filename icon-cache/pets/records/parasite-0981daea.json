@@ -1,0 +1,21 @@
+{
+  "name": "Parasite",
+  "images": {
+    "Normal": "rbxassetid://74651112943866",
+    "Shiny": "rbxassetid://115141336334034",
+    "Mythic": "rbxassetid://106984089489667",
+    "MythicShiny": "rbxassetid://82411303923037"
+  },
+  "assetIds": [
+    "106984089489667",
+    "115141336334034",
+    "74651112943866",
+    "82411303923037"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Parasite"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

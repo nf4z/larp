@@ -1,0 +1,21 @@
+{
+  "name": "Easter Basket",
+  "images": {
+    "Normal": "rbxassetid://127748776007060",
+    "Shiny": "rbxassetid://91266745275312",
+    "Mythic": "rbxassetid://73135911297429",
+    "MythicShiny": "rbxassetid://88763393448729"
+  },
+  "assetIds": [
+    "127748776007060",
+    "73135911297429",
+    "88763393448729",
+    "91266745275312"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Axolotl",
+  "images": {
+    "Normal": "rbxassetid://134053642428137",
+    "Shiny": "rbxassetid://128005277801425"
+  },
+  "assetIds": [
+    "128005277801425",
+    "134053642428137"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Axolotl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

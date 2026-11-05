@@ -1,0 +1,17 @@
+{
+  "name": "Picasso Split",
+  "images": {
+    "Normal": "rbxassetid://102621778791780",
+    "Shiny": "rbxassetid://78949379537665"
+  },
+  "assetIds": [
+    "102621778791780",
+    "78949379537665"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Picasso Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

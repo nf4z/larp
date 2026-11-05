@@ -1,0 +1,21 @@
+{
+  "name": "DUMB SINISTER LORD",
+  "images": {
+    "Normal": "rbxassetid://122649821854155",
+    "Shiny": "rbxassetid://113101982165025",
+    "Mythic": "rbxassetid://95946515854316",
+    "MythicShiny": "rbxassetid://102831588401469"
+  },
+  "assetIds": [
+    "102831588401469",
+    "113101982165025",
+    "122649821854155",
+    "95946515854316"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "DUMB SINISTER LORD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

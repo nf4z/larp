@@ -1,0 +1,17 @@
+{
+  "name": "Giant Pixel Robot",
+  "images": {
+    "Normal": "rbxassetid://140503078283312",
+    "Shiny": "rbxassetid://83245957107607"
+  },
+  "assetIds": [
+    "140503078283312",
+    "83245957107607"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Pixel Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

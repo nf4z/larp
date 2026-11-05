@@ -1,0 +1,21 @@
+{
+  "name": "Balemoon Nevermare",
+  "images": {
+    "Normal": "rbxassetid://80315888281224",
+    "Shiny": "rbxassetid://99644401236610",
+    "Mythic": "rbxassetid://120176109518176",
+    "MythicShiny": "rbxassetid://95842876727567"
+  },
+  "assetIds": [
+    "120176109518176",
+    "80315888281224",
+    "95842876727567",
+    "99644401236610"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Balemoon Nevermare"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

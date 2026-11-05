@@ -1,0 +1,17 @@
+{
+  "name": "Leaf Doggy",
+  "images": {
+    "Normal": "rbxassetid://76639168691880",
+    "Shiny": "rbxassetid://75967025860754"
+  },
+  "assetIds": [
+    "75967025860754",
+    "76639168691880"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leaf Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

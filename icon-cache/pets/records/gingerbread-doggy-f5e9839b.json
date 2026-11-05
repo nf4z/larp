@@ -1,0 +1,17 @@
+{
+  "name": "Gingerbread Doggy",
+  "images": {
+    "Normal": "rbxassetid://94247736190818",
+    "Shiny": "rbxassetid://108176567211804"
+  },
+  "assetIds": [
+    "108176567211804",
+    "94247736190818"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gingerbread Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

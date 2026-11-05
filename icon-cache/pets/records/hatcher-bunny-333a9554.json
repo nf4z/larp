@@ -1,0 +1,17 @@
+{
+  "name": "Hatcher Bunny",
+  "images": {
+    "Normal": "rbxassetid://75493640253533",
+    "Shiny": "rbxassetid://97189503258784"
+  },
+  "assetIds": [
+    "75493640253533",
+    "97189503258784"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hatcher Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

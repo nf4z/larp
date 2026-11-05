@@ -1,0 +1,21 @@
+{
+  "name": "Summer Rigby",
+  "images": {
+    "Normal": "rbxassetid://114354641360157",
+    "Shiny": "rbxassetid://90619814777694",
+    "Mythic": "rbxassetid://87327312707807",
+    "MythicShiny": "rbxassetid://122463538019480"
+  },
+  "assetIds": [
+    "114354641360157",
+    "122463538019480",
+    "87327312707807",
+    "90619814777694"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

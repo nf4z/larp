@@ -1,0 +1,21 @@
+{
+  "name": "Spring Moth",
+  "images": {
+    "Normal": "rbxassetid://80899712703070",
+    "Shiny": "rbxassetid://80732843779749",
+    "Mythic": "rbxassetid://125318938792923",
+    "MythicShiny": "rbxassetid://108895881293292"
+  },
+  "assetIds": [
+    "108895881293292",
+    "125318938792923",
+    "80732843779749",
+    "80899712703070"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

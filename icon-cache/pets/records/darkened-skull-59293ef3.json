@@ -1,0 +1,21 @@
+{
+  "name": "Darkened Skull",
+  "images": {
+    "Normal": "rbxassetid://113249090574050",
+    "Shiny": "rbxassetid://115714327848005",
+    "Mythic": "rbxassetid://134173973739670",
+    "MythicShiny": "rbxassetid://124198551500383"
+  },
+  "assetIds": [
+    "113249090574050",
+    "115714327848005",
+    "124198551500383",
+    "134173973739670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkened Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

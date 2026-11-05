@@ -1,0 +1,17 @@
+{
+  "name": "Letter Kitty",
+  "images": {
+    "Normal": "rbxassetid://108896731614677",
+    "Shiny": "rbxassetid://139829836041040"
+  },
+  "assetIds": [
+    "108896731614677",
+    "139829836041040"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Letter Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Summer Seal",
+  "images": {
+    "Normal": "rbxassetid://79709165380945",
+    "Shiny": "rbxassetid://84612039967923"
+  },
+  "assetIds": [
+    "79709165380945",
+    "84612039967923"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

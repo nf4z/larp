@@ -1,0 +1,17 @@
+{
+  "name": "Doomsekkar",
+  "images": {
+    "Normal": "rbxassetid://106810009794756",
+    "Shiny": "rbxassetid://88345025215252"
+  },
+  "assetIds": [
+    "106810009794756",
+    "88345025215252"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doomsekkar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

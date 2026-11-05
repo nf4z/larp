@@ -1,0 +1,21 @@
+{
+  "name": "D.I.Y Leviathan",
+  "images": {
+    "Normal": "rbxassetid://107089744996269",
+    "Shiny": "rbxassetid://111584378045277",
+    "Mythic": "rbxassetid://107117753219867",
+    "MythicShiny": "rbxassetid://120765398806042"
+  },
+  "assetIds": [
+    "107089744996269",
+    "107117753219867",
+    "111584378045277",
+    "120765398806042"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "D.I.Y Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

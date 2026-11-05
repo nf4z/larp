@@ -1,0 +1,15 @@
+{
+  "name": "Candycorn",
+  "images": {
+    "Image": "rbxassetid://96126947158906"
+  },
+  "assetIds": [
+    "96126947158906"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Candycorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

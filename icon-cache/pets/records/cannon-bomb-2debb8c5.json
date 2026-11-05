@@ -1,0 +1,17 @@
+{
+  "name": "Cannon Bomb",
+  "images": {
+    "Normal": "rbxassetid://137234453603149",
+    "Shiny": "rbxassetid://130972516351065"
+  },
+  "assetIds": [
+    "130972516351065",
+    "137234453603149"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cannon Bomb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

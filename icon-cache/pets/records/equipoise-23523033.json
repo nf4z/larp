@@ -1,0 +1,21 @@
+{
+  "name": "Equipoise",
+  "images": {
+    "Normal": "rbxassetid://135323625971571",
+    "Shiny": "rbxassetid://80440263225185",
+    "Mythic": "rbxassetid://121186871629989",
+    "MythicShiny": "rbxassetid://126842953509431"
+  },
+  "assetIds": [
+    "121186871629989",
+    "126842953509431",
+    "135323625971571",
+    "80440263225185"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Equipoise"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

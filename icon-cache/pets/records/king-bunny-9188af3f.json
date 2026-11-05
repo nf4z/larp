@@ -1,0 +1,21 @@
+{
+  "name": "King Bunny",
+  "images": {
+    "Normal": "rbxassetid://130463454354254",
+    "Shiny": "rbxassetid://116599891438153",
+    "Mythic": "rbxassetid://88138853582509",
+    "MythicShiny": "rbxassetid://136901701332821"
+  },
+  "assetIds": [
+    "116599891438153",
+    "130463454354254",
+    "136901701332821",
+    "88138853582509"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

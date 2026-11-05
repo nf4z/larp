@@ -1,0 +1,15 @@
+{
+  "name": "CarnivalCoins",
+  "images": {
+    "Image": "rbxassetid://131576427119659"
+  },
+  "assetIds": [
+    "131576427119659"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "CarnivalCoins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

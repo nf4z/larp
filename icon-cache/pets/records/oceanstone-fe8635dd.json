@@ -1,0 +1,21 @@
+{
+  "name": "Oceanstone",
+  "images": {
+    "Normal": "rbxassetid://122054307446075",
+    "Shiny": "rbxassetid://114194277914724",
+    "Mythic": "rbxassetid://92240383083698",
+    "MythicShiny": "rbxassetid://99745848347025"
+  },
+  "assetIds": [
+    "114194277914724",
+    "122054307446075",
+    "92240383083698",
+    "99745848347025"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Oceanstone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

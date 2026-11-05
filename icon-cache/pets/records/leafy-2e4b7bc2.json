@@ -1,0 +1,17 @@
+{
+  "name": "Leafy",
+  "images": {
+    "Normal": "rbxassetid://121256238812310",
+    "Shiny": "rbxassetid://70893309073277"
+  },
+  "assetIds": [
+    "121256238812310",
+    "70893309073277"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leafy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Dogcat",
+  "images": {
+    "Normal": "rbxassetid://95934392062487",
+    "Shiny": "rbxassetid://124459722077985"
+  },
+  "assetIds": [
+    "124459722077985",
+    "95934392062487"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Nexus",
+  "images": {
+    "Normal": "rbxassetid://88791209939566",
+    "Shiny": "rbxassetid://120719963900187",
+    "Mythic": "rbxassetid://109842463273634",
+    "MythicShiny": "rbxassetid://79522348003433"
+  },
+  "assetIds": [
+    "109842463273634",
+    "120719963900187",
+    "79522348003433",
+    "88791209939566"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nexus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

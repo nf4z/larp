@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Challenger",
+  "images": {
+    "Normal": "rbxassetid://114530466072008",
+    "Shiny": "rbxassetid://76368349456772",
+    "Mythic": "rbxassetid://110244670346568",
+    "MythicShiny": "rbxassetid://80023256203478"
+  },
+  "assetIds": [
+    "110244670346568",
+    "114530466072008",
+    "76368349456772",
+    "80023256203478"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Challenger"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

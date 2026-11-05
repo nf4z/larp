@@ -1,0 +1,17 @@
+{
+  "name": "Void Ascension",
+  "images": {
+    "Normal": "rbxassetid://92644932060992",
+    "Shiny": "rbxassetid://137415314381592"
+  },
+  "assetIds": [
+    "137415314381592",
+    "92644932060992"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Ascension"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

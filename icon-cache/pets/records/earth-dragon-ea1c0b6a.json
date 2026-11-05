@@ -1,0 +1,21 @@
+{
+  "name": "Earth Dragon",
+  "images": {
+    "Normal": "rbxassetid://119068033598814",
+    "Shiny": "rbxassetid://99812584215042",
+    "Mythic": "rbxassetid://126498922678834",
+    "MythicShiny": "rbxassetid://87060438860954"
+  },
+  "assetIds": [
+    "119068033598814",
+    "126498922678834",
+    "87060438860954",
+    "99812584215042"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Earth Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

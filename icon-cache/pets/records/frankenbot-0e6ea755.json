@@ -1,0 +1,21 @@
+{
+  "name": "Frankenbot",
+  "images": {
+    "Normal": "rbxassetid://120065725190256",
+    "Shiny": "rbxassetid://114210713888379",
+    "Mythic": "rbxassetid://112717927186551",
+    "MythicShiny": "rbxassetid://132197002113327"
+  },
+  "assetIds": [
+    "112717927186551",
+    "114210713888379",
+    "120065725190256",
+    "132197002113327"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frankenbot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

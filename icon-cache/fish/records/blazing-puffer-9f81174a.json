@@ -1,0 +1,15 @@
+{
+  "name": "Blazing Puffer",
+  "images": {
+    "Image": "rbxassetid://137617488411442"
+  },
+  "assetIds": [
+    "137617488411442"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Blazing Puffer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

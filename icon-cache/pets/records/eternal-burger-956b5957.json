@@ -1,0 +1,21 @@
+{
+  "name": "Eternal Burger",
+  "images": {
+    "Normal": "rbxassetid://75312239954007",
+    "Shiny": "rbxassetid://121139560779808",
+    "Mythic": "rbxassetid://140725991333537",
+    "MythicShiny": "rbxassetid://120585300765164"
+  },
+  "assetIds": [
+    "120585300765164",
+    "121139560779808",
+    "140725991333537",
+    "75312239954007"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eternal Burger"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

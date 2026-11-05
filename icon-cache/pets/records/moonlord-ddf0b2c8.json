@@ -1,0 +1,21 @@
+{
+  "name": "Moonlord",
+  "images": {
+    "Normal": "rbxassetid://115103259362927",
+    "Shiny": "rbxassetid://83342200113484",
+    "Mythic": "rbxassetid://74193020139032",
+    "MythicShiny": "rbxassetid://83439003235390"
+  },
+  "assetIds": [
+    "115103259362927",
+    "74193020139032",
+    "83342200113484",
+    "83439003235390"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

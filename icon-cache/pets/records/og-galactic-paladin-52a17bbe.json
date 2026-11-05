@@ -1,0 +1,17 @@
+{
+  "name": "OG Galactic Paladin",
+  "images": {
+    "Normal": "rbxassetid://82495207969789",
+    "Shiny": "rbxassetid://81740196959425"
+  },
+  "assetIds": [
+    "81740196959425",
+    "82495207969789"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Galactic Paladin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

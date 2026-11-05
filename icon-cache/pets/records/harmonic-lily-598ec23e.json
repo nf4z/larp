@@ -1,0 +1,21 @@
+{
+  "name": "Harmonic Lily",
+  "images": {
+    "Normal": "rbxassetid://99415020561447",
+    "Shiny": "rbxassetid://130201275699064",
+    "Mythic": "rbxassetid://87820617774235",
+    "MythicShiny": "rbxassetid://134984292194136"
+  },
+  "assetIds": [
+    "130201275699064",
+    "134984292194136",
+    "87820617774235",
+    "99415020561447"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harmonic Lily"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

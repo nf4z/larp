@@ -1,0 +1,21 @@
+{
+  "name": "Flake Spirit",
+  "images": {
+    "Normal": "rbxassetid://140238715360474",
+    "Shiny": "rbxassetid://95993544987147",
+    "Mythic": "rbxassetid://109930883153929",
+    "MythicShiny": "rbxassetid://111435269281929"
+  },
+  "assetIds": [
+    "109930883153929",
+    "111435269281929",
+    "140238715360474",
+    "95993544987147"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flake Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

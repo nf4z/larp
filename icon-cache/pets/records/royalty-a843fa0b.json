@@ -1,0 +1,21 @@
+{
+  "name": "Royalty",
+  "images": {
+    "Normal": "rbxassetid://97371975407820",
+    "Shiny": "rbxassetid://105112882435333",
+    "Mythic": "rbxassetid://71687547346547",
+    "MythicShiny": "rbxassetid://137062333936437"
+  },
+  "assetIds": [
+    "105112882435333",
+    "137062333936437",
+    "71687547346547",
+    "97371975407820"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royalty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

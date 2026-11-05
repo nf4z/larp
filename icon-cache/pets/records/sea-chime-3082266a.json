@@ -1,0 +1,21 @@
+{
+  "name": "Sea Chime",
+  "images": {
+    "Normal": "rbxassetid://92029473972316",
+    "Shiny": "rbxassetid://88225842071371",
+    "Mythic": "rbxassetid://80831843402168",
+    "MythicShiny": "rbxassetid://84577772417937"
+  },
+  "assetIds": [
+    "80831843402168",
+    "84577772417937",
+    "88225842071371",
+    "92029473972316"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Chime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

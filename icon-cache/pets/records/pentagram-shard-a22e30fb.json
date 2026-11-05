@@ -1,0 +1,21 @@
+{
+  "name": "Pentagram Shard",
+  "images": {
+    "Normal": "rbxassetid://87177493634680",
+    "Shiny": "rbxassetid://110923280292830",
+    "Mythic": "rbxassetid://78765395407568",
+    "MythicShiny": "rbxassetid://98112164681080"
+  },
+  "assetIds": [
+    "110923280292830",
+    "78765395407568",
+    "87177493634680",
+    "98112164681080"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pentagram Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

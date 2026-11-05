@@ -1,0 +1,21 @@
+{
+  "name": "Dark Swan",
+  "images": {
+    "Normal": "rbxassetid://96241528943698",
+    "Shiny": "rbxassetid://81390790256338",
+    "Mythic": "rbxassetid://98964980012563",
+    "MythicShiny": "rbxassetid://133643511918593"
+  },
+  "assetIds": [
+    "133643511918593",
+    "81390790256338",
+    "96241528943698",
+    "98964980012563"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Swan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

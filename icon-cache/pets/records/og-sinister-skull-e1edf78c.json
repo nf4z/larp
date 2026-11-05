@@ -1,0 +1,21 @@
+{
+  "name": "OG Sinister Skull",
+  "images": {
+    "Normal": "rbxassetid://122279969664320",
+    "Shiny": "rbxassetid://84828822943513",
+    "Mythic": "rbxassetid://95036911491106",
+    "MythicShiny": "rbxassetid://132599222380305"
+  },
+  "assetIds": [
+    "122279969664320",
+    "132599222380305",
+    "84828822943513",
+    "95036911491106"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Sinister Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Sinister Shard",
+  "images": {
+    "Normal": "rbxassetid://81390572158191",
+    "Shiny": "rbxassetid://100888445359383",
+    "Mythic": "rbxassetid://84267718408363",
+    "MythicShiny": "rbxassetid://102427454706375"
+  },
+  "assetIds": [
+    "100888445359383",
+    "102427454706375",
+    "81390572158191",
+    "84267718408363"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

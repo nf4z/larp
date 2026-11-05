@@ -1,0 +1,17 @@
+{
+  "name": "Pocket Bunny",
+  "images": {
+    "Normal": "rbxassetid://77260805944798",
+    "Shiny": "rbxassetid://128563083273556"
+  },
+  "assetIds": [
+    "128563083273556",
+    "77260805944798"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pocket Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

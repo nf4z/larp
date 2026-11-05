@@ -1,0 +1,21 @@
+{
+  "name": "Dark Trickster",
+  "images": {
+    "Normal": "rbxassetid://74932202483633",
+    "Shiny": "rbxassetid://125938740940649",
+    "Mythic": "rbxassetid://118126486880261",
+    "MythicShiny": "rbxassetid://73790242662698"
+  },
+  "assetIds": [
+    "118126486880261",
+    "125938740940649",
+    "73790242662698",
+    "74932202483633"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Trickster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

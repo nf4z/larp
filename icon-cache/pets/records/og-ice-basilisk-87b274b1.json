@@ -1,0 +1,21 @@
+{
+  "name": "OG Ice Basilisk",
+  "images": {
+    "Normal": "rbxassetid://126885919853462",
+    "Shiny": "rbxassetid://130524403952649",
+    "Mythic": "rbxassetid://121007941381652",
+    "MythicShiny": "rbxassetid://86546921887945"
+  },
+  "assetIds": [
+    "121007941381652",
+    "126885919853462",
+    "130524403952649",
+    "86546921887945"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Ice Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Egg Hunt Basket",
+  "images": {
+    "Normal": "rbxassetid://84178705864741",
+    "Shiny": "rbxassetid://125127429780002",
+    "Mythic": "rbxassetid://135395328048184",
+    "MythicShiny": "rbxassetid://139048638133004"
+  },
+  "assetIds": [
+    "125127429780002",
+    "135395328048184",
+    "139048638133004",
+    "84178705864741"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Hunt Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

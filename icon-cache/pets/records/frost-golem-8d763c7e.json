@@ -1,0 +1,17 @@
+{
+  "name": "Frost Golem",
+  "images": {
+    "Normal": "rbxassetid://101476853863004",
+    "Shiny": "rbxassetid://107404656279041"
+  },
+  "assetIds": [
+    "101476853863004",
+    "107404656279041"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

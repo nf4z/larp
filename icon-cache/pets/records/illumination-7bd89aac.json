@@ -1,0 +1,21 @@
+{
+  "name": "Illumination",
+  "images": {
+    "Normal": "rbxassetid://117796628137947",
+    "Shiny": "rbxassetid://89007460408761",
+    "Mythic": "rbxassetid://130277082961154",
+    "MythicShiny": "rbxassetid://102607182917920"
+  },
+  "assetIds": [
+    "102607182917920",
+    "117796628137947",
+    "130277082961154",
+    "89007460408761"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Illumination"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Sailboat",
+  "images": {
+    "Normal": "rbxassetid://125907103457757",
+    "Shiny": "rbxassetid://133366945930530",
+    "Mythic": "rbxassetid://109731799816767",
+    "MythicShiny": "rbxassetid://115325971049160"
+  },
+  "assetIds": [
+    "109731799816767",
+    "115325971049160",
+    "125907103457757",
+    "133366945930530"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sailboat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

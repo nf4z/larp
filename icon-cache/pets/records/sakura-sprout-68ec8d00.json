@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Sprout",
+  "images": {
+    "Normal": "rbxassetid://104214256737404",
+    "Shiny": "rbxassetid://135689722286271",
+    "Mythic": "rbxassetid://105025286827823",
+    "MythicShiny": "rbxassetid://83811526798835"
+  },
+  "assetIds": [
+    "104214256737404",
+    "105025286827823",
+    "135689722286271",
+    "83811526798835"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Sprout"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

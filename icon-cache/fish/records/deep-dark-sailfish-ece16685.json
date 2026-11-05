@@ -1,0 +1,15 @@
+{
+  "name": "Deep Dark Sailfish",
+  "images": {
+    "Image": "rbxassetid://103036099418528"
+  },
+  "assetIds": [
+    "103036099418528"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Deep Dark Sailfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

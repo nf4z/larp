@@ -1,0 +1,17 @@
+{
+  "name": "Sakura Slime",
+  "images": {
+    "Normal": "rbxassetid://87362565026289",
+    "Shiny": "rbxassetid://98115908681097"
+  },
+  "assetIds": [
+    "87362565026289",
+    "98115908681097"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

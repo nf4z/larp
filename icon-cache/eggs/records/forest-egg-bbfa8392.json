@@ -1,0 +1,12 @@
+{
+  "name": "Forest Egg",
+  "images": {
+    "Image": "rbxassetid://131066854440847"
+  },
+  "assetIds": [
+    "131066854440847"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

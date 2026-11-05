@@ -1,0 +1,21 @@
+{
+  "name": "Pumpkin Nert Plushie",
+  "images": {
+    "Normal": "rbxassetid://120831009315835",
+    "Shiny": "rbxassetid://121563274108663",
+    "Mythic": "rbxassetid://91423171556283",
+    "MythicShiny": "rbxassetid://92256024005170"
+  },
+  "assetIds": [
+    "120831009315835",
+    "121563274108663",
+    "91423171556283",
+    "92256024005170"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Nert Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

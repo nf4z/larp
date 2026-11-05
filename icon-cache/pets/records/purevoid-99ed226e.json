@@ -1,0 +1,21 @@
+{
+  "name": "PureVOID",
+  "images": {
+    "Normal": "rbxassetid://108195197809492",
+    "Shiny": "rbxassetid://106881406039475",
+    "Mythic": "rbxassetid://136167021124254",
+    "MythicShiny": "rbxassetid://82752705438068"
+  },
+  "assetIds": [
+    "106881406039475",
+    "108195197809492",
+    "136167021124254",
+    "82752705438068"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "PureVOID"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

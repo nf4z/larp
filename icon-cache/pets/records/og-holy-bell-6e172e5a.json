@@ -1,0 +1,17 @@
+{
+  "name": "OG Holy Bell",
+  "images": {
+    "Normal": "rbxassetid://119214096036487",
+    "Shiny": "rbxassetid://117514449088577"
+  },
+  "assetIds": [
+    "117514449088577",
+    "119214096036487"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Holy Bell"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

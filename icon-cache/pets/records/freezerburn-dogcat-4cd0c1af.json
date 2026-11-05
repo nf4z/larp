@@ -1,0 +1,21 @@
+{
+  "name": "Freezerburn Dogcat",
+  "images": {
+    "Normal": "rbxassetid://102008693558706",
+    "Shiny": "rbxassetid://125325398573252",
+    "Mythic": "rbxassetid://133666208691226",
+    "MythicShiny": "rbxassetid://100200205861822"
+  },
+  "assetIds": [
+    "100200205861822",
+    "102008693558706",
+    "125325398573252",
+    "133666208691226"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Freezerburn Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

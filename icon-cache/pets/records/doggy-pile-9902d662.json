@@ -1,0 +1,17 @@
+{
+  "name": "Doggy Pile",
+  "images": {
+    "Normal": "rbxassetid://136232522819010",
+    "Shiny": "rbxassetid://121472227938556"
+  },
+  "assetIds": [
+    "121472227938556",
+    "136232522819010"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy Pile"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

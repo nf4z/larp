@@ -1,0 +1,21 @@
+{
+  "name": "Giftbox Unicorn",
+  "images": {
+    "Normal": "rbxassetid://119993815311791",
+    "Shiny": "rbxassetid://77785809550620",
+    "Mythic": "rbxassetid://103074949802781",
+    "MythicShiny": "rbxassetid://70572987400393"
+  },
+  "assetIds": [
+    "103074949802781",
+    "119993815311791",
+    "70572987400393",
+    "77785809550620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giftbox Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

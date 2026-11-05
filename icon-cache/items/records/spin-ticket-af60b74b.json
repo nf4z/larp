@@ -1,0 +1,15 @@
+{
+  "name": "Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://78456213845714"
+  },
+  "assetIds": [
+    "78456213845714"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

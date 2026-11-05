@@ -1,0 +1,15 @@
+{
+  "name": "Valentine's Letter",
+  "images": {
+    "Image": "rbxassetid://76279772601530"
+  },
+  "assetIds": [
+    "76279772601530"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Valentine's Letter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

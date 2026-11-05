@@ -1,0 +1,17 @@
+{
+  "name": "Giant Kitsune",
+  "images": {
+    "Normal": "rbxassetid://140507402645904",
+    "Shiny": "rbxassetid://140485121098979"
+  },
+  "assetIds": [
+    "140485121098979",
+    "140507402645904"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

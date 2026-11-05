@@ -1,0 +1,17 @@
+{
+  "name": "OG Dark Serpent",
+  "images": {
+    "Normal": "rbxassetid://95121695484413",
+    "Shiny": "rbxassetid://91137459104540"
+  },
+  "assetIds": [
+    "91137459104540",
+    "95121695484413"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Dark Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

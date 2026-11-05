@@ -1,0 +1,21 @@
+{
+  "name": "Webbed Spider",
+  "images": {
+    "Normal": "rbxassetid://86992769017728",
+    "Shiny": "rbxassetid://75503388504303",
+    "Mythic": "rbxassetid://116745248426527",
+    "MythicShiny": "rbxassetid://124426063898290"
+  },
+  "assetIds": [
+    "116745248426527",
+    "124426063898290",
+    "75503388504303",
+    "86992769017728"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Webbed Spider"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

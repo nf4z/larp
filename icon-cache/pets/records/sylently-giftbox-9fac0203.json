@@ -1,0 +1,21 @@
+{
+  "name": "Sylently Giftbox",
+  "images": {
+    "Normal": "rbxassetid://78538835516859",
+    "Shiny": "rbxassetid://82305650761067",
+    "Mythic": "rbxassetid://73584237095511",
+    "MythicShiny": "rbxassetid://71409205491761"
+  },
+  "assetIds": [
+    "71409205491761",
+    "73584237095511",
+    "78538835516859",
+    "82305650761067"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sylently Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

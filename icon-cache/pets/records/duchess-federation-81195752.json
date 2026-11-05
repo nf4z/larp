@@ -1,0 +1,17 @@
+{
+  "name": "Duchess Federation",
+  "images": {
+    "Normal": "rbxassetid://122814423075117",
+    "Shiny": "rbxassetid://79702450863635"
+  },
+  "assetIds": [
+    "122814423075117",
+    "79702450863635"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Duchess Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

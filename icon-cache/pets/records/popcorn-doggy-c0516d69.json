@@ -1,0 +1,17 @@
+{
+  "name": "Popcorn Doggy",
+  "images": {
+    "Normal": "rbxassetid://85691920803467",
+    "Shiny": "rbxassetid://77445799036429"
+  },
+  "assetIds": [
+    "77445799036429",
+    "85691920803467"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Popcorn Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

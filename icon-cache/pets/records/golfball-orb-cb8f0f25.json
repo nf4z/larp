@@ -1,0 +1,21 @@
+{
+  "name": "Golfball Orb",
+  "images": {
+    "Normal": "rbxassetid://117265051298039",
+    "Shiny": "rbxassetid://78216131683215",
+    "Mythic": "rbxassetid://107546150008548",
+    "MythicShiny": "rbxassetid://99120291391374"
+  },
+  "assetIds": [
+    "107546150008548",
+    "117265051298039",
+    "78216131683215",
+    "99120291391374"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golfball Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

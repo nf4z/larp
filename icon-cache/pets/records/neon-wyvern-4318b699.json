@@ -1,0 +1,21 @@
+{
+  "name": "Neon Wyvern",
+  "images": {
+    "Normal": "rbxassetid://97841765978448",
+    "Shiny": "rbxassetid://95554361638867",
+    "Mythic": "rbxassetid://129980738305727",
+    "MythicShiny": "rbxassetid://76051322922529"
+  },
+  "assetIds": [
+    "129980738305727",
+    "76051322922529",
+    "95554361638867",
+    "97841765978448"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Wyvern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Star",
+  "images": {
+    "Normal": "rbxassetid://93779282762570",
+    "Shiny": "rbxassetid://81366808387063",
+    "Mythic": "rbxassetid://86219811621270",
+    "MythicShiny": "rbxassetid://87377001702110"
+  },
+  "assetIds": [
+    "81366808387063",
+    "86219811621270",
+    "87377001702110",
+    "93779282762570"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

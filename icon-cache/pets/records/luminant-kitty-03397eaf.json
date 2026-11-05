@@ -1,0 +1,17 @@
+{
+  "name": "Luminant Kitty",
+  "images": {
+    "Normal": "rbxassetid://106654326045966",
+    "Shiny": "rbxassetid://72119917280622"
+  },
+  "assetIds": [
+    "106654326045966",
+    "72119917280622"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

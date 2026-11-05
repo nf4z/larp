@@ -1,0 +1,21 @@
+{
+  "name": "Windsaw Passerine",
+  "images": {
+    "Normal": "rbxassetid://124943091087675",
+    "Shiny": "rbxassetid://138891270197083",
+    "Mythic": "rbxassetid://124260195541675",
+    "MythicShiny": "rbxassetid://94973253424479"
+  },
+  "assetIds": [
+    "124260195541675",
+    "124943091087675",
+    "138891270197083",
+    "94973253424479"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Windsaw Passerine"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

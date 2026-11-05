@@ -1,0 +1,21 @@
+{
+  "name": "Frost Defender",
+  "images": {
+    "Normal": "rbxassetid://96612932716465",
+    "Shiny": "rbxassetid://79349494590687",
+    "Mythic": "rbxassetid://83673032263626",
+    "MythicShiny": "rbxassetid://106588061860991"
+  },
+  "assetIds": [
+    "106588061860991",
+    "79349494590687",
+    "83673032263626",
+    "96612932716465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

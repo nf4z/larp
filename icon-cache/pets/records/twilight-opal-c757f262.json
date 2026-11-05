@@ -1,0 +1,21 @@
+{
+  "name": "Twilight Opal",
+  "images": {
+    "Normal": "rbxassetid://113441832752371",
+    "Shiny": "rbxassetid://131182223159564",
+    "Mythic": "rbxassetid://82257939574860",
+    "MythicShiny": "rbxassetid://121332201380540"
+  },
+  "assetIds": [
+    "113441832752371",
+    "121332201380540",
+    "131182223159564",
+    "82257939574860"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Twilight Opal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

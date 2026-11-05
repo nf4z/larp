@@ -1,0 +1,12 @@
+{
+  "name": "Circus Jester Egg",
+  "images": {
+    "Image": "rbxassetid://119442616772350"
+  },
+  "assetIds": [
+    "119442616772350"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

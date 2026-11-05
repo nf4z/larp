@@ -1,0 +1,17 @@
+{
+  "name": "The Angel Bear",
+  "images": {
+    "Normal": "rbxassetid://77699194025721",
+    "Shiny": "rbxassetid://109889500596440"
+  },
+  "assetIds": [
+    "109889500596440",
+    "77699194025721"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Angel Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

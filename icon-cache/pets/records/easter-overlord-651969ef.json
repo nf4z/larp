@@ -1,0 +1,17 @@
+{
+  "name": "Easter Overlord",
+  "images": {
+    "Normal": "rbxassetid://135377291356179",
+    "Shiny": "rbxassetid://109259307723802"
+  },
+  "assetIds": [
+    "109259307723802",
+    "135377291356179"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

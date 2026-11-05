@@ -1,0 +1,15 @@
+{
+  "name": "Points",
+  "images": {
+    "Image": "rbxassetid://85704526714022"
+  },
+  "assetIds": [
+    "85704526714022"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Points"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

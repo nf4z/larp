@@ -1,0 +1,21 @@
+{
+  "name": "Cyborg Phoenix",
+  "images": {
+    "Normal": "rbxassetid://105920543929343",
+    "Shiny": "rbxassetid://135337380770193",
+    "Mythic": "rbxassetid://102380696723944",
+    "MythicShiny": "rbxassetid://88293167244219"
+  },
+  "assetIds": [
+    "102380696723944",
+    "105920543929343",
+    "135337380770193",
+    "88293167244219"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyborg Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

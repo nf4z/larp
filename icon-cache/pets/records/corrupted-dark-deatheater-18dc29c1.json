@@ -1,0 +1,21 @@
+{
+  "name": "Corrupted Dark Deatheater",
+  "images": {
+    "Normal": "rbxassetid://78288327927036",
+    "Shiny": "rbxassetid://93522597752292",
+    "Mythic": "rbxassetid://111858312642306",
+    "MythicShiny": "rbxassetid://123025148919936"
+  },
+  "assetIds": [
+    "111858312642306",
+    "123025148919936",
+    "78288327927036",
+    "93522597752292"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupted Dark Deatheater"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

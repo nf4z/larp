@@ -1,0 +1,17 @@
+{
+  "name": "Fire Dinosaur",
+  "images": {
+    "Normal": "rbxassetid://93100324285921",
+    "Shiny": "rbxassetid://101244624047831"
+  },
+  "assetIds": [
+    "101244624047831",
+    "93100324285921"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Dinosaur"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

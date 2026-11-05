@@ -1,0 +1,15 @@
+{
+  "name": "Lucky Coin",
+  "images": {
+    "Image": "rbxassetid://120572247444649"
+  },
+  "assetIds": [
+    "120572247444649"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Lucky Coin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

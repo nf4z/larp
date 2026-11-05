@@ -1,0 +1,21 @@
+{
+  "name": "Giant Dreamscape",
+  "images": {
+    "Normal": "rbxassetid://98931468480394",
+    "Shiny": "rbxassetid://108542614851097",
+    "Mythic": "rbxassetid://91718412419557",
+    "MythicShiny": "rbxassetid://77049466238532"
+  },
+  "assetIds": [
+    "108542614851097",
+    "77049466238532",
+    "91718412419557",
+    "98931468480394"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Dreamscape"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Gummy Worm",
+  "images": {
+    "Normal": "rbxassetid://116759179743911",
+    "Shiny": "rbxassetid://119193077634791"
+  },
+  "assetIds": [
+    "116759179743911",
+    "119193077634791"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gummy Worm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

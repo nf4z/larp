@@ -1,0 +1,17 @@
+{
+  "name": "Eagle",
+  "images": {
+    "Normal": "rbxassetid://91485415126157",
+    "Shiny": "rbxassetid://100918162000716"
+  },
+  "assetIds": [
+    "100918162000716",
+    "91485415126157"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eagle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

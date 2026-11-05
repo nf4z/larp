@@ -1,0 +1,21 @@
+{
+  "name": "Dark Weblord",
+  "images": {
+    "Normal": "rbxassetid://116132856319750",
+    "Shiny": "rbxassetid://86910922214972",
+    "Mythic": "rbxassetid://81835433355394",
+    "MythicShiny": "rbxassetid://79222244897760"
+  },
+  "assetIds": [
+    "116132856319750",
+    "79222244897760",
+    "81835433355394",
+    "86910922214972"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Weblord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

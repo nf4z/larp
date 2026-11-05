@@ -1,0 +1,21 @@
+{
+  "name": "Nightmare Deity",
+  "images": {
+    "Normal": "rbxassetid://134647814088546",
+    "Shiny": "rbxassetid://125572253517916",
+    "Mythic": "rbxassetid://80129628079532",
+    "MythicShiny": "rbxassetid://101633966438054"
+  },
+  "assetIds": [
+    "101633966438054",
+    "125572253517916",
+    "134647814088546",
+    "80129628079532"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightmare Deity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

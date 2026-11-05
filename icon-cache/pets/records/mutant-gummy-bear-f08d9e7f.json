@@ -1,0 +1,21 @@
+{
+  "name": "Mutant Gummy Bear",
+  "images": {
+    "Normal": "rbxassetid://119243225093449",
+    "Shiny": "rbxassetid://131596731902081",
+    "Mythic": "rbxassetid://117245797678238",
+    "MythicShiny": "rbxassetid://119804419373328"
+  },
+  "assetIds": [
+    "117245797678238",
+    "119243225093449",
+    "119804419373328",
+    "131596731902081"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mutant Gummy Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

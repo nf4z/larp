@@ -1,0 +1,21 @@
+{
+  "name": "OG Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://137595812136232",
+    "Shiny": "rbxassetid://80508734401845",
+    "Mythic": "rbxassetid://118930357876223",
+    "MythicShiny": "rbxassetid://138980712108808"
+  },
+  "assetIds": [
+    "118930357876223",
+    "137595812136232",
+    "138980712108808",
+    "80508734401845"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

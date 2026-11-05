@@ -1,0 +1,17 @@
+{
+  "name": "Easter Egg",
+  "images": {
+    "Normal": "rbxassetid://97739272143723",
+    "Shiny": "rbxassetid://100300586984302"
+  },
+  "assetIds": [
+    "100300586984302",
+    "97739272143723"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

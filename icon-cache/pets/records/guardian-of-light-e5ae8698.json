@@ -1,0 +1,21 @@
+{
+  "name": "Guardian of Light",
+  "images": {
+    "Normal": "rbxassetid://121033282039166",
+    "Shiny": "rbxassetid://124553395976526",
+    "Mythic": "rbxassetid://108147619462309",
+    "MythicShiny": "rbxassetid://78615749592614"
+  },
+  "assetIds": [
+    "108147619462309",
+    "121033282039166",
+    "124553395976526",
+    "78615749592614"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian of Light"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

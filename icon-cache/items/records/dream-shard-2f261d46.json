@@ -1,0 +1,15 @@
+{
+  "name": "Dream Shard",
+  "images": {
+    "Image": "rbxassetid://129390718305808"
+  },
+  "assetIds": [
+    "129390718305808"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dream Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

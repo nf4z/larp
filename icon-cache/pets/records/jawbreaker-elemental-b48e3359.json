@@ -1,0 +1,21 @@
+{
+  "name": "Jawbreaker Elemental",
+  "images": {
+    "Normal": "rbxassetid://134586935993105",
+    "Shiny": "rbxassetid://77826141719718",
+    "Mythic": "rbxassetid://120336257422474",
+    "MythicShiny": "rbxassetid://100321112452715"
+  },
+  "assetIds": [
+    "100321112452715",
+    "120336257422474",
+    "134586935993105",
+    "77826141719718"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jawbreaker Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Specter",
+  "images": {
+    "Normal": "rbxassetid://134767852076430",
+    "Shiny": "rbxassetid://76700382187872",
+    "Mythic": "rbxassetid://78060187103620",
+    "MythicShiny": "rbxassetid://138079349730160"
+  },
+  "assetIds": [
+    "134767852076430",
+    "138079349730160",
+    "76700382187872",
+    "78060187103620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Specter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

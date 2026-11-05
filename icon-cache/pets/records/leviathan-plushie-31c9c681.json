@@ -1,0 +1,17 @@
+{
+  "name": "Leviathan Plushie",
+  "images": {
+    "Normal": "rbxassetid://137126703360503",
+    "Shiny": "rbxassetid://112683746272464"
+  },
+  "assetIds": [
+    "112683746272464",
+    "137126703360503"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leviathan Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

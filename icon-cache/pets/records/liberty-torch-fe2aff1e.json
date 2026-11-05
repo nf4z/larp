@@ -1,0 +1,21 @@
+{
+  "name": "Liberty Torch",
+  "images": {
+    "Normal": "rbxassetid://88558638537973",
+    "Shiny": "rbxassetid://81050244829190",
+    "Mythic": "rbxassetid://119316331978481",
+    "MythicShiny": "rbxassetid://84191040660207"
+  },
+  "assetIds": [
+    "119316331978481",
+    "81050244829190",
+    "84191040660207",
+    "88558638537973"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Liberty Torch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

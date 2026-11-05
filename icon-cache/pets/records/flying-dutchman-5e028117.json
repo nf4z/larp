@@ -1,0 +1,21 @@
+{
+  "name": "Flying Dutchman",
+  "images": {
+    "Normal": "rbxassetid://117369673858153",
+    "Shiny": "rbxassetid://121184672700970",
+    "Mythic": "rbxassetid://92175335842014",
+    "MythicShiny": "rbxassetid://86302244499732"
+  },
+  "assetIds": [
+    "117369673858153",
+    "121184672700970",
+    "86302244499732",
+    "92175335842014"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flying Dutchman"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

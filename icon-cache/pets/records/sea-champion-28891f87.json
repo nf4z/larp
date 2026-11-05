@@ -1,0 +1,17 @@
+{
+  "name": "Sea Champion",
+  "images": {
+    "Normal": "rbxassetid://90852000576212",
+    "Shiny": "rbxassetid://110197398352420"
+  },
+  "assetIds": [
+    "110197398352420",
+    "90852000576212"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Carnival Koi",
+  "images": {
+    "Normal": "rbxassetid://101208020784184",
+    "Shiny": "rbxassetid://96229258218761"
+  },
+  "assetIds": [
+    "101208020784184",
+    "96229258218761"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carnival Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

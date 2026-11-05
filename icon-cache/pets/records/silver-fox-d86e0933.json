@@ -1,0 +1,17 @@
+{
+  "name": "Silver Fox",
+  "images": {
+    "Normal": "rbxassetid://122444893544859",
+    "Shiny": "rbxassetid://100728204642259"
+  },
+  "assetIds": [
+    "100728204642259",
+    "122444893544859"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silver Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Jester Seal",
+  "images": {
+    "Normal": "rbxassetid://104996217418487",
+    "Shiny": "rbxassetid://111629541405402"
+  },
+  "assetIds": [
+    "104996217418487",
+    "111629541405402"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

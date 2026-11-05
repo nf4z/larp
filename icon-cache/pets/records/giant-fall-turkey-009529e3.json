@@ -1,0 +1,21 @@
+{
+  "name": "Giant Fall Turkey",
+  "images": {
+    "Normal": "rbxassetid://97343970719459",
+    "Shiny": "rbxassetid://117941045591824",
+    "Mythic": "rbxassetid://134955099738109",
+    "MythicShiny": "rbxassetid://78235512891697"
+  },
+  "assetIds": [
+    "117941045591824",
+    "134955099738109",
+    "78235512891697",
+    "97343970719459"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Fall Turkey"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

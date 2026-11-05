@@ -1,0 +1,21 @@
+{
+  "name": "Doodle Leviathan",
+  "images": {
+    "Normal": "rbxassetid://70776876012202",
+    "Shiny": "rbxassetid://85624609566926",
+    "Mythic": "rbxassetid://127940247914403",
+    "MythicShiny": "rbxassetid://84790695584056"
+  },
+  "assetIds": [
+    "127940247914403",
+    "70776876012202",
+    "84790695584056",
+    "85624609566926"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodle Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

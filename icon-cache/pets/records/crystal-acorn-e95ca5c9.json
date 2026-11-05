@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Acorn",
+  "images": {
+    "Normal": "rbxassetid://76066135692547",
+    "Shiny": "rbxassetid://78044639704436",
+    "Mythic": "rbxassetid://88376452078176",
+    "MythicShiny": "rbxassetid://88580077706273"
+  },
+  "assetIds": [
+    "76066135692547",
+    "78044639704436",
+    "88376452078176",
+    "88580077706273"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Acorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

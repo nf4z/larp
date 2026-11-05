@@ -1,0 +1,21 @@
+{
+  "name": "Geometric Dominus",
+  "images": {
+    "Normal": "rbxassetid://84478242130051",
+    "Shiny": "rbxassetid://90745535514934",
+    "Mythic": "rbxassetid://83786000551040",
+    "MythicShiny": "rbxassetid://109845179620599"
+  },
+  "assetIds": [
+    "109845179620599",
+    "83786000551040",
+    "84478242130051",
+    "90745535514934"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Geometric Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

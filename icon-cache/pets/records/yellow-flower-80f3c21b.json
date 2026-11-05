@@ -1,0 +1,17 @@
+{
+  "name": "Yellow Flower",
+  "images": {
+    "Normal": "rbxassetid://101047191178028",
+    "Shiny": "rbxassetid://80938260256448"
+  },
+  "assetIds": [
+    "101047191178028",
+    "80938260256448"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Yellow Flower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

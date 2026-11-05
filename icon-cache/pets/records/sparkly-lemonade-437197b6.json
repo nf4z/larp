@@ -1,0 +1,21 @@
+{
+  "name": "Sparkly Lemonade",
+  "images": {
+    "Normal": "rbxassetid://130074288314453",
+    "Shiny": "rbxassetid://111226071362923",
+    "Mythic": "rbxassetid://129868906753424",
+    "MythicShiny": "rbxassetid://94029934213170"
+  },
+  "assetIds": [
+    "111226071362923",
+    "129868906753424",
+    "130074288314453",
+    "94029934213170"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sparkly Lemonade"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

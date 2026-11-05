@@ -1,0 +1,12 @@
+{
+  "name": "Magma Egg",
+  "images": {
+    "Image": "rbxassetid://70636967986690"
+  },
+  "assetIds": [
+    "70636967986690"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Harmonic Harp",
+  "images": {
+    "Normal": "rbxassetid://91420672431243",
+    "Shiny": "rbxassetid://85721723377737",
+    "Mythic": "rbxassetid://111776642846012",
+    "MythicShiny": "rbxassetid://128975880434578"
+  },
+  "assetIds": [
+    "111776642846012",
+    "128975880434578",
+    "85721723377737",
+    "91420672431243"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harmonic Harp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

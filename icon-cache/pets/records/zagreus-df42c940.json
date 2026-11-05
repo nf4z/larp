@@ -1,0 +1,21 @@
+{
+  "name": "Zagreus",
+  "images": {
+    "Normal": "rbxassetid://109671586695071",
+    "Shiny": "rbxassetid://75361800747529",
+    "Mythic": "rbxassetid://107569845459023",
+    "MythicShiny": "rbxassetid://126464195151957"
+  },
+  "assetIds": [
+    "107569845459023",
+    "109671586695071",
+    "126464195151957",
+    "75361800747529"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Zagreus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

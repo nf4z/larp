@@ -1,0 +1,21 @@
+{
+  "name": "STAR OF LEGEND",
+  "images": {
+    "Normal": "rbxassetid://82064924648996",
+    "Shiny": "rbxassetid://124074579634134",
+    "Mythic": "rbxassetid://102828267485639",
+    "MythicShiny": "rbxassetid://124372201179022"
+  },
+  "assetIds": [
+    "102828267485639",
+    "124074579634134",
+    "124372201179022",
+    "82064924648996"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "STAR OF LEGEND"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

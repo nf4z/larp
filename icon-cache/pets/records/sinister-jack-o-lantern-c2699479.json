@@ -1,0 +1,17 @@
+{
+  "name": "Sinister Jack O' Lantern",
+  "images": {
+    "Normal": "rbxassetid://126088951867883",
+    "Shiny": "rbxassetid://137638455292454"
+  },
+  "assetIds": [
+    "126088951867883",
+    "137638455292454"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister Jack O' Lantern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Ancient One",
+  "images": {
+    "Normal": "rbxassetid://71778947505973",
+    "Shiny": "rbxassetid://126250367370888",
+    "Mythic": "rbxassetid://109011755951467",
+    "MythicShiny": "rbxassetid://137733978147033"
+  },
+  "assetIds": [
+    "109011755951467",
+    "126250367370888",
+    "137733978147033",
+    "71778947505973"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ancient One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

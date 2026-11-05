@@ -1,0 +1,15 @@
+{
+  "name": "Fall Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://119877900254576"
+  },
+  "assetIds": [
+    "119877900254576"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Fall Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

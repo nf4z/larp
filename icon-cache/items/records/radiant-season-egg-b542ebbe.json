@@ -1,0 +1,11 @@
+{
+  "name": "Radiant Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Radiant Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

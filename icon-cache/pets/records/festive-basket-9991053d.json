@@ -1,0 +1,21 @@
+{
+  "name": "Festive Basket",
+  "images": {
+    "Normal": "rbxassetid://110652512305053",
+    "Shiny": "rbxassetid://135473166879406",
+    "Mythic": "rbxassetid://101005937679415",
+    "MythicShiny": "rbxassetid://129165891430666"
+  },
+  "assetIds": [
+    "101005937679415",
+    "110652512305053",
+    "129165891430666",
+    "135473166879406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Basket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

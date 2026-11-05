@@ -1,0 +1,21 @@
+{
+  "name": "OG Vanilla Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://87465998424429",
+    "Shiny": "rbxassetid://115462415860135",
+    "Mythic": "rbxassetid://93079638767809",
+    "MythicShiny": "rbxassetid://131316287505198"
+  },
+  "assetIds": [
+    "115462415860135",
+    "131316287505198",
+    "87465998424429",
+    "93079638767809"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Vanilla Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Stellar Drop",
+  "images": {
+    "Normal": "rbxassetid://107697975254248",
+    "Shiny": "rbxassetid://134797771285001"
+  },
+  "assetIds": [
+    "107697975254248",
+    "134797771285001"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Drop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

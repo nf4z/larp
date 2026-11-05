@@ -1,0 +1,21 @@
+{
+  "name": "ObscureEntity Giftbox",
+  "images": {
+    "Normal": "rbxassetid://109857717768895",
+    "Shiny": "rbxassetid://91093963657309",
+    "Mythic": "rbxassetid://108990092804691",
+    "MythicShiny": "rbxassetid://77883337291231"
+  },
+  "assetIds": [
+    "108990092804691",
+    "109857717768895",
+    "77883337291231",
+    "91093963657309"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "ObscureEntity Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

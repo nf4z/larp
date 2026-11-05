@@ -1,0 +1,17 @@
+{
+  "name": "Elite Challenger",
+  "images": {
+    "Normal": "rbxassetid://88302006299732",
+    "Shiny": "rbxassetid://87918443374697"
+  },
+  "assetIds": [
+    "87918443374697",
+    "88302006299732"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Challenger"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

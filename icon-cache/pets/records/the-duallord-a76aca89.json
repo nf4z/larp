@@ -1,0 +1,21 @@
+{
+  "name": "The Duallord",
+  "images": {
+    "Normal": "rbxassetid://116809709581108",
+    "Shiny": "rbxassetid://132604429557635",
+    "Mythic": "rbxassetid://139005632531195",
+    "MythicShiny": "rbxassetid://72115088369623"
+  },
+  "assetIds": [
+    "116809709581108",
+    "132604429557635",
+    "139005632531195",
+    "72115088369623"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Duallord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

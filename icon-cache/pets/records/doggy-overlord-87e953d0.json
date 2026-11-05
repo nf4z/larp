@@ -1,0 +1,17 @@
+{
+  "name": "Doggy Overlord",
+  "images": {
+    "Normal": "rbxassetid://138334577780236",
+    "Shiny": "rbxassetid://112332245910769"
+  },
+  "assetIds": [
+    "112332245910769",
+    "138334577780236"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doggy Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

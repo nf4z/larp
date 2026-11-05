@@ -1,0 +1,21 @@
+{
+  "name": "Dog Royal",
+  "images": {
+    "Normal": "rbxassetid://125351881718326",
+    "Shiny": "rbxassetid://120362410191316",
+    "Mythic": "rbxassetid://80983651354883",
+    "MythicShiny": "rbxassetid://104314494346013"
+  },
+  "assetIds": [
+    "104314494346013",
+    "120362410191316",
+    "125351881718326",
+    "80983651354883"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dog Royal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

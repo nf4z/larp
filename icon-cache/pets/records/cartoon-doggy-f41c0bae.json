@@ -1,0 +1,17 @@
+{
+  "name": "Cartoon Doggy",
+  "images": {
+    "Normal": "rbxassetid://101106039147529",
+    "Shiny": "rbxassetid://76795834474356"
+  },
+  "assetIds": [
+    "101106039147529",
+    "76795834474356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cartoon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

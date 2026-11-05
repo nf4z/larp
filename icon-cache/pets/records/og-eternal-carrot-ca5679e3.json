@@ -1,0 +1,21 @@
+{
+  "name": "OG Eternal Carrot",
+  "images": {
+    "Normal": "rbxassetid://122056851896992",
+    "Shiny": "rbxassetid://127304575567623",
+    "Mythic": "rbxassetid://76355891888958",
+    "MythicShiny": "rbxassetid://84726634820359"
+  },
+  "assetIds": [
+    "122056851896992",
+    "127304575567623",
+    "76355891888958",
+    "84726634820359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Eternal Carrot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

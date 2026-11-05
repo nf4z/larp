@@ -1,0 +1,21 @@
+{
+  "name": "Maid Nert Plushie",
+  "images": {
+    "Normal": "rbxassetid://107419692380161",
+    "Shiny": "rbxassetid://112611840797332",
+    "Mythic": "rbxassetid://94304891302206",
+    "MythicShiny": "rbxassetid://116543904315639"
+  },
+  "assetIds": [
+    "107419692380161",
+    "112611840797332",
+    "116543904315639",
+    "94304891302206"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Maid Nert Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

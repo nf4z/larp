@@ -1,0 +1,21 @@
+{
+  "name": "Clown Rigby",
+  "images": {
+    "Normal": "rbxassetid://75644686403707",
+    "Shiny": "rbxassetid://104688807654689",
+    "Mythic": "rbxassetid://127015728490108",
+    "MythicShiny": "rbxassetid://74982248746957"
+  },
+  "assetIds": [
+    "104688807654689",
+    "127015728490108",
+    "74982248746957",
+    "75644686403707"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

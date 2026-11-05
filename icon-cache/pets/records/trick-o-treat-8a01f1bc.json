@@ -1,0 +1,21 @@
+{
+  "name": "Trick O Treat",
+  "images": {
+    "Normal": "rbxassetid://124451361951440",
+    "Shiny": "rbxassetid://129105190386073",
+    "Mythic": "rbxassetid://99445663089121",
+    "MythicShiny": "rbxassetid://133898299306739"
+  },
+  "assetIds": [
+    "124451361951440",
+    "129105190386073",
+    "133898299306739",
+    "99445663089121"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Trick O Treat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

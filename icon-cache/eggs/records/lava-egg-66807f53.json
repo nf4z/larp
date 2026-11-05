@@ -1,0 +1,12 @@
+{
+  "name": "Lava Egg",
+  "images": {
+    "Image": "rbxassetid://132386046559580"
+  },
+  "assetIds": [
+    "132386046559580"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

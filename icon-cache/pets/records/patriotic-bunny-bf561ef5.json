@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Bunny",
+  "images": {
+    "Normal": "rbxassetid://134823894122015",
+    "Shiny": "rbxassetid://137573789889708"
+  },
+  "assetIds": [
+    "134823894122015",
+    "137573789889708"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

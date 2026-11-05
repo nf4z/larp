@@ -1,0 +1,21 @@
+{
+  "name": "Giant Classic Chicken",
+  "images": {
+    "Normal": "rbxassetid://98047084558513",
+    "Shiny": "rbxassetid://91022143346569",
+    "Mythic": "rbxassetid://78702059161678",
+    "MythicShiny": "rbxassetid://100808757250842"
+  },
+  "assetIds": [
+    "100808757250842",
+    "78702059161678",
+    "91022143346569",
+    "98047084558513"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Classic Chicken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

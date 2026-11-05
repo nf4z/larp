@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Doggy",
+  "images": {
+    "Normal": "rbxassetid://82157117482191",
+    "Shiny": "rbxassetid://107358357102163",
+    "Mythic": "rbxassetid://117053825461558",
+    "MythicShiny": "rbxassetid://91110973671391"
+  },
+  "assetIds": [
+    "107358357102163",
+    "117053825461558",
+    "82157117482191",
+    "91110973671391"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

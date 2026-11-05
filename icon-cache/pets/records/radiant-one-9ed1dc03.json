@@ -1,0 +1,21 @@
+{
+  "name": "Radiant One",
+  "images": {
+    "Normal": "rbxassetid://115960664319559",
+    "Shiny": "rbxassetid://76418991985418",
+    "Mythic": "rbxassetid://111502105564843",
+    "MythicShiny": "rbxassetid://73034769128924"
+  },
+  "assetIds": [
+    "111502105564843",
+    "115960664319559",
+    "73034769128924",
+    "76418991985418"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

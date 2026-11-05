@@ -1,0 +1,21 @@
+{
+  "name": "OG OwOlord",
+  "images": {
+    "Normal": "rbxassetid://87672584198463",
+    "Shiny": "rbxassetid://76916585977096",
+    "Mythic": "rbxassetid://126047858829477",
+    "MythicShiny": "rbxassetid://92719859387606"
+  },
+  "assetIds": [
+    "126047858829477",
+    "76916585977096",
+    "87672584198463",
+    "92719859387606"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG OwOlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

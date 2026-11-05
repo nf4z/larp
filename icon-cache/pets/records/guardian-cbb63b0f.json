@@ -1,0 +1,21 @@
+{
+  "name": "GUARDIAN",
+  "images": {
+    "Normal": "rbxassetid://99628266922202",
+    "Shiny": "rbxassetid://96213947608223",
+    "Mythic": "rbxassetid://138070955916410",
+    "MythicShiny": "rbxassetid://129755986702375"
+  },
+  "assetIds": [
+    "129755986702375",
+    "138070955916410",
+    "96213947608223",
+    "99628266922202"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "GUARDIAN"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

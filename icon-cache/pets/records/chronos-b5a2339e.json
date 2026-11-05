@@ -1,0 +1,17 @@
+{
+  "name": "Chronos",
+  "images": {
+    "Normal": "rbxassetid://123977114641958",
+    "Shiny": "rbxassetid://94878061948211"
+  },
+  "assetIds": [
+    "123977114641958",
+    "94878061948211"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chronos"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

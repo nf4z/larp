@@ -1,0 +1,17 @@
+{
+  "name": "TIME",
+  "images": {
+    "Normal": "rbxassetid://127511091279499",
+    "Shiny": "rbxassetid://99711040627504"
+  },
+  "assetIds": [
+    "127511091279499",
+    "99711040627504"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "TIME"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

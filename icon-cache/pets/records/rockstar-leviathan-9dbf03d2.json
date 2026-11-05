@@ -1,0 +1,21 @@
+{
+  "name": "Rockstar Leviathan",
+  "images": {
+    "Normal": "rbxassetid://86502377642554",
+    "Shiny": "rbxassetid://116912380876461",
+    "Mythic": "rbxassetid://80766057907952",
+    "MythicShiny": "rbxassetid://110858197234613"
+  },
+  "assetIds": [
+    "110858197234613",
+    "116912380876461",
+    "80766057907952",
+    "86502377642554"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rockstar Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

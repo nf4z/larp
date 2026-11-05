@@ -1,0 +1,21 @@
+{
+  "name": "Legendary Catch",
+  "images": {
+    "Normal": "rbxassetid://75297938553337",
+    "Shiny": "rbxassetid://106870113187882",
+    "Mythic": "rbxassetid://129446762321763",
+    "MythicShiny": "rbxassetid://129103971067186"
+  },
+  "assetIds": [
+    "106870113187882",
+    "129103971067186",
+    "129446762321763",
+    "75297938553337"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Legendary Catch"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

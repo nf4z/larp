@@ -1,0 +1,15 @@
+{
+  "name": "Mystique Ray",
+  "images": {
+    "Image": "rbxassetid://98563428342925"
+  },
+  "assetIds": [
+    "98563428342925"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mystique Ray"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Molten Split",
+  "images": {
+    "Normal": "rbxassetid://131388211363773",
+    "Shiny": "rbxassetid://104894964296760",
+    "Mythic": "rbxassetid://86630718329605",
+    "MythicShiny": "rbxassetid://86003204815000"
+  },
+  "assetIds": [
+    "104894964296760",
+    "131388211363773",
+    "86003204815000",
+    "86630718329605"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Molten Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

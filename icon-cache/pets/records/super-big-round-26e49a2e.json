@@ -1,0 +1,21 @@
+{
+  "name": "SUPER BIG ROUND",
+  "images": {
+    "Normal": "rbxassetid://71728452918814",
+    "Shiny": "rbxassetid://134355531412992",
+    "Mythic": "rbxassetid://137495821379041",
+    "MythicShiny": "rbxassetid://135438484463085"
+  },
+  "assetIds": [
+    "134355531412992",
+    "135438484463085",
+    "137495821379041",
+    "71728452918814"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "SUPER BIG ROUND"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

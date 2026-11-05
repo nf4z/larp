@@ -1,0 +1,21 @@
+{
+  "name": "Mystical Hybrid",
+  "images": {
+    "Normal": "rbxassetid://124577868637100",
+    "Shiny": "rbxassetid://130356422555954",
+    "Mythic": "rbxassetid://89424246727020",
+    "MythicShiny": "rbxassetid://84161600440868"
+  },
+  "assetIds": [
+    "124577868637100",
+    "130356422555954",
+    "84161600440868",
+    "89424246727020"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mystical Hybrid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

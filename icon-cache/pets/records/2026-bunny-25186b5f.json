@@ -1,0 +1,17 @@
+{
+  "name": "2026 Bunny",
+  "images": {
+    "Normal": "rbxassetid://92480114257145",
+    "Shiny": "rbxassetid://139246453889809"
+  },
+  "assetIds": [
+    "139246453889809",
+    "92480114257145"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

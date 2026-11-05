@@ -1,0 +1,15 @@
+{
+  "name": "Golden Bait",
+  "images": {
+    "Image": "rbxassetid://124097901305045"
+  },
+  "assetIds": [
+    "124097901305045"
+  ],
+  "item": {
+    "Type": "Bait",
+    "Name": "Golden Bait"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingBait"
+}

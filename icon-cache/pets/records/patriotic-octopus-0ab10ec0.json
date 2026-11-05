@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Octopus",
+  "images": {
+    "Normal": "rbxassetid://87694939872725",
+    "Shiny": "rbxassetid://120191558859207",
+    "Mythic": "rbxassetid://110565269666484",
+    "MythicShiny": "rbxassetid://115039690081784"
+  },
+  "assetIds": [
+    "110565269666484",
+    "115039690081784",
+    "120191558859207",
+    "87694939872725"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Octopus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

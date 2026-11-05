@@ -1,0 +1,21 @@
+{
+  "name": "Neon Soul",
+  "images": {
+    "Normal": "rbxassetid://139887887170699",
+    "Shiny": "rbxassetid://139880123305985",
+    "Mythic": "rbxassetid://107644946450226",
+    "MythicShiny": "rbxassetid://77977736157017"
+  },
+  "assetIds": [
+    "107644946450226",
+    "139880123305985",
+    "139887887170699",
+    "77977736157017"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

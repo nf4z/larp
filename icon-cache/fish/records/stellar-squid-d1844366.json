@@ -1,0 +1,15 @@
+{
+  "name": "Stellar Squid",
+  "images": {
+    "Image": "rbxassetid://115152622763789"
+  },
+  "assetIds": [
+    "115152622763789"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Stellar Squid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

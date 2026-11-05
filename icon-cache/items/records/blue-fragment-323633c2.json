@@ -1,0 +1,15 @@
+{
+  "name": "Blue Fragment",
+  "images": {
+    "Image": "rbxassetid://115103753143983"
+  },
+  "assetIds": [
+    "115103753143983"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Blue Fragment"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Pink Gumdrop",
+  "images": {
+    "Normal": "rbxassetid://133932861210336",
+    "Shiny": "rbxassetid://75684876543778"
+  },
+  "assetIds": [
+    "133932861210336",
+    "75684876543778"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pink Gumdrop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

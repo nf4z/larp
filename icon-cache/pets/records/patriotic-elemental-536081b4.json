@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Elemental",
+  "images": {
+    "Normal": "rbxassetid://112844436171079",
+    "Shiny": "rbxassetid://120532190092182",
+    "Mythic": "rbxassetid://97256360023626",
+    "MythicShiny": "rbxassetid://90468080265052"
+  },
+  "assetIds": [
+    "112844436171079",
+    "120532190092182",
+    "90468080265052",
+    "97256360023626"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Bubble Beast",
+  "images": {
+    "Normal": "rbxassetid://75762959311978",
+    "Shiny": "rbxassetid://71659469220091",
+    "Mythic": "rbxassetid://92022477263035",
+    "MythicShiny": "rbxassetid://80771823587035"
+  },
+  "assetIds": [
+    "71659469220091",
+    "75762959311978",
+    "80771823587035",
+    "92022477263035"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubble Beast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

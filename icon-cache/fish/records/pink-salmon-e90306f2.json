@@ -1,0 +1,15 @@
+{
+  "name": "Pink Salmon",
+  "images": {
+    "Image": "rbxassetid://99892062393855"
+  },
+  "assetIds": [
+    "99892062393855"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Pink Salmon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

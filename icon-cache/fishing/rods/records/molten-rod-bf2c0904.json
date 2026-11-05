@@ -1,0 +1,15 @@
+{
+  "name": "Molten Rod",
+  "images": {
+    "Image": "rbxassetid://80745375513010"
+  },
+  "assetIds": [
+    "80745375513010"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Molten Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

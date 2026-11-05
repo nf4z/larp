@@ -1,0 +1,17 @@
+{
+  "name": "Bow Kitty",
+  "images": {
+    "Normal": "rbxassetid://82465508531426",
+    "Shiny": "rbxassetid://73406410029228"
+  },
+  "assetIds": [
+    "73406410029228",
+    "82465508531426"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bow Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

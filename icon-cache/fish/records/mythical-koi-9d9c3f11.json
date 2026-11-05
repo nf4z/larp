@@ -1,0 +1,15 @@
+{
+  "name": "Mythical Koi",
+  "images": {
+    "Image": "rbxassetid://74184732302833"
+  },
+  "assetIds": [
+    "74184732302833"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mythical Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

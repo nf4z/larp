@@ -1,0 +1,21 @@
+{
+  "name": "Poison Apple",
+  "images": {
+    "Normal": "rbxassetid://108262612897176",
+    "Shiny": "rbxassetid://109697711671708",
+    "Mythic": "rbxassetid://90882587031982",
+    "MythicShiny": "rbxassetid://98594531932053"
+  },
+  "assetIds": [
+    "108262612897176",
+    "109697711671708",
+    "90882587031982",
+    "98594531932053"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Poison Apple"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

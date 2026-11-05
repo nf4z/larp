@@ -1,0 +1,17 @@
+{
+  "name": "Candycane Dragon",
+  "images": {
+    "Normal": "rbxassetid://119622208627581",
+    "Shiny": "rbxassetid://82295686602891"
+  },
+  "assetIds": [
+    "119622208627581",
+    "82295686602891"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candycane Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

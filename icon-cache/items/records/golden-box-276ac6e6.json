@@ -1,0 +1,15 @@
+{
+  "name": "Golden Box",
+  "images": {
+    "Image": "rbxassetid://91232207306055"
+  },
+  "assetIds": [
+    "91232207306055"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Golden Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

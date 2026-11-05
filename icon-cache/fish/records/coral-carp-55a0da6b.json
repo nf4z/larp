@@ -1,0 +1,15 @@
+{
+  "name": "Coral Carp",
+  "images": {
+    "Image": "rbxassetid://102982510721561"
+  },
+  "assetIds": [
+    "102982510721561"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Coral Carp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

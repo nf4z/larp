@@ -1,0 +1,15 @@
+{
+  "name": "OGPoints",
+  "images": {
+    "Image": "rbxassetid://109136696727444"
+  },
+  "assetIds": [
+    "109136696727444"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "OGPoints"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

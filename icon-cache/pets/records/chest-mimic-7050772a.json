@@ -1,0 +1,21 @@
+{
+  "name": "Chest Mimic",
+  "images": {
+    "Normal": "rbxassetid://139248199918538",
+    "Shiny": "rbxassetid://122250936755450",
+    "Mythic": "rbxassetid://88418330246670",
+    "MythicShiny": "rbxassetid://97760000047031"
+  },
+  "assetIds": [
+    "122250936755450",
+    "139248199918538",
+    "88418330246670",
+    "97760000047031"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chest Mimic"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

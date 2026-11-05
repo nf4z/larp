@@ -1,0 +1,21 @@
+{
+  "name": "Pawnacci",
+  "images": {
+    "Normal": "rbxassetid://118843817592206",
+    "Shiny": "rbxassetid://107078598855162",
+    "Mythic": "rbxassetid://100664261979029",
+    "MythicShiny": "rbxassetid://83908503446386"
+  },
+  "assetIds": [
+    "100664261979029",
+    "107078598855162",
+    "118843817592206",
+    "83908503446386"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pawnacci"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG Duality",
+  "images": {
+    "Normal": "rbxassetid://80328399929531",
+    "Shiny": "rbxassetid://123346371523357",
+    "Mythic": "rbxassetid://85801009953238",
+    "MythicShiny": "rbxassetid://95430668932617"
+  },
+  "assetIds": [
+    "123346371523357",
+    "80328399929531",
+    "85801009953238",
+    "95430668932617"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Duality"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

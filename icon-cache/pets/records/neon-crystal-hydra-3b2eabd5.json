@@ -1,0 +1,21 @@
+{
+  "name": "Neon Crystal Hydra",
+  "images": {
+    "Normal": "rbxassetid://75665072483908",
+    "Shiny": "rbxassetid://72611999344912",
+    "Mythic": "rbxassetid://97353087271176",
+    "MythicShiny": "rbxassetid://101607299409047"
+  },
+  "assetIds": [
+    "101607299409047",
+    "72611999344912",
+    "75665072483908",
+    "97353087271176"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Crystal Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

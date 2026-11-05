@@ -1,0 +1,21 @@
+{
+  "name": "Seraphic Bunny",
+  "images": {
+    "Normal": "rbxassetid://79750206272909",
+    "Shiny": "rbxassetid://103392017403068",
+    "Mythic": "rbxassetid://93333271902816",
+    "MythicShiny": "rbxassetid://124711616271771"
+  },
+  "assetIds": [
+    "103392017403068",
+    "124711616271771",
+    "79750206272909",
+    "93333271902816"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seraphic Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

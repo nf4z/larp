@@ -1,0 +1,17 @@
+{
+  "name": "Mine Sweeper",
+  "images": {
+    "Normal": "rbxassetid://97804732170749",
+    "Shiny": "rbxassetid://136115065910848"
+  },
+  "assetIds": [
+    "136115065910848",
+    "97804732170749"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mine Sweeper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

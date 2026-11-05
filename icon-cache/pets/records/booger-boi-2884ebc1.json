@@ -1,0 +1,17 @@
+{
+  "name": "Booger Boi",
+  "images": {
+    "Normal": "rbxassetid://115596826243206",
+    "Shiny": "rbxassetid://78123476661862"
+  },
+  "assetIds": [
+    "115596826243206",
+    "78123476661862"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Booger Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Infernal",
+  "images": {
+    "Normal": "rbxassetid://123587176890897",
+    "Shiny": "rbxassetid://115677754770560",
+    "Mythic": "rbxassetid://137283887460596",
+    "MythicShiny": "rbxassetid://105091908911324"
+  },
+  "assetIds": [
+    "105091908911324",
+    "115677754770560",
+    "123587176890897",
+    "137283887460596"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Infernal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

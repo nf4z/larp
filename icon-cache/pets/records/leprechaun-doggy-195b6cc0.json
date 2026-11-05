@@ -1,0 +1,17 @@
+{
+  "name": "Leprechaun Doggy",
+  "images": {
+    "Normal": "rbxassetid://100402952001703",
+    "Shiny": "rbxassetid://76205704961242"
+  },
+  "assetIds": [
+    "100402952001703",
+    "76205704961242"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leprechaun Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

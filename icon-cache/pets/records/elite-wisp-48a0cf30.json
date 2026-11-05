@@ -1,0 +1,21 @@
+{
+  "name": "Elite Wisp",
+  "images": {
+    "Normal": "rbxassetid://101144684807297",
+    "Shiny": "rbxassetid://136056677603732",
+    "Mythic": "rbxassetid://119656202616787",
+    "MythicShiny": "rbxassetid://89366440559336"
+  },
+  "assetIds": [
+    "101144684807297",
+    "119656202616787",
+    "136056677603732",
+    "89366440559336"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Wisp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

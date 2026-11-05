@@ -1,0 +1,21 @@
+{
+  "name": "Wyrm of Currents",
+  "images": {
+    "Normal": "rbxassetid://92933532354348",
+    "Shiny": "rbxassetid://78827428435032",
+    "Mythic": "rbxassetid://129564847065299",
+    "MythicShiny": "rbxassetid://71504171263080"
+  },
+  "assetIds": [
+    "129564847065299",
+    "71504171263080",
+    "78827428435032",
+    "92933532354348"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wyrm of Currents"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

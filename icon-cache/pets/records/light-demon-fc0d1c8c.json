@@ -1,0 +1,17 @@
+{
+  "name": "Light Demon",
+  "images": {
+    "Normal": "rbxassetid://109064437630513",
+    "Shiny": "rbxassetid://101572934393799"
+  },
+  "assetIds": [
+    "101572934393799",
+    "109064437630513"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

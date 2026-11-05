@@ -2,11 +2,11 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 6 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 7 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 6 then
+if prior and prior.Starting and prior.Revision == 7 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -22,7 +22,7 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 6, State = private}
+local runtime = {Starting = true, Revision = 7, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
@@ -69,6 +69,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
+local HttpService = game:GetService("HttpService")
 local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local assets = ReplicatedStorage:WaitForChild("Assets", 15)
 local shared = ReplicatedStorage:WaitForChild("Shared", 15)
@@ -128,7 +129,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.04.6", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.04.7", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -220,6 +221,42 @@ local overlay = create("Frame", {Name = "Overlay", BackgroundTransparency = 1, A
 
 -- Data is required lazily, and only visible dropdown rows create icon instances.
 local dataCache, descriptorCache, descriptorCount = {}, {}, 0
+local ICON_CACHE_PATHS = {["Pets"] = "icon-cache/pets/c02db8e8a4af7f7a608a.json", ["Eggs"] = "icon-cache/eggs/6405213f97595ca11853.json", ["Potions"] = "icon-cache/potions/1a118864dde19ad30b7c.json", ["Powerups"] = "icon-cache/items/4bebc8dd6f09f2fa9c1c.json", ["Runes"] = "icon-cache/runes/94300c82e67fcacb74cd.json", ["Currency"] = "icon-cache/currencies/b46ca67766fa727be10e.json", ["PermanentBuffs"] = "icon-cache/buffs/bce297260a2649fb763f.json", ["Fish"] = "icon-cache/fish/a1203d66075786101cf9.json", ["FishingRods"] = "icon-cache/fishing/rods/201dab1dfd4e6c587b92.json", ["FishingBait"] = "icon-cache/fishing/bait/6dde680cade1243467e7.json", ["FishingBobbers"] = "icon-cache/fishing/bobbers/6977768e97a959ca43fb.json"}
+local iconCatalogs, iconCatalogPending = {}, {}
+local function cachedImage(category, name, variant)
+	local catalog = iconCatalogs[category]
+	if catalog then
+		local record = catalog[name]
+		if record and record.images then return record.images[variant or "Image"] or record.images.Normal end
+	end
+	local remotePath = ICON_CACHE_PATHS[category]
+	if remotePath and not iconCatalogPending[category] then
+		iconCatalogPending[category] = true
+		task.spawn(function()
+			local ok, result = pcall(function()
+				local disk = "QtrzipIconCache/" .. remotePath:match("([^/]+)$")
+				local function decode(source)
+					local value = HttpService:JSONDecode(source)
+					assert(value.schema == 1 and value.category == category and type(value.entries) == "table")
+					return value.entries
+				end
+				if isfile and readfile then
+					local valid, entries = pcall(function() if isfile(disk) then return decode(readfile(disk)) end end)
+					if valid and entries then return entries end
+				end
+				local source = game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/" .. remotePath, true)
+				local entries = decode(source)
+				if makefolder and writefile then pcall(function() if not isfolder or not isfolder("QtrzipIconCache") then makefolder("QtrzipIconCache") end; writefile(disk, source) end) end
+				return entries
+			end)
+			if ok then iconCatalogs[category] = result; table.clear(descriptorCache) end
+		end)
+	end
+	local ready = iconCatalogs[category]
+	local record = ready and ready[name]
+	if record and record.images then return record.images[variant or "Image"] or record.images.Normal end
+	return nil
+end
 local function data(name)
 	if dataCache[name] == nil then dataCache[name] = safeRequire(path(shared, "Data", name)) or false end
 	return dataCache[name] or nil
@@ -239,7 +276,7 @@ local function resolve(value, context)
 	local descriptor
 	local egg = findEntry("Eggs", raw)
 	if egg then
-		local image = egg.Image
+		local image = cachedImage("Eggs", raw) or egg.Image
 		if type(image) == "string" and image ~= constants.UnknownImage and image ~= "" then
 			descriptor = {image = image}
 		else
@@ -248,7 +285,8 @@ local function resolve(value, context)
 	end
 	local rune, tier = raw:match("^(.-) Tier (%d+)$")
 	if not descriptor and rune and findEntry("Runes", rune) then
-		descriptor = {item = {Type = "Rune", Name = rune, Tier = tonumber(tier)}}
+		local image = cachedImage("Runes", rune, "Tier" .. tier)
+		descriptor = image and {image = image} or {item = {Type = "Rune", Name = rune, Tier = tonumber(tier)}}
 	end
 	if not descriptor then
 		for _, kind in ipairs({{"Potions", "Potion"}, {"Powerups", "Powerup"}, {"Pets", "Pet"}, {"PermanentBuffs", "PermanentBuff"}, {"FishingRods", "FishingRod"}, {"FishingBait", "Bait"}, {"FishingBobbers", "Bobber"}, {"Fish", "Fish"}}) do
@@ -256,14 +294,18 @@ local function resolve(value, context)
 			local level = tonumber(raw:match("[Ll]evel%s*(%d+)$")) or tonumber(raw:match("%s+(%d+)$"))
 			if level then name = raw:gsub("%s+[Ll]evel%s*%d+$", ""):gsub("%s+%d+$", "") end
 			if findEntry(kind[1], name) then
-				descriptor = {item = {Type = kind[2], Name = name, Level = level or 1}}
+				local image = cachedImage(kind[1], name)
+				descriptor = image and {image = image} or {item = {Type = kind[2], Name = name, Level = level or 1}}
 				break
 			end
 		end
 	end
 	if not descriptor then
 		local currency = findEntry("Currency", raw)
-		if currency then descriptor = {item = {Type = "Currency", Currency = raw}} end
+		if currency then
+			local image = cachedImage("Currency", raw)
+			descriptor = image and {image = image} or {item = {Type = "Currency", Currency = raw}}
+		end
 	end
 	descriptor = descriptor or {fallback = raw:sub(1, 1):upper()}
 	descriptorCount += 1
@@ -407,6 +449,8 @@ local function closePopup()
 	if popup then popup.Visible = false end
 	overlay.Visible = false
 	if popupOwner then
+		for _, icon in pairs(popupOwner.NativeIcons or {}) do clearIcon(icon) end
+		popupOwner.NativeIcons = nil
 		local chevron = popupOwner.Action and popupOwner.Action:FindFirstChild("Chevron")
 		if chevron then chevron.Rotation = 0 end
 		local nativePicker = popupOwner.NativePicker
@@ -725,7 +769,9 @@ function tabMethods:Dropdown(props)
 	end
 	function control:Select(value, silent)
 		self.Value = value
-		title.Text = self.Multi and type(value) == "table" and (#value .. " selected") or (value ~= nil and optionTitle(value) or "Choose...")
+		if self.Multi and type(value) == "table" then
+			title.Text = #value == 0 and "None selected" or (#value == 1 and optionTitle(value[1]) or (#value .. " selected"))
+		else title.Text = value ~= nil and optionTitle(value) or "Choose..." end
 		self:UpdateIcon()
 		if not silent then invoke(self, value) end
 	end
@@ -764,6 +810,41 @@ function tabMethods:Dropdown(props)
 		overlay.Visible = true
 		popup = picker._floater; popupOwner = self
 		self.NativePicker = picker
+		local icons = {}
+		self.NativeIcons = icons
+		local list = picker._floater.Items
+		local layout = list:FindFirstChildOfClass("UIListLayout")
+		local padding = layout and layout.Padding and layout.Padding.Offset or 0
+		local stride = math.max(1, dropdownRow.Size.Y.Offset + padding)
+		self.NativeStride = stride
+		local function updateIcons()
+			local first = math.max(1, math.floor(list.CanvasPosition.Y / stride) + 1)
+			local last = math.min(#self.Values, first + 8)
+			for index, icon in pairs(icons) do
+				if index < first or index > last then clearIcon(icon); icon.Visible = false end
+			end
+			for index = first, last do
+				local value = self.Values[index]
+				local descriptor = resolve(value, self.Title)
+				if descriptor.item or descriptor.image or descriptor.model then
+					local nativeRow = picker._frames[index]
+					local icon = icons[index]
+					if not icon then
+						icon = create("Frame", {Name = "ItemIcon", BackgroundTransparency = 1, Active = false,
+							AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 6, 0.5, 0),
+							Size = UDim2.fromOffset(28, 28), ZIndex = nativeRow.ZIndex + 1}, nativeRow)
+						icons[index] = icon
+						local text = nativeRow.Label
+						text.AnchorPoint = Vector2.zero; text.Position = UDim2.fromOffset(42, 0)
+						text.Size = UDim2.new(1, -50, 1, 0); text.TextXAlignment = Enum.TextXAlignment.Left
+					end
+					if not icon.Visible or #icon:GetChildren() == 0 then
+						icon.Visible = true; pcall(renderIcon, icon, value, self.Title)
+					end
+				end
+			end
+		end
+		picker._trove:Add(list:GetPropertyChangedSignal("CanvasPosition"):Connect(updateIcons))
 		picker.OnSelectionChanged:Connect(function(value, index, checked)
 			if self.Multi then
 				local values = type(self.Value) == "table" and table.clone(self.Value) or {}
@@ -783,6 +864,7 @@ function tabMethods:Dropdown(props)
 			end
 		end)
 		picker:SetOpened(true)
+		updateIcons()
 	end
 	function control:Refresh(values)
 		self.Values = table.clone(values or {})
@@ -792,104 +874,7 @@ function tabMethods:Dropdown(props)
 	connect(action.Activated, function()
 		if control.Locked then return end
 		if popupOwner == control then closePopup(); return end
-		local hasItem = false
-		for _, value in ipairs(control.Values) do
-			local descriptor = resolve(value, control.Title)
-			if descriptor.item or descriptor.image or descriptor.model then hasItem = true; break end
-		end
-		if not hasItem and #control.Values <= 30 then control:OpenNativePicker(); return end
-		closePopup()
-		if popup then popup:Destroy() end
-		popup = cloneNative(dropdownShell, 40)
-		overlay.Visible = true
-		local chevron = action:FindFirstChild("Chevron"); if chevron then chevron.Rotation = 180 end
-		popup.Name = "IconPicker"; popup.AnchorPoint = Vector2.zero; popup.Visible = true; popup.Parent = overlay
-		local popupTitle = cloneNative(nativeRow.Information.Label, 42)
-		popupTitle.Text = control.Title .. "  /  " .. #control.Values; popupTitle.Parent = popup
-		popupTitle.AnchorPoint = Vector2.zero; popupTitle.TextScaled = false
-		popupTitle.TextTruncate = Enum.TextTruncate.AtEnd
-		for _, child in ipairs(popupTitle:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
-		popupTitle.Position = UDim2.fromOffset(12, 8); popupTitle.Size = UDim2.new(1, -52, 0, 26)
-		local done = cloneNative(close, 44)
-		done.AnchorPoint = Vector2.zero; done.Size = UDim2.fromOffset(28, 28)
-		done.Position = UDim2.new(1, -38, 0, 8); done.Parent = popup
-		autoButtonColor(done, palette.Button.Red)
-		local queryHost = cloneNative(searchHost, 42); queryHost.Parent = popup
-		queryHost.Position = UDim2.fromOffset(10, 43); queryHost.Size = UDim2.new(1, -20, 0, 40)
-		local query = assert(path(queryHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native picker search missing")
-		query.Text = ""; query.PlaceholderText = "Search names..."; query.ClearTextOnFocus = false
-		local list = assert(popup:FindFirstChild("Items"), "[@qtrzip] Native picker Items missing")
-		clearContent(list)
-		for _, child in ipairs(list:GetChildren()) do if child:IsA("UIListLayout") or child:IsA("UIPadding") then child:Destroy() end end
-		list.Position = UDim2.fromOffset(10, 90); list.Size = UDim2.new(1, -20, 1, -102); list.ScrollBarThickness = 5
-		list.CanvasPosition = Vector2.zero; list.ScrollingEnabled = true
-		local empty = label(popup, "No matches", 15, colors.muted); empty.Position = UDim2.fromOffset(12, 90); empty.Size = UDim2.new(1, -24, 0, 40); empty.Visible = false
-		local pool, filtered = {}, {}
-		control.pool = pool
-		local function draw()
-			local first = math.floor(list.CanvasPosition.Y / 52) + 1
-			for offset, cell in ipairs(pool) do
-				local index = filtered[first + offset - 1]
-				cell.index = index; cell.button.Visible = index ~= nil
-				if index then
-					cell.button.Position = UDim2.fromOffset(0, (first + offset - 2) * 52)
-					local value = control.Values[index]; cell.title.Text = optionTitle(value)
-					local selected = control.Multi and type(control.Value) == "table" and table.find(control.Value, optionValue(value)) ~= nil or control.Value == optionValue(value)
-					cell.paint(selected and "Green" or "Blue")
-					if cell.value ~= value then
-						cell.value = value
-						pcall(renderIcon, cell.icon, value, control.Title)
-					end
-				else cell.value = nil; clearIcon(cell.icon) end
-			end
-		end
-		-- Nine reusable rows bound the number of potion animations and egg models.
-		for _ = 1, 9 do
-			local cellButton, cellTitle, paint = button(list, "", "Blue", dropdownRow)
-			cellButton.Size = UDim2.new(1, -7, 0, 46)
-			cellTitle.TextScaled = false; cellTitle.AnchorPoint = Vector2.zero
-			cellTitle.Position = UDim2.fromOffset(52, 0); cellTitle.Size = UDim2.new(1, -60, 1, 0); cellTitle.TextXAlignment = Enum.TextXAlignment.Left
-			local icon = create("Frame", {BackgroundTransparency = 1, Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(4, 3), ZIndex = 46}, cellButton)
-			local cell = {button = cellButton, title = cellTitle, paint = paint, icon = icon}
-			table.insert(pool, cell)
-			-- Instance-owned events disconnect when the popup is destroyed.
-			cellButton.Activated:Connect(function()
-				if not cell.index then return end
-				local value = optionValue(control.Values[cell.index])
-				if control.Multi then
-					local selected = type(control.Value) == "table" and table.clone(control.Value) or {}
-					local existing = table.find(selected, value)
-					if existing then table.remove(selected, existing) else table.insert(selected, value) end
-					control:Select(selected); draw()
-				else control:Select(value); closePopup() end
-			end)
-		end
-		local function filter()
-			table.clear(filtered)
-			local needle = query.Text:lower()
-			for index, value in ipairs(control.Values) do if optionTitle(value):lower():find(needle, 1, true) then table.insert(filtered, index) end end
-			list.CanvasSize = UDim2.fromOffset(0, #filtered * 52); list.CanvasPosition = Vector2.zero
-			empty.Visible = #filtered == 0; draw()
-		end
-		query:GetPropertyChangedSignal("Text"):Connect(filter)
-		list:GetPropertyChangedSignal("CanvasPosition"):Connect(draw)
-		done.Activated:Connect(closePopup)
-		local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
-		local inset = GuiService:GetGuiInset()
-		local width = math.min(380, viewport.X - 24)
-		local height = math.min(390, viewport.Y - inset.Y - 30)
-		local popupScale = panelScale.Scale
-		local nativeScale = popup:FindFirstChildOfClass("UIScale") or create("UIScale", {}, popup)
-		nativeScale.Scale = popupScale
-		width = math.min(math.max(action.AbsoluteSize.X, 380 * popupScale), viewport.X - 24)
-		height = math.min(390 * popupScale, viewport.Y - inset.Y - 30)
-		popup.Size = UDim2.fromOffset(width / popupScale, height / popupScale)
-		local p = action.AbsolutePosition - overlay.AbsolutePosition
-		local y = p.Y + action.AbsoluteSize.Y + 6
-		if y + height > viewport.Y - inset.Y - 8 then y = math.max(8, p.Y - height - 6) end
-		y = math.clamp(y, 8, math.max(8, viewport.Y - inset.Y - height - 8))
-		popup.Position = UDim2.fromOffset(math.clamp(p.X, 12, math.max(12, viewport.X - width - 12)), y)
-		popupOwner = control; filter()
+		control:OpenNativePicker()
 	end)
 	return control
 end

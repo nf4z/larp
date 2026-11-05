@@ -1,0 +1,21 @@
+{
+  "name": "Love Soul",
+  "images": {
+    "Normal": "rbxassetid://135319381538889",
+    "Shiny": "rbxassetid://90937856202027",
+    "Mythic": "rbxassetid://110913084609928",
+    "MythicShiny": "rbxassetid://89366050789245"
+  },
+  "assetIds": [
+    "110913084609928",
+    "135319381538889",
+    "89366050789245",
+    "90937856202027"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Love Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

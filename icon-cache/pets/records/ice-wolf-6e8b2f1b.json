@@ -1,0 +1,17 @@
+{
+  "name": "Ice Wolf",
+  "images": {
+    "Normal": "rbxassetid://112663097432266",
+    "Shiny": "rbxassetid://91175593920003"
+  },
+  "assetIds": [
+    "112663097432266",
+    "91175593920003"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

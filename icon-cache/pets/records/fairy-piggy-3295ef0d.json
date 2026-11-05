@@ -1,0 +1,17 @@
+{
+  "name": "Fairy Piggy",
+  "images": {
+    "Normal": "rbxassetid://130755475840493",
+    "Shiny": "rbxassetid://85810427301106"
+  },
+  "assetIds": [
+    "130755475840493",
+    "85810427301106"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fairy Piggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

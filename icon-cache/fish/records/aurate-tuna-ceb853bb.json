@@ -1,0 +1,15 @@
+{
+  "name": "Aurate Tuna",
+  "images": {
+    "Image": "rbxassetid://126651101628211"
+  },
+  "assetIds": [
+    "126651101628211"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Aurate Tuna"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "The Dormouse",
+  "images": {
+    "Normal": "rbxassetid://92694611290737",
+    "Shiny": "rbxassetid://72539924684395",
+    "Mythic": "rbxassetid://84397891418694",
+    "MythicShiny": "rbxassetid://72715342419464"
+  },
+  "assetIds": [
+    "72539924684395",
+    "72715342419464",
+    "84397891418694",
+    "92694611290737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Dormouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Creepy Champion",
+  "images": {
+    "Normal": "rbxassetid://103723458483832",
+    "Shiny": "rbxassetid://113469285827403"
+  },
+  "assetIds": [
+    "103723458483832",
+    "113469285827403"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Creepy Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

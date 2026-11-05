@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://99853963916317",
+    "Shiny": "rbxassetid://72352798861947",
+    "Mythic": "rbxassetid://94808393700790",
+    "MythicShiny": "rbxassetid://124269992111302"
+  },
+  "assetIds": [
+    "124269992111302",
+    "72352798861947",
+    "94808393700790",
+    "99853963916317"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

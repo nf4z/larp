@@ -1,0 +1,12 @@
+{
+  "name": "Bubble Egg",
+  "images": {
+    "Image": "rbxassetid://89005910998157"
+  },
+  "assetIds": [
+    "89005910998157"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

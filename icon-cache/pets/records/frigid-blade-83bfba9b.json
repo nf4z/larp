@@ -1,0 +1,21 @@
+{
+  "name": "Frigid Blade",
+  "images": {
+    "Normal": "rbxassetid://92976217042373",
+    "Shiny": "rbxassetid://111110671912403",
+    "Mythic": "rbxassetid://130747572399258",
+    "MythicShiny": "rbxassetid://118508912684108"
+  },
+  "assetIds": [
+    "111110671912403",
+    "118508912684108",
+    "130747572399258",
+    "92976217042373"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frigid Blade"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

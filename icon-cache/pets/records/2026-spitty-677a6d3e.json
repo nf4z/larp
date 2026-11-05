@@ -1,0 +1,21 @@
+{
+  "name": "2026 Spitty",
+  "images": {
+    "Normal": "rbxassetid://133405837996382",
+    "Shiny": "rbxassetid://140107222174592",
+    "Mythic": "rbxassetid://114377214271966",
+    "MythicShiny": "rbxassetid://95162792824295"
+  },
+  "assetIds": [
+    "114377214271966",
+    "133405837996382",
+    "140107222174592",
+    "95162792824295"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

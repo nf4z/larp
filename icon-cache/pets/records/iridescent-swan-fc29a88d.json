@@ -1,0 +1,21 @@
+{
+  "name": "Iridescent Swan",
+  "images": {
+    "Normal": "rbxassetid://113657065399396",
+    "Shiny": "rbxassetid://102973400342229",
+    "Mythic": "rbxassetid://90341117996736",
+    "MythicShiny": "rbxassetid://126520652675965"
+  },
+  "assetIds": [
+    "102973400342229",
+    "113657065399396",
+    "126520652675965",
+    "90341117996736"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Iridescent Swan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

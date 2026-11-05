@@ -1,0 +1,17 @@
+{
+  "name": "Cyan Sparkletime",
+  "images": {
+    "Normal": "rbxassetid://71846085062875",
+    "Shiny": "rbxassetid://105001461956994"
+  },
+  "assetIds": [
+    "105001461956994",
+    "71846085062875"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyan Sparkletime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

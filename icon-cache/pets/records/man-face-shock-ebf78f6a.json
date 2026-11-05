@@ -1,0 +1,21 @@
+{
+  "name": "Man Face Shock",
+  "images": {
+    "Normal": "rbxassetid://102034459014416",
+    "Shiny": "rbxassetid://138600811490411",
+    "Mythic": "rbxassetid://100503540366981",
+    "MythicShiny": "rbxassetid://92892694113716"
+  },
+  "assetIds": [
+    "100503540366981",
+    "102034459014416",
+    "138600811490411",
+    "92892694113716"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

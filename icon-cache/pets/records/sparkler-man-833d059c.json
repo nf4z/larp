@@ -1,0 +1,17 @@
+{
+  "name": "Sparkler Man",
+  "images": {
+    "Normal": "rbxassetid://87935170100414",
+    "Shiny": "rbxassetid://97333760530586"
+  },
+  "assetIds": [
+    "87935170100414",
+    "97333760530586"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sparkler Man"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

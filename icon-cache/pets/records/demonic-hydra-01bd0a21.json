@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Hydra",
+  "images": {
+    "Normal": "rbxassetid://121007330211533",
+    "Shiny": "rbxassetid://121831852984011",
+    "Mythic": "rbxassetid://94069598639630",
+    "MythicShiny": "rbxassetid://85260875883743"
+  },
+  "assetIds": [
+    "121007330211533",
+    "121831852984011",
+    "85260875883743",
+    "94069598639630"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

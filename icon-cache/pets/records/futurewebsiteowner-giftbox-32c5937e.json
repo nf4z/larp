@@ -1,0 +1,21 @@
+{
+  "name": "FutureWebsiteOwner Giftbox",
+  "images": {
+    "Normal": "rbxassetid://113043191345691",
+    "Shiny": "rbxassetid://122535656176132",
+    "Mythic": "rbxassetid://130381107838814",
+    "MythicShiny": "rbxassetid://110197855400035"
+  },
+  "assetIds": [
+    "110197855400035",
+    "113043191345691",
+    "122535656176132",
+    "130381107838814"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "FutureWebsiteOwner Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

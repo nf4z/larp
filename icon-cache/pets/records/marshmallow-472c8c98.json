@@ -1,0 +1,21 @@
+{
+  "name": "Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://88319520177403",
+    "Shiny": "rbxassetid://125596624364455",
+    "Mythic": "rbxassetid://118238019978982",
+    "MythicShiny": "rbxassetid://100299326093801"
+  },
+  "assetIds": [
+    "100299326093801",
+    "118238019978982",
+    "125596624364455",
+    "88319520177403"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

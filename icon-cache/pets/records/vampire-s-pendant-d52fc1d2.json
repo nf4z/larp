@@ -1,0 +1,21 @@
+{
+  "name": "Vampire's Pendant",
+  "images": {
+    "Normal": "rbxassetid://80723990965580",
+    "Shiny": "rbxassetid://95687169169279",
+    "Mythic": "rbxassetid://80459378903251",
+    "MythicShiny": "rbxassetid://106730955899461"
+  },
+  "assetIds": [
+    "106730955899461",
+    "80459378903251",
+    "80723990965580",
+    "95687169169279"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire's Pendant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

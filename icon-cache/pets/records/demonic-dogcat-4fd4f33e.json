@@ -1,0 +1,17 @@
+{
+  "name": "Demonic Dogcat",
+  "images": {
+    "Normal": "rbxassetid://139629744666029",
+    "Shiny": "rbxassetid://126169873370845"
+  },
+  "assetIds": [
+    "126169873370845",
+    "139629744666029"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

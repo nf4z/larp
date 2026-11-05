@@ -1,0 +1,21 @@
+{
+  "name": "HotHoundDog",
+  "images": {
+    "Normal": "rbxassetid://137211398407901",
+    "Shiny": "rbxassetid://95159326681280",
+    "Mythic": "rbxassetid://83193395221797",
+    "MythicShiny": "rbxassetid://107915002363304"
+  },
+  "assetIds": [
+    "107915002363304",
+    "137211398407901",
+    "83193395221797",
+    "95159326681280"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "HotHoundDog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

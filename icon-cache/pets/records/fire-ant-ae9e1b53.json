@@ -1,0 +1,21 @@
+{
+  "name": "Fire Ant",
+  "images": {
+    "Normal": "rbxassetid://81714864039808",
+    "Shiny": "rbxassetid://135058009308321",
+    "Mythic": "rbxassetid://140070536522674",
+    "MythicShiny": "rbxassetid://102413019343875"
+  },
+  "assetIds": [
+    "102413019343875",
+    "135058009308321",
+    "140070536522674",
+    "81714864039808"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Ant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

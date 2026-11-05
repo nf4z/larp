@@ -1,0 +1,17 @@
+{
+  "name": "Mega Mech",
+  "images": {
+    "Normal": "rbxassetid://127833290592550",
+    "Shiny": "rbxassetid://107111517994240"
+  },
+  "assetIds": [
+    "107111517994240",
+    "127833290592550"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mega Mech"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

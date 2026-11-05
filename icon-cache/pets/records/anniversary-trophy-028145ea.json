@@ -1,0 +1,21 @@
+{
+  "name": "Anniversary Trophy",
+  "images": {
+    "Normal": "rbxassetid://121999154133725",
+    "Shiny": "rbxassetid://74019163123810",
+    "Mythic": "rbxassetid://108662606794516",
+    "MythicShiny": "rbxassetid://139545841649734"
+  },
+  "assetIds": [
+    "108662606794516",
+    "121999154133725",
+    "139545841649734",
+    "74019163123810"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Anniversary Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

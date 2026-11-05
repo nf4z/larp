@@ -1,0 +1,12 @@
+{
+  "name": "Omega Egg",
+  "images": {
+    "Image": "rbxassetid://113995904859558"
+  },
+  "assetIds": [
+    "113995904859558"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

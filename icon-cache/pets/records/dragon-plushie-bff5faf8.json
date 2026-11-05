@@ -1,0 +1,21 @@
+{
+  "name": "Dragon Plushie",
+  "images": {
+    "Normal": "rbxassetid://136544071549548",
+    "Shiny": "rbxassetid://92576218287248",
+    "Mythic": "rbxassetid://126021795170370",
+    "MythicShiny": "rbxassetid://82801890357724"
+  },
+  "assetIds": [
+    "126021795170370",
+    "136544071549548",
+    "82801890357724",
+    "92576218287248"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragon Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

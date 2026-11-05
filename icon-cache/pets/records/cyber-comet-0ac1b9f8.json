@@ -1,0 +1,21 @@
+{
+  "name": "Cyber Comet",
+  "images": {
+    "Normal": "rbxassetid://122598215829028",
+    "Shiny": "rbxassetid://128945054573183",
+    "Mythic": "rbxassetid://126327601686335",
+    "MythicShiny": "rbxassetid://106753011578436"
+  },
+  "assetIds": [
+    "106753011578436",
+    "122598215829028",
+    "126327601686335",
+    "128945054573183"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyber Comet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

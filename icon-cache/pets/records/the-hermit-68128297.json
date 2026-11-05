@@ -1,0 +1,21 @@
+{
+  "name": "The Hermit",
+  "images": {
+    "Normal": "rbxassetid://136045095757757",
+    "Shiny": "rbxassetid://135839822514182",
+    "Mythic": "rbxassetid://82783345177111",
+    "MythicShiny": "rbxassetid://114623785414498"
+  },
+  "assetIds": [
+    "114623785414498",
+    "135839822514182",
+    "136045095757757",
+    "82783345177111"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Hermit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

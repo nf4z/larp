@@ -1,0 +1,21 @@
+{
+  "name": "Rumblecon Trophy",
+  "images": {
+    "Normal": "rbxassetid://120392012700576",
+    "Shiny": "rbxassetid://113015025112198",
+    "Mythic": "rbxassetid://118631012929333",
+    "MythicShiny": "rbxassetid://129434943941846"
+  },
+  "assetIds": [
+    "113015025112198",
+    "118631012929333",
+    "120392012700576",
+    "129434943941846"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rumblecon Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

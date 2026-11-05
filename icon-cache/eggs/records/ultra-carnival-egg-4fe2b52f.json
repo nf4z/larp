@@ -1,0 +1,12 @@
+{
+  "name": "Ultra Carnival Egg",
+  "images": {
+    "Image": "rbxassetid://72173240443264"
+  },
+  "assetIds": [
+    "72173240443264"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

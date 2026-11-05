@@ -1,0 +1,21 @@
+{
+  "name": "Archangel",
+  "images": {
+    "Normal": "rbxassetid://80018793037938",
+    "Shiny": "rbxassetid://133654989026282",
+    "Mythic": "rbxassetid://87423352496533",
+    "MythicShiny": "rbxassetid://94761968926406"
+  },
+  "assetIds": [
+    "133654989026282",
+    "80018793037938",
+    "87423352496533",
+    "94761968926406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Archangel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

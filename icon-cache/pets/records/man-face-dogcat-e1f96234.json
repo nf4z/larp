@@ -1,0 +1,21 @@
+{
+  "name": "Man Face Dogcat",
+  "images": {
+    "Normal": "rbxassetid://83731775723828",
+    "Shiny": "rbxassetid://121776153130139",
+    "Mythic": "rbxassetid://79654089200691",
+    "MythicShiny": "rbxassetid://126189741394283"
+  },
+  "assetIds": [
+    "121776153130139",
+    "126189741394283",
+    "79654089200691",
+    "83731775723828"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

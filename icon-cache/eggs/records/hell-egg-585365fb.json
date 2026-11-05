@@ -1,0 +1,12 @@
+{
+  "name": "Hell Egg",
+  "images": {
+    "Image": "rbxassetid://83138810469675"
+  },
+  "assetIds": [
+    "83138810469675"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

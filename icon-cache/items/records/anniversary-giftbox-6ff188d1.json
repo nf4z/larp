@@ -1,0 +1,15 @@
+{
+  "name": "Anniversary Giftbox",
+  "images": {
+    "Image": "rbxassetid://124568923618896"
+  },
+  "assetIds": [
+    "124568923618896"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Anniversary Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

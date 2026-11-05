@@ -1,0 +1,17 @@
+{
+  "name": "Frost Bunny",
+  "images": {
+    "Normal": "rbxassetid://78676569275384",
+    "Shiny": "rbxassetid://131421397988306"
+  },
+  "assetIds": [
+    "131421397988306",
+    "78676569275384"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

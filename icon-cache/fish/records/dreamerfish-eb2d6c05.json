@@ -1,0 +1,15 @@
+{
+  "name": "Dreamerfish",
+  "images": {
+    "Image": "rbxassetid://97729515237585"
+  },
+  "assetIds": [
+    "97729515237585"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Dreamerfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

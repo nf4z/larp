@@ -1,0 +1,21 @@
+{
+  "name": "Spring Spirit",
+  "images": {
+    "Normal": "rbxassetid://135065612875375",
+    "Shiny": "rbxassetid://91953245395951",
+    "Mythic": "rbxassetid://135645220104135",
+    "MythicShiny": "rbxassetid://129203739845581"
+  },
+  "assetIds": [
+    "129203739845581",
+    "135065612875375",
+    "135645220104135",
+    "91953245395951"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

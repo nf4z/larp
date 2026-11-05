@@ -1,0 +1,17 @@
+{
+  "name": "Isaac Rainbow Shock",
+  "images": {
+    "Normal": "rbxassetid://76542268235082",
+    "Shiny": "rbxassetid://122336138943381"
+  },
+  "assetIds": [
+    "122336138943381",
+    "76542268235082"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Isaac Rainbow Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

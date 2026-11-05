@@ -1,0 +1,13 @@
+{
+  "Pets": "icon-cache/pets/c02db8e8a4af7f7a608a.json",
+  "Eggs": "icon-cache/eggs/6405213f97595ca11853.json",
+  "Potions": "icon-cache/potions/1a118864dde19ad30b7c.json",
+  "Powerups": "icon-cache/items/4bebc8dd6f09f2fa9c1c.json",
+  "Runes": "icon-cache/runes/94300c82e67fcacb74cd.json",
+  "Currency": "icon-cache/currencies/b46ca67766fa727be10e.json",
+  "PermanentBuffs": "icon-cache/buffs/bce297260a2649fb763f.json",
+  "Fish": "icon-cache/fish/a1203d66075786101cf9.json",
+  "FishingRods": "icon-cache/fishing/rods/201dab1dfd4e6c587b92.json",
+  "FishingBait": "icon-cache/fishing/bait/6dde680cade1243467e7.json",
+  "FishingBobbers": "icon-cache/fishing/bobbers/6977768e97a959ca43fb.json"
+}

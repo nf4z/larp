@@ -1,0 +1,15 @@
+{
+  "name": "ObsidianShards",
+  "images": {
+    "Image": "rbxassetid://127456140447800"
+  },
+  "assetIds": [
+    "127456140447800"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "ObsidianShards"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

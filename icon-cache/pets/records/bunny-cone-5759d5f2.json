@@ -1,0 +1,17 @@
+{
+  "name": "Bunny Cone",
+  "images": {
+    "Normal": "rbxassetid://99138669960309",
+    "Shiny": "rbxassetid://80348626133883"
+  },
+  "assetIds": [
+    "80348626133883",
+    "99138669960309"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Cone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

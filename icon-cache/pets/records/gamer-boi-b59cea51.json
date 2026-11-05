@@ -1,0 +1,17 @@
+{
+  "name": "Gamer Boi",
+  "images": {
+    "Normal": "rbxassetid://126142834628447",
+    "Shiny": "rbxassetid://72474674070189"
+  },
+  "assetIds": [
+    "126142834628447",
+    "72474674070189"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gamer Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

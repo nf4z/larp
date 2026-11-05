@@ -1,0 +1,17 @@
+{
+  "name": "Bubblegum Machine",
+  "images": {
+    "Normal": "rbxassetid://109381210108501",
+    "Shiny": "rbxassetid://138265863490521"
+  },
+  "assetIds": [
+    "109381210108501",
+    "138265863490521"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubblegum Machine"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Petal Bunny",
+  "images": {
+    "Normal": "rbxassetid://98752359301487",
+    "Shiny": "rbxassetid://104166864166993"
+  },
+  "assetIds": [
+    "104166864166993",
+    "98752359301487"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Petal Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

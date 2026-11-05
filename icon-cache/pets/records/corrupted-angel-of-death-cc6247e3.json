@@ -1,0 +1,21 @@
+{
+  "name": "Corrupted Angel of Death",
+  "images": {
+    "Normal": "rbxassetid://128382040209633",
+    "Shiny": "rbxassetid://89256718151483",
+    "Mythic": "rbxassetid://103130878222095",
+    "MythicShiny": "rbxassetid://136547151924019"
+  },
+  "assetIds": [
+    "103130878222095",
+    "128382040209633",
+    "136547151924019",
+    "89256718151483"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupted Angel of Death"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

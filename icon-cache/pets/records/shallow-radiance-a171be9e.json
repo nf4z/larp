@@ -1,0 +1,17 @@
+{
+  "name": "Shallow Radiance",
+  "images": {
+    "Normal": "rbxassetid://84300971565983",
+    "Shiny": "rbxassetid://128410406800900"
+  },
+  "assetIds": [
+    "128410406800900",
+    "84300971565983"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shallow Radiance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

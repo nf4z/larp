@@ -1,0 +1,17 @@
+{
+  "name": "Octopus",
+  "images": {
+    "Normal": "rbxassetid://83500501007458",
+    "Shiny": "rbxassetid://83836994219186"
+  },
+  "assetIds": [
+    "83500501007458",
+    "83836994219186"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Octopus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

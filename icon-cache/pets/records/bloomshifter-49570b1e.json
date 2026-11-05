@@ -1,0 +1,21 @@
+{
+  "name": "Bloomshifter",
+  "images": {
+    "Normal": "rbxassetid://116105953471563",
+    "Shiny": "rbxassetid://140063846173403",
+    "Mythic": "rbxassetid://102144033738680",
+    "MythicShiny": "rbxassetid://122275507788433"
+  },
+  "assetIds": [
+    "102144033738680",
+    "116105953471563",
+    "122275507788433",
+    "140063846173403"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bloomshifter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

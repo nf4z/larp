@@ -1,0 +1,21 @@
+{
+  "name": "Ruby Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://108523488648638",
+    "Shiny": "rbxassetid://75072519118109",
+    "Mythic": "rbxassetid://100467936697389",
+    "MythicShiny": "rbxassetid://115713200507530"
+  },
+  "assetIds": [
+    "100467936697389",
+    "108523488648638",
+    "115713200507530",
+    "75072519118109"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ruby Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

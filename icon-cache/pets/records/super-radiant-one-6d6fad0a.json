@@ -1,0 +1,21 @@
+{
+  "name": "Super Radiant One",
+  "images": {
+    "Normal": "rbxassetid://105622169779261",
+    "Shiny": "rbxassetid://92642826809615",
+    "Mythic": "rbxassetid://77381152214535",
+    "MythicShiny": "rbxassetid://136704507401145"
+  },
+  "assetIds": [
+    "105622169779261",
+    "136704507401145",
+    "77381152214535",
+    "92642826809615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Radiant One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

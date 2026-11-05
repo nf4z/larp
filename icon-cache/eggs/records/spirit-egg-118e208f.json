@@ -1,0 +1,12 @@
+{
+  "name": "Spirit Egg",
+  "images": {
+    "Image": "rbxassetid://82546282554318"
+  },
+  "assetIds": [
+    "82546282554318"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

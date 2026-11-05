@@ -1,0 +1,17 @@
+{
+  "name": "Shadow Doggy",
+  "images": {
+    "Normal": "rbxassetid://137503648582288",
+    "Shiny": "rbxassetid://126331144418205"
+  },
+  "assetIds": [
+    "126331144418205",
+    "137503648582288"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Okami Spirit",
+  "images": {
+    "Normal": "rbxassetid://137609211278979",
+    "Shiny": "rbxassetid://126723328120563",
+    "Mythic": "rbxassetid://85563872342080",
+    "MythicShiny": "rbxassetid://123939995806925"
+  },
+  "assetIds": [
+    "123939995806925",
+    "126723328120563",
+    "137609211278979",
+    "85563872342080"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Okami Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

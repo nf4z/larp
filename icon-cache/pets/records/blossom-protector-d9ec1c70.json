@@ -1,0 +1,21 @@
+{
+  "name": "Blossom Protector",
+  "images": {
+    "Normal": "rbxassetid://121187971755706",
+    "Shiny": "rbxassetid://71528025745688",
+    "Mythic": "rbxassetid://100545657597992",
+    "MythicShiny": "rbxassetid://70910682276441"
+  },
+  "assetIds": [
+    "100545657597992",
+    "121187971755706",
+    "70910682276441",
+    "71528025745688"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blossom Protector"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

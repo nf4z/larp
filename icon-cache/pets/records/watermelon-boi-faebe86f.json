@@ -1,0 +1,17 @@
+{
+  "name": "Watermelon Boi",
+  "images": {
+    "Normal": "rbxassetid://122304474596972",
+    "Shiny": "rbxassetid://123473543481646"
+  },
+  "assetIds": [
+    "122304474596972",
+    "123473543481646"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Watermelon Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Voodoo Dowodle",
+  "images": {
+    "Normal": "rbxassetid://78713720122558",
+    "Shiny": "rbxassetid://100749334266697",
+    "Mythic": "rbxassetid://112948024708973",
+    "MythicShiny": "rbxassetid://124801468970856"
+  },
+  "assetIds": [
+    "100749334266697",
+    "112948024708973",
+    "124801468970856",
+    "78713720122558"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Voodoo Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

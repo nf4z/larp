@@ -1,0 +1,21 @@
+{
+  "name": "Golden Overlord",
+  "images": {
+    "Normal": "rbxassetid://76962133329893",
+    "Shiny": "rbxassetid://126275173535030",
+    "Mythic": "rbxassetid://93828867655935",
+    "MythicShiny": "rbxassetid://119436659973235"
+  },
+  "assetIds": [
+    "119436659973235",
+    "126275173535030",
+    "76962133329893",
+    "93828867655935"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

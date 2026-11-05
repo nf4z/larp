@@ -1,0 +1,12 @@
+{
+  "name": "Season Sakura Egg",
+  "images": {
+    "Image": "rbxassetid://105961827613767"
+  },
+  "assetIds": [
+    "105961827613767"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

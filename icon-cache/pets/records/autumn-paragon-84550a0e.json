@@ -1,0 +1,21 @@
+{
+  "name": "Autumn Paragon",
+  "images": {
+    "Normal": "rbxassetid://101900647523277",
+    "Shiny": "rbxassetid://112778491711129",
+    "Mythic": "rbxassetid://129062663728059",
+    "MythicShiny": "rbxassetid://140249175490895"
+  },
+  "assetIds": [
+    "101900647523277",
+    "112778491711129",
+    "129062663728059",
+    "140249175490895"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumn Paragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

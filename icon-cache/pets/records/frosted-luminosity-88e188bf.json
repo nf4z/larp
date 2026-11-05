@@ -1,0 +1,17 @@
+{
+  "name": "Frosted Luminosity",
+  "images": {
+    "Normal": "rbxassetid://112126817923373",
+    "Shiny": "rbxassetid://132466416214302"
+  },
+  "assetIds": [
+    "112126817923373",
+    "132466416214302"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frosted Luminosity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lunar Bloom",
+  "images": {
+    "Normal": "rbxassetid://95406012196724",
+    "Shiny": "rbxassetid://114125668720580",
+    "Mythic": "rbxassetid://127821726990950",
+    "MythicShiny": "rbxassetid://75107734846291"
+  },
+  "assetIds": [
+    "114125668720580",
+    "127821726990950",
+    "75107734846291",
+    "95406012196724"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunar Bloom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

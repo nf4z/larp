@@ -1,0 +1,17 @@
+{
+  "name": "Monarch Moth",
+  "images": {
+    "Normal": "rbxassetid://95174533602993",
+    "Shiny": "rbxassetid://99861350163126"
+  },
+  "assetIds": [
+    "95174533602993",
+    "99861350163126"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monarch Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

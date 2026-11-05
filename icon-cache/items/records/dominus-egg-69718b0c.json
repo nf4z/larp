@@ -1,0 +1,11 @@
+{
+  "name": "Dominus Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dominus Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

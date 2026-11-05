@@ -1,0 +1,17 @@
+{
+  "name": "que fofo",
+  "images": {
+    "Normal": "rbxassetid://97512196005589",
+    "Shiny": "rbxassetid://90754653785654"
+  },
+  "assetIds": [
+    "90754653785654",
+    "97512196005589"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "que fofo"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

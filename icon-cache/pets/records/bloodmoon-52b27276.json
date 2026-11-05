@@ -1,0 +1,21 @@
+{
+  "name": "Bloodmoon",
+  "images": {
+    "Normal": "rbxassetid://95320983299510",
+    "Shiny": "rbxassetid://130805913170950",
+    "Mythic": "rbxassetid://75031135716977",
+    "MythicShiny": "rbxassetid://85099410737256"
+  },
+  "assetIds": [
+    "130805913170950",
+    "75031135716977",
+    "85099410737256",
+    "95320983299510"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bloodmoon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

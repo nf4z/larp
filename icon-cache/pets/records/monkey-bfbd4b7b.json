@@ -1,0 +1,17 @@
+{
+  "name": "Monkey",
+  "images": {
+    "Normal": "rbxassetid://98203228334026",
+    "Shiny": "rbxassetid://101113703848033"
+  },
+  "assetIds": [
+    "101113703848033",
+    "98203228334026"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monkey"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

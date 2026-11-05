@@ -1,0 +1,21 @@
+{
+  "name": "Anniversary Overlord",
+  "images": {
+    "Normal": "rbxassetid://80317873358482",
+    "Shiny": "rbxassetid://138060496455034",
+    "Mythic": "rbxassetid://71309216041050",
+    "MythicShiny": "rbxassetid://97068518759396"
+  },
+  "assetIds": [
+    "138060496455034",
+    "71309216041050",
+    "80317873358482",
+    "97068518759396"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Anniversary Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

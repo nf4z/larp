@@ -1,0 +1,21 @@
+{
+  "name": "Ultraperegrine",
+  "images": {
+    "Normal": "rbxassetid://140030603844136",
+    "Shiny": "rbxassetid://128179668655584",
+    "Mythic": "rbxassetid://80699171048212",
+    "MythicShiny": "rbxassetid://86520953942137"
+  },
+  "assetIds": [
+    "128179668655584",
+    "140030603844136",
+    "80699171048212",
+    "86520953942137"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ultraperegrine"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

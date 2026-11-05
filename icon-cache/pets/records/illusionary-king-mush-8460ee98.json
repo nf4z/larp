@@ -1,0 +1,21 @@
+{
+  "name": "Illusionary King Mush",
+  "images": {
+    "Normal": "rbxassetid://72225246947253",
+    "Shiny": "rbxassetid://129640705795371",
+    "Mythic": "rbxassetid://125410844049060",
+    "MythicShiny": "rbxassetid://98026687563129"
+  },
+  "assetIds": [
+    "125410844049060",
+    "129640705795371",
+    "72225246947253",
+    "98026687563129"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Illusionary King Mush"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Monarch Butterfly",
+  "images": {
+    "Normal": "rbxassetid://119649157081339",
+    "Shiny": "rbxassetid://116886904751873",
+    "Mythic": "rbxassetid://79090672127519",
+    "MythicShiny": "rbxassetid://83829926687002"
+  },
+  "assetIds": [
+    "116886904751873",
+    "119649157081339",
+    "79090672127519",
+    "83829926687002"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Monarch Butterfly"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

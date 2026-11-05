@@ -1,0 +1,21 @@
+{
+  "name": "Egg Mimic",
+  "images": {
+    "Normal": "rbxassetid://123791225193621",
+    "Shiny": "rbxassetid://99474078543834",
+    "Mythic": "rbxassetid://101241681781791",
+    "MythicShiny": "rbxassetid://114663729561515"
+  },
+  "assetIds": [
+    "101241681781791",
+    "114663729561515",
+    "123791225193621",
+    "99474078543834"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Mimic"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

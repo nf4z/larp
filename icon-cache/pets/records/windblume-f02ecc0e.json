@@ -1,0 +1,21 @@
+{
+  "name": "Windblume",
+  "images": {
+    "Normal": "rbxassetid://123664062290426",
+    "Shiny": "rbxassetid://134105047237173",
+    "Mythic": "rbxassetid://125026578423454",
+    "MythicShiny": "rbxassetid://120232201916834"
+  },
+  "assetIds": [
+    "120232201916834",
+    "123664062290426",
+    "125026578423454",
+    "134105047237173"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Windblume"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

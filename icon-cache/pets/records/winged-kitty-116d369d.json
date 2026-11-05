@@ -1,0 +1,17 @@
+{
+  "name": "Winged Kitty",
+  "images": {
+    "Normal": "rbxassetid://114232947638216",
+    "Shiny": "rbxassetid://100882562594863"
+  },
+  "assetIds": [
+    "100882562594863",
+    "114232947638216"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winged Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

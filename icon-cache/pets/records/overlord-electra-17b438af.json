@@ -1,0 +1,21 @@
+{
+  "name": "Overlord Electra",
+  "images": {
+    "Normal": "rbxassetid://128068264160434",
+    "Shiny": "rbxassetid://120181159303895",
+    "Mythic": "rbxassetid://105906270211007",
+    "MythicShiny": "rbxassetid://99537215022397"
+  },
+  "assetIds": [
+    "105906270211007",
+    "120181159303895",
+    "128068264160434",
+    "99537215022397"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overlord Electra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Aero Heart",
+  "images": {
+    "Normal": "rbxassetid://139165465786042",
+    "Shiny": "rbxassetid://125247995178869",
+    "Mythic": "rbxassetid://111745253496043",
+    "MythicShiny": "rbxassetid://93425141890477"
+  },
+  "assetIds": [
+    "111745253496043",
+    "125247995178869",
+    "139165465786042",
+    "93425141890477"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aero Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

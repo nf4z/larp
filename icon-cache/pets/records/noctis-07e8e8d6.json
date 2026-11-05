@@ -1,0 +1,21 @@
+{
+  "name": "Noctis",
+  "images": {
+    "Normal": "rbxassetid://135768436321067",
+    "Shiny": "rbxassetid://118352581213989",
+    "Mythic": "rbxassetid://104307439516841",
+    "MythicShiny": "rbxassetid://111707474207687"
+  },
+  "assetIds": [
+    "104307439516841",
+    "111707474207687",
+    "118352581213989",
+    "135768436321067"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Noctis"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

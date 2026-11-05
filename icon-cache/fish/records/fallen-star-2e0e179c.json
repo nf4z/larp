@@ -1,0 +1,15 @@
+{
+  "name": "Fallen Star",
+  "images": {
+    "Image": "rbxassetid://132232445290084"
+  },
+  "assetIds": [
+    "132232445290084"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Fallen Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

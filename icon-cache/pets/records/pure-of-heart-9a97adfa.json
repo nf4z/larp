@@ -1,0 +1,21 @@
+{
+  "name": "Pure of Heart",
+  "images": {
+    "Normal": "rbxassetid://132867035115101",
+    "Shiny": "rbxassetid://70587146173129",
+    "Mythic": "rbxassetid://72855367350293",
+    "MythicShiny": "rbxassetid://134279003539516"
+  },
+  "assetIds": [
+    "132867035115101",
+    "134279003539516",
+    "70587146173129",
+    "72855367350293"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pure of Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

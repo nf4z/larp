@@ -1,0 +1,17 @@
+{
+  "name": "Moose",
+  "images": {
+    "Normal": "rbxassetid://77958505379675",
+    "Shiny": "rbxassetid://73144294011631"
+  },
+  "assetIds": [
+    "73144294011631",
+    "77958505379675"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moose"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

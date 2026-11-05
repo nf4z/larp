@@ -1,0 +1,21 @@
+{
+  "name": "Dark Deatheater",
+  "images": {
+    "Normal": "rbxassetid://115040303639815",
+    "Shiny": "rbxassetid://110673760744754",
+    "Mythic": "rbxassetid://112367432432934",
+    "MythicShiny": "rbxassetid://130442756094671"
+  },
+  "assetIds": [
+    "110673760744754",
+    "112367432432934",
+    "115040303639815",
+    "130442756094671"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Deatheater"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

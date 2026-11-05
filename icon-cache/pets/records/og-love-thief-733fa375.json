@@ -1,0 +1,21 @@
+{
+  "name": "OG Love Thief",
+  "images": {
+    "Normal": "rbxassetid://138703088517999",
+    "Shiny": "rbxassetid://76366212332611",
+    "Mythic": "rbxassetid://103151154649479",
+    "MythicShiny": "rbxassetid://138687249821243"
+  },
+  "assetIds": [
+    "103151154649479",
+    "138687249821243",
+    "138703088517999",
+    "76366212332611"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Love Thief"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ChallengePoints",
+  "images": {
+    "Image": "rbxassetid://104347836087521"
+  },
+  "assetIds": [
+    "104347836087521"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "ChallengePoints"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

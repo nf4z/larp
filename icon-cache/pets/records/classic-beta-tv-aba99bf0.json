@@ -1,0 +1,21 @@
+{
+  "name": "Classic Beta TV",
+  "images": {
+    "Normal": "rbxassetid://78564865332160",
+    "Shiny": "rbxassetid://94334022888801",
+    "Mythic": "rbxassetid://75296554913597",
+    "MythicShiny": "rbxassetid://95932277003985"
+  },
+  "assetIds": [
+    "75296554913597",
+    "78564865332160",
+    "94334022888801",
+    "95932277003985"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Beta TV"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

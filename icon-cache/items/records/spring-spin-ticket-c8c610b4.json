@@ -1,0 +1,15 @@
+{
+  "name": "Spring Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://94114827761689"
+  },
+  "assetIds": [
+    "94114827761689"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Spring Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

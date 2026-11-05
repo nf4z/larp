@@ -1,0 +1,15 @@
+{
+  "name": "SixHundredMStar",
+  "images": {
+    "Image": "rbxassetid://134288314426257"
+  },
+  "assetIds": [
+    "134288314426257"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "SixHundredMStar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Heartbreak Egg",
+  "images": {
+    "Image": "rbxassetid://84399744434166"
+  },
+  "assetIds": [
+    "84399744434166"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

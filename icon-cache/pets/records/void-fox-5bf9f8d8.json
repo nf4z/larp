@@ -1,0 +1,17 @@
+{
+  "name": "Void Fox",
+  "images": {
+    "Normal": "rbxassetid://103797280739577",
+    "Shiny": "rbxassetid://114427178223777"
+  },
+  "assetIds": [
+    "103797280739577",
+    "114427178223777"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

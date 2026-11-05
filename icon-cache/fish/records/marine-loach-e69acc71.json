@@ -1,0 +1,15 @@
+{
+  "name": "Marine Loach",
+  "images": {
+    "Image": "rbxassetid://108552695655304"
+  },
+  "assetIds": [
+    "108552695655304"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Marine Loach"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

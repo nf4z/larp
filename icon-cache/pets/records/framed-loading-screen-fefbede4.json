@@ -1,0 +1,21 @@
+{
+  "name": "Framed Loading Screen",
+  "images": {
+    "Normal": "rbxassetid://102750874423897",
+    "Shiny": "rbxassetid://128946197699139",
+    "Mythic": "rbxassetid://97449103690598",
+    "MythicShiny": "rbxassetid://99755097575043"
+  },
+  "assetIds": [
+    "102750874423897",
+    "128946197699139",
+    "97449103690598",
+    "99755097575043"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Framed Loading Screen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

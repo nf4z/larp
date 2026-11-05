@@ -1,0 +1,21 @@
+{
+  "name": "Sea Turtle",
+  "images": {
+    "Normal": "rbxassetid://119920969088994",
+    "Shiny": "rbxassetid://90642392067757",
+    "Mythic": "rbxassetid://81026247688845",
+    "MythicShiny": "rbxassetid://121640819527599"
+  },
+  "assetIds": [
+    "119920969088994",
+    "121640819527599",
+    "81026247688845",
+    "90642392067757"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Turtle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "King Kitty",
+  "images": {
+    "Normal": "rbxassetid://80278483596781",
+    "Shiny": "rbxassetid://102582177424036",
+    "Mythic": "rbxassetid://94482515769275",
+    "MythicShiny": "rbxassetid://102012406503481"
+  },
+  "assetIds": [
+    "102012406503481",
+    "102582177424036",
+    "80278483596781",
+    "94482515769275"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

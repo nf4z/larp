@@ -1,0 +1,15 @@
+{
+  "name": "Hermit Crab",
+  "images": {
+    "Image": "rbxassetid://99974776134737"
+  },
+  "assetIds": [
+    "99974776134737"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Hermit Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

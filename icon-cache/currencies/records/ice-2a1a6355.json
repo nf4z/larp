@@ -1,0 +1,15 @@
+{
+  "name": "Ice",
+  "images": {
+    "Image": "rbxassetid://132819325215073"
+  },
+  "assetIds": [
+    "132819325215073"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Ice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

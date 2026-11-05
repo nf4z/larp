@@ -1,0 +1,15 @@
+{
+  "name": "Dreamy Reef Fish",
+  "images": {
+    "Image": "rbxassetid://113137477469777"
+  },
+  "assetIds": [
+    "113137477469777"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Dreamy Reef Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

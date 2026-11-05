@@ -1,0 +1,17 @@
+{
+  "name": "Egg Dragon",
+  "images": {
+    "Normal": "rbxassetid://137657849336343",
+    "Shiny": "rbxassetid://101667126104306"
+  },
+  "assetIds": [
+    "101667126104306",
+    "137657849336343"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

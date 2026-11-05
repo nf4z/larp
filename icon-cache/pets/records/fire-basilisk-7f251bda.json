@@ -1,0 +1,21 @@
+{
+  "name": "Fire Basilisk",
+  "images": {
+    "Normal": "rbxassetid://94721519490336",
+    "Shiny": "rbxassetid://85984406556579",
+    "Mythic": "rbxassetid://79479777952071",
+    "MythicShiny": "rbxassetid://86978762264411"
+  },
+  "assetIds": [
+    "79479777952071",
+    "85984406556579",
+    "86978762264411",
+    "94721519490336"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

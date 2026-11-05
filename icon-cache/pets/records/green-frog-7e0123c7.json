@@ -1,0 +1,17 @@
+{
+  "name": "Green Frog",
+  "images": {
+    "Normal": "rbxassetid://91821522151136",
+    "Shiny": "rbxassetid://106311872087159"
+  },
+  "assetIds": [
+    "106311872087159",
+    "91821522151136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Green Frog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

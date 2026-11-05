@@ -1,0 +1,21 @@
+{
+  "name": "Rainshine",
+  "images": {
+    "Normal": "rbxassetid://119404921950191",
+    "Shiny": "rbxassetid://72954430189329",
+    "Mythic": "rbxassetid://70746232892696",
+    "MythicShiny": "rbxassetid://91041061791438"
+  },
+  "assetIds": [
+    "119404921950191",
+    "70746232892696",
+    "72954430189329",
+    "91041061791438"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainshine"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

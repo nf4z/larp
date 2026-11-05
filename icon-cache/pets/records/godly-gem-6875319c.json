@@ -1,0 +1,21 @@
+{
+  "name": "Godly Gem",
+  "images": {
+    "Normal": "rbxassetid://135660573331096",
+    "Shiny": "rbxassetid://131352042214414",
+    "Mythic": "rbxassetid://79962120420648",
+    "MythicShiny": "rbxassetid://126464346470111"
+  },
+  "assetIds": [
+    "126464346470111",
+    "131352042214414",
+    "135660573331096",
+    "79962120420648"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Godly Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

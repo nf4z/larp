@@ -1,0 +1,21 @@
+{
+  "name": "Emerald Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://135938409335996",
+    "Shiny": "rbxassetid://93726238945966",
+    "Mythic": "rbxassetid://135553861119366",
+    "MythicShiny": "rbxassetid://139345421226649"
+  },
+  "assetIds": [
+    "135553861119366",
+    "135938409335996",
+    "139345421226649",
+    "93726238945966"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Emerald Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

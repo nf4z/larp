@@ -1,0 +1,17 @@
+{
+  "name": "Pineapple Boi",
+  "images": {
+    "Normal": "rbxassetid://139219228353143",
+    "Shiny": "rbxassetid://116666713394713"
+  },
+  "assetIds": [
+    "116666713394713",
+    "139219228353143"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pineapple Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

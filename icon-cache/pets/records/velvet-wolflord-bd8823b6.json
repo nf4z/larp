@@ -1,0 +1,21 @@
+{
+  "name": "Velvet Wolflord",
+  "images": {
+    "Normal": "rbxassetid://75174638532269",
+    "Shiny": "rbxassetid://93890791767367",
+    "Mythic": "rbxassetid://116960622164747",
+    "MythicShiny": "rbxassetid://88808414786022"
+  },
+  "assetIds": [
+    "116960622164747",
+    "75174638532269",
+    "88808414786022",
+    "93890791767367"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Velvet Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

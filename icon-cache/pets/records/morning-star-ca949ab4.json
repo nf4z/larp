@@ -1,0 +1,21 @@
+{
+  "name": "Morning Star",
+  "images": {
+    "Normal": "rbxassetid://137917915696904",
+    "Shiny": "rbxassetid://103085246822872",
+    "Mythic": "rbxassetid://124490685421574",
+    "MythicShiny": "rbxassetid://95186428770800"
+  },
+  "assetIds": [
+    "103085246822872",
+    "124490685421574",
+    "137917915696904",
+    "95186428770800"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Morning Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

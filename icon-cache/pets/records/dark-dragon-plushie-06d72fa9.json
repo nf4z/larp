@@ -1,0 +1,21 @@
+{
+  "name": "Dark Dragon Plushie",
+  "images": {
+    "Normal": "rbxassetid://121868963049056",
+    "Shiny": "rbxassetid://104679886398839",
+    "Mythic": "rbxassetid://94355005536464",
+    "MythicShiny": "rbxassetid://111247513494784"
+  },
+  "assetIds": [
+    "104679886398839",
+    "111247513494784",
+    "121868963049056",
+    "94355005536464"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Dragon Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

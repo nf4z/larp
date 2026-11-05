@@ -1,0 +1,21 @@
+{
+  "name": "Elite Soul",
+  "images": {
+    "Normal": "rbxassetid://76138184593329",
+    "Shiny": "rbxassetid://124666781440286",
+    "Mythic": "rbxassetid://79208468612615",
+    "MythicShiny": "rbxassetid://74538893448634"
+  },
+  "assetIds": [
+    "124666781440286",
+    "74538893448634",
+    "76138184593329",
+    "79208468612615"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

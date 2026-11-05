@@ -1,0 +1,21 @@
+{
+  "name": "Heart of The Game",
+  "images": {
+    "Normal": "rbxassetid://71969472305568",
+    "Shiny": "rbxassetid://116131932899371",
+    "Mythic": "rbxassetid://137834738675451",
+    "MythicShiny": "rbxassetid://98211591139570"
+  },
+  "assetIds": [
+    "116131932899371",
+    "137834738675451",
+    "71969472305568",
+    "98211591139570"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Heart of The Game"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

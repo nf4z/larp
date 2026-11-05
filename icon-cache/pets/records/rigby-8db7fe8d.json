@@ -1,0 +1,21 @@
+{
+  "name": "Rigby",
+  "images": {
+    "Normal": "rbxassetid://111210747626876",
+    "Shiny": "rbxassetid://80628871267513",
+    "Mythic": "rbxassetid://130485565025596",
+    "MythicShiny": "rbxassetid://94264863763418"
+  },
+  "assetIds": [
+    "111210747626876",
+    "130485565025596",
+    "80628871267513",
+    "94264863763418"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

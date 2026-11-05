@@ -1,0 +1,21 @@
+{
+  "name": "Giant Nert's Pufferfish",
+  "images": {
+    "Normal": "rbxassetid://89125903343779",
+    "Shiny": "rbxassetid://114779852353097",
+    "Mythic": "rbxassetid://86533408434883",
+    "MythicShiny": "rbxassetid://77768747274851"
+  },
+  "assetIds": [
+    "114779852353097",
+    "77768747274851",
+    "86533408434883",
+    "89125903343779"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Nert's Pufferfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

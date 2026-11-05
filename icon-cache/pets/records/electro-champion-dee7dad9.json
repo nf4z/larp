@@ -1,0 +1,21 @@
+{
+  "name": "Electro Champion",
+  "images": {
+    "Normal": "rbxassetid://126504831677184",
+    "Shiny": "rbxassetid://134802413503654",
+    "Mythic": "rbxassetid://129951745442180",
+    "MythicShiny": "rbxassetid://94553263575725"
+  },
+  "assetIds": [
+    "126504831677184",
+    "129951745442180",
+    "134802413503654",
+    "94553263575725"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Electro Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

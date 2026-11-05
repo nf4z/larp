@@ -1,0 +1,21 @@
+{
+  "name": "Seraphim",
+  "images": {
+    "Normal": "rbxassetid://99567857680931",
+    "Shiny": "rbxassetid://86490931502458",
+    "Mythic": "rbxassetid://72465955463928",
+    "MythicShiny": "rbxassetid://132881030591384"
+  },
+  "assetIds": [
+    "132881030591384",
+    "72465955463928",
+    "86490931502458",
+    "99567857680931"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seraphim"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

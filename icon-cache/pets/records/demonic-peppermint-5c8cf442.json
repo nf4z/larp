@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Peppermint",
+  "images": {
+    "Normal": "rbxassetid://135325875406486",
+    "Shiny": "rbxassetid://91612776418132",
+    "Mythic": "rbxassetid://127246373291050",
+    "MythicShiny": "rbxassetid://122845391836080"
+  },
+  "assetIds": [
+    "122845391836080",
+    "127246373291050",
+    "135325875406486",
+    "91612776418132"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Peppermint"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

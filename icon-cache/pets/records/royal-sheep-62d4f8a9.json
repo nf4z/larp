@@ -1,0 +1,17 @@
+{
+  "name": "Royal Sheep",
+  "images": {
+    "Normal": "rbxassetid://85855655227905",
+    "Shiny": "rbxassetid://136171835555636"
+  },
+  "assetIds": [
+    "136171835555636",
+    "85855655227905"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Sheep"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

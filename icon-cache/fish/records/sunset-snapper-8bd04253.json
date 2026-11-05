@@ -1,0 +1,15 @@
+{
+  "name": "Sunset Snapper",
+  "images": {
+    "Image": "rbxassetid://74471956349090"
+  },
+  "assetIds": [
+    "74471956349090"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sunset Snapper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Easter Egg Stack",
+  "images": {
+    "Normal": "rbxassetid://78276006079639",
+    "Shiny": "rbxassetid://134777994657731"
+  },
+  "assetIds": [
+    "134777994657731",
+    "78276006079639"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Egg Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Dark Leaderboard Egg",
+  "images": {
+    "Image": "rbxassetid://100186977350603"
+  },
+  "assetIds": [
+    "100186977350603"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

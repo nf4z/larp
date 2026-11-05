@@ -1,0 +1,17 @@
+{
+  "name": "Ice Kitty",
+  "images": {
+    "Normal": "rbxassetid://122617771322422",
+    "Shiny": "rbxassetid://108038404921084"
+  },
+  "assetIds": [
+    "108038404921084",
+    "122617771322422"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

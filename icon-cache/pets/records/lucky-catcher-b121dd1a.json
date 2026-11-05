@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Catcher",
+  "images": {
+    "Normal": "rbxassetid://88082081713700",
+    "Shiny": "rbxassetid://113830750575877",
+    "Mythic": "rbxassetid://111956981612735",
+    "MythicShiny": "rbxassetid://71725522282564"
+  },
+  "assetIds": [
+    "111956981612735",
+    "113830750575877",
+    "71725522282564",
+    "88082081713700"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

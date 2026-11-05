@@ -1,0 +1,12 @@
+{
+  "name": "Developer Egg",
+  "images": {
+    "Image": "rbxassetid://79182122228816"
+  },
+  "assetIds": [
+    "79182122228816"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

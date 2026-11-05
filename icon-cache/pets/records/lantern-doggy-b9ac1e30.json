@@ -1,0 +1,17 @@
+{
+  "name": "Lantern Doggy",
+  "images": {
+    "Normal": "rbxassetid://122000045623187",
+    "Shiny": "rbxassetid://114207964519471"
+  },
+  "assetIds": [
+    "114207964519471",
+    "122000045623187"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lantern Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

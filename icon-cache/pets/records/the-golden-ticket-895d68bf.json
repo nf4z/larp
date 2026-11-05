@@ -1,0 +1,21 @@
+{
+  "name": "The Golden Ticket",
+  "images": {
+    "Normal": "rbxassetid://79682462848787",
+    "Shiny": "rbxassetid://92862916911226",
+    "Mythic": "rbxassetid://122503055253774",
+    "MythicShiny": "rbxassetid://138445057477274"
+  },
+  "assetIds": [
+    "122503055253774",
+    "138445057477274",
+    "79682462848787",
+    "92862916911226"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Golden Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

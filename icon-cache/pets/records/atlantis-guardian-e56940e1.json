@@ -1,0 +1,21 @@
+{
+  "name": "Atlantis Guardian",
+  "images": {
+    "Normal": "rbxassetid://126229994454079",
+    "Shiny": "rbxassetid://108825883066257",
+    "Mythic": "rbxassetid://92390118778301",
+    "MythicShiny": "rbxassetid://85026426388957"
+  },
+  "assetIds": [
+    "108825883066257",
+    "126229994454079",
+    "85026426388957",
+    "92390118778301"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Atlantis Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

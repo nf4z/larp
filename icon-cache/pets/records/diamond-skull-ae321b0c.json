@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Skull",
+  "images": {
+    "Normal": "rbxassetid://85234215134410",
+    "Shiny": "rbxassetid://140212900296589",
+    "Mythic": "rbxassetid://115847465300079",
+    "MythicShiny": "rbxassetid://102346132846096"
+  },
+  "assetIds": [
+    "102346132846096",
+    "115847465300079",
+    "140212900296589",
+    "85234215134410"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

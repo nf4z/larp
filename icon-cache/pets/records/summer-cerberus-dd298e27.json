@@ -1,0 +1,21 @@
+{
+  "name": "Summer Cerberus",
+  "images": {
+    "Normal": "rbxassetid://103622428374106",
+    "Shiny": "rbxassetid://76520871187394",
+    "Mythic": "rbxassetid://101664117473522",
+    "MythicShiny": "rbxassetid://133139266851677"
+  },
+  "assetIds": [
+    "101664117473522",
+    "103622428374106",
+    "133139266851677",
+    "76520871187394"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Cerberus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

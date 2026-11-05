@@ -1,0 +1,17 @@
+{
+  "name": "Pot O' Gems",
+  "images": {
+    "Normal": "rbxassetid://113240281680783",
+    "Shiny": "rbxassetid://122724542732141"
+  },
+  "assetIds": [
+    "113240281680783",
+    "122724542732141"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pot O' Gems"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

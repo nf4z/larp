@@ -1,0 +1,17 @@
+{
+  "name": "Royal Clover",
+  "images": {
+    "Normal": "rbxassetid://120890932016069",
+    "Shiny": "rbxassetid://77571815041807"
+  },
+  "assetIds": [
+    "120890932016069",
+    "77571815041807"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Clover"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

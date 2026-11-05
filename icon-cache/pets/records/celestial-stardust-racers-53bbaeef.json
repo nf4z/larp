@@ -1,0 +1,17 @@
+{
+  "name": "Celestial Stardust Racers",
+  "images": {
+    "Normal": "rbxassetid://101920642041742",
+    "Shiny": "rbxassetid://117572857155732"
+  },
+  "assetIds": [
+    "101920642041742",
+    "117572857155732"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Celestial Stardust Racers"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

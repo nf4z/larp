@@ -1,0 +1,15 @@
+{
+  "name": "EggDice",
+  "images": {
+    "Image": "rbxassetid://104083126198411"
+  },
+  "assetIds": [
+    "104083126198411"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "EggDice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

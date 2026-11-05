@@ -1,0 +1,17 @@
+{
+  "name": "Evo",
+  "images": {
+    "Normal": "rbxassetid://100051598896830",
+    "Shiny": "rbxassetid://95393946081683"
+  },
+  "assetIds": [
+    "100051598896830",
+    "95393946081683"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Evo"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

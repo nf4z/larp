@@ -1,0 +1,17 @@
+{
+  "name": "Cave Bat",
+  "images": {
+    "Normal": "rbxassetid://93294160413976",
+    "Shiny": "rbxassetid://115574329171258"
+  },
+  "assetIds": [
+    "115574329171258",
+    "93294160413976"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cave Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

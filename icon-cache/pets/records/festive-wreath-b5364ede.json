@@ -1,0 +1,21 @@
+{
+  "name": "Festive Wreath",
+  "images": {
+    "Normal": "rbxassetid://91247373960382",
+    "Shiny": "rbxassetid://110663997135334",
+    "Mythic": "rbxassetid://75189010898619",
+    "MythicShiny": "rbxassetid://85619094591359"
+  },
+  "assetIds": [
+    "110663997135334",
+    "75189010898619",
+    "85619094591359",
+    "91247373960382"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Wreath"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

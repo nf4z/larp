@@ -1,0 +1,17 @@
+{
+  "name": "Firework God",
+  "images": {
+    "Normal": "rbxassetid://114478518456226",
+    "Shiny": "rbxassetid://133980419678705"
+  },
+  "assetIds": [
+    "114478518456226",
+    "133980419678705"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Firework God"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

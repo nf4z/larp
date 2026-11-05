@@ -1,0 +1,11 @@
+{
+  "name": "Darkmatter Season Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Darkmatter Season Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

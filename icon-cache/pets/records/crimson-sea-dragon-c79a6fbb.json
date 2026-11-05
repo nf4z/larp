@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Sea Dragon",
+  "images": {
+    "Normal": "rbxassetid://131750714447757",
+    "Shiny": "rbxassetid://140410302579284",
+    "Mythic": "rbxassetid://109044821904312",
+    "MythicShiny": "rbxassetid://119821877596392"
+  },
+  "assetIds": [
+    "109044821904312",
+    "119821877596392",
+    "131750714447757",
+    "140410302579284"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Sea Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Elite Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://130628290379106",
+    "Shiny": "rbxassetid://119435029475297",
+    "Mythic": "rbxassetid://118094296739357",
+    "MythicShiny": "rbxassetid://77291296191926"
+  },
+  "assetIds": [
+    "118094296739357",
+    "119435029475297",
+    "130628290379106",
+    "77291296191926"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

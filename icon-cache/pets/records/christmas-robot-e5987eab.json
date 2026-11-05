@@ -1,0 +1,21 @@
+{
+  "name": "Christmas Robot",
+  "images": {
+    "Normal": "rbxassetid://97292296022910",
+    "Shiny": "rbxassetid://102507780022736",
+    "Mythic": "rbxassetid://120869246315303",
+    "MythicShiny": "rbxassetid://95736910588265"
+  },
+  "assetIds": [
+    "102507780022736",
+    "120869246315303",
+    "95736910588265",
+    "97292296022910"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Christmas Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Star Charm",
+  "images": {
+    "Normal": "rbxassetid://79214015771712",
+    "Shiny": "rbxassetid://133159315265868",
+    "Mythic": "rbxassetid://115977983725051",
+    "MythicShiny": "rbxassetid://97582319038097"
+  },
+  "assetIds": [
+    "115977983725051",
+    "133159315265868",
+    "79214015771712",
+    "97582319038097"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Star Charm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

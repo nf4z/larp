@@ -1,0 +1,17 @@
+{
+  "name": "Diamond Trophy",
+  "images": {
+    "Normal": "rbxassetid://91208748737773",
+    "Shiny": "rbxassetid://108267642081892"
+  },
+  "assetIds": [
+    "108267642081892",
+    "91208748737773"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

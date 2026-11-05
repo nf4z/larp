@@ -1,0 +1,12 @@
+{
+  "name": "Stellaris Egg",
+  "images": {
+    "Image": "rbxassetid://111750736806776"
+  },
+  "assetIds": [
+    "111750736806776"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

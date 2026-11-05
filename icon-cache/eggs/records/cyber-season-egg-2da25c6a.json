@@ -1,0 +1,12 @@
+{
+  "name": "Cyber Season Egg",
+  "images": {
+    "Image": "rbxassetid://112213703764491"
+  },
+  "assetIds": [
+    "112213703764491"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

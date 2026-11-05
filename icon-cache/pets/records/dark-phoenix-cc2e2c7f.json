@@ -1,0 +1,21 @@
+{
+  "name": "Dark Phoenix",
+  "images": {
+    "Normal": "rbxassetid://121879532347673",
+    "Shiny": "rbxassetid://96543725025034",
+    "Mythic": "rbxassetid://98329771345437",
+    "MythicShiny": "rbxassetid://97837991194893"
+  },
+  "assetIds": [
+    "121879532347673",
+    "96543725025034",
+    "97837991194893",
+    "98329771345437"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

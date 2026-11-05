@@ -1,0 +1,21 @@
+{
+  "name": "Mech Robot",
+  "images": {
+    "Normal": "rbxassetid://130370519146743",
+    "Shiny": "rbxassetid://119284114227733",
+    "Mythic": "rbxassetid://89902348379892",
+    "MythicShiny": "rbxassetid://129610761607639"
+  },
+  "assetIds": [
+    "119284114227733",
+    "129610761607639",
+    "130370519146743",
+    "89902348379892"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mech Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

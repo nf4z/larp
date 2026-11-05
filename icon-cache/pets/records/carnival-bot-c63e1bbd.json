@@ -1,0 +1,17 @@
+{
+  "name": "Carnival Bot",
+  "images": {
+    "Normal": "rbxassetid://115390489896455",
+    "Shiny": "rbxassetid://99363116114425"
+  },
+  "assetIds": [
+    "115390489896455",
+    "99363116114425"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carnival Bot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

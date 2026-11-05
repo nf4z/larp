@@ -1,0 +1,21 @@
+{
+  "name": "Autumnentor",
+  "images": {
+    "Normal": "rbxassetid://96797113867235",
+    "Shiny": "rbxassetid://126039051018149",
+    "Mythic": "rbxassetid://130568218611582",
+    "MythicShiny": "rbxassetid://102581572255620"
+  },
+  "assetIds": [
+    "102581572255620",
+    "126039051018149",
+    "130568218611582",
+    "96797113867235"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Autumnentor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

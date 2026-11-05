@@ -1,0 +1,15 @@
+{
+  "name": "Coins",
+  "images": {
+    "Image": "rbxassetid://121401017387099"
+  },
+  "assetIds": [
+    "121401017387099"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Coins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Everlasting Moonglow",
+  "images": {
+    "Normal": "rbxassetid://133014974856991",
+    "Shiny": "rbxassetid://76047968167569",
+    "Mythic": "rbxassetid://116931528923641",
+    "MythicShiny": "rbxassetid://129733788682539"
+  },
+  "assetIds": [
+    "116931528923641",
+    "129733788682539",
+    "133014974856991",
+    "76047968167569"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Everlasting Moonglow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

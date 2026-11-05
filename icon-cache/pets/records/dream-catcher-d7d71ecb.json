@@ -1,0 +1,21 @@
+{
+  "name": "Dream Catcher",
+  "images": {
+    "Normal": "rbxassetid://109460816965347",
+    "Shiny": "rbxassetid://93051424452149",
+    "Mythic": "rbxassetid://102103226236828",
+    "MythicShiny": "rbxassetid://120752066707631"
+  },
+  "assetIds": [
+    "102103226236828",
+    "109460816965347",
+    "120752066707631",
+    "93051424452149"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dream Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

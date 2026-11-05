@@ -1,0 +1,17 @@
+{
+  "name": "Lunarcorn",
+  "images": {
+    "Normal": "rbxassetid://140257565071918",
+    "Shiny": "rbxassetid://122694213022562"
+  },
+  "assetIds": [
+    "122694213022562",
+    "140257565071918"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lunarcorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

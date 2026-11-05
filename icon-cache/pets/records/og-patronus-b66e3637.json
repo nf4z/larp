@@ -1,0 +1,21 @@
+{
+  "name": "OG Patronus",
+  "images": {
+    "Normal": "rbxassetid://116283380549358",
+    "Shiny": "rbxassetid://119489575436855",
+    "Mythic": "rbxassetid://125676639552987",
+    "MythicShiny": "rbxassetid://116338914012638"
+  },
+  "assetIds": [
+    "116283380549358",
+    "116338914012638",
+    "119489575436855",
+    "125676639552987"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Patronus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

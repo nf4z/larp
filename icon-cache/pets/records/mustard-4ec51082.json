@@ -1,0 +1,17 @@
+{
+  "name": "Mustard",
+  "images": {
+    "Normal": "rbxassetid://100845687110183",
+    "Shiny": "rbxassetid://96682931674433"
+  },
+  "assetIds": [
+    "100845687110183",
+    "96682931674433"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mustard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

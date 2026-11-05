@@ -1,0 +1,21 @@
+{
+  "name": "Runic Defender",
+  "images": {
+    "Normal": "rbxassetid://134171206040132",
+    "Shiny": "rbxassetid://115923590485672",
+    "Mythic": "rbxassetid://118237360482563",
+    "MythicShiny": "rbxassetid://128226901391771"
+  },
+  "assetIds": [
+    "115923590485672",
+    "118237360482563",
+    "128226901391771",
+    "134171206040132"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Runic Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

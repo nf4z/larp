@@ -1,0 +1,17 @@
+{
+  "name": "Virtual Kitty",
+  "images": {
+    "Normal": "rbxassetid://116494779176093",
+    "Shiny": "rbxassetid://133972909959822"
+  },
+  "assetIds": [
+    "116494779176093",
+    "133972909959822"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Virtual Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

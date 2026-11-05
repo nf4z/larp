@@ -1,0 +1,17 @@
+{
+  "name": "Stickbug",
+  "images": {
+    "Normal": "rbxassetid://72664346997706",
+    "Shiny": "rbxassetid://119213934389294"
+  },
+  "assetIds": [
+    "119213934389294",
+    "72664346997706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stickbug"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

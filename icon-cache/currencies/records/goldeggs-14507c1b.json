@@ -1,0 +1,15 @@
+{
+  "name": "GoldEggs",
+  "images": {
+    "Image": "rbxassetid://133264436664630"
+  },
+  "assetIds": [
+    "133264436664630"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "GoldEggs"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

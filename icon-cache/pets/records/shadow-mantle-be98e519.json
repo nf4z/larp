@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Mantle",
+  "images": {
+    "Normal": "rbxassetid://122164930751655",
+    "Shiny": "rbxassetid://127340494639707",
+    "Mythic": "rbxassetid://127470322120897",
+    "MythicShiny": "rbxassetid://138762977996509"
+  },
+  "assetIds": [
+    "122164930751655",
+    "127340494639707",
+    "127470322120897",
+    "138762977996509"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Mantle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

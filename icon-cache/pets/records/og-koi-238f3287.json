@@ -1,0 +1,21 @@
+{
+  "name": "OG Koi",
+  "images": {
+    "Normal": "rbxassetid://96282346794115",
+    "Shiny": "rbxassetid://85604299452408",
+    "Mythic": "rbxassetid://114913343527914",
+    "MythicShiny": "rbxassetid://131288951330615"
+  },
+  "assetIds": [
+    "114913343527914",
+    "131288951330615",
+    "85604299452408",
+    "96282346794115"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

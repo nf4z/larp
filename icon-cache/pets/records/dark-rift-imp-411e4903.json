@@ -1,0 +1,21 @@
+{
+  "name": "Dark Rift Imp",
+  "images": {
+    "Normal": "rbxassetid://90694679789482",
+    "Shiny": "rbxassetid://120541779975378",
+    "Mythic": "rbxassetid://74783709584314",
+    "MythicShiny": "rbxassetid://97676842197388"
+  },
+  "assetIds": [
+    "120541779975378",
+    "74783709584314",
+    "90694679789482",
+    "97676842197388"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Rift Imp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

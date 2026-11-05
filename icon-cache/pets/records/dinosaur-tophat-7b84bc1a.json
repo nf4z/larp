@@ -1,0 +1,21 @@
+{
+  "name": "Dinosaur Tophat",
+  "images": {
+    "Normal": "rbxassetid://81808570607933",
+    "Shiny": "rbxassetid://131539945818537",
+    "Mythic": "rbxassetid://97675037996242",
+    "MythicShiny": "rbxassetid://118060793383167"
+  },
+  "assetIds": [
+    "118060793383167",
+    "131539945818537",
+    "81808570607933",
+    "97675037996242"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dinosaur Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Solar Deity",
+  "images": {
+    "Normal": "rbxassetid://134628402584080",
+    "Shiny": "rbxassetid://119817581695133"
+  },
+  "assetIds": [
+    "119817581695133",
+    "134628402584080"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Solar Deity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

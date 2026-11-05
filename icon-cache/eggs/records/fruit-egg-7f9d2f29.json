@@ -1,0 +1,12 @@
+{
+  "name": "Fruit Egg",
+  "images": {
+    "Image": "rbxassetid://100758688071284"
+  },
+  "assetIds": [
+    "100758688071284"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

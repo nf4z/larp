@@ -1,0 +1,21 @@
+{
+  "name": "OG Pastel Hexarium",
+  "images": {
+    "Normal": "rbxassetid://82341579163958",
+    "Shiny": "rbxassetid://115458355088745",
+    "Mythic": "rbxassetid://111821608240733",
+    "MythicShiny": "rbxassetid://138467882872565"
+  },
+  "assetIds": [
+    "111821608240733",
+    "115458355088745",
+    "138467882872565",
+    "82341579163958"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Pastel Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

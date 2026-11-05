@@ -1,0 +1,21 @@
+{
+  "name": "D.I.Y Robot",
+  "images": {
+    "Normal": "rbxassetid://84958238942306",
+    "Shiny": "rbxassetid://107878635229706",
+    "Mythic": "rbxassetid://76341281929591",
+    "MythicShiny": "rbxassetid://112675300062631"
+  },
+  "assetIds": [
+    "107878635229706",
+    "112675300062631",
+    "76341281929591",
+    "84958238942306"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "D.I.Y Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

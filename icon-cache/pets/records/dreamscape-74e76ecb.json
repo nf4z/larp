@@ -1,0 +1,21 @@
+{
+  "name": "Dreamscape",
+  "images": {
+    "Normal": "rbxassetid://114002369659515",
+    "Shiny": "rbxassetid://138264107056992",
+    "Mythic": "rbxassetid://84742178459135",
+    "MythicShiny": "rbxassetid://94576981252234"
+  },
+  "assetIds": [
+    "114002369659515",
+    "138264107056992",
+    "84742178459135",
+    "94576981252234"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dreamscape"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Life of the Void",
+  "images": {
+    "Normal": "rbxassetid://123061637790468",
+    "Shiny": "rbxassetid://108404720571928",
+    "Mythic": "rbxassetid://105535599517271",
+    "MythicShiny": "rbxassetid://109572729683348"
+  },
+  "assetIds": [
+    "105535599517271",
+    "108404720571928",
+    "109572729683348",
+    "123061637790468"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Life of the Void"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Pure Guard",
+  "images": {
+    "Normal": "rbxassetid://122063689007307",
+    "Shiny": "rbxassetid://79489916307333"
+  },
+  "assetIds": [
+    "122063689007307",
+    "79489916307333"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pure Guard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

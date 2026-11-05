@@ -1,0 +1,21 @@
+{
+  "name": "Coconut Crab",
+  "images": {
+    "Normal": "rbxassetid://90857713823100",
+    "Shiny": "rbxassetid://86783031913689",
+    "Mythic": "rbxassetid://83347635675947",
+    "MythicShiny": "rbxassetid://113532973550905"
+  },
+  "assetIds": [
+    "113532973550905",
+    "83347635675947",
+    "86783031913689",
+    "90857713823100"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coconut Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

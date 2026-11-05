@@ -1,0 +1,21 @@
+{
+  "name": "Jackpot Dragon",
+  "images": {
+    "Normal": "rbxassetid://127800326656034",
+    "Shiny": "rbxassetid://93789945045377",
+    "Mythic": "rbxassetid://88146103948690",
+    "MythicShiny": "rbxassetid://105471040016952"
+  },
+  "assetIds": [
+    "105471040016952",
+    "127800326656034",
+    "88146103948690",
+    "93789945045377"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jackpot Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

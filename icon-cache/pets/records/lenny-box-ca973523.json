@@ -1,0 +1,17 @@
+{
+  "name": "Lenny Box",
+  "images": {
+    "Normal": "rbxassetid://103490567653760",
+    "Shiny": "rbxassetid://101713327924553"
+  },
+  "assetIds": [
+    "101713327924553",
+    "103490567653760"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lenny Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

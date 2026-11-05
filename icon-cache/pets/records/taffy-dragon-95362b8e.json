@@ -1,0 +1,21 @@
+{
+  "name": "Taffy Dragon",
+  "images": {
+    "Normal": "rbxassetid://90444467210646",
+    "Shiny": "rbxassetid://138504010977747",
+    "Mythic": "rbxassetid://108124391168913",
+    "MythicShiny": "rbxassetid://77826949507991"
+  },
+  "assetIds": [
+    "108124391168913",
+    "138504010977747",
+    "77826949507991",
+    "90444467210646"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Taffy Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

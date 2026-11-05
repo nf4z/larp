@@ -1,0 +1,21 @@
+{
+  "name": "Electra",
+  "images": {
+    "Normal": "rbxassetid://116500311179740",
+    "Shiny": "rbxassetid://138951170227797",
+    "Mythic": "rbxassetid://138345556062231",
+    "MythicShiny": "rbxassetid://76505798639885"
+  },
+  "assetIds": [
+    "116500311179740",
+    "138345556062231",
+    "138951170227797",
+    "76505798639885"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Electra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Beach Boi",
+  "images": {
+    "Normal": "rbxassetid://118949369126530",
+    "Shiny": "rbxassetid://88252988930956"
+  },
+  "assetIds": [
+    "118949369126530",
+    "88252988930956"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beach Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

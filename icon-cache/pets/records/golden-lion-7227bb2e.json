@@ -1,0 +1,21 @@
+{
+  "name": "Golden Lion",
+  "images": {
+    "Normal": "rbxassetid://95854689495926",
+    "Shiny": "rbxassetid://111437953031354",
+    "Mythic": "rbxassetid://87602315051679",
+    "MythicShiny": "rbxassetid://137793022806810"
+  },
+  "assetIds": [
+    "111437953031354",
+    "137793022806810",
+    "87602315051679",
+    "95854689495926"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Golden Lion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

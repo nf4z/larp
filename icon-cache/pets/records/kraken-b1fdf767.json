@@ -1,0 +1,21 @@
+{
+  "name": "Kraken",
+  "images": {
+    "Normal": "rbxassetid://104192905982933",
+    "Shiny": "rbxassetid://79711609777243",
+    "Mythic": "rbxassetid://70528429688452",
+    "MythicShiny": "rbxassetid://127028300416726"
+  },
+  "assetIds": [
+    "104192905982933",
+    "127028300416726",
+    "70528429688452",
+    "79711609777243"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

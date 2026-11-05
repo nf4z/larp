@@ -1,0 +1,21 @@
+{
+  "name": "Malevolent Skull",
+  "images": {
+    "Normal": "rbxassetid://107238979517454",
+    "Shiny": "rbxassetid://111817455004378",
+    "Mythic": "rbxassetid://87476960765412",
+    "MythicShiny": "rbxassetid://137280455149962"
+  },
+  "assetIds": [
+    "107238979517454",
+    "111817455004378",
+    "137280455149962",
+    "87476960765412"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Malevolent Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

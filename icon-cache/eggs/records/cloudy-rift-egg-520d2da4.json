@@ -1,0 +1,12 @@
+{
+  "name": "Cloudy Rift Egg",
+  "images": {
+    "Image": "rbxassetid://97291335739023"
+  },
+  "assetIds": [
+    "97291335739023"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Classic Dogcat",
+  "images": {
+    "Normal": "rbxassetid://127904947459262",
+    "Shiny": "rbxassetid://74347434820033"
+  },
+  "assetIds": [
+    "127904947459262",
+    "74347434820033"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

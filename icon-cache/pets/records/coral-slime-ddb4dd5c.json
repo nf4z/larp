@@ -1,0 +1,21 @@
+{
+  "name": "Coral Slime",
+  "images": {
+    "Normal": "rbxassetid://85170664541823",
+    "Shiny": "rbxassetid://91328974919283",
+    "Mythic": "rbxassetid://85755654745155",
+    "MythicShiny": "rbxassetid://125594065531517"
+  },
+  "assetIds": [
+    "125594065531517",
+    "85170664541823",
+    "85755654745155",
+    "91328974919283"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

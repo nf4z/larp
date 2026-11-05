@@ -1,0 +1,21 @@
+{
+  "name": "Cotton Candy",
+  "images": {
+    "Normal": "rbxassetid://137303180869630",
+    "Shiny": "rbxassetid://124530424691763",
+    "Mythic": "rbxassetid://72309582579591",
+    "MythicShiny": "rbxassetid://87950427087747"
+  },
+  "assetIds": [
+    "124530424691763",
+    "137303180869630",
+    "72309582579591",
+    "87950427087747"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cotton Candy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

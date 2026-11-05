@@ -1,0 +1,21 @@
+{
+  "name": "Spirited Nature",
+  "images": {
+    "Normal": "rbxassetid://79297550270139",
+    "Shiny": "rbxassetid://95655266675613",
+    "Mythic": "rbxassetid://82829258506131",
+    "MythicShiny": "rbxassetid://135257722954482"
+  },
+  "assetIds": [
+    "135257722954482",
+    "79297550270139",
+    "82829258506131",
+    "95655266675613"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spirited Nature"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

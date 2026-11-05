@@ -1,0 +1,21 @@
+{
+  "name": "Mango Bird",
+  "images": {
+    "Normal": "rbxassetid://73090585949070",
+    "Shiny": "rbxassetid://84082116540496",
+    "Mythic": "rbxassetid://118693411814155",
+    "MythicShiny": "rbxassetid://104690420902336"
+  },
+  "assetIds": [
+    "104690420902336",
+    "118693411814155",
+    "73090585949070",
+    "84082116540496"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mango Bird"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Frutiger User",
+  "images": {
+    "Normal": "rbxassetid://128869846244893",
+    "Shiny": "rbxassetid://110756112681575"
+  },
+  "assetIds": [
+    "110756112681575",
+    "128869846244893"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frutiger User"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

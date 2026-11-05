@@ -1,0 +1,17 @@
+{
+  "name": "VOID SENTINEL",
+  "images": {
+    "Normal": "rbxassetid://138389035748781",
+    "Shiny": "rbxassetid://81335155701530"
+  },
+  "assetIds": [
+    "138389035748781",
+    "81335155701530"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID SENTINEL"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

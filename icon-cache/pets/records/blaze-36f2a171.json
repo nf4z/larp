@@ -1,0 +1,17 @@
+{
+  "name": "Blaze",
+  "images": {
+    "Normal": "rbxassetid://129725981444481",
+    "Shiny": "rbxassetid://71398024930350"
+  },
+  "assetIds": [
+    "129725981444481",
+    "71398024930350"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blaze"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

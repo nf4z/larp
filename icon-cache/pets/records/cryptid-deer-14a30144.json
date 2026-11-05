@@ -1,0 +1,17 @@
+{
+  "name": "Cryptid Deer",
+  "images": {
+    "Normal": "rbxassetid://84928131918975",
+    "Shiny": "rbxassetid://75947428127636"
+  },
+  "assetIds": [
+    "75947428127636",
+    "84928131918975"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cryptid Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

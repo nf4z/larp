@@ -1,0 +1,21 @@
+{
+  "name": "Nert Giftbox",
+  "images": {
+    "Normal": "rbxassetid://126983263233185",
+    "Shiny": "rbxassetid://109536842368569",
+    "Mythic": "rbxassetid://93457575247325",
+    "MythicShiny": "rbxassetid://89234738256987"
+  },
+  "assetIds": [
+    "109536842368569",
+    "126983263233185",
+    "89234738256987",
+    "93457575247325"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nert Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "OG Frost Sentinel",
+  "images": {
+    "Normal": "rbxassetid://110464384921964",
+    "Shiny": "rbxassetid://111039275755397"
+  },
+  "assetIds": [
+    "110464384921964",
+    "111039275755397"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Frost Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

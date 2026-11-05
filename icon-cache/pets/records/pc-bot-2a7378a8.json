@@ -1,0 +1,21 @@
+{
+  "name": "PC-Bot",
+  "images": {
+    "Normal": "rbxassetid://95680433184029",
+    "Shiny": "rbxassetid://101437144054507",
+    "Mythic": "rbxassetid://81565598464319",
+    "MythicShiny": "rbxassetid://86441252689718"
+  },
+  "assetIds": [
+    "101437144054507",
+    "81565598464319",
+    "86441252689718",
+    "95680433184029"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "PC-Bot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

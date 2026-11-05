@@ -1,0 +1,21 @@
+{
+  "name": "Queen Overlord",
+  "images": {
+    "Normal": "rbxassetid://92139941626868",
+    "Shiny": "rbxassetid://80920438461920",
+    "Mythic": "rbxassetid://127213325183491",
+    "MythicShiny": "rbxassetid://80399769498181"
+  },
+  "assetIds": [
+    "127213325183491",
+    "80399769498181",
+    "80920438461920",
+    "92139941626868"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

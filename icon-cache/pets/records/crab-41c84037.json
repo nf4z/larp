@@ -1,0 +1,17 @@
+{
+  "name": "Crab",
+  "images": {
+    "Normal": "rbxassetid://122399148302544",
+    "Shiny": "rbxassetid://131245344474251"
+  },
+  "assetIds": [
+    "122399148302544",
+    "131245344474251"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crab"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

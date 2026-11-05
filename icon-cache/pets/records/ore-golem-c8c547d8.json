@@ -1,0 +1,17 @@
+{
+  "name": "Ore Golem",
+  "images": {
+    "Normal": "rbxassetid://83559948607250",
+    "Shiny": "rbxassetid://78142132254185"
+  },
+  "assetIds": [
+    "78142132254185",
+    "83559948607250"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ore Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

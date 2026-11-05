@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Reaper",
+  "images": {
+    "Normal": "rbxassetid://99310495475315",
+    "Shiny": "rbxassetid://76485929100202",
+    "Mythic": "rbxassetid://85576465173708",
+    "MythicShiny": "rbxassetid://128743781692405"
+  },
+  "assetIds": [
+    "128743781692405",
+    "76485929100202",
+    "85576465173708",
+    "99310495475315"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Reaper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

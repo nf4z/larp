@@ -1,0 +1,17 @@
+{
+  "name": "Stellar Bear",
+  "images": {
+    "Normal": "rbxassetid://115785737317826",
+    "Shiny": "rbxassetid://112958577802697"
+  },
+  "assetIds": [
+    "112958577802697",
+    "115785737317826"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

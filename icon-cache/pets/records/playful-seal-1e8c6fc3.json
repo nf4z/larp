@@ -1,0 +1,17 @@
+{
+  "name": "Playful Seal",
+  "images": {
+    "Normal": "rbxassetid://138112643608671",
+    "Shiny": "rbxassetid://130347209646520"
+  },
+  "assetIds": [
+    "130347209646520",
+    "138112643608671"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Playful Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

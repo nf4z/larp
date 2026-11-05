@@ -1,0 +1,21 @@
+{
+  "name": "Omega Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://105779022259962",
+    "Shiny": "rbxassetid://79665320081071",
+    "Mythic": "rbxassetid://121507046127801",
+    "MythicShiny": "rbxassetid://120238129754144"
+  },
+  "assetIds": [
+    "105779022259962",
+    "120238129754144",
+    "121507046127801",
+    "79665320081071"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Omega Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

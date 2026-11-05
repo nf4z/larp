@@ -1,0 +1,12 @@
+{
+  "name": "Lucky Egg",
+  "images": {
+    "Image": "rbxassetid://82339904305917"
+  },
+  "assetIds": [
+    "82339904305917"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

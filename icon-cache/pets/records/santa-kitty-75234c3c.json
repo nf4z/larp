@@ -1,0 +1,17 @@
+{
+  "name": "Santa Kitty",
+  "images": {
+    "Normal": "rbxassetid://104344546782176",
+    "Shiny": "rbxassetid://121698150903338"
+  },
+  "assetIds": [
+    "104344546782176",
+    "121698150903338"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Frosty Lord Shock",
+  "images": {
+    "Normal": "rbxassetid://89693330509860",
+    "Shiny": "rbxassetid://81656810055508",
+    "Mythic": "rbxassetid://112172808775553",
+    "MythicShiny": "rbxassetid://103058904697778"
+  },
+  "assetIds": [
+    "103058904697778",
+    "112172808775553",
+    "81656810055508",
+    "89693330509860"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frosty Lord Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

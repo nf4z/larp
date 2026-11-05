@@ -1,0 +1,21 @@
+{
+  "name": "OG New Year's Champion",
+  "images": {
+    "Normal": "rbxassetid://86197588388001",
+    "Shiny": "rbxassetid://96122509875148",
+    "Mythic": "rbxassetid://120226148469676",
+    "MythicShiny": "rbxassetid://130752003519947"
+  },
+  "assetIds": [
+    "120226148469676",
+    "130752003519947",
+    "86197588388001",
+    "96122509875148"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG New Year's Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

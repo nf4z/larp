@@ -1,0 +1,17 @@
+{
+  "name": "Baby Blue Bee",
+  "images": {
+    "Normal": "rbxassetid://106727038366156",
+    "Shiny": "rbxassetid://123704645999938"
+  },
+  "assetIds": [
+    "106727038366156",
+    "123704645999938"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Baby Blue Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

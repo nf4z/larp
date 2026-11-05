@@ -1,0 +1,17 @@
+{
+  "name": "Hell Crawler",
+  "images": {
+    "Normal": "rbxassetid://85762364191919",
+    "Shiny": "rbxassetid://97739309087713"
+  },
+  "assetIds": [
+    "85762364191919",
+    "97739309087713"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hell Crawler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

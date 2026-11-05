@@ -1,0 +1,21 @@
+{
+  "name": "Sweet Candy Heart",
+  "images": {
+    "Normal": "rbxassetid://107558685266065",
+    "Shiny": "rbxassetid://95072143587979",
+    "Mythic": "rbxassetid://121316831061779",
+    "MythicShiny": "rbxassetid://135454830448013"
+  },
+  "assetIds": [
+    "107558685266065",
+    "121316831061779",
+    "135454830448013",
+    "95072143587979"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sweet Candy Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

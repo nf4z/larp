@@ -1,0 +1,17 @@
+{
+  "name": "Dark Rift Doggy",
+  "images": {
+    "Normal": "rbxassetid://110503810829730",
+    "Shiny": "rbxassetid://127011361302023"
+  },
+  "assetIds": [
+    "110503810829730",
+    "127011361302023"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Rift Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

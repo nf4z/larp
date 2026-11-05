@@ -1,0 +1,12 @@
+{
+  "name": "Autumn Egg",
+  "images": {
+    "Image": "rbxassetid://111341323252809"
+  },
+  "assetIds": [
+    "111341323252809"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

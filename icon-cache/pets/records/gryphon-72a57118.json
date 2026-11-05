@@ -1,0 +1,21 @@
+{
+  "name": "Gryphon",
+  "images": {
+    "Normal": "rbxassetid://124950295534486",
+    "Shiny": "rbxassetid://116906387747804",
+    "Mythic": "rbxassetid://139931736518930",
+    "MythicShiny": "rbxassetid://126724785986300"
+  },
+  "assetIds": [
+    "116906387747804",
+    "124950295534486",
+    "126724785986300",
+    "139931736518930"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

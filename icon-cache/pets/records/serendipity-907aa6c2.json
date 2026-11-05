@@ -1,0 +1,21 @@
+{
+  "name": "Serendipity",
+  "images": {
+    "Normal": "rbxassetid://133579573890590",
+    "Shiny": "rbxassetid://109760766247742",
+    "Mythic": "rbxassetid://87331698990296",
+    "MythicShiny": "rbxassetid://125198797773680"
+  },
+  "assetIds": [
+    "109760766247742",
+    "125198797773680",
+    "133579573890590",
+    "87331698990296"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Serendipity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

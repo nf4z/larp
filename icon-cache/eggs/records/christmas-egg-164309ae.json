@@ -1,0 +1,12 @@
+{
+  "name": "Christmas Egg",
+  "images": {
+    "Image": "rbxassetid://138631503979118"
+  },
+  "assetIds": [
+    "138631503979118"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Prestige Carrot",
+  "images": {
+    "Normal": "rbxassetid://94604360252235",
+    "Shiny": "rbxassetid://101216425599680",
+    "Mythic": "rbxassetid://88903005590556",
+    "MythicShiny": "rbxassetid://126534520847945"
+  },
+  "assetIds": [
+    "101216425599680",
+    "126534520847945",
+    "88903005590556",
+    "94604360252235"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prestige Carrot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

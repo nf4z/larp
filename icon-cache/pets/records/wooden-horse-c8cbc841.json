@@ -1,0 +1,17 @@
+{
+  "name": "Wooden Horse",
+  "images": {
+    "Normal": "rbxassetid://79743620138753",
+    "Shiny": "rbxassetid://104329883007539"
+  },
+  "assetIds": [
+    "104329883007539",
+    "79743620138753"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wooden Horse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

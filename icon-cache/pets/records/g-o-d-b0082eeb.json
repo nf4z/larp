@@ -1,0 +1,17 @@
+{
+  "name": "G O D",
+  "images": {
+    "Normal": "rbxassetid://139638446410463",
+    "Shiny": "rbxassetid://100697236450335"
+  },
+  "assetIds": [
+    "100697236450335",
+    "139638446410463"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "G O D"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

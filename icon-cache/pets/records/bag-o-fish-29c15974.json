@@ -1,0 +1,21 @@
+{
+  "name": "Bag O' Fish",
+  "images": {
+    "Normal": "rbxassetid://75447264000628",
+    "Shiny": "rbxassetid://131201763423415",
+    "Mythic": "rbxassetid://137021315858192",
+    "MythicShiny": "rbxassetid://114067513467753"
+  },
+  "assetIds": [
+    "114067513467753",
+    "131201763423415",
+    "137021315858192",
+    "75447264000628"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bag O' Fish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

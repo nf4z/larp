@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Phoenix",
+  "images": {
+    "Normal": "rbxassetid://105094363407400",
+    "Shiny": "rbxassetid://76796658323899",
+    "Mythic": "rbxassetid://99002968498514",
+    "MythicShiny": "rbxassetid://128917240768744"
+  },
+  "assetIds": [
+    "105094363407400",
+    "128917240768744",
+    "76796658323899",
+    "99002968498514"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

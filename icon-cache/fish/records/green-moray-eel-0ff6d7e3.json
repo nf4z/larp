@@ -1,0 +1,15 @@
+{
+  "name": "Green Moray Eel",
+  "images": {
+    "Image": "rbxassetid://136126595686542"
+  },
+  "assetIds": [
+    "136126595686542"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Green Moray Eel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

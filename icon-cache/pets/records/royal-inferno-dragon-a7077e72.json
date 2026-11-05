@@ -1,0 +1,21 @@
+{
+  "name": "Royal Inferno Dragon",
+  "images": {
+    "Normal": "rbxassetid://97720361189692",
+    "Shiny": "rbxassetid://132719027802003",
+    "Mythic": "rbxassetid://83194808070705",
+    "MythicShiny": "rbxassetid://87512748865885"
+  },
+  "assetIds": [
+    "132719027802003",
+    "83194808070705",
+    "87512748865885",
+    "97720361189692"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Inferno Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

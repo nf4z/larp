@@ -1,0 +1,15 @@
+{
+  "name": "Ice Shard",
+  "images": {
+    "Image": "rbxassetid://132819325215073"
+  },
+  "assetIds": [
+    "132819325215073"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Ice Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Guardian Angel",
+  "images": {
+    "Normal": "rbxassetid://107668403756700",
+    "Shiny": "rbxassetid://139323432742421",
+    "Mythic": "rbxassetid://74652037523970",
+    "MythicShiny": "rbxassetid://111071064551978"
+  },
+  "assetIds": [
+    "107668403756700",
+    "111071064551978",
+    "139323432742421",
+    "74652037523970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

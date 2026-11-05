@@ -1,0 +1,17 @@
+{
+  "name": "Neapolitan Stack",
+  "images": {
+    "Normal": "rbxassetid://123953129160495",
+    "Shiny": "rbxassetid://110977698041088"
+  },
+  "assetIds": [
+    "110977698041088",
+    "123953129160495"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neapolitan Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

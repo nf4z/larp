@@ -1,0 +1,17 @@
+{
+  "name": "Cartoon Kitty",
+  "images": {
+    "Normal": "rbxassetid://118740839481964",
+    "Shiny": "rbxassetid://80957343496394"
+  },
+  "assetIds": [
+    "118740839481964",
+    "80957343496394"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cartoon Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

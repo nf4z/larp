@@ -1,0 +1,21 @@
+{
+  "name": "Spring Shard",
+  "images": {
+    "Normal": "rbxassetid://127166848254719",
+    "Shiny": "rbxassetid://98612533501454",
+    "Mythic": "rbxassetid://83130790115516",
+    "MythicShiny": "rbxassetid://77507836708235"
+  },
+  "assetIds": [
+    "127166848254719",
+    "77507836708235",
+    "83130790115516",
+    "98612533501454"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

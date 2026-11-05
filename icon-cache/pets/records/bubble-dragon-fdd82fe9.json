@@ -1,0 +1,17 @@
+{
+  "name": "Bubble Dragon",
+  "images": {
+    "Normal": "rbxassetid://135098454721669",
+    "Shiny": "rbxassetid://106994341934589"
+  },
+  "assetIds": [
+    "106994341934589",
+    "135098454721669"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubble Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

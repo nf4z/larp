@@ -1,0 +1,12 @@
+{
+  "name": "Corn Egg",
+  "images": {
+    "Image": "rbxassetid://127475257138646"
+  },
+  "assetIds": [
+    "127475257138646"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

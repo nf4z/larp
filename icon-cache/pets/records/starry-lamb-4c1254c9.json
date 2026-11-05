@@ -1,0 +1,17 @@
+{
+  "name": "Starry Lamb",
+  "images": {
+    "Normal": "rbxassetid://129047181207186",
+    "Shiny": "rbxassetid://115966365794799"
+  },
+  "assetIds": [
+    "115966365794799",
+    "129047181207186"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Lamb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

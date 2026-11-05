@@ -1,0 +1,12 @@
+{
+  "name": "Wonderland Egg",
+  "images": {
+    "Image": "rbxassetid://80521275479027"
+  },
+  "assetIds": [
+    "80521275479027"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Cyber Wolf",
+  "images": {
+    "Normal": "rbxassetid://112519144548644",
+    "Shiny": "rbxassetid://109676694882054"
+  },
+  "assetIds": [
+    "109676694882054",
+    "112519144548644"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyber Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

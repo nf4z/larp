@@ -1,0 +1,21 @@
+{
+  "name": "Royal Gemstone",
+  "images": {
+    "Normal": "rbxassetid://82024080388988",
+    "Shiny": "rbxassetid://88625732436538",
+    "Mythic": "rbxassetid://96197761908828",
+    "MythicShiny": "rbxassetid://95497980793953"
+  },
+  "assetIds": [
+    "82024080388988",
+    "88625732436538",
+    "95497980793953",
+    "96197761908828"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Gemstone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

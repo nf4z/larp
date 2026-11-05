@@ -1,0 +1,21 @@
+{
+  "name": "OwOlord Plushie",
+  "images": {
+    "Normal": "rbxassetid://109061014949454",
+    "Shiny": "rbxassetid://75708720204765",
+    "Mythic": "rbxassetid://120396018280089",
+    "MythicShiny": "rbxassetid://139509927599158"
+  },
+  "assetIds": [
+    "109061014949454",
+    "120396018280089",
+    "139509927599158",
+    "75708720204765"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OwOlord Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

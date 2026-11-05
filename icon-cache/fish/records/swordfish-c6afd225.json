@@ -1,0 +1,15 @@
+{
+  "name": "Swordfish",
+  "images": {
+    "Image": "rbxassetid://75658018579583"
+  },
+  "assetIds": [
+    "75658018579583"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Swordfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

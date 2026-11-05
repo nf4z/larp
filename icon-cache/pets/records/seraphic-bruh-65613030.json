@@ -1,0 +1,21 @@
+{
+  "name": "Seraphic Bruh",
+  "images": {
+    "Normal": "rbxassetid://92244282867653",
+    "Shiny": "rbxassetid://124740589602537",
+    "Mythic": "rbxassetid://77088126345122",
+    "MythicShiny": "rbxassetid://94607590992866"
+  },
+  "assetIds": [
+    "124740589602537",
+    "77088126345122",
+    "92244282867653",
+    "94607590992866"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Seraphic Bruh"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

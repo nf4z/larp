@@ -1,0 +1,21 @@
+{
+  "name": "OG Hellshard",
+  "images": {
+    "Normal": "rbxassetid://76378395434452",
+    "Shiny": "rbxassetid://110957532468162",
+    "Mythic": "rbxassetid://77331701493117",
+    "MythicShiny": "rbxassetid://105426736233121"
+  },
+  "assetIds": [
+    "105426736233121",
+    "110957532468162",
+    "76378395434452",
+    "77331701493117"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Hellshard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

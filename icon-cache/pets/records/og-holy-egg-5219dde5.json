@@ -1,0 +1,21 @@
+{
+  "name": "OG Holy Egg",
+  "images": {
+    "Normal": "rbxassetid://119218615818530",
+    "Shiny": "rbxassetid://134498681652621",
+    "Mythic": "rbxassetid://81678173176995",
+    "MythicShiny": "rbxassetid://135038124424501"
+  },
+  "assetIds": [
+    "119218615818530",
+    "134498681652621",
+    "135038124424501",
+    "81678173176995"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Holy Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

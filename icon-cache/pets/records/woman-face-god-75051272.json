@@ -1,0 +1,21 @@
+{
+  "name": "WOMAN FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://74628356033179",
+    "Shiny": "rbxassetid://85683933508757",
+    "Mythic": "rbxassetid://72005725046585",
+    "MythicShiny": "rbxassetid://72749922144235"
+  },
+  "assetIds": [
+    "72005725046585",
+    "72749922144235",
+    "74628356033179",
+    "85683933508757"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "WOMAN FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

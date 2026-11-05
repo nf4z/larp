@@ -1,0 +1,21 @@
+{
+  "name": "Giant Chocolate Chicken",
+  "images": {
+    "Normal": "rbxassetid://78405356893234",
+    "Shiny": "rbxassetid://121098504222130",
+    "Mythic": "rbxassetid://83862207009106",
+    "MythicShiny": "rbxassetid://91793667211055"
+  },
+  "assetIds": [
+    "121098504222130",
+    "78405356893234",
+    "83862207009106",
+    "91793667211055"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Chocolate Chicken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

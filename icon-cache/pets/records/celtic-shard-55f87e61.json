@@ -1,0 +1,21 @@
+{
+  "name": "Celtic Shard",
+  "images": {
+    "Normal": "rbxassetid://93875841502358",
+    "Shiny": "rbxassetid://126425425157690",
+    "Mythic": "rbxassetid://115379111165814",
+    "MythicShiny": "rbxassetid://78491981093441"
+  },
+  "assetIds": [
+    "115379111165814",
+    "126425425157690",
+    "78491981093441",
+    "93875841502358"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Celtic Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Yolk Egg",
+  "images": {
+    "Normal": "rbxassetid://116903753563567",
+    "Shiny": "rbxassetid://111005147892753"
+  },
+  "assetIds": [
+    "111005147892753",
+    "116903753563567"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Yolk Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

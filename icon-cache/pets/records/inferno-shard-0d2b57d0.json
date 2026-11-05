@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Shard",
+  "images": {
+    "Normal": "rbxassetid://104637717044847",
+    "Shiny": "rbxassetid://72524853485326",
+    "Mythic": "rbxassetid://116494399923209",
+    "MythicShiny": "rbxassetid://113695894576908"
+  },
+  "assetIds": [
+    "104637717044847",
+    "113695894576908",
+    "116494399923209",
+    "72524853485326"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

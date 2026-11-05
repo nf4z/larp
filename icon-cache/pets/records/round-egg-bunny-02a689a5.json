@@ -1,0 +1,17 @@
+{
+  "name": "Round Egg Bunny",
+  "images": {
+    "Normal": "rbxassetid://83506382580331",
+    "Shiny": "rbxassetid://126215047895959"
+  },
+  "assetIds": [
+    "126215047895959",
+    "83506382580331"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Round Egg Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

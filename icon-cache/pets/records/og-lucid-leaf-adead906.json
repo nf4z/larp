@@ -1,0 +1,21 @@
+{
+  "name": "OG Lucid Leaf",
+  "images": {
+    "Normal": "rbxassetid://103214418860961",
+    "Shiny": "rbxassetid://114140470271500",
+    "Mythic": "rbxassetid://125387033248672",
+    "MythicShiny": "rbxassetid://121066419599746"
+  },
+  "assetIds": [
+    "103214418860961",
+    "114140470271500",
+    "121066419599746",
+    "125387033248672"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Lucid Leaf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

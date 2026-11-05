@@ -1,0 +1,21 @@
+{
+  "name": "OG Dementor",
+  "images": {
+    "Normal": "rbxassetid://78133678373628",
+    "Shiny": "rbxassetid://111400450787097",
+    "Mythic": "rbxassetid://87814711369519",
+    "MythicShiny": "rbxassetid://97210173010340"
+  },
+  "assetIds": [
+    "111400450787097",
+    "78133678373628",
+    "87814711369519",
+    "97210173010340"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Dementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

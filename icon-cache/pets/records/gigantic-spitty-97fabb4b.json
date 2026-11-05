@@ -1,0 +1,21 @@
+{
+  "name": "Gigantic Spitty",
+  "images": {
+    "Normal": "rbxassetid://79827024353376",
+    "Shiny": "rbxassetid://121162602817957",
+    "Mythic": "rbxassetid://81176092364807",
+    "MythicShiny": "rbxassetid://132857684946155"
+  },
+  "assetIds": [
+    "121162602817957",
+    "132857684946155",
+    "79827024353376",
+    "81176092364807"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gigantic Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

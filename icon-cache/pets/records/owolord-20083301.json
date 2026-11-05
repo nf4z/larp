@@ -1,0 +1,21 @@
+{
+  "name": "OwOlord",
+  "images": {
+    "Normal": "rbxassetid://119431533067723",
+    "Shiny": "rbxassetid://85177359625907",
+    "Mythic": "rbxassetid://93374946492817",
+    "MythicShiny": "rbxassetid://74990739994868"
+  },
+  "assetIds": [
+    "119431533067723",
+    "74990739994868",
+    "85177359625907",
+    "93374946492817"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OwOlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Retro Dominus",
+  "images": {
+    "Normal": "rbxassetid://96953887796372",
+    "Shiny": "rbxassetid://93616633127087",
+    "Mythic": "rbxassetid://139103886438273",
+    "MythicShiny": "rbxassetid://113197262561198"
+  },
+  "assetIds": [
+    "113197262561198",
+    "139103886438273",
+    "93616633127087",
+    "96953887796372"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Dominus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

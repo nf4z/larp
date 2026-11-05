@@ -1,0 +1,17 @@
+{
+  "name": "Bow Bunny",
+  "images": {
+    "Normal": "rbxassetid://101840367549334",
+    "Shiny": "rbxassetid://81878017289027"
+  },
+  "assetIds": [
+    "101840367549334",
+    "81878017289027"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bow Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

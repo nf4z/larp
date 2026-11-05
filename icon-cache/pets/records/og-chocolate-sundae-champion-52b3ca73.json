@@ -1,0 +1,21 @@
+{
+  "name": "OG Chocolate Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://74707204860999",
+    "Shiny": "rbxassetid://130818173103563",
+    "Mythic": "rbxassetid://132566884598963",
+    "MythicShiny": "rbxassetid://133996410641192"
+  },
+  "assetIds": [
+    "130818173103563",
+    "132566884598963",
+    "133996410641192",
+    "74707204860999"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Chocolate Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

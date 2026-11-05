@@ -1,0 +1,17 @@
+{
+  "name": "OG Enraged Phoenix",
+  "images": {
+    "Normal": "rbxassetid://79651436350237",
+    "Shiny": "rbxassetid://100054807761044"
+  },
+  "assetIds": [
+    "100054807761044",
+    "79651436350237"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Enraged Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

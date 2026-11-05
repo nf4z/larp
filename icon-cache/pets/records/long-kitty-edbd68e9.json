@@ -1,0 +1,17 @@
+{
+  "name": "Long Kitty",
+  "images": {
+    "Normal": "rbxassetid://119634181104666",
+    "Shiny": "rbxassetid://110282638403474"
+  },
+  "assetIds": [
+    "110282638403474",
+    "119634181104666"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Long Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

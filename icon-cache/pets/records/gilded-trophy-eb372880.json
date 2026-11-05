@@ -1,0 +1,21 @@
+{
+  "name": "Gilded Trophy",
+  "images": {
+    "Normal": "rbxassetid://106532594583867",
+    "Shiny": "rbxassetid://129093736487474",
+    "Mythic": "rbxassetid://78425150490625",
+    "MythicShiny": "rbxassetid://89374931756662"
+  },
+  "assetIds": [
+    "106532594583867",
+    "129093736487474",
+    "78425150490625",
+    "89374931756662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gilded Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

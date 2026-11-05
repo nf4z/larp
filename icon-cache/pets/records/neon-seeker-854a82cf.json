@@ -1,0 +1,21 @@
+{
+  "name": "Neon Seeker",
+  "images": {
+    "Normal": "rbxassetid://118002394870429",
+    "Shiny": "rbxassetid://135817287464246",
+    "Mythic": "rbxassetid://113683028101614",
+    "MythicShiny": "rbxassetid://131305922995937"
+  },
+  "assetIds": [
+    "113683028101614",
+    "118002394870429",
+    "131305922995937",
+    "135817287464246"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Seeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

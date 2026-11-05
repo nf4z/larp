@@ -1,0 +1,15 @@
+{
+  "name": "Cracked Egg",
+  "images": {
+    "Image": "rbxassetid://98206281189016"
+  },
+  "assetIds": [
+    "98206281189016"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Cracked Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

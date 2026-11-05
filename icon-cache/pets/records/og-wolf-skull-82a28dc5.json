@@ -1,0 +1,21 @@
+{
+  "name": "OG Wolf Skull",
+  "images": {
+    "Normal": "rbxassetid://93974724451334",
+    "Shiny": "rbxassetid://109045081602494",
+    "Mythic": "rbxassetid://139615637003902",
+    "MythicShiny": "rbxassetid://117675417178983"
+  },
+  "assetIds": [
+    "109045081602494",
+    "117675417178983",
+    "139615637003902",
+    "93974724451334"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Wolf Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

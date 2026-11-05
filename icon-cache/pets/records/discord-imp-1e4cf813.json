@@ -1,0 +1,17 @@
+{
+  "name": "Discord Imp",
+  "images": {
+    "Normal": "rbxassetid://127424277905900",
+    "Shiny": "rbxassetid://121883751295408"
+  },
+  "assetIds": [
+    "121883751295408",
+    "127424277905900"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Discord Imp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

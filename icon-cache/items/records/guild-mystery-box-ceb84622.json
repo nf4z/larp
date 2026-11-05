@@ -1,0 +1,15 @@
+{
+  "name": "Guild Mystery Box",
+  "images": {
+    "Image": "rbxassetid://103712029191797"
+  },
+  "assetIds": [
+    "103712029191797"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Guild Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

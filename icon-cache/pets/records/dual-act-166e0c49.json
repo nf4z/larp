@@ -1,0 +1,21 @@
+{
+  "name": "Dual Act",
+  "images": {
+    "Normal": "rbxassetid://98628687644870",
+    "Shiny": "rbxassetid://128513428979823",
+    "Mythic": "rbxassetid://134974555449922",
+    "MythicShiny": "rbxassetid://72987422393512"
+  },
+  "assetIds": [
+    "128513428979823",
+    "134974555449922",
+    "72987422393512",
+    "98628687644870"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dual Act"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

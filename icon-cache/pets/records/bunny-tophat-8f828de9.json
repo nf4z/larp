@@ -1,0 +1,17 @@
+{
+  "name": "Bunny Tophat",
+  "images": {
+    "Normal": "rbxassetid://95425469896899",
+    "Shiny": "rbxassetid://103086426985149"
+  },
+  "assetIds": [
+    "103086426985149",
+    "95425469896899"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

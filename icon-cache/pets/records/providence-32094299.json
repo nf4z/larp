@@ -1,0 +1,21 @@
+{
+  "name": "Providence",
+  "images": {
+    "Normal": "rbxassetid://96434106394321",
+    "Shiny": "rbxassetid://126046613034661",
+    "Mythic": "rbxassetid://81017571815495",
+    "MythicShiny": "rbxassetid://95099202253649"
+  },
+  "assetIds": [
+    "126046613034661",
+    "81017571815495",
+    "95099202253649",
+    "96434106394321"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Providence"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

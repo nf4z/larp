@@ -1,0 +1,21 @@
+{
+  "name": "Easter Dragon",
+  "images": {
+    "Normal": "rbxassetid://78688281655487",
+    "Shiny": "rbxassetid://92909975040670",
+    "Mythic": "rbxassetid://89930405176254",
+    "MythicShiny": "rbxassetid://79316070751328"
+  },
+  "assetIds": [
+    "78688281655487",
+    "79316070751328",
+    "89930405176254",
+    "92909975040670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

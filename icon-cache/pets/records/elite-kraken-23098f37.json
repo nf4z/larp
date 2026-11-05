@@ -1,0 +1,21 @@
+{
+  "name": "Elite Kraken",
+  "images": {
+    "Normal": "rbxassetid://126768729707899",
+    "Shiny": "rbxassetid://76937289582285",
+    "Mythic": "rbxassetid://132181588162176",
+    "MythicShiny": "rbxassetid://72640996993696"
+  },
+  "assetIds": [
+    "126768729707899",
+    "132181588162176",
+    "72640996993696",
+    "76937289582285"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

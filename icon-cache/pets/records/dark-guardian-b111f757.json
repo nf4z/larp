@@ -1,0 +1,21 @@
+{
+  "name": "Dark Guardian",
+  "images": {
+    "Normal": "rbxassetid://131614372671387",
+    "Shiny": "rbxassetid://118842646196200",
+    "Mythic": "rbxassetid://133809543962409",
+    "MythicShiny": "rbxassetid://75026411056522"
+  },
+  "assetIds": [
+    "118842646196200",
+    "131614372671387",
+    "133809543962409",
+    "75026411056522"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

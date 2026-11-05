@@ -1,0 +1,17 @@
+{
+  "name": "Isaac's Creation",
+  "images": {
+    "Normal": "rbxassetid://120075310897633",
+    "Shiny": "rbxassetid://117711830330834"
+  },
+  "assetIds": [
+    "117711830330834",
+    "120075310897633"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Isaac's Creation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

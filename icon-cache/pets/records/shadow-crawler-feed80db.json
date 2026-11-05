@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Crawler",
+  "images": {
+    "Normal": "rbxassetid://96038141158088",
+    "Shiny": "rbxassetid://101667502967438",
+    "Mythic": "rbxassetid://99081219540737",
+    "MythicShiny": "rbxassetid://82608415149043"
+  },
+  "assetIds": [
+    "101667502967438",
+    "82608415149043",
+    "96038141158088",
+    "99081219540737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Crawler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

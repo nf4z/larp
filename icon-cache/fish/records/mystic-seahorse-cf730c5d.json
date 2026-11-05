@@ -1,0 +1,15 @@
+{
+  "name": "Mystic Seahorse",
+  "images": {
+    "Image": "rbxassetid://132622184082519"
+  },
+  "assetIds": [
+    "132622184082519"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Mystic Seahorse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

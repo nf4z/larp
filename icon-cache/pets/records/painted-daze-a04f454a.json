@@ -1,0 +1,21 @@
+{
+  "name": "Painted Daze",
+  "images": {
+    "Normal": "rbxassetid://108017717355437",
+    "Shiny": "rbxassetid://80070205245925",
+    "Mythic": "rbxassetid://81013959162926",
+    "MythicShiny": "rbxassetid://134161032628619"
+  },
+  "assetIds": [
+    "108017717355437",
+    "134161032628619",
+    "80070205245925",
+    "81013959162926"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Painted Daze"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

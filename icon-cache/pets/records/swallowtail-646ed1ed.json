@@ -1,0 +1,21 @@
+{
+  "name": "Swallowtail",
+  "images": {
+    "Normal": "rbxassetid://135318331749857",
+    "Shiny": "rbxassetid://116443382047952",
+    "Mythic": "rbxassetid://107569062694657",
+    "MythicShiny": "rbxassetid://106420516849755"
+  },
+  "assetIds": [
+    "106420516849755",
+    "107569062694657",
+    "116443382047952",
+    "135318331749857"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Swallowtail"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

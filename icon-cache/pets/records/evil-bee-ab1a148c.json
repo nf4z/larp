@@ -1,0 +1,21 @@
+{
+  "name": "Evil Bee",
+  "images": {
+    "Normal": "rbxassetid://127470310270489",
+    "Shiny": "rbxassetid://70434609468961",
+    "Mythic": "rbxassetid://105614758828889",
+    "MythicShiny": "rbxassetid://103799322569178"
+  },
+  "assetIds": [
+    "103799322569178",
+    "105614758828889",
+    "127470310270489",
+    "70434609468961"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Evil Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Christmas Trophy",
+  "images": {
+    "Normal": "rbxassetid://105022554928803",
+    "Shiny": "rbxassetid://112772238648340"
+  },
+  "assetIds": [
+    "105022554928803",
+    "112772238648340"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Christmas Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

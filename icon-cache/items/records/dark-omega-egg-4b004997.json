@@ -1,0 +1,11 @@
+{
+  "name": "Dark Omega Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dark Omega Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

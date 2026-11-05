@@ -1,0 +1,17 @@
+{
+  "name": "Hellish One",
+  "images": {
+    "Normal": "rbxassetid://119131215859456",
+    "Shiny": "rbxassetid://103022472198473"
+  },
+  "assetIds": [
+    "103022472198473",
+    "119131215859456"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hellish One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

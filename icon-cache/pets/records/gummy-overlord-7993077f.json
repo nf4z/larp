@@ -1,0 +1,21 @@
+{
+  "name": "Gummy Overlord",
+  "images": {
+    "Normal": "rbxassetid://107721651916938",
+    "Shiny": "rbxassetid://132665088876982",
+    "Mythic": "rbxassetid://97268450189450",
+    "MythicShiny": "rbxassetid://108001619402093"
+  },
+  "assetIds": [
+    "107721651916938",
+    "108001619402093",
+    "132665088876982",
+    "97268450189450"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gummy Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

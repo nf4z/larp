@@ -1,0 +1,17 @@
+{
+  "name": "Game Doggy",
+  "images": {
+    "Normal": "rbxassetid://90643252257374",
+    "Shiny": "rbxassetid://107491835763520"
+  },
+  "assetIds": [
+    "107491835763520",
+    "90643252257374"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Game Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

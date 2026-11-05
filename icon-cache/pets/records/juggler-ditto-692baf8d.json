@@ -1,0 +1,21 @@
+{
+  "name": "Juggler Ditto",
+  "images": {
+    "Normal": "rbxassetid://91903917102994",
+    "Shiny": "rbxassetid://100513150953419",
+    "Mythic": "rbxassetid://106629973663177",
+    "MythicShiny": "rbxassetid://132265796425878"
+  },
+  "assetIds": [
+    "100513150953419",
+    "106629973663177",
+    "132265796425878",
+    "91903917102994"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Juggler Ditto"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

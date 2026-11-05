@@ -1,0 +1,17 @@
+{
+  "name": "Sun Eater",
+  "images": {
+    "Normal": "rbxassetid://107748741172232",
+    "Shiny": "rbxassetid://100434598654282"
+  },
+  "assetIds": [
+    "100434598654282",
+    "107748741172232"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sun Eater"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

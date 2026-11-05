@@ -1,0 +1,17 @@
+{
+  "name": "Clown Shark",
+  "images": {
+    "Normal": "rbxassetid://81563735218063",
+    "Shiny": "rbxassetid://82691697753181"
+  },
+  "assetIds": [
+    "81563735218063",
+    "82691697753181"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Valentine's Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://106296301142821"
+  },
+  "assetIds": [
+    "106296301142821"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Valentine's Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

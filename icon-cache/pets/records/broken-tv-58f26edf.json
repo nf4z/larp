@@ -1,0 +1,21 @@
+{
+  "name": "Broken TV",
+  "images": {
+    "Normal": "rbxassetid://135332226376849",
+    "Shiny": "rbxassetid://138634157741052",
+    "Mythic": "rbxassetid://134697739443794",
+    "MythicShiny": "rbxassetid://73216175518671"
+  },
+  "assetIds": [
+    "134697739443794",
+    "135332226376849",
+    "138634157741052",
+    "73216175518671"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Broken TV"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

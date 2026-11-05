@@ -1,0 +1,21 @@
+{
+  "name": "Bruhodle",
+  "images": {
+    "Normal": "rbxassetid://105131589927374",
+    "Shiny": "rbxassetid://123015534707634",
+    "Mythic": "rbxassetid://103534103196398",
+    "MythicShiny": "rbxassetid://96201369594735"
+  },
+  "assetIds": [
+    "103534103196398",
+    "105131589927374",
+    "123015534707634",
+    "96201369594735"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bruhodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

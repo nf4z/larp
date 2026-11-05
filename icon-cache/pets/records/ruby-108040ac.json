@@ -1,0 +1,17 @@
+{
+  "name": "Ruby",
+  "images": {
+    "Normal": "rbxassetid://113831927772177",
+    "Shiny": "rbxassetid://88033119632035"
+  },
+  "assetIds": [
+    "113831927772177",
+    "88033119632035"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ruby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

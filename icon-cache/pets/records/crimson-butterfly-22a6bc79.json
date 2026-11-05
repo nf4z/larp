@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Butterfly",
+  "images": {
+    "Normal": "rbxassetid://98947250842939",
+    "Shiny": "rbxassetid://82721652736276",
+    "Mythic": "rbxassetid://130584527590577",
+    "MythicShiny": "rbxassetid://131950699145280"
+  },
+  "assetIds": [
+    "130584527590577",
+    "131950699145280",
+    "82721652736276",
+    "98947250842939"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Butterfly"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

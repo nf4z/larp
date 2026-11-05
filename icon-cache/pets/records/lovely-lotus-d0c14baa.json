@@ -1,0 +1,21 @@
+{
+  "name": "Lovely Lotus",
+  "images": {
+    "Normal": "rbxassetid://124386812627954",
+    "Shiny": "rbxassetid://126959957436889",
+    "Mythic": "rbxassetid://100193701521079",
+    "MythicShiny": "rbxassetid://134637349382900"
+  },
+  "assetIds": [
+    "100193701521079",
+    "124386812627954",
+    "126959957436889",
+    "134637349382900"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovely Lotus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

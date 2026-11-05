@@ -1,0 +1,21 @@
+{
+  "name": "Moon Goddess",
+  "images": {
+    "Normal": "rbxassetid://85605340726734",
+    "Shiny": "rbxassetid://94382800142822",
+    "Mythic": "rbxassetid://127241198179525",
+    "MythicShiny": "rbxassetid://121917278394094"
+  },
+  "assetIds": [
+    "121917278394094",
+    "127241198179525",
+    "85605340726734",
+    "94382800142822"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moon Goddess"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

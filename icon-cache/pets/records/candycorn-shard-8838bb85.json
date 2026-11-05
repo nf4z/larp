@@ -1,0 +1,21 @@
+{
+  "name": "Candycorn Shard",
+  "images": {
+    "Normal": "rbxassetid://115792906916783",
+    "Shiny": "rbxassetid://137044477384876",
+    "Mythic": "rbxassetid://108319094129781",
+    "MythicShiny": "rbxassetid://139169457843332"
+  },
+  "assetIds": [
+    "108319094129781",
+    "115792906916783",
+    "137044477384876",
+    "139169457843332"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candycorn Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

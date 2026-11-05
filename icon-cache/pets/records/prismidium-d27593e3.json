@@ -1,0 +1,17 @@
+{
+  "name": "Prismidium",
+  "images": {
+    "Normal": "rbxassetid://125970523869099",
+    "Shiny": "rbxassetid://132503099584263"
+  },
+  "assetIds": [
+    "125970523869099",
+    "132503099584263"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prismidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Super ACE",
+  "images": {
+    "Normal": "rbxassetid://85614701538238",
+    "Shiny": "rbxassetid://92215602955536",
+    "Mythic": "rbxassetid://113634944042156",
+    "MythicShiny": "rbxassetid://132416876495971"
+  },
+  "assetIds": [
+    "113634944042156",
+    "132416876495971",
+    "85614701538238",
+    "92215602955536"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super ACE"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "1x1x1x1",
+  "images": {
+    "Normal": "rbxassetid://124755896763618",
+    "Shiny": "rbxassetid://84735168583874",
+    "Mythic": "rbxassetid://140078165015475",
+    "MythicShiny": "rbxassetid://118377911846137"
+  },
+  "assetIds": [
+    "118377911846137",
+    "124755896763618",
+    "140078165015475",
+    "84735168583874"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "1x1x1x1"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

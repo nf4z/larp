@@ -1,0 +1,21 @@
+{
+  "name": "The Darkenedlord",
+  "images": {
+    "Normal": "rbxassetid://88627607740579",
+    "Shiny": "rbxassetid://94176417057361",
+    "Mythic": "rbxassetid://132728020681789",
+    "MythicShiny": "rbxassetid://86333175804008"
+  },
+  "assetIds": [
+    "132728020681789",
+    "86333175804008",
+    "88627607740579",
+    "94176417057361"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Darkenedlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

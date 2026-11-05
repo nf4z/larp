@@ -1,0 +1,11 @@
+{
+  "name": "Duality Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Duality Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

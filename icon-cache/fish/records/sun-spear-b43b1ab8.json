@@ -1,0 +1,15 @@
+{
+  "name": "Sun Spear",
+  "images": {
+    "Image": "rbxassetid://89166398833421"
+  },
+  "assetIds": [
+    "89166398833421"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sun Spear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Star",
+  "images": {
+    "Normal": "rbxassetid://78786086675904",
+    "Shiny": "rbxassetid://114615631974721",
+    "Mythic": "rbxassetid://83852504074284",
+    "MythicShiny": "rbxassetid://135588815250710"
+  },
+  "assetIds": [
+    "114615631974721",
+    "135588815250710",
+    "78786086675904",
+    "83852504074284"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Light Orb",
+  "images": {
+    "Normal": "rbxassetid://102767647148687",
+    "Shiny": "rbxassetid://91773267118282"
+  },
+  "assetIds": [
+    "102767647148687",
+    "91773267118282"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

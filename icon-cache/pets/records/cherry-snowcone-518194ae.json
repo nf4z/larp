@@ -1,0 +1,21 @@
+{
+  "name": "Cherry Snowcone",
+  "images": {
+    "Normal": "rbxassetid://124889480697633",
+    "Shiny": "rbxassetid://138123564497368",
+    "Mythic": "rbxassetid://137420744968177",
+    "MythicShiny": "rbxassetid://98764796739339"
+  },
+  "assetIds": [
+    "124889480697633",
+    "137420744968177",
+    "138123564497368",
+    "98764796739339"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cherry Snowcone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

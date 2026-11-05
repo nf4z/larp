@@ -1,0 +1,21 @@
+{
+  "name": "Crimson Eye",
+  "images": {
+    "Normal": "rbxassetid://91473341683403",
+    "Shiny": "rbxassetid://119367529583885",
+    "Mythic": "rbxassetid://103286853336263",
+    "MythicShiny": "rbxassetid://76196389903430"
+  },
+  "assetIds": [
+    "103286853336263",
+    "119367529583885",
+    "76196389903430",
+    "91473341683403"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crimson Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

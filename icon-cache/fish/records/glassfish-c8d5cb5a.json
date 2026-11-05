@@ -1,0 +1,15 @@
+{
+  "name": "Glassfish",
+  "images": {
+    "Image": "rbxassetid://100699678522714"
+  },
+  "assetIds": [
+    "100699678522714"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Glassfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

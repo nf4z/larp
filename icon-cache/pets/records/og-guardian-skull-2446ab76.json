@@ -1,0 +1,21 @@
+{
+  "name": "OG Guardian Skull",
+  "images": {
+    "Normal": "rbxassetid://120300785570402",
+    "Shiny": "rbxassetid://86369075974061",
+    "Mythic": "rbxassetid://93672215795761",
+    "MythicShiny": "rbxassetid://11138464243842981544627471039"
+  },
+  "assetIds": [
+    "11138464243842981544627471039",
+    "120300785570402",
+    "86369075974061",
+    "93672215795761"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Guardian Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

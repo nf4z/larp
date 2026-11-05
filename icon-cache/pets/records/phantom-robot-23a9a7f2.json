@@ -1,0 +1,17 @@
+{
+  "name": "Phantom Robot",
+  "images": {
+    "Normal": "rbxassetid://140198793868713",
+    "Shiny": "rbxassetid://114929372834457"
+  },
+  "assetIds": [
+    "114929372834457",
+    "140198793868713"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Phantom Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

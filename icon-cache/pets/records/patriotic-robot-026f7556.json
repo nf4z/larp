@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Robot",
+  "images": {
+    "Normal": "rbxassetid://123368883332844",
+    "Shiny": "rbxassetid://127323685235371",
+    "Mythic": "rbxassetid://117019306148668",
+    "MythicShiny": "rbxassetid://80359593852817"
+  },
+  "assetIds": [
+    "117019306148668",
+    "123368883332844",
+    "127323685235371",
+    "80359593852817"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

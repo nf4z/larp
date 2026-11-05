@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Penguin",
+  "images": {
+    "Normal": "rbxassetid://138311817794704",
+    "Shiny": "rbxassetid://121261024227431",
+    "Mythic": "rbxassetid://102100603699460",
+    "MythicShiny": "rbxassetid://73783376773186"
+  },
+  "assetIds": [
+    "102100603699460",
+    "121261024227431",
+    "138311817794704",
+    "73783376773186"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Penguin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

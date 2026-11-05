@@ -1,0 +1,17 @@
+{
+  "name": "White Sparkletime",
+  "images": {
+    "Normal": "rbxassetid://73659437174937",
+    "Shiny": "rbxassetid://90862623179083"
+  },
+  "assetIds": [
+    "73659437174937",
+    "90862623179083"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "White Sparkletime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

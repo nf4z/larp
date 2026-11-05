@@ -1,0 +1,21 @@
+{
+  "name": "Neon Overlord",
+  "images": {
+    "Normal": "rbxassetid://80912291222529",
+    "Shiny": "rbxassetid://139167859278830",
+    "Mythic": "rbxassetid://105717837985884",
+    "MythicShiny": "rbxassetid://94509077414954"
+  },
+  "assetIds": [
+    "105717837985884",
+    "139167859278830",
+    "80912291222529",
+    "94509077414954"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

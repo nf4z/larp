@@ -1,0 +1,21 @@
+{
+  "name": "Frosted Dogcat",
+  "images": {
+    "Normal": "rbxassetid://135501968142106",
+    "Shiny": "rbxassetid://110197777268469",
+    "Mythic": "rbxassetid://97623674071919",
+    "MythicShiny": "rbxassetid://83303205707913"
+  },
+  "assetIds": [
+    "110197777268469",
+    "135501968142106",
+    "83303205707913",
+    "97623674071919"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frosted Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

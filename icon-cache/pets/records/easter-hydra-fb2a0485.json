@@ -1,0 +1,21 @@
+{
+  "name": "Easter Hydra",
+  "images": {
+    "Normal": "rbxassetid://138003166884072",
+    "Shiny": "rbxassetid://137451276188537",
+    "Mythic": "rbxassetid://91162191530278",
+    "MythicShiny": "rbxassetid://102321353974215"
+  },
+  "assetIds": [
+    "102321353974215",
+    "137451276188537",
+    "138003166884072",
+    "91162191530278"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

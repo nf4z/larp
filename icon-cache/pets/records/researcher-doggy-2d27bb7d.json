@@ -1,0 +1,17 @@
+{
+  "name": "Researcher Doggy",
+  "images": {
+    "Normal": "rbxassetid://82445942334699",
+    "Shiny": "rbxassetid://119122326939829"
+  },
+  "assetIds": [
+    "119122326939829",
+    "82445942334699"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Researcher Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

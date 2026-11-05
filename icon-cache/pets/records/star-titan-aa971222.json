@@ -1,0 +1,21 @@
+{
+  "name": "Star Titan",
+  "images": {
+    "Normal": "rbxassetid://115823134465167",
+    "Shiny": "rbxassetid://92506663923765",
+    "Mythic": "rbxassetid://124952418572814",
+    "MythicShiny": "rbxassetid://75753840899611"
+  },
+  "assetIds": [
+    "115823134465167",
+    "124952418572814",
+    "75753840899611",
+    "92506663923765"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Star Titan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

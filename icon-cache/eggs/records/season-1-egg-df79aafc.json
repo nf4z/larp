@@ -1,0 +1,12 @@
+{
+  "name": "Season 1 Egg",
+  "images": {
+    "Image": "rbxassetid://120126304713239"
+  },
+  "assetIds": [
+    "120126304713239"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

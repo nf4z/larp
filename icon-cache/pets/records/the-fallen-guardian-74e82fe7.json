@@ -1,0 +1,21 @@
+{
+  "name": "The Fallen Guardian",
+  "images": {
+    "Normal": "rbxassetid://92661156074446",
+    "Shiny": "rbxassetid://125079023214360",
+    "Mythic": "rbxassetid://82337312603629",
+    "MythicShiny": "rbxassetid://87505027788516"
+  },
+  "assetIds": [
+    "125079023214360",
+    "82337312603629",
+    "87505027788516",
+    "92661156074446"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Fallen Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

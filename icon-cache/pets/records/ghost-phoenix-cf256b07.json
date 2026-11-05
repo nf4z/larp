@@ -1,0 +1,21 @@
+{
+  "name": "Ghost Phoenix",
+  "images": {
+    "Normal": "rbxassetid://134115299836684",
+    "Shiny": "rbxassetid://70561735963859",
+    "Mythic": "rbxassetid://126434865066920",
+    "MythicShiny": "rbxassetid://88188812661720"
+  },
+  "assetIds": [
+    "126434865066920",
+    "134115299836684",
+    "70561735963859",
+    "88188812661720"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghost Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

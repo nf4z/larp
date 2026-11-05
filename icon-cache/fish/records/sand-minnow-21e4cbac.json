@@ -1,0 +1,15 @@
+{
+  "name": "Sand Minnow",
+  "images": {
+    "Image": "rbxassetid://79296671970980"
+  },
+  "assetIds": [
+    "79296671970980"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sand Minnow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

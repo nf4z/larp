@@ -1,0 +1,21 @@
+{
+  "name": "Santa Penguin",
+  "images": {
+    "Normal": "rbxassetid://75880485900702",
+    "Shiny": "rbxassetid://124892290714790",
+    "Mythic": "rbxassetid://83714022506594",
+    "MythicShiny": "rbxassetid://82894305161799"
+  },
+  "assetIds": [
+    "124892290714790",
+    "75880485900702",
+    "82894305161799",
+    "83714022506594"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Penguin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Dark Leviathan",
+  "images": {
+    "Normal": "rbxassetid://138244019460028",
+    "Shiny": "rbxassetid://83288565041460"
+  },
+  "assetIds": [
+    "138244019460028",
+    "83288565041460"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

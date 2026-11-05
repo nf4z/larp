@@ -1,0 +1,21 @@
+{
+  "name": "Azure Hexarium",
+  "images": {
+    "Normal": "rbxassetid://116076857726242",
+    "Shiny": "rbxassetid://123743442424877",
+    "Mythic": "rbxassetid://83274905781079",
+    "MythicShiny": "rbxassetid://138401309050575"
+  },
+  "assetIds": [
+    "116076857726242",
+    "123743442424877",
+    "138401309050575",
+    "83274905781079"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

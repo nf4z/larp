@@ -1,0 +1,21 @@
+{
+  "name": "Eternal Star",
+  "images": {
+    "Normal": "rbxassetid://92140659456586",
+    "Shiny": "rbxassetid://136346337749695",
+    "Mythic": "rbxassetid://85606524042104",
+    "MythicShiny": "rbxassetid://108720627115650"
+  },
+  "assetIds": [
+    "108720627115650",
+    "136346337749695",
+    "85606524042104",
+    "92140659456586"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eternal Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

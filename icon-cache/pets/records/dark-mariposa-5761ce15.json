@@ -1,0 +1,21 @@
+{
+  "name": "Dark Mariposa",
+  "images": {
+    "Normal": "rbxassetid://84572613934579",
+    "Shiny": "rbxassetid://93428023499874",
+    "Mythic": "rbxassetid://96587432486676",
+    "MythicShiny": "rbxassetid://85497253997556"
+  },
+  "assetIds": [
+    "84572613934579",
+    "85497253997556",
+    "93428023499874",
+    "96587432486676"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Mariposa"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

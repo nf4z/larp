@@ -1,0 +1,21 @@
+{
+  "name": "Mangorium",
+  "images": {
+    "Normal": "rbxassetid://91193596039687",
+    "Shiny": "rbxassetid://101884514077431",
+    "Mythic": "rbxassetid://124912104329806",
+    "MythicShiny": "rbxassetid://118319499579047"
+  },
+  "assetIds": [
+    "101884514077431",
+    "118319499579047",
+    "124912104329806",
+    "91193596039687"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mangorium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

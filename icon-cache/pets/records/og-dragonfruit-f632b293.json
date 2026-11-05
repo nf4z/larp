@@ -1,0 +1,21 @@
+{
+  "name": "OG Dragonfruit",
+  "images": {
+    "Normal": "rbxassetid://126214060667568",
+    "Shiny": "rbxassetid://107946662622167",
+    "Mythic": "rbxassetid://94786722493465",
+    "MythicShiny": "rbxassetid://127531732054779"
+  },
+  "assetIds": [
+    "107946662622167",
+    "126214060667568",
+    "127531732054779",
+    "94786722493465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Dragonfruit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

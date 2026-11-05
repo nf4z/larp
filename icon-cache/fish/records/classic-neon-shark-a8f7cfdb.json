@@ -1,0 +1,15 @@
+{
+  "name": "Classic Neon Shark",
+  "images": {
+    "Image": "rbxassetid://80959950677987"
+  },
+  "assetIds": [
+    "80959950677987"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Neon Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

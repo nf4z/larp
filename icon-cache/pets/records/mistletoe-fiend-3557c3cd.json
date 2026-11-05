@@ -1,0 +1,21 @@
+{
+  "name": "Mistletoe Fiend",
+  "images": {
+    "Normal": "rbxassetid://115248998687955",
+    "Shiny": "rbxassetid://87979151528007",
+    "Mythic": "rbxassetid://111980336949499",
+    "MythicShiny": "rbxassetid://113190622857098"
+  },
+  "assetIds": [
+    "111980336949499",
+    "113190622857098",
+    "115248998687955",
+    "87979151528007"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mistletoe Fiend"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

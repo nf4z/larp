@@ -1,0 +1,21 @@
+{
+  "name": "Axolotl Army",
+  "images": {
+    "Normal": "rbxassetid://139473563766227",
+    "Shiny": "rbxassetid://127579841582047",
+    "Mythic": "rbxassetid://125641471023498",
+    "MythicShiny": "rbxassetid://140487250086741"
+  },
+  "assetIds": [
+    "125641471023498",
+    "127579841582047",
+    "139473563766227",
+    "140487250086741"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Axolotl Army"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

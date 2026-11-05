@@ -1,0 +1,21 @@
+{
+  "name": "Cloud Catcher",
+  "images": {
+    "Normal": "rbxassetid://131998815150092",
+    "Shiny": "rbxassetid://70607497664240",
+    "Mythic": "rbxassetid://74716067218886",
+    "MythicShiny": "rbxassetid://73980149948851"
+  },
+  "assetIds": [
+    "131998815150092",
+    "70607497664240",
+    "73980149948851",
+    "74716067218886"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloud Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

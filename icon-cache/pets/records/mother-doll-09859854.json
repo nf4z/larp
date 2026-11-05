@@ -1,0 +1,21 @@
+{
+  "name": "Mother Doll",
+  "images": {
+    "Normal": "rbxassetid://131142292795110",
+    "Shiny": "rbxassetid://78560236639860",
+    "Mythic": "rbxassetid://137590056105319",
+    "MythicShiny": "rbxassetid://119327065303298"
+  },
+  "assetIds": [
+    "119327065303298",
+    "131142292795110",
+    "137590056105319",
+    "78560236639860"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mother Doll"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

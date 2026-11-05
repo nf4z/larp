@@ -1,0 +1,21 @@
+{
+  "name": "Encore",
+  "images": {
+    "Normal": "rbxassetid://80459130676775",
+    "Shiny": "rbxassetid://81161760970125",
+    "Mythic": "rbxassetid://97848168589191",
+    "MythicShiny": "rbxassetid://115174834447048"
+  },
+  "assetIds": [
+    "115174834447048",
+    "80459130676775",
+    "81161760970125",
+    "97848168589191"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Encore"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Moonburst",
+  "images": {
+    "Normal": "rbxassetid://122902111069533",
+    "Shiny": "rbxassetid://92936268760576",
+    "Mythic": "rbxassetid://122599025431038",
+    "MythicShiny": "rbxassetid://107057120957083"
+  },
+  "assetIds": [
+    "107057120957083",
+    "122599025431038",
+    "122902111069533",
+    "92936268760576"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonburst"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

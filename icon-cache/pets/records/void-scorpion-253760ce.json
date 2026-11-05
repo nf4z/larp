@@ -1,0 +1,21 @@
+{
+  "name": "Void Scorpion",
+  "images": {
+    "Normal": "rbxassetid://119942883948921",
+    "Shiny": "rbxassetid://123557713595354",
+    "Mythic": "rbxassetid://140031041679670",
+    "MythicShiny": "rbxassetid://83956895003592"
+  },
+  "assetIds": [
+    "119942883948921",
+    "123557713595354",
+    "140031041679670",
+    "83956895003592"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Scorpion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Stellar Entity",
+  "images": {
+    "Normal": "rbxassetid://135837571856568",
+    "Shiny": "rbxassetid://129514079719632"
+  },
+  "assetIds": [
+    "129514079719632",
+    "135837571856568"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Entity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

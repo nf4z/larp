@@ -1,0 +1,17 @@
+{
+  "name": "Eerie Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://120610806672377",
+    "Shiny": "rbxassetid://125926284696977"
+  },
+  "assetIds": [
+    "120610806672377",
+    "125926284696977"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eerie Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

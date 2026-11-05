@@ -1,0 +1,21 @@
+{
+  "name": "DOOF",
+  "images": {
+    "Normal": "rbxassetid://84912767727395",
+    "Shiny": "rbxassetid://93728970753640",
+    "Mythic": "rbxassetid://81945865269343",
+    "MythicShiny": "rbxassetid://100771542732964"
+  },
+  "assetIds": [
+    "100771542732964",
+    "81945865269343",
+    "84912767727395",
+    "93728970753640"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "DOOF"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

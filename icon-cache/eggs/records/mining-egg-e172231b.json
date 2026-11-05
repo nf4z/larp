@@ -1,0 +1,12 @@
+{
+  "name": "Mining Egg",
+  "images": {
+    "Image": "rbxassetid://96554680390392"
+  },
+  "assetIds": [
+    "96554680390392"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

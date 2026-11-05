@@ -1,0 +1,17 @@
+{
+  "name": "Quamatic Bear",
+  "images": {
+    "Normal": "rbxassetid://70787676895563",
+    "Shiny": "rbxassetid://83571960153286"
+  },
+  "assetIds": [
+    "70787676895563",
+    "83571960153286"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Quamatic Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

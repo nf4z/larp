@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Soul",
+  "images": {
+    "Normal": "rbxassetid://128510604552156",
+    "Shiny": "rbxassetid://109232553706998",
+    "Mythic": "rbxassetid://116042905804134",
+    "MythicShiny": "rbxassetid://86280056609080"
+  },
+  "assetIds": [
+    "109232553706998",
+    "116042905804134",
+    "128510604552156",
+    "86280056609080"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

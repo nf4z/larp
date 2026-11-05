@@ -1,0 +1,21 @@
+{
+  "name": "Quamatic Plushie",
+  "images": {
+    "Normal": "rbxassetid://97145064599227",
+    "Shiny": "rbxassetid://96077039264876",
+    "Mythic": "rbxassetid://109408085201137",
+    "MythicShiny": "rbxassetid://129919459212325"
+  },
+  "assetIds": [
+    "109408085201137",
+    "129919459212325",
+    "96077039264876",
+    "97145064599227"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Quamatic Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

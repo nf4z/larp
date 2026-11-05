@@ -1,0 +1,21 @@
+{
+  "name": "Vampire Slime",
+  "images": {
+    "Normal": "rbxassetid://78795631574875",
+    "Shiny": "rbxassetid://87457337529225",
+    "Mythic": "rbxassetid://93121201446486",
+    "MythicShiny": "rbxassetid://83658339131904"
+  },
+  "assetIds": [
+    "78795631574875",
+    "83658339131904",
+    "87457337529225",
+    "93121201446486"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

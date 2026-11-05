@@ -1,0 +1,17 @@
+{
+  "name": "Angelic Essence",
+  "images": {
+    "Normal": "rbxassetid://127876082486143",
+    "Shiny": "rbxassetid://113715017651045"
+  },
+  "assetIds": [
+    "113715017651045",
+    "127876082486143"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelic Essence"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Grasshopper",
+  "images": {
+    "Normal": "rbxassetid://94311811799125",
+    "Shiny": "rbxassetid://117879490512818"
+  },
+  "assetIds": [
+    "117879490512818",
+    "94311811799125"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Grasshopper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

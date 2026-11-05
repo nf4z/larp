@@ -1,0 +1,21 @@
+{
+  "name": "The Flawless",
+  "images": {
+    "Normal": "rbxassetid://120115923814464",
+    "Shiny": "rbxassetid://87745248865329",
+    "Mythic": "rbxassetid://86580286151304",
+    "MythicShiny": "rbxassetid://116366524594582"
+  },
+  "assetIds": [
+    "116366524594582",
+    "120115923814464",
+    "86580286151304",
+    "87745248865329"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Flawless"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

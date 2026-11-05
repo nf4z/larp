@@ -1,0 +1,21 @@
+{
+  "name": "Space Invader",
+  "images": {
+    "Normal": "rbxassetid://119797844957100",
+    "Shiny": "rbxassetid://96247663419252",
+    "Mythic": "rbxassetid://120374926099633",
+    "MythicShiny": "rbxassetid://79347814813084"
+  },
+  "assetIds": [
+    "119797844957100",
+    "120374926099633",
+    "79347814813084",
+    "96247663419252"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Space Invader"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

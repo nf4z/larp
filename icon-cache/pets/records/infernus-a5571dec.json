@@ -1,0 +1,17 @@
+{
+  "name": "Infernus",
+  "images": {
+    "Normal": "rbxassetid://84021466522802",
+    "Shiny": "rbxassetid://139125490541605"
+  },
+  "assetIds": [
+    "139125490541605",
+    "84021466522802"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Infernus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Emerald Golem",
+  "images": {
+    "Normal": "rbxassetid://117943061949912",
+    "Shiny": "rbxassetid://130080332987186",
+    "Mythic": "rbxassetid://71364911907818",
+    "MythicShiny": "rbxassetid://76908143137824"
+  },
+  "assetIds": [
+    "117943061949912",
+    "130080332987186",
+    "71364911907818",
+    "76908143137824"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Emerald Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

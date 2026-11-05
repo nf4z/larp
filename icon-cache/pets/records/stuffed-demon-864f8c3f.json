@@ -1,0 +1,17 @@
+{
+  "name": "Stuffed Demon",
+  "images": {
+    "Normal": "rbxassetid://72487007708070",
+    "Shiny": "rbxassetid://107761718467199"
+  },
+  "assetIds": [
+    "107761718467199",
+    "72487007708070"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

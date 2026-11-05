@@ -1,0 +1,21 @@
+{
+  "name": "Tank Doggy",
+  "images": {
+    "Normal": "rbxassetid://128485739213212",
+    "Shiny": "rbxassetid://106151290409550",
+    "Mythic": "rbxassetid://85727775447261",
+    "MythicShiny": "rbxassetid://104166623780881"
+  },
+  "assetIds": [
+    "104166623780881",
+    "106151290409550",
+    "128485739213212",
+    "85727775447261"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tank Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

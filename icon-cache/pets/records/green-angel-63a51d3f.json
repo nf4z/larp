@@ -1,0 +1,17 @@
+{
+  "name": "Green Angel",
+  "images": {
+    "Normal": "rbxassetid://75803022621540",
+    "Shiny": "rbxassetid://95455922946139"
+  },
+  "assetIds": [
+    "75803022621540",
+    "95455922946139"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Green Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

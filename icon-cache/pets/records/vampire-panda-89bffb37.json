@@ -1,0 +1,17 @@
+{
+  "name": "Vampire Panda",
+  "images": {
+    "Normal": "rbxassetid://84272241979221",
+    "Shiny": "rbxassetid://125891175338987"
+  },
+  "assetIds": [
+    "125891175338987",
+    "84272241979221"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Panda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

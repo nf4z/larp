@@ -1,0 +1,15 @@
+{
+  "name": "Stingray",
+  "images": {
+    "Image": "rbxassetid://74360528809104"
+  },
+  "assetIds": [
+    "74360528809104"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Stingray"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

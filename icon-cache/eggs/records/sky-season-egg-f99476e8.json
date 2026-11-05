@@ -1,0 +1,12 @@
+{
+  "name": "Sky Season Egg",
+  "images": {
+    "Image": "rbxassetid://115337221497894"
+  },
+  "assetIds": [
+    "115337221497894"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

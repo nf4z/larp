@@ -1,0 +1,12 @@
+{
+  "name": "Corrupt Egg",
+  "images": {
+    "Image": "rbxassetid://85989411740234"
+  },
+  "assetIds": [
+    "85989411740234"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

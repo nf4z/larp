@@ -1,0 +1,21 @@
+{
+  "name": "Spring Duality",
+  "images": {
+    "Normal": "rbxassetid://105014898668770",
+    "Shiny": "rbxassetid://83660330864572",
+    "Mythic": "rbxassetid://91507526458761",
+    "MythicShiny": "rbxassetid://129255447684868"
+  },
+  "assetIds": [
+    "105014898668770",
+    "129255447684868",
+    "83660330864572",
+    "91507526458761"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spring Duality"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

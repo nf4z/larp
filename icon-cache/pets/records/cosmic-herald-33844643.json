@@ -1,0 +1,21 @@
+{
+  "name": "Cosmic Herald",
+  "images": {
+    "Normal": "rbxassetid://124949568306331",
+    "Shiny": "rbxassetid://83009212618413",
+    "Mythic": "rbxassetid://140056631157052",
+    "MythicShiny": "rbxassetid://86926642960792"
+  },
+  "assetIds": [
+    "124949568306331",
+    "140056631157052",
+    "83009212618413",
+    "86926642960792"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cosmic Herald"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

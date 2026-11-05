@@ -1,0 +1,17 @@
+{
+  "name": "OG Sinister Lord",
+  "images": {
+    "Normal": "rbxassetid://133364433102010",
+    "Shiny": "rbxassetid://109883419628748"
+  },
+  "assetIds": [
+    "109883419628748",
+    "133364433102010"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Sinister Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "OG Mystery Box",
+  "images": {
+    "Image": "rbxassetid://99538412812676"
+  },
+  "assetIds": [
+    "99538412812676"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "OG Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Iridescent Catcher",
+  "images": {
+    "Normal": "rbxassetid://127790380791787",
+    "Shiny": "rbxassetid://125096866124875",
+    "Mythic": "rbxassetid://92166564581744",
+    "MythicShiny": "rbxassetid://121507190866785"
+  },
+  "assetIds": [
+    "121507190866785",
+    "125096866124875",
+    "127790380791787",
+    "92166564581744"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Iridescent Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

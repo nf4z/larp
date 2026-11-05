@@ -1,0 +1,15 @@
+{
+  "name": "Steel Crate",
+  "images": {
+    "Image": "rbxassetid://110867348683311"
+  },
+  "assetIds": [
+    "110867348683311"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Steel Crate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

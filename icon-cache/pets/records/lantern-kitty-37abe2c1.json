@@ -1,0 +1,17 @@
+{
+  "name": "Lantern Kitty",
+  "images": {
+    "Normal": "rbxassetid://87868805409576",
+    "Shiny": "rbxassetid://79452471586043"
+  },
+  "assetIds": [
+    "79452471586043",
+    "87868805409576"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lantern Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

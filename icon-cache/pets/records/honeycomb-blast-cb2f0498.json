@@ -1,0 +1,17 @@
+{
+  "name": "Honeycomb Blast",
+  "images": {
+    "Normal": "rbxassetid://85544430144810",
+    "Shiny": "rbxassetid://72109446025871"
+  },
+  "assetIds": [
+    "72109446025871",
+    "85544430144810"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Honeycomb Blast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

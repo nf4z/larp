@@ -1,0 +1,21 @@
+{
+  "name": "The First Sentinel",
+  "images": {
+    "Normal": "rbxassetid://126119779566083",
+    "Shiny": "rbxassetid://120509057852855",
+    "Mythic": "rbxassetid://106639454094166",
+    "MythicShiny": "rbxassetid://133090932185157"
+  },
+  "assetIds": [
+    "106639454094166",
+    "120509057852855",
+    "126119779566083",
+    "133090932185157"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The First Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

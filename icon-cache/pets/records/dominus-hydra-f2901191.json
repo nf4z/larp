@@ -1,0 +1,21 @@
+{
+  "name": "Dominus Hydra",
+  "images": {
+    "Normal": "rbxassetid://83493517092553",
+    "Shiny": "rbxassetid://140301167018650",
+    "Mythic": "rbxassetid://107697092841887",
+    "MythicShiny": "rbxassetid://117332299370102"
+  },
+  "assetIds": [
+    "107697092841887",
+    "117332299370102",
+    "140301167018650",
+    "83493517092553"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dominus Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

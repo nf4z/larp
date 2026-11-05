@@ -1,0 +1,21 @@
+{
+  "name": "Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://126288904929672",
+    "Shiny": "rbxassetid://81716408985737",
+    "Mythic": "rbxassetid://87804852800430",
+    "MythicShiny": "rbxassetid://83911665036776"
+  },
+  "assetIds": [
+    "126288904929672",
+    "81716408985737",
+    "83911665036776",
+    "87804852800430"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

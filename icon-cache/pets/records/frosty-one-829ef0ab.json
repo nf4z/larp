@@ -1,0 +1,21 @@
+{
+  "name": "Frosty One",
+  "images": {
+    "Normal": "rbxassetid://94194775082871",
+    "Shiny": "rbxassetid://125928999464438",
+    "Mythic": "rbxassetid://96745259834236",
+    "MythicShiny": "rbxassetid://138836934268990"
+  },
+  "assetIds": [
+    "125928999464438",
+    "138836934268990",
+    "94194775082871",
+    "96745259834236"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frosty One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

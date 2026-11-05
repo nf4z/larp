@@ -1,0 +1,15 @@
+{
+  "name": "Heartbreak Letter",
+  "images": {
+    "Image": "rbxassetid://77700457257409"
+  },
+  "assetIds": [
+    "77700457257409"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Heartbreak Letter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

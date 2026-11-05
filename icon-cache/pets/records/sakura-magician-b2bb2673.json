@@ -1,0 +1,21 @@
+{
+  "name": "Sakura Magician",
+  "images": {
+    "Normal": "rbxassetid://109834885802517",
+    "Shiny": "rbxassetid://88088791930309",
+    "Mythic": "rbxassetid://114901823875595",
+    "MythicShiny": "rbxassetid://85762734809550"
+  },
+  "assetIds": [
+    "109834885802517",
+    "114901823875595",
+    "85762734809550",
+    "88088791930309"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sakura Magician"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

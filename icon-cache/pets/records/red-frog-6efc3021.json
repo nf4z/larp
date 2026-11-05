@@ -1,0 +1,17 @@
+{
+  "name": "Red Frog",
+  "images": {
+    "Normal": "rbxassetid://75731421454876",
+    "Shiny": "rbxassetid://131190416497585"
+  },
+  "assetIds": [
+    "131190416497585",
+    "75731421454876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Red Frog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

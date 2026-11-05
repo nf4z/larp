@@ -1,0 +1,17 @@
+{
+  "name": "Clown Kitty",
+  "images": {
+    "Normal": "rbxassetid://131165414438767",
+    "Shiny": "rbxassetid://114103722264009"
+  },
+  "assetIds": [
+    "114103722264009",
+    "131165414438767"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clown Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

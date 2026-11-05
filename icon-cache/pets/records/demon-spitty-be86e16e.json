@@ -1,0 +1,17 @@
+{
+  "name": "Demon Spitty",
+  "images": {
+    "Normal": "rbxassetid://118554325280141",
+    "Shiny": "rbxassetid://117062609090597"
+  },
+  "assetIds": [
+    "117062609090597",
+    "118554325280141"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

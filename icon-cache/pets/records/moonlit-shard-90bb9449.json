@@ -1,0 +1,21 @@
+{
+  "name": "Moonlit Shard",
+  "images": {
+    "Normal": "rbxassetid://90239070144668",
+    "Shiny": "rbxassetid://92288275371599",
+    "Mythic": "rbxassetid://112790665007348",
+    "MythicShiny": "rbxassetid://81715675283514"
+  },
+  "assetIds": [
+    "112790665007348",
+    "81715675283514",
+    "90239070144668",
+    "92288275371599"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonlit Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

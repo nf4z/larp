@@ -1,0 +1,15 @@
+{
+  "name": "Obsidian Key",
+  "images": {
+    "Image": "rbxassetid://124889471713346"
+  },
+  "assetIds": [
+    "124889471713346"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Obsidian Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

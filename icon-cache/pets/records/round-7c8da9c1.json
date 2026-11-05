@@ -1,0 +1,21 @@
+{
+  "name": "ROUND",
+  "images": {
+    "Normal": "rbxassetid://137370752121359",
+    "Shiny": "rbxassetid://123907106583225",
+    "Mythic": "rbxassetid://114673821025917",
+    "MythicShiny": "rbxassetid://74941803085231"
+  },
+  "assetIds": [
+    "114673821025917",
+    "123907106583225",
+    "137370752121359",
+    "74941803085231"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "ROUND"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

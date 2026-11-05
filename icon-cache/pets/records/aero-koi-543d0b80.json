@@ -1,0 +1,21 @@
+{
+  "name": "Aero Koi",
+  "images": {
+    "Normal": "rbxassetid://110096929823723",
+    "Shiny": "rbxassetid://102054555999665",
+    "Mythic": "rbxassetid://128569691931686",
+    "MythicShiny": "rbxassetid://73718890661817"
+  },
+  "assetIds": [
+    "102054555999665",
+    "110096929823723",
+    "128569691931686",
+    "73718890661817"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Aero Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

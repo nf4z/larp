@@ -1,0 +1,21 @@
+{
+  "name": "Avernus Tophat",
+  "images": {
+    "Normal": "rbxassetid://94153345618442",
+    "Shiny": "rbxassetid://101847244465750",
+    "Mythic": "rbxassetid://129636800205517",
+    "MythicShiny": "rbxassetid://129553861688050"
+  },
+  "assetIds": [
+    "101847244465750",
+    "129553861688050",
+    "129636800205517",
+    "94153345618442"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Avernus Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

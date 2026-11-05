@@ -1,0 +1,17 @@
+{
+  "name": "Dowodle",
+  "images": {
+    "Normal": "rbxassetid://136489594823543",
+    "Shiny": "rbxassetid://101671336845496"
+  },
+  "assetIds": [
+    "101671336845496",
+    "136489594823543"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

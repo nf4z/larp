@@ -1,0 +1,21 @@
+{
+  "name": "Sylently Plushie",
+  "images": {
+    "Normal": "rbxassetid://88633707589984",
+    "Shiny": "rbxassetid://103526830717068",
+    "Mythic": "rbxassetid://94963686805706",
+    "MythicShiny": "rbxassetid://101486231149169"
+  },
+  "assetIds": [
+    "101486231149169",
+    "103526830717068",
+    "88633707589984",
+    "94963686805706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sylently Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

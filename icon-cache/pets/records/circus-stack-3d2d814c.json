@@ -1,0 +1,21 @@
+{
+  "name": "Circus Stack",
+  "images": {
+    "Normal": "rbxassetid://114743524694878",
+    "Shiny": "rbxassetid://112124276623493",
+    "Mythic": "rbxassetid://110014399244664",
+    "MythicShiny": "rbxassetid://78960381603546"
+  },
+  "assetIds": [
+    "110014399244664",
+    "112124276623493",
+    "114743524694878",
+    "78960381603546"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Circus Stack"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

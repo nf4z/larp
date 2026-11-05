@@ -1,0 +1,17 @@
+{
+  "name": "Wind Fairy",
+  "images": {
+    "Normal": "rbxassetid://101788692135241",
+    "Shiny": "rbxassetid://93525887641889"
+  },
+  "assetIds": [
+    "101788692135241",
+    "93525887641889"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wind Fairy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

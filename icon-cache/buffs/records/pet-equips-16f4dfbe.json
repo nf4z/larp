@@ -1,0 +1,15 @@
+{
+  "name": "Pet Equips",
+  "images": {
+    "Image": "rbxassetid://140431377231411"
+  },
+  "assetIds": [
+    "140431377231411"
+  ],
+  "item": {
+    "Type": "PermanentBuff",
+    "Name": "Pet Equips"
+  },
+  "recipe": "native-item",
+  "sourceModule": "PermanentBuffs"
+}

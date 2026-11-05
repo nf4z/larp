@@ -1,0 +1,21 @@
+{
+  "name": "Elite Dice Split",
+  "images": {
+    "Normal": "rbxassetid://116665932135267",
+    "Shiny": "rbxassetid://79984658783643",
+    "Mythic": "rbxassetid://101081421345241",
+    "MythicShiny": "rbxassetid://104057840761627"
+  },
+  "assetIds": [
+    "101081421345241",
+    "104057840761627",
+    "116665932135267",
+    "79984658783643"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Dice Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

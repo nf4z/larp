@@ -1,0 +1,17 @@
+{
+  "name": "Enraged Phoenix",
+  "images": {
+    "Normal": "rbxassetid://107570455419383",
+    "Shiny": "rbxassetid://113743669461335"
+  },
+  "assetIds": [
+    "107570455419383",
+    "113743669461335"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Enraged Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

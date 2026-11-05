@@ -1,0 +1,21 @@
+{
+  "name": "Northern Star",
+  "images": {
+    "Normal": "rbxassetid://132933132839263",
+    "Shiny": "rbxassetid://110698373045070",
+    "Mythic": "rbxassetid://98728512780752",
+    "MythicShiny": "rbxassetid://96138733174018"
+  },
+  "assetIds": [
+    "110698373045070",
+    "132933132839263",
+    "96138733174018",
+    "98728512780752"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Northern Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

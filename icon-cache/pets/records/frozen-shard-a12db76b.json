@@ -1,0 +1,21 @@
+{
+  "name": "Frozen Shard",
+  "images": {
+    "Normal": "rbxassetid://103384951856068",
+    "Shiny": "rbxassetid://71864871281881",
+    "Mythic": "rbxassetid://94779448022173",
+    "MythicShiny": "rbxassetid://77527770906546"
+  },
+  "assetIds": [
+    "103384951856068",
+    "71864871281881",
+    "77527770906546",
+    "94779448022173"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frozen Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

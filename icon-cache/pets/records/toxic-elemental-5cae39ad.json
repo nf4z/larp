@@ -1,0 +1,21 @@
+{
+  "name": "Toxic Elemental",
+  "images": {
+    "Normal": "rbxassetid://92468887353940",
+    "Shiny": "rbxassetid://117122110621717",
+    "Mythic": "rbxassetid://71914668574995",
+    "MythicShiny": "rbxassetid://100937797296387"
+  },
+  "assetIds": [
+    "100937797296387",
+    "117122110621717",
+    "71914668574995",
+    "92468887353940"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toxic Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

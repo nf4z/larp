@@ -1,0 +1,17 @@
+{
+  "name": "Frosted Bond",
+  "images": {
+    "Normal": "rbxassetid://119672568172684",
+    "Shiny": "rbxassetid://139610442022039"
+  },
+  "assetIds": [
+    "119672568172684",
+    "139610442022039"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frosted Bond"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

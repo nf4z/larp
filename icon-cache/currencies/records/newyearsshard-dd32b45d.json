@@ -1,0 +1,15 @@
+{
+  "name": "NewYearsShard",
+  "images": {
+    "Image": "rbxassetid://127127444473412"
+  },
+  "assetIds": [
+    "127127444473412"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "NewYearsShard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Shadow Jester",
+  "images": {
+    "Normal": "rbxassetid://89543901187474",
+    "Shiny": "rbxassetid://82144581114778"
+  },
+  "assetIds": [
+    "82144581114778",
+    "89543901187474"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

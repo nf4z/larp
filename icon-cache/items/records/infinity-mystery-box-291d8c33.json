@@ -1,0 +1,15 @@
+{
+  "name": "Infinity Mystery Box",
+  "images": {
+    "Image": "rbxassetid://77855571219659"
+  },
+  "assetIds": [
+    "77855571219659"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Infinity Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

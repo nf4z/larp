@@ -1,0 +1,21 @@
+{
+  "name": "The Sun",
+  "images": {
+    "Normal": "rbxassetid://121435694320870",
+    "Shiny": "rbxassetid://131314003756257",
+    "Mythic": "rbxassetid://124003318027272",
+    "MythicShiny": "rbxassetid://95731727893323"
+  },
+  "assetIds": [
+    "121435694320870",
+    "124003318027272",
+    "131314003756257",
+    "95731727893323"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Sun"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

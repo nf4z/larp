@@ -1,0 +1,17 @@
+{
+  "name": "Vine Dinosaur",
+  "images": {
+    "Normal": "rbxassetid://125113690091057",
+    "Shiny": "rbxassetid://126963547295929"
+  },
+  "assetIds": [
+    "125113690091057",
+    "126963547295929"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vine Dinosaur"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

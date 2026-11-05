@@ -1,0 +1,17 @@
+{
+  "name": "OG Candy Winged Hydra",
+  "images": {
+    "Normal": "rbxassetid://73976744642769",
+    "Shiny": "rbxassetid://82315951025042"
+  },
+  "assetIds": [
+    "73976744642769",
+    "82315951025042"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Candy Winged Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

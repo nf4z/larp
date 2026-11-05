@@ -1,0 +1,17 @@
+{
+  "name": "Yellow Fox",
+  "images": {
+    "Normal": "rbxassetid://125905911945628",
+    "Shiny": "rbxassetid://133884608297595"
+  },
+  "assetIds": [
+    "125905911945628",
+    "133884608297595"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Yellow Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

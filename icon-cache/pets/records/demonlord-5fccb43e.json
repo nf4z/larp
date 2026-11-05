@@ -1,0 +1,21 @@
+{
+  "name": "Demonlord",
+  "images": {
+    "Normal": "rbxassetid://79614984848341",
+    "Shiny": "rbxassetid://132884144483336",
+    "Mythic": "rbxassetid://71440985752431",
+    "MythicShiny": "rbxassetid://103175592041783"
+  },
+  "assetIds": [
+    "103175592041783",
+    "132884144483336",
+    "71440985752431",
+    "79614984848341"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Squid",
+  "images": {
+    "Normal": "rbxassetid://100829308992434",
+    "Shiny": "rbxassetid://122230754295203",
+    "Mythic": "rbxassetid://99493102729183",
+    "MythicShiny": "rbxassetid://140103994616068"
+  },
+  "assetIds": [
+    "100829308992434",
+    "122230754295203",
+    "140103994616068",
+    "99493102729183"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Squid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

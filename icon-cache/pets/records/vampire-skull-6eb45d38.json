@@ -1,0 +1,21 @@
+{
+  "name": "Vampire Skull",
+  "images": {
+    "Normal": "rbxassetid://118208314468311",
+    "Shiny": "rbxassetid://131491767621502",
+    "Mythic": "rbxassetid://104678541981224",
+    "MythicShiny": "rbxassetid://77742157778338"
+  },
+  "assetIds": [
+    "104678541981224",
+    "118208314468311",
+    "131491767621502",
+    "77742157778338"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vampire Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

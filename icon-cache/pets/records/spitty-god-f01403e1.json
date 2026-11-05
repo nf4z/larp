@@ -1,0 +1,17 @@
+{
+  "name": "SPITTY GOD",
+  "images": {
+    "Normal": "rbxassetid://134828736189682",
+    "Shiny": "rbxassetid://77270900527495"
+  },
+  "assetIds": [
+    "134828736189682",
+    "77270900527495"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "SPITTY GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

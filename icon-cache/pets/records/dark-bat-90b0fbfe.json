@@ -1,0 +1,17 @@
+{
+  "name": "Dark Bat",
+  "images": {
+    "Normal": "rbxassetid://113799451574025",
+    "Shiny": "rbxassetid://80134626584546"
+  },
+  "assetIds": [
+    "113799451574025",
+    "80134626584546"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

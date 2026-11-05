@@ -1,0 +1,17 @@
+{
+  "name": "Summer Bunny",
+  "images": {
+    "Normal": "rbxassetid://86978932103921",
+    "Shiny": "rbxassetid://77395648273498"
+  },
+  "assetIds": [
+    "77395648273498",
+    "86978932103921"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Summer Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

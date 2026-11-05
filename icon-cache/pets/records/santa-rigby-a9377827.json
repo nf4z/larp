@@ -1,0 +1,21 @@
+{
+  "name": "Santa Rigby",
+  "images": {
+    "Normal": "rbxassetid://77554079836018",
+    "Shiny": "rbxassetid://136029370369703",
+    "Mythic": "rbxassetid://91236837536525",
+    "MythicShiny": "rbxassetid://134316269998607"
+  },
+  "assetIds": [
+    "134316269998607",
+    "136029370369703",
+    "77554079836018",
+    "91236837536525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

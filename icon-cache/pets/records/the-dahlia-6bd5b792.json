@@ -1,0 +1,21 @@
+{
+  "name": "The Dahlia",
+  "images": {
+    "Normal": "rbxassetid://115433851998605",
+    "Shiny": "rbxassetid://132749038299352",
+    "Mythic": "rbxassetid://123403529044684",
+    "MythicShiny": "rbxassetid://73216086828301"
+  },
+  "assetIds": [
+    "115433851998605",
+    "123403529044684",
+    "132749038299352",
+    "73216086828301"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Dahlia"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

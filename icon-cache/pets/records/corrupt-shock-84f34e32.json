@@ -1,0 +1,21 @@
+{
+  "name": "Corrupt Shock",
+  "images": {
+    "Normal": "rbxassetid://98800154540514",
+    "Shiny": "rbxassetid://127621299220954",
+    "Mythic": "rbxassetid://132327463201143",
+    "MythicShiny": "rbxassetid://72109909332734"
+  },
+  "assetIds": [
+    "127621299220954",
+    "132327463201143",
+    "72109909332734",
+    "98800154540514"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupt Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

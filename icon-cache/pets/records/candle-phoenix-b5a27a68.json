@@ -1,0 +1,21 @@
+{
+  "name": "Candle Phoenix",
+  "images": {
+    "Normal": "rbxassetid://107011202223752",
+    "Shiny": "rbxassetid://71792224036502",
+    "Mythic": "rbxassetid://103064340256041",
+    "MythicShiny": "rbxassetid://119714773695692"
+  },
+  "assetIds": [
+    "103064340256041",
+    "107011202223752",
+    "119714773695692",
+    "71792224036502"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candle Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

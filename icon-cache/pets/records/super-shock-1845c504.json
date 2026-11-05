@@ -1,0 +1,21 @@
+{
+  "name": "Super Shock",
+  "images": {
+    "Normal": "rbxassetid://126874476040457",
+    "Shiny": "rbxassetid://127634469977091",
+    "Mythic": "rbxassetid://91271913913873",
+    "MythicShiny": "rbxassetid://81560367132810"
+  },
+  "assetIds": [
+    "126874476040457",
+    "127634469977091",
+    "81560367132810",
+    "91271913913873"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

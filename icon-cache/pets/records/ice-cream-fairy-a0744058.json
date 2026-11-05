@@ -1,0 +1,21 @@
+{
+  "name": "Ice Cream Fairy",
+  "images": {
+    "Normal": "rbxassetid://101439069292369",
+    "Shiny": "rbxassetid://117070728326437",
+    "Mythic": "rbxassetid://83052342385158",
+    "MythicShiny": "rbxassetid://81449515070393"
+  },
+  "assetIds": [
+    "101439069292369",
+    "117070728326437",
+    "81449515070393",
+    "83052342385158"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Cream Fairy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

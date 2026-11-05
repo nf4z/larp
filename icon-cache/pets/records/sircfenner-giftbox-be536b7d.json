@@ -1,0 +1,21 @@
+{
+  "name": "Sircfenner Giftbox",
+  "images": {
+    "Normal": "rbxassetid://77778854525482",
+    "Shiny": "rbxassetid://94565111704798",
+    "Mythic": "rbxassetid://127654929503853",
+    "MythicShiny": "rbxassetid://73155732894632"
+  },
+  "assetIds": [
+    "127654929503853",
+    "73155732894632",
+    "77778854525482",
+    "94565111704798"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sircfenner Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

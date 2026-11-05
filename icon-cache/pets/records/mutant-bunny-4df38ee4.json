@@ -1,0 +1,17 @@
+{
+  "name": "Mutant Bunny",
+  "images": {
+    "Normal": "rbxassetid://120091872918497",
+    "Shiny": "rbxassetid://80116647383598"
+  },
+  "assetIds": [
+    "120091872918497",
+    "80116647383598"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mutant Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dementor",
+  "images": {
+    "Normal": "rbxassetid://83620183601359",
+    "Shiny": "rbxassetid://70395978006731",
+    "Mythic": "rbxassetid://90646637371519",
+    "MythicShiny": "rbxassetid://126118689750116"
+  },
+  "assetIds": [
+    "126118689750116",
+    "70395978006731",
+    "83620183601359",
+    "90646637371519"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

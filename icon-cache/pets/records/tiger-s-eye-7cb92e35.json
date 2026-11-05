@@ -1,0 +1,21 @@
+{
+  "name": "Tiger's Eye",
+  "images": {
+    "Normal": "rbxassetid://115832384716843",
+    "Shiny": "rbxassetid://139864972474002",
+    "Mythic": "rbxassetid://110774757218340",
+    "MythicShiny": "rbxassetid://132591338144819"
+  },
+  "assetIds": [
+    "110774757218340",
+    "115832384716843",
+    "132591338144819",
+    "139864972474002"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tiger's Eye"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

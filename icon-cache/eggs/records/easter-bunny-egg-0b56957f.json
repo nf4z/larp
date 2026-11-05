@@ -1,0 +1,12 @@
+{
+  "name": "Easter Bunny Egg",
+  "images": {
+    "Image": "rbxassetid://83289548091717"
+  },
+  "assetIds": [
+    "83289548091717"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

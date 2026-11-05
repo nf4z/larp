@@ -1,0 +1,17 @@
+{
+  "name": "Soulflower",
+  "images": {
+    "Normal": "rbxassetid://114527210281169",
+    "Shiny": "rbxassetid://108054007082242"
+  },
+  "assetIds": [
+    "108054007082242",
+    "114527210281169"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soulflower"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Magic Doggy",
+  "images": {
+    "Normal": "rbxassetid://107411830718724",
+    "Shiny": "rbxassetid://112423555638031"
+  },
+  "assetIds": [
+    "107411830718724",
+    "112423555638031"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Magic Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

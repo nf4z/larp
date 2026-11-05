@@ -1,0 +1,15 @@
+{
+  "name": "Flames",
+  "images": {
+    "Image": "rbxassetid://112051265157535"
+  },
+  "assetIds": [
+    "112051265157535"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Flames"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

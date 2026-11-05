@@ -1,0 +1,21 @@
+{
+  "name": "Fortuitous Overlord",
+  "images": {
+    "Normal": "rbxassetid://106905658345467",
+    "Shiny": "rbxassetid://80076295406946",
+    "Mythic": "rbxassetid://118746453384631",
+    "MythicShiny": "rbxassetid://70845355258032"
+  },
+  "assetIds": [
+    "106905658345467",
+    "118746453384631",
+    "70845355258032",
+    "80076295406946"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fortuitous Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

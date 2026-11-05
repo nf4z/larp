@@ -1,0 +1,21 @@
+{
+  "name": "Bumble Beast",
+  "images": {
+    "Normal": "rbxassetid://75828086801052",
+    "Shiny": "rbxassetid://72736627476849",
+    "Mythic": "rbxassetid://128743131308608",
+    "MythicShiny": "rbxassetid://82282611790171"
+  },
+  "assetIds": [
+    "128743131308608",
+    "72736627476849",
+    "75828086801052",
+    "82282611790171"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bumble Beast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

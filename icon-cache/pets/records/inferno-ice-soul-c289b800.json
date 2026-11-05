@@ -1,0 +1,17 @@
+{
+  "name": "Inferno Ice Soul",
+  "images": {
+    "Normal": "rbxassetid://71922198696349",
+    "Shiny": "rbxassetid://113446606781239"
+  },
+  "assetIds": [
+    "113446606781239",
+    "71922198696349"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Ice Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

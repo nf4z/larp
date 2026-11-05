@@ -1,0 +1,17 @@
+{
+  "name": "Dragon Split",
+  "images": {
+    "Normal": "rbxassetid://78968340515058",
+    "Shiny": "rbxassetid://70478300377982"
+  },
+  "assetIds": [
+    "70478300377982",
+    "78968340515058"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dragon Split"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

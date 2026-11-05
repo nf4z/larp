@@ -1,0 +1,17 @@
+{
+  "name": "Twitch Defender",
+  "images": {
+    "Normal": "rbxassetid://95025063986562",
+    "Shiny": "rbxassetid://88182072877413"
+  },
+  "assetIds": [
+    "88182072877413",
+    "95025063986562"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Twitch Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

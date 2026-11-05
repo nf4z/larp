@@ -1,0 +1,17 @@
+{
+  "name": "Jester Doggy",
+  "images": {
+    "Normal": "rbxassetid://88670762182487",
+    "Shiny": "rbxassetid://83288099987152"
+  },
+  "assetIds": [
+    "83288099987152",
+    "88670762182487"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

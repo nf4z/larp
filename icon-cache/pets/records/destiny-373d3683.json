@@ -1,0 +1,21 @@
+{
+  "name": "Destiny",
+  "images": {
+    "Normal": "rbxassetid://135227274726844",
+    "Shiny": "rbxassetid://112358935967342",
+    "Mythic": "rbxassetid://127924282486563",
+    "MythicShiny": "rbxassetid://139391457946124"
+  },
+  "assetIds": [
+    "112358935967342",
+    "127924282486563",
+    "135227274726844",
+    "139391457946124"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Destiny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

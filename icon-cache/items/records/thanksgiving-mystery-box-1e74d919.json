@@ -1,0 +1,15 @@
+{
+  "name": "Thanksgiving Mystery Box",
+  "images": {
+    "Image": "rbxassetid://113057844954270"
+  },
+  "assetIds": [
+    "113057844954270"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Thanksgiving Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

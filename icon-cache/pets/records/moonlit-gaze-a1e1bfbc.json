@@ -1,0 +1,21 @@
+{
+  "name": "Moonlit Gaze",
+  "images": {
+    "Normal": "rbxassetid://93092914913027",
+    "Shiny": "rbxassetid://125177480767251",
+    "Mythic": "rbxassetid://77786281151634",
+    "MythicShiny": "rbxassetid://93497429474957"
+  },
+  "assetIds": [
+    "125177480767251",
+    "77786281151634",
+    "93092914913027",
+    "93497429474957"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonlit Gaze"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

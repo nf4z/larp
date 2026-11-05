@@ -1,0 +1,21 @@
+{
+  "name": "Super Trophy",
+  "images": {
+    "Normal": "rbxassetid://80833877210104",
+    "Shiny": "rbxassetid://139120411324692",
+    "Mythic": "rbxassetid://107886146343356",
+    "MythicShiny": "rbxassetid://127672122926575"
+  },
+  "assetIds": [
+    "107886146343356",
+    "127672122926575",
+    "139120411324692",
+    "80833877210104"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

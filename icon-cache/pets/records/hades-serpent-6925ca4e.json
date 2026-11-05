@@ -1,0 +1,21 @@
+{
+  "name": "Hades' Serpent",
+  "images": {
+    "Normal": "rbxassetid://96493389535962",
+    "Shiny": "rbxassetid://75815692196934",
+    "Mythic": "rbxassetid://135769675135284",
+    "MythicShiny": "rbxassetid://140350104869236"
+  },
+  "assetIds": [
+    "135769675135284",
+    "140350104869236",
+    "75815692196934",
+    "96493389535962"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hades' Serpent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

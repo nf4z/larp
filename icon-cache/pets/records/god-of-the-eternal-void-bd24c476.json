@@ -1,0 +1,17 @@
+{
+  "name": "GOD OF THE ETERNAL VOID",
+  "images": {
+    "Normal": "rbxassetid://96633232131598",
+    "Shiny": "rbxassetid://98881124581258"
+  },
+  "assetIds": [
+    "96633232131598",
+    "98881124581258"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "GOD OF THE ETERNAL VOID"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

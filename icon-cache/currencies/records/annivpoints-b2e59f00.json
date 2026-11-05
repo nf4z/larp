@@ -1,0 +1,15 @@
+{
+  "name": "AnnivPoints",
+  "images": {
+    "Image": "rbxassetid://87557146098557"
+  },
+  "assetIds": [
+    "87557146098557"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "AnnivPoints"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

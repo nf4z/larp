@@ -1,0 +1,21 @@
+{
+  "name": "Cherry Blossom",
+  "images": {
+    "Normal": "rbxassetid://124469980328560",
+    "Shiny": "rbxassetid://91828982769739",
+    "Mythic": "rbxassetid://76921630549528",
+    "MythicShiny": "rbxassetid://107811836831900"
+  },
+  "assetIds": [
+    "107811836831900",
+    "124469980328560",
+    "76921630549528",
+    "91828982769739"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cherry Blossom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

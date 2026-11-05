@@ -1,0 +1,21 @@
+{
+  "name": "Unlimited Dollar",
+  "images": {
+    "Normal": "rbxassetid://73506831615568",
+    "Shiny": "rbxassetid://127081381534923",
+    "Mythic": "rbxassetid://83413508474039",
+    "MythicShiny": "rbxassetid://126139846293828"
+  },
+  "assetIds": [
+    "126139846293828",
+    "127081381534923",
+    "73506831615568",
+    "83413508474039"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Unlimited Dollar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

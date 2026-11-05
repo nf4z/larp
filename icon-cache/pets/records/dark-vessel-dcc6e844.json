@@ -1,0 +1,17 @@
+{
+  "name": "Dark Vessel",
+  "images": {
+    "Normal": "rbxassetid://131195961508237",
+    "Shiny": "rbxassetid://126627023215513"
+  },
+  "assetIds": [
+    "126627023215513",
+    "131195961508237"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Vessel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

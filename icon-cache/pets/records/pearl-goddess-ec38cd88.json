@@ -1,0 +1,21 @@
+{
+  "name": "Pearl Goddess",
+  "images": {
+    "Normal": "rbxassetid://77855394965775",
+    "Shiny": "rbxassetid://91677309485144",
+    "Mythic": "rbxassetid://107125253577696",
+    "MythicShiny": "rbxassetid://84054678305406"
+  },
+  "assetIds": [
+    "107125253577696",
+    "77855394965775",
+    "84054678305406",
+    "91677309485144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pearl Goddess"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

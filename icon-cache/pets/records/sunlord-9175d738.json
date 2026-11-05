@@ -1,0 +1,21 @@
+{
+  "name": "Sunlord",
+  "images": {
+    "Normal": "rbxassetid://97964587617043",
+    "Shiny": "rbxassetid://104535522333278",
+    "Mythic": "rbxassetid://98747649021189",
+    "MythicShiny": "rbxassetid://127128162652579"
+  },
+  "assetIds": [
+    "104535522333278",
+    "127128162652579",
+    "97964587617043",
+    "98747649021189"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

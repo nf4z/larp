@@ -1,0 +1,21 @@
+{
+  "name": "Shadowstone",
+  "images": {
+    "Normal": "rbxassetid://116565706709825",
+    "Shiny": "rbxassetid://136853534331396",
+    "Mythic": "rbxassetid://83497737481357",
+    "MythicShiny": "rbxassetid://98649589473662"
+  },
+  "assetIds": [
+    "116565706709825",
+    "136853534331396",
+    "83497737481357",
+    "98649589473662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadowstone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

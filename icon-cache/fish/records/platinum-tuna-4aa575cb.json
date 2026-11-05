@@ -1,0 +1,15 @@
+{
+  "name": "Platinum Tuna",
+  "images": {
+    "Image": "rbxassetid://112851748781938"
+  },
+  "assetIds": [
+    "112851748781938"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Platinum Tuna"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

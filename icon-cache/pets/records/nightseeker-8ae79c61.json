@@ -1,0 +1,21 @@
+{
+  "name": "Nightseeker",
+  "images": {
+    "Normal": "rbxassetid://83440578689371",
+    "Shiny": "rbxassetid://130784696293242",
+    "Mythic": "rbxassetid://93541093892023",
+    "MythicShiny": "rbxassetid://75726269214967"
+  },
+  "assetIds": [
+    "130784696293242",
+    "75726269214967",
+    "83440578689371",
+    "93541093892023"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightseeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

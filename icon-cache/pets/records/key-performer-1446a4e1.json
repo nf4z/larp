@@ -1,0 +1,21 @@
+{
+  "name": "Key Performer",
+  "images": {
+    "Normal": "rbxassetid://75703977447078",
+    "Shiny": "rbxassetid://130559893312118",
+    "Mythic": "rbxassetid://116781179421519",
+    "MythicShiny": "rbxassetid://120600823678734"
+  },
+  "assetIds": [
+    "116781179421519",
+    "120600823678734",
+    "130559893312118",
+    "75703977447078"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Key Performer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

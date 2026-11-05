@@ -1,0 +1,21 @@
+{
+  "name": "Eversource",
+  "images": {
+    "Normal": "rbxassetid://122795888648710",
+    "Shiny": "rbxassetid://137582295286602",
+    "Mythic": "rbxassetid://110758674515392",
+    "MythicShiny": "rbxassetid://134103089792861"
+  },
+  "assetIds": [
+    "110758674515392",
+    "122795888648710",
+    "134103089792861",
+    "137582295286602"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eversource"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

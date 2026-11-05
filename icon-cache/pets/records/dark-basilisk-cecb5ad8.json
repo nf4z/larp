@@ -1,0 +1,21 @@
+{
+  "name": "Dark Basilisk",
+  "images": {
+    "Normal": "rbxassetid://100458965113190",
+    "Shiny": "rbxassetid://139343733968463",
+    "Mythic": "rbxassetid://130975801903717",
+    "MythicShiny": "rbxassetid://87010029798197"
+  },
+  "assetIds": [
+    "100458965113190",
+    "130975801903717",
+    "139343733968463",
+    "87010029798197"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

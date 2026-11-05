@@ -1,0 +1,17 @@
+{
+  "name": "Retro Kitty",
+  "images": {
+    "Normal": "rbxassetid://112455333292294",
+    "Shiny": "rbxassetid://118445398087876"
+  },
+  "assetIds": [
+    "112455333292294",
+    "118445398087876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

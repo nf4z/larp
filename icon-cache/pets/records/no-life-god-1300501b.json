@@ -1,0 +1,17 @@
+{
+  "name": "NO LIFE GOD",
+  "images": {
+    "Normal": "rbxassetid://71749719618773",
+    "Shiny": "rbxassetid://137870348160375"
+  },
+  "assetIds": [
+    "137870348160375",
+    "71749719618773"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "NO LIFE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

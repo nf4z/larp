@@ -1,0 +1,12 @@
+{
+  "name": "Rare Easter Egg",
+  "images": {
+    "Image": "rbxassetid://108913825567578"
+  },
+  "assetIds": [
+    "108913825567578"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

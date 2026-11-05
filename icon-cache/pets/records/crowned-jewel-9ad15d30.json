@@ -1,0 +1,21 @@
+{
+  "name": "Crowned Jewel",
+  "images": {
+    "Normal": "rbxassetid://89183660691307",
+    "Shiny": "rbxassetid://100567130961675",
+    "Mythic": "rbxassetid://99582480854382",
+    "MythicShiny": "rbxassetid://71432594224413"
+  },
+  "assetIds": [
+    "100567130961675",
+    "71432594224413",
+    "89183660691307",
+    "99582480854382"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crowned Jewel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

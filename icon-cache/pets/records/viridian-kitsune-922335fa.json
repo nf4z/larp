@@ -1,0 +1,21 @@
+{
+  "name": "Viridian Kitsune",
+  "images": {
+    "Normal": "rbxassetid://88070869827706",
+    "Shiny": "rbxassetid://117650106980275",
+    "Mythic": "rbxassetid://93687227528945",
+    "MythicShiny": "rbxassetid://97175818559328"
+  },
+  "assetIds": [
+    "117650106980275",
+    "88070869827706",
+    "93687227528945",
+    "97175818559328"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Viridian Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

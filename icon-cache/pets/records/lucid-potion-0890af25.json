@@ -1,0 +1,17 @@
+{
+  "name": "Lucid Potion",
+  "images": {
+    "Normal": "rbxassetid://134399588399450",
+    "Shiny": "rbxassetid://106822777662356"
+  },
+  "assetIds": [
+    "106822777662356",
+    "134399588399450"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucid Potion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

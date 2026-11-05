@@ -1,0 +1,21 @@
+{
+  "name": "Dark Shard",
+  "images": {
+    "Normal": "rbxassetid://117824160274366",
+    "Shiny": "rbxassetid://82926322415865",
+    "Mythic": "rbxassetid://121996894331156",
+    "MythicShiny": "rbxassetid://104410437553091"
+  },
+  "assetIds": [
+    "104410437553091",
+    "117824160274366",
+    "121996894331156",
+    "82926322415865"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

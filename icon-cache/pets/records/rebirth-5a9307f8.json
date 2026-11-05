@@ -1,0 +1,21 @@
+{
+  "name": "Rebirth",
+  "images": {
+    "Normal": "rbxassetid://73497289574446",
+    "Shiny": "rbxassetid://84055782976264",
+    "Mythic": "rbxassetid://70402246734715",
+    "MythicShiny": "rbxassetid://119548040029982"
+  },
+  "assetIds": [
+    "119548040029982",
+    "70402246734715",
+    "73497289574446",
+    "84055782976264"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rebirth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

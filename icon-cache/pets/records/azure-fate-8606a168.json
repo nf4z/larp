@@ -1,0 +1,21 @@
+{
+  "name": "Azure Fate",
+  "images": {
+    "Normal": "rbxassetid://96106407550406",
+    "Shiny": "rbxassetid://125352067157862",
+    "Mythic": "rbxassetid://101398787736016",
+    "MythicShiny": "rbxassetid://71630495243740"
+  },
+  "assetIds": [
+    "101398787736016",
+    "125352067157862",
+    "71630495243740",
+    "96106407550406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Azure Fate"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

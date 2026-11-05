@@ -1,0 +1,17 @@
+{
+  "name": "Void Demon",
+  "images": {
+    "Normal": "rbxassetid://136686021537465",
+    "Shiny": "rbxassetid://136094263998699"
+  },
+  "assetIds": [
+    "136094263998699",
+    "136686021537465"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Jackpot Hexarium",
+  "images": {
+    "Normal": "rbxassetid://72232689959525",
+    "Shiny": "rbxassetid://100404773935018",
+    "Mythic": "rbxassetid://123625581286850",
+    "MythicShiny": "rbxassetid://128488094083721"
+  },
+  "assetIds": [
+    "100404773935018",
+    "123625581286850",
+    "128488094083721",
+    "72232689959525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jackpot Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

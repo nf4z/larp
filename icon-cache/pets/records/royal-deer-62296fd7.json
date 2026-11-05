@@ -1,0 +1,17 @@
+{
+  "name": "Royal Deer",
+  "images": {
+    "Normal": "rbxassetid://75111028205291",
+    "Shiny": "rbxassetid://93970490063920"
+  },
+  "assetIds": [
+    "75111028205291",
+    "93970490063920"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

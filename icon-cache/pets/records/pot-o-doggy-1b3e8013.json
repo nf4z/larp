@@ -1,0 +1,21 @@
+{
+  "name": "Pot O' Doggy",
+  "images": {
+    "Normal": "rbxassetid://105858830177424",
+    "Shiny": "rbxassetid://126915407922156",
+    "Mythic": "rbxassetid://96306314380622",
+    "MythicShiny": "rbxassetid://78883172553841"
+  },
+  "assetIds": [
+    "105858830177424",
+    "126915407922156",
+    "78883172553841",
+    "96306314380622"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pot O' Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

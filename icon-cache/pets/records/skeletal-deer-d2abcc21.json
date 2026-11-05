@@ -1,0 +1,17 @@
+{
+  "name": "Skeletal Deer",
+  "images": {
+    "Normal": "rbxassetid://113928895692385",
+    "Shiny": "rbxassetid://108708065111555"
+  },
+  "assetIds": [
+    "108708065111555",
+    "113928895692385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Skeletal Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

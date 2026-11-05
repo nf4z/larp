@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Bat",
+  "images": {
+    "Normal": "rbxassetid://85806983652583",
+    "Shiny": "rbxassetid://135142175817202"
+  },
+  "assetIds": [
+    "135142175817202",
+    "85806983652583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

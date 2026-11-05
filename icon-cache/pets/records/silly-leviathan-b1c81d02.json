@@ -1,0 +1,17 @@
+{
+  "name": "Silly Leviathan",
+  "images": {
+    "Normal": "rbxassetid://78912014823684",
+    "Shiny": "rbxassetid://103094596171290"
+  },
+  "assetIds": [
+    "103094596171290",
+    "78912014823684"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

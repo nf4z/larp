@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Gem",
+  "images": {
+    "Normal": "rbxassetid://96709118767586",
+    "Shiny": "rbxassetid://99509609578182",
+    "Mythic": "rbxassetid://88426525544833",
+    "MythicShiny": "rbxassetid://115749835598150"
+  },
+  "assetIds": [
+    "115749835598150",
+    "88426525544833",
+    "96709118767586",
+    "99509609578182"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

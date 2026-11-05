@@ -1,0 +1,21 @@
+{
+  "name": "Pixie",
+  "images": {
+    "Normal": "rbxassetid://83110321222768",
+    "Shiny": "rbxassetid://105535000235140",
+    "Mythic": "rbxassetid://90661883695482",
+    "MythicShiny": "rbxassetid://89685193900311"
+  },
+  "assetIds": [
+    "105535000235140",
+    "83110321222768",
+    "89685193900311",
+    "90661883695482"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pixie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

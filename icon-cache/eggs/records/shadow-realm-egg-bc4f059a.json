@@ -1,0 +1,12 @@
+{
+  "name": "Shadow Realm Egg",
+  "images": {
+    "Image": "rbxassetid://94559649187874"
+  },
+  "assetIds": [
+    "94559649187874"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

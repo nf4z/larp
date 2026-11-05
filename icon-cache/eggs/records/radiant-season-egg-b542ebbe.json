@@ -1,0 +1,12 @@
+{
+  "name": "Radiant Season Egg",
+  "images": {
+    "Image": "rbxassetid://71288443692845"
+  },
+  "assetIds": [
+    "71288443692845"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

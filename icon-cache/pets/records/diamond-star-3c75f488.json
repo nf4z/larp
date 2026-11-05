@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Star",
+  "images": {
+    "Normal": "rbxassetid://81848965881406",
+    "Shiny": "rbxassetid://92001166499910",
+    "Mythic": "rbxassetid://134202164644203",
+    "MythicShiny": "rbxassetid://129599851299756"
+  },
+  "assetIds": [
+    "129599851299756",
+    "134202164644203",
+    "81848965881406",
+    "92001166499910"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

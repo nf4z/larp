@@ -1,0 +1,17 @@
+{
+  "name": "Jester Elephant Plushie",
+  "images": {
+    "Normal": "rbxassetid://76200817049793",
+    "Shiny": "rbxassetid://113707085425248"
+  },
+  "assetIds": [
+    "113707085425248",
+    "76200817049793"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Elephant Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

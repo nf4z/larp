@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://80006729738469",
+    "Shiny": "rbxassetid://96985684193941",
+    "Mythic": "rbxassetid://72455929098500",
+    "MythicShiny": "rbxassetid://86465039369219"
+  },
+  "assetIds": [
+    "72455929098500",
+    "80006729738469",
+    "86465039369219",
+    "96985684193941"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

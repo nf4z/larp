@@ -1,0 +1,15 @@
+{
+  "name": "Reroll Orb",
+  "images": {
+    "Image": "rbxassetid://80058493361682"
+  },
+  "assetIds": [
+    "80058493361682"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Reroll Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

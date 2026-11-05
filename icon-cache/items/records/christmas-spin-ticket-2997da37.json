@@ -1,0 +1,15 @@
+{
+  "name": "Christmas Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://134056325611796"
+  },
+  "assetIds": [
+    "134056325611796"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Christmas Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

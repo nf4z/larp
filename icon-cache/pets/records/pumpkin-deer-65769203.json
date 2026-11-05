@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin Deer",
+  "images": {
+    "Normal": "rbxassetid://127310453246796",
+    "Shiny": "rbxassetid://81512815297557"
+  },
+  "assetIds": [
+    "127310453246796",
+    "81512815297557"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

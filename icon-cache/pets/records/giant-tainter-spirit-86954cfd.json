@@ -1,0 +1,21 @@
+{
+  "name": "Giant Tainter Spirit",
+  "images": {
+    "Normal": "rbxassetid://112621111512756",
+    "Shiny": "rbxassetid://111479798260233",
+    "Mythic": "rbxassetid://84860293319795",
+    "MythicShiny": "rbxassetid://81932301215444"
+  },
+  "assetIds": [
+    "111479798260233",
+    "112621111512756",
+    "81932301215444",
+    "84860293319795"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Tainter Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

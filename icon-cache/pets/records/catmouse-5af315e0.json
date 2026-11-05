@@ -1,0 +1,21 @@
+{
+  "name": "Catmouse",
+  "images": {
+    "Normal": "rbxassetid://79602750180290",
+    "Shiny": "rbxassetid://120811554270090",
+    "Mythic": "rbxassetid://116199895890682",
+    "MythicShiny": "rbxassetid://136427691756093"
+  },
+  "assetIds": [
+    "116199895890682",
+    "120811554270090",
+    "136427691756093",
+    "79602750180290"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Catmouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

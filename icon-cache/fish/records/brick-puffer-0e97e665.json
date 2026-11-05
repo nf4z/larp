@@ -1,0 +1,15 @@
+{
+  "name": "Brick Puffer",
+  "images": {
+    "Image": "rbxassetid://81062523359205"
+  },
+  "assetIds": [
+    "81062523359205"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Brick Puffer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

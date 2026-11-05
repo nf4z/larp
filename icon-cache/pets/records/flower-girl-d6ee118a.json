@@ -1,0 +1,17 @@
+{
+  "name": "Flower Girl",
+  "images": {
+    "Normal": "rbxassetid://94897331452239",
+    "Shiny": "rbxassetid://120772986869905"
+  },
+  "assetIds": [
+    "120772986869905",
+    "94897331452239"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flower Girl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

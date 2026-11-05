@@ -1,0 +1,21 @@
+{
+  "name": "Queen Bee",
+  "images": {
+    "Normal": "rbxassetid://98071862960691",
+    "Shiny": "rbxassetid://100982735023477",
+    "Mythic": "rbxassetid://100577729991128",
+    "MythicShiny": "rbxassetid://92444157698095"
+  },
+  "assetIds": [
+    "100577729991128",
+    "100982735023477",
+    "92444157698095",
+    "98071862960691"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

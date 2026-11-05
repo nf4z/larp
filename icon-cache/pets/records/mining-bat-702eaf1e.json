@@ -1,0 +1,17 @@
+{
+  "name": "Mining Bat",
+  "images": {
+    "Normal": "rbxassetid://112786499042328",
+    "Shiny": "rbxassetid://119531912421769"
+  },
+  "assetIds": [
+    "112786499042328",
+    "119531912421769"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mining Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

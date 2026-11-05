@@ -1,0 +1,21 @@
+{
+  "name": "Fallen Angel",
+  "images": {
+    "Normal": "rbxassetid://110933503984219",
+    "Shiny": "rbxassetid://83124930319125",
+    "Mythic": "rbxassetid://113931418458861",
+    "MythicShiny": "rbxassetid://85928841404575"
+  },
+  "assetIds": [
+    "110933503984219",
+    "113931418458861",
+    "83124930319125",
+    "85928841404575"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fallen Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

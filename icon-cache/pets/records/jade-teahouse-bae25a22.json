@@ -1,0 +1,21 @@
+{
+  "name": "Jade Teahouse",
+  "images": {
+    "Normal": "rbxassetid://121025738914629",
+    "Shiny": "rbxassetid://92814392693396",
+    "Mythic": "rbxassetid://96340267320766",
+    "MythicShiny": "rbxassetid://85513826197320"
+  },
+  "assetIds": [
+    "121025738914629",
+    "85513826197320",
+    "92814392693396",
+    "96340267320766"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jade Teahouse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

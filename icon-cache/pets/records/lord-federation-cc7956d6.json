@@ -1,0 +1,17 @@
+{
+  "name": "Lord Federation",
+  "images": {
+    "Normal": "rbxassetid://109055622502158",
+    "Shiny": "rbxassetid://113601432045915"
+  },
+  "assetIds": [
+    "109055622502158",
+    "113601432045915"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lord Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

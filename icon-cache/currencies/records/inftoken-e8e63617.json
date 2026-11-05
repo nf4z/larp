@@ -1,0 +1,15 @@
+{
+  "name": "InfToken",
+  "images": {
+    "Image": "rbxassetid://95198616258607"
+  },
+  "assetIds": [
+    "95198616258607"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "InfToken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

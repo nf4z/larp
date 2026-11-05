@@ -1,0 +1,17 @@
+{
+  "name": "Rudolph Shock",
+  "images": {
+    "Normal": "rbxassetid://126746012890906",
+    "Shiny": "rbxassetid://104552240932799"
+  },
+  "assetIds": [
+    "104552240932799",
+    "126746012890906"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rudolph Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

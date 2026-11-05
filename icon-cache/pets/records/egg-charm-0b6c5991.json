@@ -1,0 +1,17 @@
+{
+  "name": "Egg Charm",
+  "images": {
+    "Normal": "rbxassetid://118612494707563",
+    "Shiny": "rbxassetid://83069673677844"
+  },
+  "assetIds": [
+    "118612494707563",
+    "83069673677844"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egg Charm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

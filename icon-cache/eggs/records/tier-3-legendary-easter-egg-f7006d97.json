@@ -1,0 +1,12 @@
+{
+  "name": "Tier 3 Legendary Easter Egg",
+  "images": {
+    "Image": "rbxassetid://120069884865481"
+  },
+  "assetIds": [
+    "120069884865481"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

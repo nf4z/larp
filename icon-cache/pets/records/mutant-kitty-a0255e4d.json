@@ -1,0 +1,17 @@
+{
+  "name": "Mutant Kitty",
+  "images": {
+    "Normal": "rbxassetid://114113156524288",
+    "Shiny": "rbxassetid://72289550981385"
+  },
+  "assetIds": [
+    "114113156524288",
+    "72289550981385"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mutant Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

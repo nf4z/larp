@@ -1,0 +1,15 @@
+{
+  "name": "Azure Seahorse",
+  "images": {
+    "Image": "rbxassetid://83682690140773"
+  },
+  "assetIds": [
+    "83682690140773"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Azure Seahorse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

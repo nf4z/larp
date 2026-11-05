@@ -1,0 +1,21 @@
+{
+  "name": "Soul Hound",
+  "images": {
+    "Normal": "rbxassetid://102309635987756",
+    "Shiny": "rbxassetid://102300591135735",
+    "Mythic": "rbxassetid://136094208270822",
+    "MythicShiny": "rbxassetid://96354573082435"
+  },
+  "assetIds": [
+    "102300591135735",
+    "102309635987756",
+    "136094208270822",
+    "96354573082435"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Soul Hound"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

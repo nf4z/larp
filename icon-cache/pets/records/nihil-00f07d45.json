@@ -1,0 +1,21 @@
+{
+  "name": "Nihil",
+  "images": {
+    "Normal": "rbxassetid://112647626115748",
+    "Shiny": "rbxassetid://91575219229310",
+    "Mythic": "rbxassetid://92452155043273",
+    "MythicShiny": "rbxassetid://128242822313948"
+  },
+  "assetIds": [
+    "112647626115748",
+    "128242822313948",
+    "91575219229310",
+    "92452155043273"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nihil"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

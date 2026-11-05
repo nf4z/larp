@@ -1,0 +1,21 @@
+{
+  "name": "Tophat Spitty",
+  "images": {
+    "Normal": "rbxassetid://106865027248627",
+    "Shiny": "rbxassetid://120693567353613",
+    "Mythic": "rbxassetid://114340035231692",
+    "MythicShiny": "rbxassetid://102031934657204"
+  },
+  "assetIds": [
+    "102031934657204",
+    "106865027248627",
+    "114340035231692",
+    "120693567353613"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tophat Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

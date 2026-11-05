@@ -1,0 +1,12 @@
+{
+  "name": "Elite Egg",
+  "images": {
+    "Image": "rbxassetid://77731002214381"
+  },
+  "assetIds": [
+    "77731002214381"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

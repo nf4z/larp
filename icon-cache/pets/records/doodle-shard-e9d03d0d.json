@@ -1,0 +1,21 @@
+{
+  "name": "Doodle Shard",
+  "images": {
+    "Normal": "rbxassetid://84340931307173",
+    "Shiny": "rbxassetid://80092064581810",
+    "Mythic": "rbxassetid://78980196180809",
+    "MythicShiny": "rbxassetid://105685568435817"
+  },
+  "assetIds": [
+    "105685568435817",
+    "78980196180809",
+    "80092064581810",
+    "84340931307173"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodle Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

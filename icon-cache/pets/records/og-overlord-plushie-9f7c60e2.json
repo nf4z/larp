@@ -1,0 +1,21 @@
+{
+  "name": "OG Overlord Plushie",
+  "images": {
+    "Normal": "rbxassetid://114540191287391",
+    "Shiny": "rbxassetid://136809442153230",
+    "Mythic": "rbxassetid://140495801446259",
+    "MythicShiny": "rbxassetid://111961899404117"
+  },
+  "assetIds": [
+    "111961899404117",
+    "114540191287391",
+    "136809442153230",
+    "140495801446259"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Overlord Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

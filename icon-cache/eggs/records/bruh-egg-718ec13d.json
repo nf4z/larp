@@ -1,0 +1,12 @@
+{
+  "name": "Bruh Egg",
+  "images": {
+    "Image": "rbxassetid://97868669670187"
+  },
+  "assetIds": [
+    "97868669670187"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

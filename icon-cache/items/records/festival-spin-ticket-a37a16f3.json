@@ -1,0 +1,15 @@
+{
+  "name": "Festival Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://83862596346449"
+  },
+  "assetIds": [
+    "83862596346449"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Festival Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

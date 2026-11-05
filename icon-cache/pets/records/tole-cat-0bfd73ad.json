@@ -1,0 +1,21 @@
+{
+  "name": "Tole Cat",
+  "images": {
+    "Normal": "rbxassetid://121705945488863",
+    "Shiny": "rbxassetid://100500994155875",
+    "Mythic": "rbxassetid://92830527062101",
+    "MythicShiny": "rbxassetid://140308761986912"
+  },
+  "assetIds": [
+    "100500994155875",
+    "121705945488863",
+    "140308761986912",
+    "92830527062101"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tole Cat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

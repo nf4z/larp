@@ -1,0 +1,15 @@
+{
+  "name": "Power Orb",
+  "images": {
+    "Image": "rbxassetid://126652001106052"
+  },
+  "assetIds": [
+    "126652001106052"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Power Orb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

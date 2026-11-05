@@ -1,0 +1,17 @@
+{
+  "name": "Festive Flyer",
+  "images": {
+    "Normal": "rbxassetid://127378643887662",
+    "Shiny": "rbxassetid://122969134890088"
+  },
+  "assetIds": [
+    "122969134890088",
+    "127378643887662"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Flyer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

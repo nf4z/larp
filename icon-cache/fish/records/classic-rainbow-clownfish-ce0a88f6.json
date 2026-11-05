@@ -1,0 +1,15 @@
+{
+  "name": "Classic Rainbow Clownfish",
+  "images": {
+    "Image": "rbxassetid://88319487919685"
+  },
+  "assetIds": [
+    "88319487919685"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Rainbow Clownfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

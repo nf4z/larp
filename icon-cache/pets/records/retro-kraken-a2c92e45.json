@@ -1,0 +1,21 @@
+{
+  "name": "Retro Kraken",
+  "images": {
+    "Normal": "rbxassetid://130177651226421",
+    "Shiny": "rbxassetid://109590007215030",
+    "Mythic": "rbxassetid://115966559646152",
+    "MythicShiny": "rbxassetid://128904960809945"
+  },
+  "assetIds": [
+    "109590007215030",
+    "115966559646152",
+    "128904960809945",
+    "130177651226421"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

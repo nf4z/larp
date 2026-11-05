@@ -1,0 +1,17 @@
+{
+  "name": "Royal Shock",
+  "images": {
+    "Normal": "rbxassetid://97061242820412",
+    "Shiny": "rbxassetid://111498016603785"
+  },
+  "assetIds": [
+    "111498016603785",
+    "97061242820412"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

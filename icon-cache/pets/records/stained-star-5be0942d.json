@@ -1,0 +1,21 @@
+{
+  "name": "Stained Star",
+  "images": {
+    "Normal": "rbxassetid://81496528133040",
+    "Shiny": "rbxassetid://108474800060090",
+    "Mythic": "rbxassetid://130369715317292",
+    "MythicShiny": "rbxassetid://71135874828889"
+  },
+  "assetIds": [
+    "108474800060090",
+    "130369715317292",
+    "71135874828889",
+    "81496528133040"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stained Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

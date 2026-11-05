@@ -1,0 +1,11 @@
+{
+  "name": "VOID EGG??",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "VOID EGG??"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

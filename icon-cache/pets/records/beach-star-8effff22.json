@@ -1,0 +1,21 @@
+{
+  "name": "Beach Star",
+  "images": {
+    "Normal": "rbxassetid://110700602463020",
+    "Shiny": "rbxassetid://119212060211996",
+    "Mythic": "rbxassetid://133849685716079",
+    "MythicShiny": "rbxassetid://83489096479130"
+  },
+  "assetIds": [
+    "110700602463020",
+    "119212060211996",
+    "133849685716079",
+    "83489096479130"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beach Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

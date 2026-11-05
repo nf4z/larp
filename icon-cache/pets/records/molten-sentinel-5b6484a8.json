@@ -1,0 +1,21 @@
+{
+  "name": "Molten Sentinel",
+  "images": {
+    "Normal": "rbxassetid://130159094286133",
+    "Shiny": "rbxassetid://134200617551855",
+    "Mythic": "rbxassetid://101121863268706",
+    "MythicShiny": "rbxassetid://127818254526515"
+  },
+  "assetIds": [
+    "101121863268706",
+    "127818254526515",
+    "130159094286133",
+    "134200617551855"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Molten Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Holy Candle",
+  "images": {
+    "Normal": "rbxassetid://71676690286902",
+    "Shiny": "rbxassetid://124898925720017",
+    "Mythic": "rbxassetid://133769811876040",
+    "MythicShiny": "rbxassetid://105513022490931"
+  },
+  "assetIds": [
+    "105513022490931",
+    "124898925720017",
+    "133769811876040",
+    "71676690286902"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Holy Candle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

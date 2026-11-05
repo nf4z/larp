@@ -1,0 +1,21 @@
+{
+  "name": "Butter Dawg",
+  "images": {
+    "Normal": "rbxassetid://98569227147600",
+    "Shiny": "rbxassetid://114689819617385",
+    "Mythic": "rbxassetid://91307839438383",
+    "MythicShiny": "rbxassetid://106938038610969"
+  },
+  "assetIds": [
+    "106938038610969",
+    "114689819617385",
+    "91307839438383",
+    "98569227147600"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Butter Dawg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

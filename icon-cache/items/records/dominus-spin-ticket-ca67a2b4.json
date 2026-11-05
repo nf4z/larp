@@ -1,0 +1,15 @@
+{
+  "name": "Dominus Spin Ticket",
+  "images": {
+    "Image": "rbxassetid://128242446296007"
+  },
+  "assetIds": [
+    "128242446296007"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Dominus Spin Ticket"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG Diamond Ring",
+  "images": {
+    "Normal": "rbxassetid://136637343260511",
+    "Shiny": "rbxassetid://88837017086952",
+    "Mythic": "rbxassetid://135422820238140",
+    "MythicShiny": "rbxassetid://83499162226366"
+  },
+  "assetIds": [
+    "135422820238140",
+    "136637343260511",
+    "83499162226366",
+    "88837017086952"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Diamond Ring"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

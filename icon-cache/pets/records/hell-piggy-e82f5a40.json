@@ -1,0 +1,17 @@
+{
+  "name": "Hell Piggy",
+  "images": {
+    "Normal": "rbxassetid://107945242196860",
+    "Shiny": "rbxassetid://92700191260519"
+  },
+  "assetIds": [
+    "107945242196860",
+    "92700191260519"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hell Piggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

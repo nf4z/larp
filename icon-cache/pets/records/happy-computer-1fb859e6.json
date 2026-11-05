@@ -1,0 +1,21 @@
+{
+  "name": "Happy Computer",
+  "images": {
+    "Normal": "rbxassetid://80719655817540",
+    "Shiny": "rbxassetid://100105132929009",
+    "Mythic": "rbxassetid://125525457249763",
+    "MythicShiny": "rbxassetid://126248799601533"
+  },
+  "assetIds": [
+    "100105132929009",
+    "125525457249763",
+    "126248799601533",
+    "80719655817540"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Happy Computer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

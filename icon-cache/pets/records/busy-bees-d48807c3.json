@@ -1,0 +1,17 @@
+{
+  "name": "Busy Bees",
+  "images": {
+    "Normal": "rbxassetid://133825041604872",
+    "Shiny": "rbxassetid://100110465179047"
+  },
+  "assetIds": [
+    "100110465179047",
+    "133825041604872"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Busy Bees"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

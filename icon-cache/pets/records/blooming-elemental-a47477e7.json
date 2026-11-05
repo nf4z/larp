@@ -1,0 +1,21 @@
+{
+  "name": "Blooming Elemental",
+  "images": {
+    "Normal": "rbxassetid://72142255985316",
+    "Shiny": "rbxassetid://139720637414693",
+    "Mythic": "rbxassetid://71887405788574",
+    "MythicShiny": "rbxassetid://116618086366628"
+  },
+  "assetIds": [
+    "116618086366628",
+    "139720637414693",
+    "71887405788574",
+    "72142255985316"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blooming Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

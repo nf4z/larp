@@ -1,0 +1,17 @@
+{
+  "name": "The Dusekkar",
+  "images": {
+    "Normal": "rbxassetid://114712495605150",
+    "Shiny": "rbxassetid://129868625154418"
+  },
+  "assetIds": [
+    "114712495605150",
+    "129868625154418"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Dusekkar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

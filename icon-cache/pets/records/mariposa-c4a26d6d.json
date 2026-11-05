@@ -1,0 +1,21 @@
+{
+  "name": "Mariposa",
+  "images": {
+    "Normal": "rbxassetid://98197700652966",
+    "Shiny": "rbxassetid://83587406746073",
+    "Mythic": "rbxassetid://107467618245110",
+    "MythicShiny": "rbxassetid://96708080193400"
+  },
+  "assetIds": [
+    "107467618245110",
+    "83587406746073",
+    "96708080193400",
+    "98197700652966"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mariposa"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

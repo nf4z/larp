@@ -1,0 +1,17 @@
+{
+  "name": "Silly Angel",
+  "images": {
+    "Normal": "rbxassetid://104070613956121",
+    "Shiny": "rbxassetid://78095058351310"
+  },
+  "assetIds": [
+    "104070613956121",
+    "78095058351310"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Silly Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

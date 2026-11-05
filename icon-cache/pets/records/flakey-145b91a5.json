@@ -1,0 +1,17 @@
+{
+  "name": "Flakey",
+  "images": {
+    "Normal": "rbxassetid://121368144371650",
+    "Shiny": "rbxassetid://138987313874176"
+  },
+  "assetIds": [
+    "121368144371650",
+    "138987313874176"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flakey"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

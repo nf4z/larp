@@ -1,0 +1,17 @@
+{
+  "name": "Flea",
+  "images": {
+    "Normal": "rbxassetid://99459715748007",
+    "Shiny": "rbxassetid://114752115402945"
+  },
+  "assetIds": [
+    "114752115402945",
+    "99459715748007"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flea"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

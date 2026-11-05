@@ -1,0 +1,15 @@
+{
+  "name": "Snow Smelt",
+  "images": {
+    "Image": "rbxassetid://71097653122940"
+  },
+  "assetIds": [
+    "71097653122940"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Snow Smelt"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

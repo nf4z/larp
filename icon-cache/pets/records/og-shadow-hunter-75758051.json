@@ -1,0 +1,21 @@
+{
+  "name": "OG Shadow Hunter",
+  "images": {
+    "Normal": "rbxassetid://85420866058111",
+    "Shiny": "rbxassetid://70932927463181",
+    "Mythic": "rbxassetid://92019550312951",
+    "MythicShiny": "rbxassetid://132400160831689"
+  },
+  "assetIds": [
+    "132400160831689",
+    "70932927463181",
+    "85420866058111",
+    "92019550312951"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Shadow Hunter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

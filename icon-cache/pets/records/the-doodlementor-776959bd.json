@@ -1,0 +1,17 @@
+{
+  "name": "The Doodlementor",
+  "images": {
+    "Normal": "rbxassetid://105968231979965",
+    "Shiny": "rbxassetid://127341925619219"
+  },
+  "assetIds": [
+    "105968231979965",
+    "127341925619219"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Doodlementor"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

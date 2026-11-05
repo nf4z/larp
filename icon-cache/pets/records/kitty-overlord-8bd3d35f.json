@@ -1,0 +1,17 @@
+{
+  "name": "Kitty Overlord",
+  "images": {
+    "Normal": "rbxassetid://137351462913206",
+    "Shiny": "rbxassetid://104019315022012"
+  },
+  "assetIds": [
+    "104019315022012",
+    "137351462913206"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitty Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

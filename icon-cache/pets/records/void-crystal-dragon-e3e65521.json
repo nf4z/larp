@@ -1,0 +1,21 @@
+{
+  "name": "Void Crystal Dragon",
+  "images": {
+    "Normal": "rbxassetid://89019139113171",
+    "Shiny": "rbxassetid://81181502683491",
+    "Mythic": "rbxassetid://90697557940682",
+    "MythicShiny": "rbxassetid://81009945040958"
+  },
+  "assetIds": [
+    "81009945040958",
+    "81181502683491",
+    "89019139113171",
+    "90697557940682"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Crystal Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

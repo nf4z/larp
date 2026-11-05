@@ -1,0 +1,21 @@
+{
+  "name": "BRUH",
+  "images": {
+    "Normal": "rbxassetid://74707261523045",
+    "Shiny": "rbxassetid://113423192260364",
+    "Mythic": "rbxassetid://117535973734664",
+    "MythicShiny": "rbxassetid://96800328213974"
+  },
+  "assetIds": [
+    "113423192260364",
+    "117535973734664",
+    "74707261523045",
+    "96800328213974"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BRUH"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

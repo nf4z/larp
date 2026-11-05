@@ -1,0 +1,21 @@
+{
+  "name": "Giant Lemonade Master",
+  "images": {
+    "Normal": "rbxassetid://137314270502599",
+    "Shiny": "rbxassetid://87785236425016",
+    "Mythic": "rbxassetid://95951125638836",
+    "MythicShiny": "rbxassetid://131631621106956"
+  },
+  "assetIds": [
+    "131631621106956",
+    "137314270502599",
+    "87785236425016",
+    "95951125638836"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Lemonade Master"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

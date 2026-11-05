@@ -1,0 +1,21 @@
+{
+  "name": "Big Flakey",
+  "images": {
+    "Normal": "rbxassetid://81627296340295",
+    "Shiny": "rbxassetid://73485090363678",
+    "Mythic": "rbxassetid://115938402090267",
+    "MythicShiny": "rbxassetid://71617715261581"
+  },
+  "assetIds": [
+    "115938402090267",
+    "71617715261581",
+    "73485090363678",
+    "81627296340295"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Flakey"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

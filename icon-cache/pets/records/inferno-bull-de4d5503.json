@@ -1,0 +1,21 @@
+{
+  "name": "Inferno Bull",
+  "images": {
+    "Normal": "rbxassetid://130594857312103",
+    "Shiny": "rbxassetid://105028573867250",
+    "Mythic": "rbxassetid://137872411984436",
+    "MythicShiny": "rbxassetid://131652230866782"
+  },
+  "assetIds": [
+    "105028573867250",
+    "130594857312103",
+    "131652230866782",
+    "137872411984436"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Bull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

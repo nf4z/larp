@@ -1,0 +1,21 @@
+{
+  "name": "The Dark Tyrant",
+  "images": {
+    "Normal": "rbxassetid://129755268830045",
+    "Shiny": "rbxassetid://134705441011094",
+    "Mythic": "rbxassetid://137289766540842",
+    "MythicShiny": "rbxassetid://97178720254558"
+  },
+  "assetIds": [
+    "129755268830045",
+    "134705441011094",
+    "137289766540842",
+    "97178720254558"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Dark Tyrant"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

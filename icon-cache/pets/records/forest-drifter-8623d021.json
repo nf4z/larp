@@ -1,0 +1,21 @@
+{
+  "name": "Forest Drifter",
+  "images": {
+    "Normal": "rbxassetid://114427586187633",
+    "Shiny": "rbxassetid://129856382098129",
+    "Mythic": "rbxassetid://77567078324204",
+    "MythicShiny": "rbxassetid://129100634903431"
+  },
+  "assetIds": [
+    "114427586187633",
+    "129100634903431",
+    "129856382098129",
+    "77567078324204"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forest Drifter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

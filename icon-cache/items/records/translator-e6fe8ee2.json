@@ -1,0 +1,15 @@
+{
+  "name": "Translator",
+  "images": {
+    "Image": "rbxassetid://79510320683273"
+  },
+  "assetIds": [
+    "79510320683273"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Translator"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

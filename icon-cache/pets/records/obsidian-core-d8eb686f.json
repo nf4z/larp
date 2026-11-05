@@ -1,0 +1,21 @@
+{
+  "name": "Obsidian Core",
+  "images": {
+    "Normal": "rbxassetid://76577973672210",
+    "Shiny": "rbxassetid://95176859943751",
+    "Mythic": "rbxassetid://100519414190203",
+    "MythicShiny": "rbxassetid://81162477545140"
+  },
+  "assetIds": [
+    "100519414190203",
+    "76577973672210",
+    "81162477545140",
+    "95176859943751"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Obsidian Core"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

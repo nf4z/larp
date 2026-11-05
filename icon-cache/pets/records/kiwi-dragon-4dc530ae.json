@@ -1,0 +1,21 @@
+{
+  "name": "Kiwi Dragon",
+  "images": {
+    "Normal": "rbxassetid://89901713120556",
+    "Shiny": "rbxassetid://96355267841970",
+    "Mythic": "rbxassetid://85522201965061",
+    "MythicShiny": "rbxassetid://122336536412648"
+  },
+  "assetIds": [
+    "122336536412648",
+    "85522201965061",
+    "89901713120556",
+    "96355267841970"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kiwi Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

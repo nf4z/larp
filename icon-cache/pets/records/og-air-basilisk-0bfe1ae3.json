@@ -1,0 +1,21 @@
+{
+  "name": "OG Air Basilisk",
+  "images": {
+    "Normal": "rbxassetid://96532426800154",
+    "Shiny": "rbxassetid://82482105020679",
+    "Mythic": "rbxassetid://136013910987711",
+    "MythicShiny": "rbxassetid://129965903715857"
+  },
+  "assetIds": [
+    "129965903715857",
+    "136013910987711",
+    "82482105020679",
+    "96532426800154"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Air Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

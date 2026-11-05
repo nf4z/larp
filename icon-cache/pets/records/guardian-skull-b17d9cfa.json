@@ -1,0 +1,21 @@
+{
+  "name": "Guardian Skull",
+  "images": {
+    "Normal": "rbxassetid://114705914238635",
+    "Shiny": "rbxassetid://86202262491428",
+    "Mythic": "rbxassetid://78630575324207",
+    "MythicShiny": "rbxassetid://131146591444383"
+  },
+  "assetIds": [
+    "114705914238635",
+    "131146591444383",
+    "78630575324207",
+    "86202262491428"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

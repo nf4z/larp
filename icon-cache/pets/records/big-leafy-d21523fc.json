@@ -1,0 +1,21 @@
+{
+  "name": "Big Leafy",
+  "images": {
+    "Normal": "rbxassetid://124111246749411",
+    "Shiny": "rbxassetid://80100664851249",
+    "Mythic": "rbxassetid://121504771622102",
+    "MythicShiny": "rbxassetid://80768194134088"
+  },
+  "assetIds": [
+    "121504771622102",
+    "124111246749411",
+    "80100664851249",
+    "80768194134088"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Leafy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

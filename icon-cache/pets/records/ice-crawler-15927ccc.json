@@ -1,0 +1,17 @@
+{
+  "name": "Ice Crawler",
+  "images": {
+    "Normal": "rbxassetid://75098445097302",
+    "Shiny": "rbxassetid://120036470840380"
+  },
+  "assetIds": [
+    "120036470840380",
+    "75098445097302"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ice Crawler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

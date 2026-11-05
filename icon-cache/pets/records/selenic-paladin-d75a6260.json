@@ -1,0 +1,21 @@
+{
+  "name": "Selenic Paladin",
+  "images": {
+    "Normal": "rbxassetid://70775561676222",
+    "Shiny": "rbxassetid://84619494976308",
+    "Mythic": "rbxassetid://94926256344521",
+    "MythicShiny": "rbxassetid://92272110070790"
+  },
+  "assetIds": [
+    "70775561676222",
+    "84619494976308",
+    "92272110070790",
+    "94926256344521"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Selenic Paladin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Void Shard",
+  "images": {
+    "Normal": "rbxassetid://94240662984400",
+    "Shiny": "rbxassetid://93671498017283",
+    "Mythic": "rbxassetid://86299246722358",
+    "MythicShiny": "rbxassetid://140727964394285"
+  },
+  "assetIds": [
+    "140727964394285",
+    "86299246722358",
+    "93671498017283",
+    "94240662984400"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

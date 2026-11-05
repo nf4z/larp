@@ -1,0 +1,12 @@
+{
+  "name": "Popcorn Egg",
+  "images": {
+    "Image": "rbxassetid://120666278273062"
+  },
+  "assetIds": [
+    "120666278273062"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

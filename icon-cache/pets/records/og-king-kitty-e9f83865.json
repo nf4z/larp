@@ -1,0 +1,21 @@
+{
+  "name": "OG King Kitty",
+  "images": {
+    "Normal": "rbxassetid://76088063075836",
+    "Shiny": "rbxassetid://96379291308205",
+    "Mythic": "rbxassetid://75676540347946",
+    "MythicShiny": "rbxassetid://70784499180715"
+  },
+  "assetIds": [
+    "70784499180715",
+    "75676540347946",
+    "76088063075836",
+    "96379291308205"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG King Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "VOID SHINIGAMI",
+  "images": {
+    "Normal": "rbxassetid://73426271238784",
+    "Shiny": "rbxassetid://126905386007410"
+  },
+  "assetIds": [
+    "126905386007410",
+    "73426271238784"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID SHINIGAMI"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

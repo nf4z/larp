@@ -1,0 +1,17 @@
+{
+  "name": "Void Bat",
+  "images": {
+    "Normal": "rbxassetid://70908392220156",
+    "Shiny": "rbxassetid://133135553484824"
+  },
+  "assetIds": [
+    "133135553484824",
+    "70908392220156"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Easter Gryphon",
+  "images": {
+    "Normal": "rbxassetid://134126758783823",
+    "Shiny": "rbxassetid://135508436792243",
+    "Mythic": "rbxassetid://120380184193089",
+    "MythicShiny": "rbxassetid://71266828281430"
+  },
+  "assetIds": [
+    "120380184193089",
+    "134126758783823",
+    "135508436792243",
+    "71266828281430"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

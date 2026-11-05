@@ -1,0 +1,21 @@
+{
+  "name": "Hibiscia",
+  "images": {
+    "Normal": "rbxassetid://95655524014566",
+    "Shiny": "rbxassetid://133008430323558",
+    "Mythic": "rbxassetid://105779779326181",
+    "MythicShiny": "rbxassetid://131492863133146"
+  },
+  "assetIds": [
+    "105779779326181",
+    "131492863133146",
+    "133008430323558",
+    "95655524014566"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hibiscia"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

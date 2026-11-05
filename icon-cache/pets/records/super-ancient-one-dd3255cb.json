@@ -1,0 +1,17 @@
+{
+  "name": "Super Ancient One",
+  "images": {
+    "Normal": "rbxassetid://115730281333911",
+    "Shiny": "rbxassetid://128488592574284"
+  },
+  "assetIds": [
+    "115730281333911",
+    "128488592574284"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Ancient One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

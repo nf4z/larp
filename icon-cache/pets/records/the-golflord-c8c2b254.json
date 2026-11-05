@@ -1,0 +1,21 @@
+{
+  "name": "The Golflord",
+  "images": {
+    "Normal": "rbxassetid://136588558661429",
+    "Shiny": "rbxassetid://80512504426973",
+    "Mythic": "rbxassetid://72923847864434",
+    "MythicShiny": "rbxassetid://87022417056963"
+  },
+  "assetIds": [
+    "136588558661429",
+    "72923847864434",
+    "80512504426973",
+    "87022417056963"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Golflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

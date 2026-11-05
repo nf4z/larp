@@ -1,0 +1,12 @@
+{
+  "name": "Inferno Egg",
+  "images": {
+    "Image": "rbxassetid://99740547547936"
+  },
+  "assetIds": [
+    "99740547547936"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

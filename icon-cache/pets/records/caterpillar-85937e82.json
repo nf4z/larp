@@ -1,0 +1,21 @@
+{
+  "name": "Caterpillar",
+  "images": {
+    "Normal": "rbxassetid://108449978897938",
+    "Shiny": "rbxassetid://71929262167234",
+    "Mythic": "rbxassetid://138625383994307",
+    "MythicShiny": "rbxassetid://133152142708027"
+  },
+  "assetIds": [
+    "108449978897938",
+    "133152142708027",
+    "138625383994307",
+    "71929262167234"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Caterpillar"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

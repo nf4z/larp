@@ -1,0 +1,17 @@
+{
+  "name": "Happy Dice",
+  "images": {
+    "Normal": "rbxassetid://123053322701010",
+    "Shiny": "rbxassetid://111037834995435"
+  },
+  "assetIds": [
+    "111037834995435",
+    "123053322701010"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Happy Dice"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

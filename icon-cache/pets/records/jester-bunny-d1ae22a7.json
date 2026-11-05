@@ -1,0 +1,17 @@
+{
+  "name": "Jester Bunny",
+  "images": {
+    "Normal": "rbxassetid://102846996954913",
+    "Shiny": "rbxassetid://102010563705209"
+  },
+  "assetIds": [
+    "102010563705209",
+    "102846996954913"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jester Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

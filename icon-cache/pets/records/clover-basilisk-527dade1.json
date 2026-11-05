@@ -1,0 +1,21 @@
+{
+  "name": "Clover Basilisk",
+  "images": {
+    "Normal": "rbxassetid://137050997563477",
+    "Shiny": "rbxassetid://94244069690231",
+    "Mythic": "rbxassetid://112114655647625",
+    "MythicShiny": "rbxassetid://109729513903648"
+  },
+  "assetIds": [
+    "109729513903648",
+    "112114655647625",
+    "137050997563477",
+    "94244069690231"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Clover Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

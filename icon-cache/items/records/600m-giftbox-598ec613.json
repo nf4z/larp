@@ -1,0 +1,15 @@
+{
+  "name": "600M Giftbox",
+  "images": {
+    "Image": "rbxassetid://111583259999453"
+  },
+  "assetIds": [
+    "111583259999453"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "600M Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

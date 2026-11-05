@@ -1,0 +1,15 @@
+{
+  "name": "Shiver Ray",
+  "images": {
+    "Image": "rbxassetid://101360335771054"
+  },
+  "assetIds": [
+    "101360335771054"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Shiver Ray"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

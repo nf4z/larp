@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Unicorn",
+  "images": {
+    "Normal": "rbxassetid://80913268248921",
+    "Shiny": "rbxassetid://80328115583771",
+    "Mythic": "rbxassetid://100717636189777",
+    "MythicShiny": "rbxassetid://76169254234638"
+  },
+  "assetIds": [
+    "100717636189777",
+    "76169254234638",
+    "80328115583771",
+    "80913268248921"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

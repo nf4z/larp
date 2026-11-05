@@ -1,0 +1,21 @@
+{
+  "name": "Glyph Warrior",
+  "images": {
+    "Normal": "rbxassetid://122292286908098",
+    "Shiny": "rbxassetid://86090668035302",
+    "Mythic": "rbxassetid://109449021933747",
+    "MythicShiny": "rbxassetid://115045490024834"
+  },
+  "assetIds": [
+    "109449021933747",
+    "115045490024834",
+    "122292286908098",
+    "86090668035302"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Glyph Warrior"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

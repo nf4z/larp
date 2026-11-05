@@ -1,0 +1,21 @@
+{
+  "name": "Demon Dowodle",
+  "images": {
+    "Normal": "rbxassetid://84813193561477",
+    "Shiny": "rbxassetid://116221933443692",
+    "Mythic": "rbxassetid://124301472589830",
+    "MythicShiny": "rbxassetid://127023829863989"
+  },
+  "assetIds": [
+    "116221933443692",
+    "124301472589830",
+    "127023829863989",
+    "84813193561477"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demon Dowodle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

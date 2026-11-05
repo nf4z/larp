@@ -1,0 +1,21 @@
+{
+  "name": "New Year's Blast",
+  "images": {
+    "Normal": "rbxassetid://138256514012002",
+    "Shiny": "rbxassetid://122431898474102",
+    "Mythic": "rbxassetid://108554426043713",
+    "MythicShiny": "rbxassetid://132337004297174"
+  },
+  "assetIds": [
+    "108554426043713",
+    "122431898474102",
+    "132337004297174",
+    "138256514012002"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "New Year's Blast"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

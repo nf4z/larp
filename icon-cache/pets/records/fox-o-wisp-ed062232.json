@@ -1,0 +1,21 @@
+{
+  "name": "Fox O' Wisp",
+  "images": {
+    "Normal": "rbxassetid://105569379247394",
+    "Shiny": "rbxassetid://70951272908941",
+    "Mythic": "rbxassetid://119418828297878",
+    "MythicShiny": "rbxassetid://114183362972886"
+  },
+  "assetIds": [
+    "105569379247394",
+    "114183362972886",
+    "119418828297878",
+    "70951272908941"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fox O' Wisp"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Overlord",
+  "images": {
+    "Normal": "rbxassetid://111527451994045",
+    "Shiny": "rbxassetid://95885025893350",
+    "Mythic": "rbxassetid://118605130644383",
+    "MythicShiny": "rbxassetid://97773104601083"
+  },
+  "assetIds": [
+    "111527451994045",
+    "118605130644383",
+    "95885025893350",
+    "97773104601083"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

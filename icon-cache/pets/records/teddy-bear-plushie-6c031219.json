@@ -1,0 +1,21 @@
+{
+  "name": "Teddy Bear Plushie",
+  "images": {
+    "Normal": "rbxassetid://109154227384704",
+    "Shiny": "rbxassetid://137787751107343",
+    "Mythic": "rbxassetid://119943576978336",
+    "MythicShiny": "rbxassetid://94777342577620"
+  },
+  "assetIds": [
+    "109154227384704",
+    "119943576978336",
+    "137787751107343",
+    "94777342577620"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Teddy Bear Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Demonic Fireplace",
+  "images": {
+    "Normal": "rbxassetid://106347647259249",
+    "Shiny": "rbxassetid://71665298461927",
+    "Mythic": "rbxassetid://79135795745583",
+    "MythicShiny": "rbxassetid://75953082419632"
+  },
+  "assetIds": [
+    "106347647259249",
+    "71665298461927",
+    "75953082419632",
+    "79135795745583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonic Fireplace"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Dark Hero Kitty",
+  "images": {
+    "Normal": "rbxassetid://123557918511924",
+    "Shiny": "rbxassetid://122999331973732"
+  },
+  "assetIds": [
+    "122999331973732",
+    "123557918511924"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Hero Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

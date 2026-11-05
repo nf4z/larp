@@ -1,0 +1,21 @@
+{
+  "name": "Wealthy Trio",
+  "images": {
+    "Normal": "rbxassetid://129596340408112",
+    "Shiny": "rbxassetid://74998418362614",
+    "Mythic": "rbxassetid://126429108413733",
+    "MythicShiny": "rbxassetid://133839977877758"
+  },
+  "assetIds": [
+    "126429108413733",
+    "129596340408112",
+    "133839977877758",
+    "74998418362614"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wealthy Trio"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

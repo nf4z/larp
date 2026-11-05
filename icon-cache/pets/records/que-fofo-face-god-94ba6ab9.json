@@ -1,0 +1,17 @@
+{
+  "name": "QUE FOFO FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://136015510657791",
+    "Shiny": "rbxassetid://132703268331007"
+  },
+  "assetIds": [
+    "132703268331007",
+    "136015510657791"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "QUE FOFO FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "2026 Kitsune",
+  "images": {
+    "Normal": "rbxassetid://127875439802750",
+    "Shiny": "rbxassetid://133885154239030"
+  },
+  "assetIds": [
+    "127875439802750",
+    "133885154239030"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "2026 Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

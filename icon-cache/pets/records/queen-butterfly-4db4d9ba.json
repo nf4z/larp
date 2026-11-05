@@ -1,0 +1,21 @@
+{
+  "name": "Queen Butterfly",
+  "images": {
+    "Normal": "rbxassetid://139644136613734",
+    "Shiny": "rbxassetid://116992555494676",
+    "Mythic": "rbxassetid://108788881109114",
+    "MythicShiny": "rbxassetid://126153633669303"
+  },
+  "assetIds": [
+    "108788881109114",
+    "116992555494676",
+    "126153633669303",
+    "139644136613734"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen Butterfly"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

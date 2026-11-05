@@ -1,0 +1,17 @@
+{
+  "name": "Ladybug",
+  "images": {
+    "Normal": "rbxassetid://124081791395697",
+    "Shiny": "rbxassetid://98131157339400"
+  },
+  "assetIds": [
+    "124081791395697",
+    "98131157339400"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ladybug"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

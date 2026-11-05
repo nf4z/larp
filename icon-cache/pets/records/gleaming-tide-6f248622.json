@@ -1,0 +1,17 @@
+{
+  "name": "Gleaming Tide",
+  "images": {
+    "Normal": "rbxassetid://132094688565536",
+    "Shiny": "rbxassetid://98273813155462"
+  },
+  "assetIds": [
+    "132094688565536",
+    "98273813155462"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gleaming Tide"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

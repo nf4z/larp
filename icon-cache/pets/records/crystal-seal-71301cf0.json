@@ -1,0 +1,21 @@
+{
+  "name": "Crystal Seal",
+  "images": {
+    "Normal": "rbxassetid://94855752634769",
+    "Shiny": "rbxassetid://133809510148593",
+    "Mythic": "rbxassetid://98605967752668",
+    "MythicShiny": "rbxassetid://104467676762543"
+  },
+  "assetIds": [
+    "104467676762543",
+    "133809510148593",
+    "94855752634769",
+    "98605967752668"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Crystal Seal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

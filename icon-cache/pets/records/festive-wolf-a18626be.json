@@ -1,0 +1,17 @@
+{
+  "name": "Festive Wolf",
+  "images": {
+    "Normal": "rbxassetid://133576590454119",
+    "Shiny": "rbxassetid://79904125346738"
+  },
+  "assetIds": [
+    "133576590454119",
+    "79904125346738"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festive Wolf"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "DoodleVoid",
+  "images": {
+    "Normal": "rbxassetid://115247981604312",
+    "Shiny": "rbxassetid://114719276072278"
+  },
+  "assetIds": [
+    "114719276072278",
+    "115247981604312"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "DoodleVoid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

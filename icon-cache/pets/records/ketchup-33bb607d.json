@@ -1,0 +1,17 @@
+{
+  "name": "Ketchup",
+  "images": {
+    "Normal": "rbxassetid://128920980261465",
+    "Shiny": "rbxassetid://138875034598133"
+  },
+  "assetIds": [
+    "128920980261465",
+    "138875034598133"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ketchup"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

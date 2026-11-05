@@ -1,0 +1,21 @@
+{
+  "name": "OG Mint Sundae Champion",
+  "images": {
+    "Normal": "rbxassetid://73430942526708",
+    "Shiny": "rbxassetid://73049416716052",
+    "Mythic": "rbxassetid://103969827147366",
+    "MythicShiny": "rbxassetid://92321409990084"
+  },
+  "assetIds": [
+    "103969827147366",
+    "73049416716052",
+    "73430942526708",
+    "92321409990084"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Mint Sundae Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

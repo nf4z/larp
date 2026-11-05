@@ -1,0 +1,21 @@
+{
+  "name": "Overlord Elemental",
+  "images": {
+    "Normal": "rbxassetid://121435453678890",
+    "Shiny": "rbxassetid://124496303127413",
+    "Mythic": "rbxassetid://117231267555049",
+    "MythicShiny": "rbxassetid://74793069624317"
+  },
+  "assetIds": [
+    "117231267555049",
+    "121435453678890",
+    "124496303127413",
+    "74793069624317"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Overlord Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

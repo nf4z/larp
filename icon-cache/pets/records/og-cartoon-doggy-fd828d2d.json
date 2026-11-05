@@ -1,0 +1,17 @@
+{
+  "name": "OG Cartoon Doggy",
+  "images": {
+    "Normal": "rbxassetid://99726572010599",
+    "Shiny": "rbxassetid://88253921570049"
+  },
+  "assetIds": [
+    "88253921570049",
+    "99726572010599"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Cartoon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

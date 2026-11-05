@@ -1,0 +1,21 @@
+{
+  "name": "Cyber Kitty",
+  "images": {
+    "Normal": "rbxassetid://101874227691061",
+    "Shiny": "rbxassetid://137508331942835",
+    "Mythic": "rbxassetid://81338415959570",
+    "MythicShiny": "rbxassetid://79493433102554"
+  },
+  "assetIds": [
+    "101874227691061",
+    "137508331942835",
+    "79493433102554",
+    "81338415959570"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyber Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

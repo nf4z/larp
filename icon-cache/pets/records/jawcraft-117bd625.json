@@ -1,0 +1,21 @@
+{
+  "name": "Jawcraft",
+  "images": {
+    "Normal": "rbxassetid://79319460941124",
+    "Shiny": "rbxassetid://97533250933558",
+    "Mythic": "rbxassetid://80943607038782",
+    "MythicShiny": "rbxassetid://96109540988625"
+  },
+  "assetIds": [
+    "79319460941124",
+    "80943607038782",
+    "96109540988625",
+    "97533250933558"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Jawcraft"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

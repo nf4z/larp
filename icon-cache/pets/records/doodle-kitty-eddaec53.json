@@ -1,0 +1,17 @@
+{
+  "name": "Doodle Kitty",
+  "images": {
+    "Normal": "rbxassetid://107539435685588",
+    "Shiny": "rbxassetid://105063678851613"
+  },
+  "assetIds": [
+    "105063678851613",
+    "107539435685588"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Doodle Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

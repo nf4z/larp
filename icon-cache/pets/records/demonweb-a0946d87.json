@@ -1,0 +1,21 @@
+{
+  "name": "Demonweb",
+  "images": {
+    "Normal": "rbxassetid://87044603225435",
+    "Shiny": "rbxassetid://135551158544963",
+    "Mythic": "rbxassetid://104440254662754",
+    "MythicShiny": "rbxassetid://128311559664422"
+  },
+  "assetIds": [
+    "104440254662754",
+    "128311559664422",
+    "135551158544963",
+    "87044603225435"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonweb"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

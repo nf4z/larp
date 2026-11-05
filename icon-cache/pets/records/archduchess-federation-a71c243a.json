@@ -1,0 +1,17 @@
+{
+  "name": "Archduchess Federation",
+  "images": {
+    "Normal": "rbxassetid://117767011491288",
+    "Shiny": "rbxassetid://114637391054392"
+  },
+  "assetIds": [
+    "114637391054392",
+    "117767011491288"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Archduchess Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

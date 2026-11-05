@@ -1,0 +1,17 @@
+{
+  "name": "Rune Guardian",
+  "images": {
+    "Normal": "rbxassetid://110879806024030",
+    "Shiny": "rbxassetid://86986379210750"
+  },
+  "assetIds": [
+    "110879806024030",
+    "86986379210750"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rune Guardian"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

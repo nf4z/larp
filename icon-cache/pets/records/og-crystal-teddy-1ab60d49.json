@@ -1,0 +1,21 @@
+{
+  "name": "OG Crystal Teddy",
+  "images": {
+    "Normal": "rbxassetid://134856328273070",
+    "Shiny": "rbxassetid://73097298873992",
+    "Mythic": "rbxassetid://108610501649731",
+    "MythicShiny": "rbxassetid://119718780439427"
+  },
+  "assetIds": [
+    "108610501649731",
+    "119718780439427",
+    "134856328273070",
+    "73097298873992"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Crystal Teddy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

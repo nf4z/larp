@@ -1,0 +1,17 @@
+{
+  "name": "Duke Federation",
+  "images": {
+    "Normal": "rbxassetid://114666309354893",
+    "Shiny": "rbxassetid://76106561638946"
+  },
+  "assetIds": [
+    "114666309354893",
+    "76106561638946"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Duke Federation"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

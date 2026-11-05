@@ -1,0 +1,17 @@
+{
+  "name": "Big Bee",
+  "images": {
+    "Normal": "rbxassetid://82025064752579",
+    "Shiny": "rbxassetid://125347518453862"
+  },
+  "assetIds": [
+    "125347518453862",
+    "82025064752579"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Bee"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

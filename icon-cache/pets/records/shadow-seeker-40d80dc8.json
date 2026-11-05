@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Seeker",
+  "images": {
+    "Normal": "rbxassetid://105646651436673",
+    "Shiny": "rbxassetid://114932044071543",
+    "Mythic": "rbxassetid://98112761385156",
+    "MythicShiny": "rbxassetid://101420547399579"
+  },
+  "assetIds": [
+    "101420547399579",
+    "105646651436673",
+    "114932044071543",
+    "98112761385156"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Seeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

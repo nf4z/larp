@@ -1,0 +1,21 @@
+{
+  "name": "Tanuki",
+  "images": {
+    "Normal": "rbxassetid://111143654538969",
+    "Shiny": "rbxassetid://129669552005161",
+    "Mythic": "rbxassetid://119117454500377",
+    "MythicShiny": "rbxassetid://125887745473688"
+  },
+  "assetIds": [
+    "111143654538969",
+    "119117454500377",
+    "125887745473688",
+    "129669552005161"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Tanuki"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

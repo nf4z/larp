@@ -1,0 +1,21 @@
+{
+  "name": "OG Lucky Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://98512596187382",
+    "Shiny": "rbxassetid://113927935209664",
+    "Mythic": "rbxassetid://77006070681193",
+    "MythicShiny": "rbxassetid://73569710660713"
+  },
+  "assetIds": [
+    "113927935209664",
+    "73569710660713",
+    "77006070681193",
+    "98512596187382"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Lucky Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

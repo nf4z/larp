@@ -1,0 +1,21 @@
+{
+  "name": "Hot Dog Doggy",
+  "images": {
+    "Normal": "rbxassetid://129583903257649",
+    "Shiny": "rbxassetid://84143562140445",
+    "Mythic": "rbxassetid://79177810429851",
+    "MythicShiny": "rbxassetid://102708948280190"
+  },
+  "assetIds": [
+    "102708948280190",
+    "129583903257649",
+    "79177810429851",
+    "84143562140445"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hot Dog Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

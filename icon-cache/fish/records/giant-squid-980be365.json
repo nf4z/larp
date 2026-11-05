@@ -1,0 +1,15 @@
+{
+  "name": "Giant Squid",
+  "images": {
+    "Image": "rbxassetid://95805388298882"
+  },
+  "assetIds": [
+    "95805388298882"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Giant Squid"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

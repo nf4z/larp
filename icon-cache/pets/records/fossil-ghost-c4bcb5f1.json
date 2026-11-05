@@ -1,0 +1,21 @@
+{
+  "name": "Fossil Ghost",
+  "images": {
+    "Normal": "rbxassetid://117404286713183",
+    "Shiny": "rbxassetid://114201362491904",
+    "Mythic": "rbxassetid://77631641009656",
+    "MythicShiny": "rbxassetid://98399293178832"
+  },
+  "assetIds": [
+    "114201362491904",
+    "117404286713183",
+    "77631641009656",
+    "98399293178832"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fossil Ghost"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

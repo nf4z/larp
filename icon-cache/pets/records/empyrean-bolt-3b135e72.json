@@ -1,0 +1,21 @@
+{
+  "name": "Empyrean Bolt",
+  "images": {
+    "Normal": "rbxassetid://97265760239847",
+    "Shiny": "rbxassetid://119244457870962",
+    "Mythic": "rbxassetid://110843718149303",
+    "MythicShiny": "rbxassetid://100160313426951"
+  },
+  "assetIds": [
+    "100160313426951",
+    "110843718149303",
+    "119244457870962",
+    "97265760239847"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Empyrean Bolt"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

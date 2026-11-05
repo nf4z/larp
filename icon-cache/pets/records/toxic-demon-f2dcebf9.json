@@ -1,0 +1,21 @@
+{
+  "name": "Toxic Demon",
+  "images": {
+    "Normal": "rbxassetid://113589485773176",
+    "Shiny": "rbxassetid://114630065319705",
+    "Mythic": "rbxassetid://75442645186015",
+    "MythicShiny": "rbxassetid://92023557912479"
+  },
+  "assetIds": [
+    "113589485773176",
+    "114630065319705",
+    "75442645186015",
+    "92023557912479"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Toxic Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

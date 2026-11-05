@@ -1,0 +1,17 @@
+{
+  "name": "Stellar Goat",
+  "images": {
+    "Normal": "rbxassetid://71075350891741",
+    "Shiny": "rbxassetid://109347230977525"
+  },
+  "assetIds": [
+    "109347230977525",
+    "71075350891741"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellar Goat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

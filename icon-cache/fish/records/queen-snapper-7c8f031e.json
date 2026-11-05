@@ -1,0 +1,15 @@
+{
+  "name": "Queen Snapper",
+  "images": {
+    "Image": "rbxassetid://140591108432033"
+  },
+  "assetIds": [
+    "140591108432033"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Queen Snapper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

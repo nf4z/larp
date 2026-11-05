@@ -1,0 +1,21 @@
+{
+  "name": "Fossilus",
+  "images": {
+    "Normal": "rbxassetid://79587553068136",
+    "Shiny": "rbxassetid://124054694204497",
+    "Mythic": "rbxassetid://105691322724684",
+    "MythicShiny": "rbxassetid://132216237092252"
+  },
+  "assetIds": [
+    "105691322724684",
+    "124054694204497",
+    "132216237092252",
+    "79587553068136"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fossilus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

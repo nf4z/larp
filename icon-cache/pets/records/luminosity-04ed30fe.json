@@ -1,0 +1,21 @@
+{
+  "name": "Luminosity",
+  "images": {
+    "Normal": "rbxassetid://124773783852927",
+    "Shiny": "rbxassetid://132609819087086",
+    "Mythic": "rbxassetid://92067317285583",
+    "MythicShiny": "rbxassetid://131286750513616"
+  },
+  "assetIds": [
+    "124773783852927",
+    "131286750513616",
+    "132609819087086",
+    "92067317285583"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminosity"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

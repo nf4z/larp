@@ -1,0 +1,21 @@
+{
+  "name": "Super Crimson Bloodmoon",
+  "images": {
+    "Normal": "rbxassetid://103496244169020",
+    "Shiny": "rbxassetid://131825929718580",
+    "Mythic": "rbxassetid://95149546841870",
+    "MythicShiny": "rbxassetid://126126924216537"
+  },
+  "assetIds": [
+    "103496244169020",
+    "126126924216537",
+    "131825929718580",
+    "95149546841870"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Super Crimson Bloodmoon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

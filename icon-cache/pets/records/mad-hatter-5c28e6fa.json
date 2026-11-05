@@ -1,0 +1,21 @@
+{
+  "name": "Mad Hatter",
+  "images": {
+    "Normal": "rbxassetid://113397106586541",
+    "Shiny": "rbxassetid://110115563822619",
+    "Mythic": "rbxassetid://75912970357283",
+    "MythicShiny": "rbxassetid://116337671642463"
+  },
+  "assetIds": [
+    "110115563822619",
+    "113397106586541",
+    "116337671642463",
+    "75912970357283"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mad Hatter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

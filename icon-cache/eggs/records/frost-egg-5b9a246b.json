@@ -1,0 +1,12 @@
+{
+  "name": "Frost Egg",
+  "images": {
+    "Image": "rbxassetid://124209519108659"
+  },
+  "assetIds": [
+    "124209519108659"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

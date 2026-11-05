@@ -1,0 +1,21 @@
+{
+  "name": "Neon Dragon",
+  "images": {
+    "Normal": "rbxassetid://128489003339736",
+    "Shiny": "rbxassetid://117121409622468",
+    "Mythic": "rbxassetid://113784855211161",
+    "MythicShiny": "rbxassetid://94214798904454"
+  },
+  "assetIds": [
+    "113784855211161",
+    "117121409622468",
+    "128489003339736",
+    "94214798904454"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

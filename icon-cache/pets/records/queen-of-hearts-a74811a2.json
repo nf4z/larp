@@ -1,0 +1,17 @@
+{
+  "name": "Queen of Hearts",
+  "images": {
+    "Normal": "rbxassetid://129024054398763",
+    "Shiny": "rbxassetid://130641327270296"
+  },
+  "assetIds": [
+    "129024054398763",
+    "130641327270296"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Queen of Hearts"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

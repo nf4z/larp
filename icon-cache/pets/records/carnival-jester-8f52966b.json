@@ -1,0 +1,21 @@
+{
+  "name": "Carnival Jester",
+  "images": {
+    "Normal": "rbxassetid://86662268356028",
+    "Shiny": "rbxassetid://76543682883971",
+    "Mythic": "rbxassetid://103285176233275",
+    "MythicShiny": "rbxassetid://113343797057942"
+  },
+  "assetIds": [
+    "103285176233275",
+    "113343797057942",
+    "76543682883971",
+    "86662268356028"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carnival Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

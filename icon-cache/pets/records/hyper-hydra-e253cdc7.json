@@ -1,0 +1,21 @@
+{
+  "name": "Hyper Hydra",
+  "images": {
+    "Normal": "rbxassetid://97672286513608",
+    "Shiny": "rbxassetid://128681636157418",
+    "Mythic": "rbxassetid://103992590526701",
+    "MythicShiny": "rbxassetid://84470478093815"
+  },
+  "assetIds": [
+    "103992590526701",
+    "128681636157418",
+    "84470478093815",
+    "97672286513608"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyper Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

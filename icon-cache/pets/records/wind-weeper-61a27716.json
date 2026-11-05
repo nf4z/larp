@@ -1,0 +1,21 @@
+{
+  "name": "Wind Weeper",
+  "images": {
+    "Normal": "rbxassetid://119273900058018",
+    "Shiny": "rbxassetid://83786670004277",
+    "Mythic": "rbxassetid://95297084996983",
+    "MythicShiny": "rbxassetid://117826182529884"
+  },
+  "assetIds": [
+    "117826182529884",
+    "119273900058018",
+    "83786670004277",
+    "95297084996983"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wind Weeper"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Blizzard Rod",
+  "images": {
+    "Image": "rbxassetid://116427531664089"
+  },
+  "assetIds": [
+    "116427531664089"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Blizzard Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

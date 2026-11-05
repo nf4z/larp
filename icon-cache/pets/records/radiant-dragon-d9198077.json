@@ -1,0 +1,21 @@
+{
+  "name": "Radiant Dragon",
+  "images": {
+    "Normal": "rbxassetid://83036748126646",
+    "Shiny": "rbxassetid://92176765346508",
+    "Mythic": "rbxassetid://136655123865297",
+    "MythicShiny": "rbxassetid://132051954326173"
+  },
+  "assetIds": [
+    "132051954326173",
+    "136655123865297",
+    "83036748126646",
+    "92176765346508"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiant Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

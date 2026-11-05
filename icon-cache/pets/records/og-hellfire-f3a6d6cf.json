@@ -1,0 +1,21 @@
+{
+  "name": "OG Hellfire",
+  "images": {
+    "Normal": "rbxassetid://89309437508918",
+    "Shiny": "rbxassetid://72379376469235",
+    "Mythic": "rbxassetid://94683098297018",
+    "MythicShiny": "rbxassetid://139264538987951"
+  },
+  "assetIds": [
+    "139264538987951",
+    "72379376469235",
+    "89309437508918",
+    "94683098297018"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Hellfire"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

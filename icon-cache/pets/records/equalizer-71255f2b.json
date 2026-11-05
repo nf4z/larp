@@ -1,0 +1,21 @@
+{
+  "name": "Equalizer",
+  "images": {
+    "Normal": "rbxassetid://137265866853601",
+    "Shiny": "rbxassetid://109295202145049",
+    "Mythic": "rbxassetid://121700446670841",
+    "MythicShiny": "rbxassetid://96280637918975"
+  },
+  "assetIds": [
+    "109295202145049",
+    "121700446670841",
+    "137265866853601",
+    "96280637918975"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Equalizer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

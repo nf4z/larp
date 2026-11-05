@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Shard",
+  "images": {
+    "Normal": "rbxassetid://116046659383464",
+    "Shiny": "rbxassetid://80269128906714",
+    "Mythic": "rbxassetid://137932120583491",
+    "MythicShiny": "rbxassetid://87461040642793"
+  },
+  "assetIds": [
+    "116046659383464",
+    "137932120583491",
+    "80269128906714",
+    "87461040642793"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Cthulhu",
+  "images": {
+    "Normal": "rbxassetid://134393827170985",
+    "Shiny": "rbxassetid://83539220143827"
+  },
+  "assetIds": [
+    "134393827170985",
+    "83539220143827"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cthulhu"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

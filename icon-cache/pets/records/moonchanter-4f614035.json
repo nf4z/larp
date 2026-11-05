@@ -1,0 +1,21 @@
+{
+  "name": "Moonchanter",
+  "images": {
+    "Normal": "rbxassetid://101651583163571",
+    "Shiny": "rbxassetid://84511020287619",
+    "Mythic": "rbxassetid://109150320793809",
+    "MythicShiny": "rbxassetid://118830044458972"
+  },
+  "assetIds": [
+    "101651583163571",
+    "109150320793809",
+    "118830044458972",
+    "84511020287619"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonchanter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

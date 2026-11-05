@@ -1,0 +1,21 @@
+{
+  "name": "Chinese Dragon",
+  "images": {
+    "Normal": "rbxassetid://75408281851953",
+    "Shiny": "rbxassetid://82202455677638",
+    "Mythic": "rbxassetid://88224848362018",
+    "MythicShiny": "rbxassetid://80565201937188"
+  },
+  "assetIds": [
+    "75408281851953",
+    "80565201937188",
+    "82202455677638",
+    "88224848362018"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chinese Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

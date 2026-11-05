@@ -1,0 +1,21 @@
+{
+  "name": "Immortal Trophy",
+  "images": {
+    "Normal": "rbxassetid://133158965530277",
+    "Shiny": "rbxassetid://74221958282192",
+    "Mythic": "rbxassetid://122408966477592",
+    "MythicShiny": "rbxassetid://104228777308718"
+  },
+  "assetIds": [
+    "104228777308718",
+    "122408966477592",
+    "133158965530277",
+    "74221958282192"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Immortal Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

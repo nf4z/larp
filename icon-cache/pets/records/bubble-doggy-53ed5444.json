@@ -1,0 +1,17 @@
+{
+  "name": "Bubble Doggy",
+  "images": {
+    "Normal": "rbxassetid://97161463899864",
+    "Shiny": "rbxassetid://121946244906032"
+  },
+  "assetIds": [
+    "121946244906032",
+    "97161463899864"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubble Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

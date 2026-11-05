@@ -1,0 +1,17 @@
+{
+  "name": "Mining Doggy",
+  "images": {
+    "Normal": "rbxassetid://122503117196490",
+    "Shiny": "rbxassetid://79474133380060"
+  },
+  "assetIds": [
+    "122503117196490",
+    "79474133380060"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mining Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Giant Apple",
+  "images": {
+    "Normal": "rbxassetid://106099337545952",
+    "Shiny": "rbxassetid://93400677700706",
+    "Mythic": "rbxassetid://138050701147076",
+    "MythicShiny": "rbxassetid://72752213512090"
+  },
+  "assetIds": [
+    "106099337545952",
+    "138050701147076",
+    "72752213512090",
+    "93400677700706"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Apple"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "VOID EGG??",
+  "images": {
+    "Image": "rbxassetid://106569015965792"
+  },
+  "assetIds": [
+    "106569015965792"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

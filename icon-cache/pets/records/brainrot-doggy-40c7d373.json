@@ -1,0 +1,17 @@
+{
+  "name": "Brainrot Doggy",
+  "images": {
+    "Normal": "rbxassetid://109422673520282",
+    "Shiny": "rbxassetid://113913435394564"
+  },
+  "assetIds": [
+    "109422673520282",
+    "113913435394564"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Brainrot Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

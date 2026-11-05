@@ -1,0 +1,21 @@
+{
+  "name": "Lovebirds",
+  "images": {
+    "Normal": "rbxassetid://135301083671769",
+    "Shiny": "rbxassetid://103589341429241",
+    "Mythic": "rbxassetid://131912961114872",
+    "MythicShiny": "rbxassetid://71963138877404"
+  },
+  "assetIds": [
+    "103589341429241",
+    "131912961114872",
+    "135301083671769",
+    "71963138877404"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lovebirds"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

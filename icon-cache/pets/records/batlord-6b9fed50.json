@@ -1,0 +1,21 @@
+{
+  "name": "Batlord",
+  "images": {
+    "Normal": "rbxassetid://121340948900491",
+    "Shiny": "rbxassetid://92990100098537",
+    "Mythic": "rbxassetid://97749212089569",
+    "MythicShiny": "rbxassetid://124394903180635"
+  },
+  "assetIds": [
+    "121340948900491",
+    "124394903180635",
+    "92990100098537",
+    "97749212089569"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Batlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

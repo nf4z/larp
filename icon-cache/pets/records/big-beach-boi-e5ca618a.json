@@ -1,0 +1,21 @@
+{
+  "name": "BIG BEACH BOI",
+  "images": {
+    "Normal": "rbxassetid://89510433654152",
+    "Shiny": "rbxassetid://90334431542537",
+    "Mythic": "rbxassetid://113681623209052",
+    "MythicShiny": "rbxassetid://128826444227918"
+  },
+  "assetIds": [
+    "113681623209052",
+    "128826444227918",
+    "89510433654152",
+    "90334431542537"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "BIG BEACH BOI"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

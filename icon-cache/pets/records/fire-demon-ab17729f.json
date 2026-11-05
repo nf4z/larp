@@ -1,0 +1,17 @@
+{
+  "name": "Fire Demon",
+  "images": {
+    "Normal": "rbxassetid://93683060891330",
+    "Shiny": "rbxassetid://116999087732941"
+  },
+  "assetIds": [
+    "116999087732941",
+    "93683060891330"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fire Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

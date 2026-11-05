@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://74866303226122",
+    "Shiny": "rbxassetid://78680307418125",
+    "Mythic": "rbxassetid://129703874479519",
+    "MythicShiny": "rbxassetid://137841042946778"
+  },
+  "assetIds": [
+    "129703874479519",
+    "137841042946778",
+    "74866303226122",
+    "78680307418125"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

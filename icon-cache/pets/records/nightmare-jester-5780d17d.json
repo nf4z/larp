@@ -1,0 +1,21 @@
+{
+  "name": "Nightmare Jester",
+  "images": {
+    "Normal": "rbxassetid://71504862845091",
+    "Shiny": "rbxassetid://71783198728887",
+    "Mythic": "rbxassetid://80160377247436",
+    "MythicShiny": "rbxassetid://121754470115800"
+  },
+  "assetIds": [
+    "121754470115800",
+    "71504862845091",
+    "71783198728887",
+    "80160377247436"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightmare Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

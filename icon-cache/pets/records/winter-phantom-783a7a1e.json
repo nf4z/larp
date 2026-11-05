@@ -1,0 +1,21 @@
+{
+  "name": "Winter Phantom",
+  "images": {
+    "Normal": "rbxassetid://115634461887183",
+    "Shiny": "rbxassetid://136969292041559",
+    "Mythic": "rbxassetid://122034106842393",
+    "MythicShiny": "rbxassetid://106717158568861"
+  },
+  "assetIds": [
+    "106717158568861",
+    "115634461887183",
+    "122034106842393",
+    "136969292041559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Winter Phantom"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

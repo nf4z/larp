@@ -1,0 +1,17 @@
+{
+  "name": "Little Cloud",
+  "images": {
+    "Normal": "rbxassetid://98116397752450",
+    "Shiny": "rbxassetid://127846686735996"
+  },
+  "assetIds": [
+    "127846686735996",
+    "98116397752450"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Little Cloud"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

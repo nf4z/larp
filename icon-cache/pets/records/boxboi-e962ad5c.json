@@ -1,0 +1,17 @@
+{
+  "name": "Boxboi",
+  "images": {
+    "Normal": "rbxassetid://136930298122484",
+    "Shiny": "rbxassetid://89307666150720"
+  },
+  "assetIds": [
+    "136930298122484",
+    "89307666150720"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Boxboi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Venom Moth",
+  "images": {
+    "Normal": "rbxassetid://117297482903843",
+    "Shiny": "rbxassetid://91469687428912"
+  },
+  "assetIds": [
+    "117297482903843",
+    "91469687428912"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Venom Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

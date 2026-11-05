@@ -1,0 +1,17 @@
+{
+  "name": "Gummy Shark",
+  "images": {
+    "Normal": "rbxassetid://99478387139899",
+    "Shiny": "rbxassetid://113346805795894"
+  },
+  "assetIds": [
+    "113346805795894",
+    "99478387139899"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gummy Shark"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

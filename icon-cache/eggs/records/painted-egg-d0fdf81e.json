@@ -1,0 +1,12 @@
+{
+  "name": "Painted Egg",
+  "images": {
+    "Image": "rbxassetid://132297566071938"
+  },
+  "assetIds": [
+    "132297566071938"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

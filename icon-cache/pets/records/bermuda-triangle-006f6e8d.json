@@ -1,0 +1,17 @@
+{
+  "name": "Bermuda Triangle",
+  "images": {
+    "Normal": "rbxassetid://97261210470670",
+    "Shiny": "rbxassetid://90592641746001"
+  },
+  "assetIds": [
+    "90592641746001",
+    "97261210470670"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bermuda Triangle"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

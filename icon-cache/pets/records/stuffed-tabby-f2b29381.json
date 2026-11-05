@@ -1,0 +1,21 @@
+{
+  "name": "Stuffed Tabby",
+  "images": {
+    "Normal": "rbxassetid://72135615070735",
+    "Shiny": "rbxassetid://88430044746737",
+    "Mythic": "rbxassetid://117872619165125",
+    "MythicShiny": "rbxassetid://129462487086728"
+  },
+  "assetIds": [
+    "117872619165125",
+    "129462487086728",
+    "72135615070735",
+    "88430044746737"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Tabby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

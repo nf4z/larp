@@ -1,0 +1,17 @@
+{
+  "name": "Cave Mole",
+  "images": {
+    "Normal": "rbxassetid://93047026359490",
+    "Shiny": "rbxassetid://80686832114260"
+  },
+  "assetIds": [
+    "80686832114260",
+    "93047026359490"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cave Mole"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

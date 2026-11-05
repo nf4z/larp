@@ -1,0 +1,17 @@
+{
+  "name": "Peppermint Boi",
+  "images": {
+    "Normal": "rbxassetid://130916944478768",
+    "Shiny": "rbxassetid://112961456474095"
+  },
+  "assetIds": [
+    "112961456474095",
+    "130916944478768"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Peppermint Boi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

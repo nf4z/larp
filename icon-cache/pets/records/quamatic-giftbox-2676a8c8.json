@@ -1,0 +1,21 @@
+{
+  "name": "Quamatic Giftbox",
+  "images": {
+    "Normal": "rbxassetid://88183065801244",
+    "Shiny": "rbxassetid://75604790395712",
+    "Mythic": "rbxassetid://80277486136160",
+    "MythicShiny": "rbxassetid://75543587732361"
+  },
+  "assetIds": [
+    "75543587732361",
+    "75604790395712",
+    "80277486136160",
+    "88183065801244"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Quamatic Giftbox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Radiancy",
+  "images": {
+    "Normal": "rbxassetid://127935596822413",
+    "Shiny": "rbxassetid://90119995742178",
+    "Mythic": "rbxassetid://80771516254197",
+    "MythicShiny": "rbxassetid://139647248636974"
+  },
+  "assetIds": [
+    "127935596822413",
+    "139647248636974",
+    "80771516254197",
+    "90119995742178"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Radiancy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

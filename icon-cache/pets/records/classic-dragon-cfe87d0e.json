@@ -1,0 +1,17 @@
+{
+  "name": "Classic Dragon",
+  "images": {
+    "Normal": "rbxassetid://125528137994376",
+    "Shiny": "rbxassetid://105263555395280"
+  },
+  "assetIds": [
+    "105263555395280",
+    "125528137994376"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

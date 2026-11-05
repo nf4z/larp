@@ -1,0 +1,21 @@
+{
+  "name": "OG Giant Robot",
+  "images": {
+    "Normal": "rbxassetid://87783053607334",
+    "Shiny": "rbxassetid://91233999324485",
+    "Mythic": "rbxassetid://77554661881003",
+    "MythicShiny": "rbxassetid://99269480806569"
+  },
+  "assetIds": [
+    "77554661881003",
+    "87783053607334",
+    "91233999324485",
+    "99269480806569"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Giant Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

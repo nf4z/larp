@@ -1,0 +1,21 @@
+{
+  "name": "Durrkin",
+  "images": {
+    "Normal": "rbxassetid://106995429614867",
+    "Shiny": "rbxassetid://111119776397120",
+    "Mythic": "rbxassetid://106435422865120",
+    "MythicShiny": "rbxassetid://79783078082338"
+  },
+  "assetIds": [
+    "106435422865120",
+    "106995429614867",
+    "111119776397120",
+    "79783078082338"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Durrkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

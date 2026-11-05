@@ -1,0 +1,12 @@
+{
+  "name": "Vine Egg",
+  "images": {
+    "Image": "rbxassetid://140633125131159"
+  },
+  "assetIds": [
+    "140633125131159"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

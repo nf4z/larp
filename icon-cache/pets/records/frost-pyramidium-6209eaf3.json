@@ -1,0 +1,21 @@
+{
+  "name": "Frost Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://132024209698667",
+    "Shiny": "rbxassetid://111320559811813",
+    "Mythic": "rbxassetid://120003702194104",
+    "MythicShiny": "rbxassetid://81156671838021"
+  },
+  "assetIds": [
+    "111320559811813",
+    "120003702194104",
+    "132024209698667",
+    "81156671838021"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

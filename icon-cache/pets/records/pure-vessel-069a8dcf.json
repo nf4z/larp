@@ -1,0 +1,17 @@
+{
+  "name": "Pure Vessel",
+  "images": {
+    "Normal": "rbxassetid://82454550823930",
+    "Shiny": "rbxassetid://140322935743145"
+  },
+  "assetIds": [
+    "140322935743145",
+    "82454550823930"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pure Vessel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

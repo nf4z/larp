@@ -1,0 +1,21 @@
+{
+  "name": "Memory of Remembrance",
+  "images": {
+    "Normal": "rbxassetid://135920980374476",
+    "Shiny": "rbxassetid://98595062944038",
+    "Mythic": "rbxassetid://136066265256315",
+    "MythicShiny": "rbxassetid://121500862215199"
+  },
+  "assetIds": [
+    "121500862215199",
+    "135920980374476",
+    "136066265256315",
+    "98595062944038"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Memory of Remembrance"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

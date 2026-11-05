@@ -1,0 +1,17 @@
+{
+  "name": "Spitty",
+  "images": {
+    "Normal": "rbxassetid://93305106012855",
+    "Shiny": "rbxassetid://126274635497387"
+  },
+  "assetIds": [
+    "126274635497387",
+    "93305106012855"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

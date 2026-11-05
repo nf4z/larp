@@ -1,0 +1,12 @@
+{
+  "name": "4x Luck Easter Bunny Egg",
+  "images": {
+    "Image": "rbxassetid://115845233484766"
+  },
+  "assetIds": [
+    "115845233484766"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

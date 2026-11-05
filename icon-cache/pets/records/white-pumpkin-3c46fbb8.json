@@ -1,0 +1,17 @@
+{
+  "name": "White Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://118958238531263",
+    "Shiny": "rbxassetid://140668562114767"
+  },
+  "assetIds": [
+    "118958238531263",
+    "140668562114767"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "White Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

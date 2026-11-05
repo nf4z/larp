@@ -1,0 +1,21 @@
+{
+  "name": "The Cornucopia",
+  "images": {
+    "Normal": "rbxassetid://107664904034171",
+    "Shiny": "rbxassetid://105990078671017",
+    "Mythic": "rbxassetid://129994323181869",
+    "MythicShiny": "rbxassetid://92229799864477"
+  },
+  "assetIds": [
+    "105990078671017",
+    "107664904034171",
+    "129994323181869",
+    "92229799864477"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Cornucopia"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

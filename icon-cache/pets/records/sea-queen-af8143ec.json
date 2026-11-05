@@ -1,0 +1,21 @@
+{
+  "name": "Sea Queen",
+  "images": {
+    "Normal": "rbxassetid://74032309610627",
+    "Shiny": "rbxassetid://117676025800760",
+    "Mythic": "rbxassetid://124433481367249",
+    "MythicShiny": "rbxassetid://135458448266016"
+  },
+  "assetIds": [
+    "117676025800760",
+    "124433481367249",
+    "135458448266016",
+    "74032309610627"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Queen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

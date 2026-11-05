@@ -1,0 +1,17 @@
+{
+  "name": "Classic Doggy",
+  "images": {
+    "Normal": "rbxassetid://125736699230165",
+    "Shiny": "rbxassetid://86671310158939"
+  },
+  "assetIds": [
+    "125736699230165",
+    "86671310158939"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Classic Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Pastel Shock",
+  "images": {
+    "Normal": "rbxassetid://118755153096765",
+    "Shiny": "rbxassetid://77050773221062",
+    "Mythic": "rbxassetid://106700542110751",
+    "MythicShiny": "rbxassetid://88280563061871"
+  },
+  "assetIds": [
+    "106700542110751",
+    "118755153096765",
+    "77050773221062",
+    "88280563061871"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pastel Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

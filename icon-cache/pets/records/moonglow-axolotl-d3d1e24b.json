@@ -1,0 +1,21 @@
+{
+  "name": "Moonglow Axolotl",
+  "images": {
+    "Normal": "rbxassetid://72533119582376",
+    "Shiny": "rbxassetid://114040857784443",
+    "Mythic": "rbxassetid://129295205223560",
+    "MythicShiny": "rbxassetid://101263843670203"
+  },
+  "assetIds": [
+    "101263843670203",
+    "114040857784443",
+    "129295205223560",
+    "72533119582376"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Moonglow Axolotl"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

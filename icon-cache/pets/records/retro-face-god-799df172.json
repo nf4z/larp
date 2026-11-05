@@ -1,0 +1,21 @@
+{
+  "name": "Retro Face God",
+  "images": {
+    "Normal": "rbxassetid://104188987340126",
+    "Shiny": "rbxassetid://90157463684171",
+    "Mythic": "rbxassetid://106825028027676",
+    "MythicShiny": "rbxassetid://126739388001460"
+  },
+  "assetIds": [
+    "104188987340126",
+    "106825028027676",
+    "126739388001460",
+    "90157463684171"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Face God"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

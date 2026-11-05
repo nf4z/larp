@@ -1,0 +1,17 @@
+{
+  "name": "OG Unicorn",
+  "images": {
+    "Normal": "rbxassetid://98958889098576",
+    "Shiny": "rbxassetid://110156781043782"
+  },
+  "assetIds": [
+    "110156781043782",
+    "98958889098576"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Unicorn"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

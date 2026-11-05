@@ -1,0 +1,17 @@
+{
+  "name": "Rock Dummy",
+  "images": {
+    "Normal": "rbxassetid://115094048452521",
+    "Shiny": "rbxassetid://137679673998835"
+  },
+  "assetIds": [
+    "115094048452521",
+    "137679673998835"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rock Dummy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

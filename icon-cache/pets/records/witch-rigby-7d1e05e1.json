@@ -1,0 +1,21 @@
+{
+  "name": "Witch Rigby",
+  "images": {
+    "Normal": "rbxassetid://121545729089395",
+    "Shiny": "rbxassetid://130193930874000",
+    "Mythic": "rbxassetid://112954518272628",
+    "MythicShiny": "rbxassetid://97875261265216"
+  },
+  "assetIds": [
+    "112954518272628",
+    "121545729089395",
+    "130193930874000",
+    "97875261265216"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Witch Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

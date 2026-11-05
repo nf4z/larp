@@ -1,0 +1,15 @@
+{
+  "name": "Light Box",
+  "images": {
+    "Image": "rbxassetid://120551784348446"
+  },
+  "assetIds": [
+    "120551784348446"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Light Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

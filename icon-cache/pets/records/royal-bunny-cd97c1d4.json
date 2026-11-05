@@ -1,0 +1,17 @@
+{
+  "name": "Royal Bunny",
+  "images": {
+    "Normal": "rbxassetid://120645960847347",
+    "Shiny": "rbxassetid://118612681763676"
+  },
+  "assetIds": [
+    "118612681763676",
+    "120645960847347"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Bunny"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

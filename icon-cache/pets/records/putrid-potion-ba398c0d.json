@@ -1,0 +1,21 @@
+{
+  "name": "Putrid Potion",
+  "images": {
+    "Normal": "rbxassetid://80232902139585",
+    "Shiny": "rbxassetid://126001987398630",
+    "Mythic": "rbxassetid://109489779575047",
+    "MythicShiny": "rbxassetid://121122691673270"
+  },
+  "assetIds": [
+    "109489779575047",
+    "121122691673270",
+    "126001987398630",
+    "80232902139585"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Putrid Potion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

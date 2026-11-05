@@ -1,0 +1,21 @@
+{
+  "name": "Lantern Demon",
+  "images": {
+    "Normal": "rbxassetid://103294979447402",
+    "Shiny": "rbxassetid://78160281596464",
+    "Mythic": "rbxassetid://90029452454243",
+    "MythicShiny": "rbxassetid://98738434294074"
+  },
+  "assetIds": [
+    "103294979447402",
+    "78160281596464",
+    "90029452454243",
+    "98738434294074"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lantern Demon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Fancy Dragon Plushie",
+  "images": {
+    "Normal": "rbxassetid://112007730263395",
+    "Shiny": "rbxassetid://115319785300740"
+  },
+  "assetIds": [
+    "112007730263395",
+    "115319785300740"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fancy Dragon Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "New Years Shard",
+  "images": {
+    "Normal": "rbxassetid://76442397907041",
+    "Shiny": "rbxassetid://82130465090653",
+    "Mythic": "rbxassetid://92836663441607",
+    "MythicShiny": "rbxassetid://92448101618205"
+  },
+  "assetIds": [
+    "76442397907041",
+    "82130465090653",
+    "92448101618205",
+    "92836663441607"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "New Years Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

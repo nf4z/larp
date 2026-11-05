@@ -1,0 +1,17 @@
+{
+  "name": "Neon Doggy",
+  "images": {
+    "Normal": "rbxassetid://93701191424697",
+    "Shiny": "rbxassetid://107641406627386"
+  },
+  "assetIds": [
+    "107641406627386",
+    "93701191424697"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

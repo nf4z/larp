@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Rigby",
+  "images": {
+    "Normal": "rbxassetid://95389337840060",
+    "Shiny": "rbxassetid://114725837646193",
+    "Mythic": "rbxassetid://112118259835249",
+    "MythicShiny": "rbxassetid://126310316560745"
+  },
+  "assetIds": [
+    "112118259835249",
+    "114725837646193",
+    "126310316560745",
+    "95389337840060"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Rigby"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

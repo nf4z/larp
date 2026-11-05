@@ -1,0 +1,17 @@
+{
+  "name": "Sky Bird",
+  "images": {
+    "Normal": "rbxassetid://124502060440493",
+    "Shiny": "rbxassetid://88202232819557"
+  },
+  "assetIds": [
+    "124502060440493",
+    "88202232819557"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sky Bird"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

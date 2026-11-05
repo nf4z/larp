@@ -1,0 +1,17 @@
+{
+  "name": "Ancient Frost Leviathan",
+  "images": {
+    "Normal": "rbxassetid://116570195209825",
+    "Shiny": "rbxassetid://78862585168967"
+  },
+  "assetIds": [
+    "116570195209825",
+    "78862585168967"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ancient Frost Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

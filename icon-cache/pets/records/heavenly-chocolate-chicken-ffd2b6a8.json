@@ -1,0 +1,17 @@
+{
+  "name": "Heavenly Chocolate Chicken",
+  "images": {
+    "Normal": "rbxassetid://131620652777812",
+    "Shiny": "rbxassetid://74287107344470"
+  },
+  "assetIds": [
+    "131620652777812",
+    "74287107344470"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Heavenly Chocolate Chicken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Rock Candy Golem",
+  "images": {
+    "Normal": "rbxassetid://77065881597143",
+    "Shiny": "rbxassetid://72786000082208",
+    "Mythic": "rbxassetid://122774619249149",
+    "MythicShiny": "rbxassetid://81107471128834"
+  },
+  "assetIds": [
+    "122774619249149",
+    "72786000082208",
+    "77065881597143",
+    "81107471128834"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rock Candy Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

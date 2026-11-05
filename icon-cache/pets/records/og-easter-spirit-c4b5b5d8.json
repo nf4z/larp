@@ -1,0 +1,21 @@
+{
+  "name": "OG Easter Spirit",
+  "images": {
+    "Normal": "rbxassetid://123617100965554",
+    "Shiny": "rbxassetid://86902596177475",
+    "Mythic": "rbxassetid://103219519262976",
+    "MythicShiny": "rbxassetid://91168883223398"
+  },
+  "assetIds": [
+    "103219519262976",
+    "123617100965554",
+    "86902596177475",
+    "91168883223398"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Easter Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Corrupt Doggy",
+  "images": {
+    "Normal": "rbxassetid://119847124085107",
+    "Shiny": "rbxassetid://82905081765811"
+  },
+  "assetIds": [
+    "119847124085107",
+    "82905081765811"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Corrupt Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

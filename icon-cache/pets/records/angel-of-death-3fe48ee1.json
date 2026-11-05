@@ -1,0 +1,21 @@
+{
+  "name": "Angel of Death",
+  "images": {
+    "Normal": "rbxassetid://130065556435659",
+    "Shiny": "rbxassetid://73768466189630",
+    "Mythic": "rbxassetid://102683063189900",
+    "MythicShiny": "rbxassetid://73786190086225"
+  },
+  "assetIds": [
+    "102683063189900",
+    "130065556435659",
+    "73768466189630",
+    "73786190086225"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angel of Death"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

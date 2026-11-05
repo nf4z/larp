@@ -1,0 +1,12 @@
+{
+  "name": "Jamboree Egg",
+  "images": {
+    "Image": "rbxassetid://85056222252736"
+  },
+  "assetIds": [
+    "85056222252736"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

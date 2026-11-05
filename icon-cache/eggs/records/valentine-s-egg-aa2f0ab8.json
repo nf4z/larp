@@ -1,0 +1,12 @@
+{
+  "name": "Valentine's Egg",
+  "images": {
+    "Image": "rbxassetid://100476454050363"
+  },
+  "assetIds": [
+    "100476454050363"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

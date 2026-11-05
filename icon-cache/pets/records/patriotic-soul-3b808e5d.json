@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Soul",
+  "images": {
+    "Normal": "rbxassetid://112873016079025",
+    "Shiny": "rbxassetid://95233847307736",
+    "Mythic": "rbxassetid://124969349634252",
+    "MythicShiny": "rbxassetid://140655638392893"
+  },
+  "assetIds": [
+    "112873016079025",
+    "124969349634252",
+    "140655638392893",
+    "95233847307736"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

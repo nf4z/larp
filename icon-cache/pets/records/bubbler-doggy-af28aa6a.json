@@ -1,0 +1,17 @@
+{
+  "name": "Bubbler Doggy",
+  "images": {
+    "Normal": "rbxassetid://123056355918155",
+    "Shiny": "rbxassetid://104483659831440"
+  },
+  "assetIds": [
+    "104483659831440",
+    "123056355918155"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bubbler Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

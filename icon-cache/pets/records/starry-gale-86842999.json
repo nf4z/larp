@@ -1,0 +1,21 @@
+{
+  "name": "Starry Gale",
+  "images": {
+    "Normal": "rbxassetid://126368040558430",
+    "Shiny": "rbxassetid://108007441381542",
+    "Mythic": "rbxassetid://111067236049722",
+    "MythicShiny": "rbxassetid://117817724570439"
+  },
+  "assetIds": [
+    "108007441381542",
+    "111067236049722",
+    "117817724570439",
+    "126368040558430"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Gale"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Earth Champion",
+  "images": {
+    "Normal": "rbxassetid://73402813858441",
+    "Shiny": "rbxassetid://124308366572909",
+    "Mythic": "rbxassetid://98569370110693",
+    "MythicShiny": "rbxassetid://106683665325870"
+  },
+  "assetIds": [
+    "106683665325870",
+    "124308366572909",
+    "73402813858441",
+    "98569370110693"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Earth Champion"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

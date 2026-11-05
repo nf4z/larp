@@ -1,0 +1,21 @@
+{
+  "name": "Poltergeist",
+  "images": {
+    "Normal": "rbxassetid://93622084196282",
+    "Shiny": "rbxassetid://103969633793965",
+    "Mythic": "rbxassetid://99510029565821",
+    "MythicShiny": "rbxassetid://115124729243419"
+  },
+  "assetIds": [
+    "103969633793965",
+    "115124729243419",
+    "93622084196282",
+    "99510029565821"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Poltergeist"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Stratus Egg",
+  "images": {
+    "Image": "rbxassetid://133651082637665"
+  },
+  "assetIds": [
+    "133651082637665"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

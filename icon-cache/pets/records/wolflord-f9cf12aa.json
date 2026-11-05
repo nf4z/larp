@@ -1,0 +1,21 @@
+{
+  "name": "Wolflord",
+  "images": {
+    "Normal": "rbxassetid://136826838339898",
+    "Shiny": "rbxassetid://133326318134464",
+    "Mythic": "rbxassetid://131794631803438",
+    "MythicShiny": "rbxassetid://73264285797253"
+  },
+  "assetIds": [
+    "131794631803438",
+    "133326318134464",
+    "136826838339898",
+    "73264285797253"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Wolflord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Shattered Doggy",
+  "images": {
+    "Normal": "rbxassetid://74320313963534",
+    "Shiny": "rbxassetid://126462198779215"
+  },
+  "assetIds": [
+    "126462198779215",
+    "74320313963534"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shattered Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

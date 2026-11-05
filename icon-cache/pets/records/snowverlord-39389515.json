@@ -1,0 +1,21 @@
+{
+  "name": "Snowverlord",
+  "images": {
+    "Normal": "rbxassetid://104413320195519",
+    "Shiny": "rbxassetid://114256706151525",
+    "Mythic": "rbxassetid://106619042053346",
+    "MythicShiny": "rbxassetid://112948232682187"
+  },
+  "assetIds": [
+    "104413320195519",
+    "106619042053346",
+    "112948232682187",
+    "114256706151525"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snowverlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Coral Hydra",
+  "images": {
+    "Normal": "rbxassetid://128665999581976",
+    "Shiny": "rbxassetid://119841336997325",
+    "Mythic": "rbxassetid://79220426740938",
+    "MythicShiny": "rbxassetid://114371426089835"
+  },
+  "assetIds": [
+    "114371426089835",
+    "119841336997325",
+    "128665999581976",
+    "79220426740938"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

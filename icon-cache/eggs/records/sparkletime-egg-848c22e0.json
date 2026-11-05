@@ -1,0 +1,12 @@
+{
+  "name": "Sparkletime Egg",
+  "images": {
+    "Image": "rbxassetid://117157951985842"
+  },
+  "assetIds": [
+    "117157951985842"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

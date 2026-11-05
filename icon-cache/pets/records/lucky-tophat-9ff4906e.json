@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Tophat",
+  "images": {
+    "Normal": "rbxassetid://88853391337889",
+    "Shiny": "rbxassetid://102488168262181",
+    "Mythic": "rbxassetid://108423856072577",
+    "MythicShiny": "rbxassetid://138190545369742"
+  },
+  "assetIds": [
+    "102488168262181",
+    "108423856072577",
+    "138190545369742",
+    "88853391337889"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

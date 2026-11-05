@@ -1,0 +1,21 @@
+{
+  "name": "Thanatos",
+  "images": {
+    "Normal": "rbxassetid://114397065066639",
+    "Shiny": "rbxassetid://73258867720163",
+    "Mythic": "rbxassetid://125731200770238",
+    "MythicShiny": "rbxassetid://76951914668484"
+  },
+  "assetIds": [
+    "114397065066639",
+    "125731200770238",
+    "73258867720163",
+    "76951914668484"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Thanatos"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Shortbill Spearfish",
+  "images": {
+    "Image": "rbxassetid://100468299330257"
+  },
+  "assetIds": [
+    "100468299330257"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Shortbill Spearfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

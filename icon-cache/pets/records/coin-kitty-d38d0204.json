@@ -1,0 +1,17 @@
+{
+  "name": "Coin Kitty",
+  "images": {
+    "Normal": "rbxassetid://124219583739343",
+    "Shiny": "rbxassetid://118201023798525"
+  },
+  "assetIds": [
+    "118201023798525",
+    "124219583739343"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coin Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Permafrost",
+  "images": {
+    "Normal": "rbxassetid://103195953871085",
+    "Shiny": "rbxassetid://82748982042205",
+    "Mythic": "rbxassetid://131488097207663",
+    "MythicShiny": "rbxassetid://109296719308347"
+  },
+  "assetIds": [
+    "103195953871085",
+    "109296719308347",
+    "131488097207663",
+    "82748982042205"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Permafrost"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Uncle Cat",
+  "images": {
+    "Normal": "rbxassetid://85689196706318",
+    "Shiny": "rbxassetid://109106153647814",
+    "Mythic": "rbxassetid://125017583141336",
+    "MythicShiny": "rbxassetid://140098197331598"
+  },
+  "assetIds": [
+    "109106153647814",
+    "125017583141336",
+    "140098197331598",
+    "85689196706318"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Uncle Cat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

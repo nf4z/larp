@@ -1,0 +1,21 @@
+{
+  "name": "Harlequin",
+  "images": {
+    "Normal": "rbxassetid://134726368042665",
+    "Shiny": "rbxassetid://137416759502591",
+    "Mythic": "rbxassetid://80549180125819",
+    "MythicShiny": "rbxassetid://131214133632625"
+  },
+  "assetIds": [
+    "131214133632625",
+    "134726368042665",
+    "137416759502591",
+    "80549180125819"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harlequin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

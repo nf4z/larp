@@ -1,0 +1,21 @@
+{
+  "name": "Fat Beaver",
+  "images": {
+    "Normal": "rbxassetid://98344603931122",
+    "Shiny": "rbxassetid://113869933097986",
+    "Mythic": "rbxassetid://124680595963095",
+    "MythicShiny": "rbxassetid://127009254185378"
+  },
+  "assetIds": [
+    "113869933097986",
+    "124680595963095",
+    "127009254185378",
+    "98344603931122"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fat Beaver"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

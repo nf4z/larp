@@ -1,0 +1,21 @@
+{
+  "name": "Angelic Golfball",
+  "images": {
+    "Normal": "rbxassetid://116226983506407",
+    "Shiny": "rbxassetid://99516923095050",
+    "Mythic": "rbxassetid://108181323463025",
+    "MythicShiny": "rbxassetid://73713189061489"
+  },
+  "assetIds": [
+    "108181323463025",
+    "116226983506407",
+    "73713189061489",
+    "99516923095050"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelic Golfball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

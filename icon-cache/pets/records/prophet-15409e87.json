@@ -1,0 +1,21 @@
+{
+  "name": "Prophet",
+  "images": {
+    "Normal": "rbxassetid://106798281486386",
+    "Shiny": "rbxassetid://80903272343594",
+    "Mythic": "rbxassetid://129969127862955",
+    "MythicShiny": "rbxassetid://76179950030552"
+  },
+  "assetIds": [
+    "106798281486386",
+    "129969127862955",
+    "76179950030552",
+    "80903272343594"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Prophet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Eclipse",
+  "images": {
+    "Normal": "rbxassetid://139298554712508",
+    "Shiny": "rbxassetid://84383996123597",
+    "Mythic": "rbxassetid://103970865595637",
+    "MythicShiny": "rbxassetid://110674030916812"
+  },
+  "assetIds": [
+    "103970865595637",
+    "110674030916812",
+    "139298554712508",
+    "84383996123597"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Eclipse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Cartoon Hydra",
+  "images": {
+    "Normal": "rbxassetid://88730852402954",
+    "Shiny": "rbxassetid://97063622780616",
+    "Mythic": "rbxassetid://113655504189894",
+    "MythicShiny": "rbxassetid://76689767848651"
+  },
+  "assetIds": [
+    "113655504189894",
+    "76689767848651",
+    "88730852402954",
+    "97063622780616"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cartoon Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

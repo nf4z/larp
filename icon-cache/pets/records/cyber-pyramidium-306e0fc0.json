@@ -1,0 +1,21 @@
+{
+  "name": "Cyber Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://78194795537722",
+    "Shiny": "rbxassetid://123647000213859",
+    "Mythic": "rbxassetid://91268402147952",
+    "MythicShiny": "rbxassetid://85620427816427"
+  },
+  "assetIds": [
+    "123647000213859",
+    "78194795537722",
+    "85620427816427",
+    "91268402147952"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cyber Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

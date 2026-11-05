@@ -1,0 +1,17 @@
+{
+  "name": "Fall Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://121423351216363",
+    "Shiny": "rbxassetid://127685826269675"
+  },
+  "assetIds": [
+    "121423351216363",
+    "127685826269675"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fall Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

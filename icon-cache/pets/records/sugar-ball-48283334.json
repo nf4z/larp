@@ -1,0 +1,17 @@
+{
+  "name": "Sugar Ball",
+  "images": {
+    "Normal": "rbxassetid://131282066421389",
+    "Shiny": "rbxassetid://78613698218377"
+  },
+  "assetIds": [
+    "131282066421389",
+    "78613698218377"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sugar Ball"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

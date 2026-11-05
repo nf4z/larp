@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Slime",
+  "images": {
+    "Normal": "rbxassetid://98173743949000",
+    "Shiny": "rbxassetid://127433553453354",
+    "Mythic": "rbxassetid://86586299836393",
+    "MythicShiny": "rbxassetid://109330741838075"
+  },
+  "assetIds": [
+    "109330741838075",
+    "127433553453354",
+    "86586299836393",
+    "98173743949000"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Slime"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

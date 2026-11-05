@@ -1,0 +1,17 @@
+{
+  "name": "Voodoo Plushie",
+  "images": {
+    "Normal": "rbxassetid://109311863122602",
+    "Shiny": "rbxassetid://117006517526693"
+  },
+  "assetIds": [
+    "109311863122602",
+    "117006517526693"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Voodoo Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

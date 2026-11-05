@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Trophy",
+  "images": {
+    "Normal": "rbxassetid://137702775536344",
+    "Shiny": "rbxassetid://78103388555379",
+    "Mythic": "rbxassetid://91707864256116",
+    "MythicShiny": "rbxassetid://97524781870704"
+  },
+  "assetIds": [
+    "137702775536344",
+    "78103388555379",
+    "91707864256116",
+    "97524781870704"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Trophy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

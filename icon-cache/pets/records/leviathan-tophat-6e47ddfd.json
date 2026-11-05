@@ -1,0 +1,21 @@
+{
+  "name": "Leviathan Tophat",
+  "images": {
+    "Normal": "rbxassetid://103963899328984",
+    "Shiny": "rbxassetid://73568548315541",
+    "Mythic": "rbxassetid://93892190192394",
+    "MythicShiny": "rbxassetid://123396947075189"
+  },
+  "assetIds": [
+    "103963899328984",
+    "123396947075189",
+    "73568548315541",
+    "93892190192394"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Leviathan Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

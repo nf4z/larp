@@ -1,0 +1,15 @@
+{
+  "name": "GameTickets",
+  "images": {
+    "Image": "rbxassetid://89695869839288"
+  },
+  "assetIds": [
+    "89695869839288"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "GameTickets"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Koi",
+  "images": {
+    "Normal": "rbxassetid://139943098520225",
+    "Shiny": "rbxassetid://121697264013280",
+    "Mythic": "rbxassetid://126815996112813",
+    "MythicShiny": "rbxassetid://95306894507562"
+  },
+  "assetIds": [
+    "121697264013280",
+    "126815996112813",
+    "139943098520225",
+    "95306894507562"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Pristine Shock",
+  "images": {
+    "Normal": "rbxassetid://101875112305720",
+    "Shiny": "rbxassetid://106593360263196",
+    "Mythic": "rbxassetid://77013260692069",
+    "MythicShiny": "rbxassetid://136449187506564"
+  },
+  "assetIds": [
+    "101875112305720",
+    "106593360263196",
+    "136449187506564",
+    "77013260692069"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pristine Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

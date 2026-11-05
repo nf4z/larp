@@ -1,0 +1,17 @@
+{
+  "name": "Bruhette",
+  "images": {
+    "Normal": "rbxassetid://132150523102726",
+    "Shiny": "rbxassetid://108865849289266"
+  },
+  "assetIds": [
+    "108865849289266",
+    "132150523102726"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bruhette"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

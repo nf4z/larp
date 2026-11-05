@@ -1,0 +1,21 @@
+{
+  "name": "Dark Jester",
+  "images": {
+    "Normal": "rbxassetid://127007934479113",
+    "Shiny": "rbxassetid://105653133580100",
+    "Mythic": "rbxassetid://114947212133243",
+    "MythicShiny": "rbxassetid://70373226132571"
+  },
+  "assetIds": [
+    "105653133580100",
+    "114947212133243",
+    "127007934479113",
+    "70373226132571"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Jester"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

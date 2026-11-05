@@ -1,0 +1,21 @@
+{
+  "name": "The Voided",
+  "images": {
+    "Normal": "rbxassetid://110740083047590",
+    "Shiny": "rbxassetid://71196060576642",
+    "Mythic": "rbxassetid://76952662987646",
+    "MythicShiny": "rbxassetid://127777418757647"
+  },
+  "assetIds": [
+    "110740083047590",
+    "127777418757647",
+    "71196060576642",
+    "76952662987646"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Voided"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

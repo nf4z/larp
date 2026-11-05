@@ -1,0 +1,21 @@
+{
+  "name": "Man Face Leviathan",
+  "images": {
+    "Normal": "rbxassetid://105333494448130",
+    "Shiny": "rbxassetid://108639844298205",
+    "Mythic": "rbxassetid://111321657950896",
+    "MythicShiny": "rbxassetid://75865927166262"
+  },
+  "assetIds": [
+    "105333494448130",
+    "108639844298205",
+    "111321657950896",
+    "75865927166262"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Man Face Leviathan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

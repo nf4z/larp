@@ -1,0 +1,15 @@
+{
+  "name": "Diamond Bait",
+  "images": {
+    "Image": "rbxassetid://79989951737409"
+  },
+  "assetIds": [
+    "79989951737409"
+  ],
+  "item": {
+    "Type": "Bait",
+    "Name": "Diamond Bait"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingBait"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Kitty Tophat",
+  "images": {
+    "Normal": "rbxassetid://131269812850114",
+    "Shiny": "rbxassetid://105815556218381"
+  },
+  "assetIds": [
+    "105815556218381",
+    "131269812850114"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitty Tophat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

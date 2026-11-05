@@ -1,0 +1,21 @@
+{
+  "name": "Gothic Shard",
+  "images": {
+    "Normal": "rbxassetid://115470935002141",
+    "Shiny": "rbxassetid://78784282118213",
+    "Mythic": "rbxassetid://97328159704859",
+    "MythicShiny": "rbxassetid://105920083861014"
+  },
+  "assetIds": [
+    "105920083861014",
+    "115470935002141",
+    "78784282118213",
+    "97328159704859"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gothic Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

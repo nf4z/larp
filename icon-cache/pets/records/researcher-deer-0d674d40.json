@@ -1,0 +1,17 @@
+{
+  "name": "Researcher Deer",
+  "images": {
+    "Normal": "rbxassetid://109878329358422",
+    "Shiny": "rbxassetid://98582193265637"
+  },
+  "assetIds": [
+    "109878329358422",
+    "98582193265637"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Researcher Deer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

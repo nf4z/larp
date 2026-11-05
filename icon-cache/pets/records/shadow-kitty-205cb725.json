@@ -1,0 +1,17 @@
+{
+  "name": "Shadow Kitty",
+  "images": {
+    "Normal": "rbxassetid://117178853189468",
+    "Shiny": "rbxassetid://111808231082417"
+  },
+  "assetIds": [
+    "111808231082417",
+    "117178853189468"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Kitty"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

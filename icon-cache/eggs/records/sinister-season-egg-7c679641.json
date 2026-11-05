@@ -1,0 +1,12 @@
+{
+  "name": "Sinister Season Egg",
+  "images": {
+    "Image": "rbxassetid://88178490569818"
+  },
+  "assetIds": [
+    "88178490569818"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

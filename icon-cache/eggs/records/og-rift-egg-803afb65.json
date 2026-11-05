@@ -1,0 +1,12 @@
+{
+  "name": "OG Rift Egg",
+  "images": {
+    "Image": "rbxassetid://133510047956214"
+  },
+  "assetIds": [
+    "133510047956214"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

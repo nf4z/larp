@@ -1,0 +1,11 @@
+{
+  "name": "Season Sakura Egg",
+  "images": {},
+  "assetIds": [],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Season Sakura Egg"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

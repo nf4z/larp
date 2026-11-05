@@ -1,0 +1,21 @@
+{
+  "name": "Iron Shock",
+  "images": {
+    "Normal": "rbxassetid://128986029435477",
+    "Shiny": "rbxassetid://90878163788044",
+    "Mythic": "rbxassetid://101649516173271",
+    "MythicShiny": "rbxassetid://75774692011663"
+  },
+  "assetIds": [
+    "101649516173271",
+    "128986029435477",
+    "75774692011663",
+    "90878163788044"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Iron Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

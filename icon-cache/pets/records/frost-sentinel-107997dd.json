@@ -1,0 +1,21 @@
+{
+  "name": "Frost Sentinel",
+  "images": {
+    "Normal": "rbxassetid://138100142549976",
+    "Shiny": "rbxassetid://101456038450900",
+    "Mythic": "rbxassetid://72321833383010",
+    "MythicShiny": "rbxassetid://121500774479184"
+  },
+  "assetIds": [
+    "101456038450900",
+    "121500774479184",
+    "138100142549976",
+    "72321833383010"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Sentinel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

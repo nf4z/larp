@@ -1,0 +1,21 @@
+{
+  "name": "Amazing Amethyst",
+  "images": {
+    "Normal": "rbxassetid://99460593610406",
+    "Shiny": "rbxassetid://127421738665339",
+    "Mythic": "rbxassetid://75737290336277",
+    "MythicShiny": "rbxassetid://126345703364766"
+  },
+  "assetIds": [
+    "126345703364766",
+    "127421738665339",
+    "75737290336277",
+    "99460593610406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Amazing Amethyst"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Sinister P",
+  "images": {
+    "Normal": "rbxassetid://124807914569767",
+    "Shiny": "rbxassetid://125377639520640",
+    "Mythic": "rbxassetid://115430543179055",
+    "MythicShiny": "rbxassetid://106892993090251"
+  },
+  "assetIds": [
+    "106892993090251",
+    "115430543179055",
+    "124807914569767",
+    "125377639520640"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister P"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

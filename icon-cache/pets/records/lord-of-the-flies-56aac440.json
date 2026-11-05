@@ -1,0 +1,21 @@
+{
+  "name": "Lord of the Flies",
+  "images": {
+    "Normal": "rbxassetid://136062112873940",
+    "Shiny": "rbxassetid://87139416021770",
+    "Mythic": "rbxassetid://98234447392212",
+    "MythicShiny": "rbxassetid://71188533189035"
+  },
+  "assetIds": [
+    "136062112873940",
+    "71188533189035",
+    "87139416021770",
+    "98234447392212"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lord of the Flies"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

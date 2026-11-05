@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Raven",
+  "images": {
+    "Normal": "rbxassetid://118999613788963",
+    "Shiny": "rbxassetid://110687828178128",
+    "Mythic": "rbxassetid://100400030074068",
+    "MythicShiny": "rbxassetid://98818504652375"
+  },
+  "assetIds": [
+    "100400030074068",
+    "110687828178128",
+    "118999613788963",
+    "98818504652375"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Raven"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

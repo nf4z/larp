@@ -1,0 +1,17 @@
+{
+  "name": "Beach Dogcat",
+  "images": {
+    "Normal": "rbxassetid://99037051532609",
+    "Shiny": "rbxassetid://118660434091854"
+  },
+  "assetIds": [
+    "118660434091854",
+    "99037051532609"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Beach Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Sugar Cube",
+  "images": {
+    "Normal": "rbxassetid://135609636895635",
+    "Shiny": "rbxassetid://95021567049251"
+  },
+  "assetIds": [
+    "135609636895635",
+    "95021567049251"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sugar Cube"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

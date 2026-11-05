@@ -1,0 +1,17 @@
+{
+  "name": "Inferno Moth",
+  "images": {
+    "Normal": "rbxassetid://100688520701232",
+    "Shiny": "rbxassetid://121297592051294"
+  },
+  "assetIds": [
+    "100688520701232",
+    "121297592051294"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Moth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OG Radiant One",
+  "images": {
+    "Normal": "rbxassetid://104504568644982",
+    "Shiny": "rbxassetid://77374724754423",
+    "Mythic": "rbxassetid://125822356879829",
+    "MythicShiny": "rbxassetid://113816935707421"
+  },
+  "assetIds": [
+    "104504568644982",
+    "113816935707421",
+    "125822356879829",
+    "77374724754423"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Radiant One"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

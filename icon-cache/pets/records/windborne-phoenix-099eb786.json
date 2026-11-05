@@ -1,0 +1,17 @@
+{
+  "name": "Windborne Phoenix",
+  "images": {
+    "Normal": "rbxassetid://71052301744359",
+    "Shiny": "rbxassetid://107441611290482"
+  },
+  "assetIds": [
+    "107441611290482",
+    "71052301744359"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Windborne Phoenix"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

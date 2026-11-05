@@ -1,0 +1,17 @@
+{
+  "name": "Cursed King",
+  "images": {
+    "Normal": "rbxassetid://115366602645818",
+    "Shiny": "rbxassetid://128407509602070"
+  },
+  "assetIds": [
+    "115366602645818",
+    "128407509602070"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cursed King"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

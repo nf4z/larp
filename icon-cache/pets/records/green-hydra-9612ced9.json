@@ -1,0 +1,21 @@
+{
+  "name": "Green Hydra",
+  "images": {
+    "Normal": "rbxassetid://104746232435869",
+    "Shiny": "rbxassetid://86848062315342",
+    "Mythic": "rbxassetid://101754597452868",
+    "MythicShiny": "rbxassetid://85937441131538"
+  },
+  "assetIds": [
+    "101754597452868",
+    "104746232435869",
+    "85937441131538",
+    "86848062315342"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Green Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

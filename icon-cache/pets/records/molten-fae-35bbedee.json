@@ -1,0 +1,21 @@
+{
+  "name": "Molten Fae",
+  "images": {
+    "Normal": "rbxassetid://130157700159851",
+    "Shiny": "rbxassetid://93662547716163",
+    "Mythic": "rbxassetid://124705281082779",
+    "MythicShiny": "rbxassetid://123110529896553"
+  },
+  "assetIds": [
+    "123110529896553",
+    "124705281082779",
+    "130157700159851",
+    "93662547716163"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Molten Fae"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Starlight Catcher",
+  "images": {
+    "Normal": "rbxassetid://80929687057390",
+    "Shiny": "rbxassetid://114801884200465",
+    "Mythic": "rbxassetid://93259929424976",
+    "MythicShiny": "rbxassetid://93455457203807"
+  },
+  "assetIds": [
+    "114801884200465",
+    "80929687057390",
+    "93259929424976",
+    "93455457203807"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starlight Catcher"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

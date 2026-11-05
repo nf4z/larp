@@ -1,0 +1,21 @@
+{
+  "name": "Juggler",
+  "images": {
+    "Normal": "rbxassetid://97867310575486",
+    "Shiny": "rbxassetid://115284174388488",
+    "Mythic": "rbxassetid://110946572600022",
+    "MythicShiny": "rbxassetid://87073882861845"
+  },
+  "assetIds": [
+    "110946572600022",
+    "115284174388488",
+    "87073882861845",
+    "97867310575486"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Juggler"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

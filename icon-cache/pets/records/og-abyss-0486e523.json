@@ -1,0 +1,21 @@
+{
+  "name": "OG Abyss",
+  "images": {
+    "Normal": "rbxassetid://139566096576091",
+    "Shiny": "rbxassetid://125566861116254",
+    "Mythic": "rbxassetid://86994143330396",
+    "MythicShiny": "rbxassetid://97609828046046"
+  },
+  "assetIds": [
+    "125566861116254",
+    "139566096576091",
+    "86994143330396",
+    "97609828046046"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Abyss"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Clovers",
+  "images": {
+    "Image": "rbxassetid://70801801118403"
+  },
+  "assetIds": [
+    "70801801118403"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Clovers"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

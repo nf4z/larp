@@ -1,0 +1,21 @@
+{
+  "name": "Star Lord",
+  "images": {
+    "Normal": "rbxassetid://109325517336152",
+    "Shiny": "rbxassetid://91871197565509",
+    "Mythic": "rbxassetid://123885257812082",
+    "MythicShiny": "rbxassetid://115065268132055"
+  },
+  "assetIds": [
+    "109325517336152",
+    "115065268132055",
+    "123885257812082",
+    "91871197565509"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Star Lord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

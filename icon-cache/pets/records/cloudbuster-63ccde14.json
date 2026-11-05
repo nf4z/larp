@@ -1,0 +1,21 @@
+{
+  "name": "Cloudbuster",
+  "images": {
+    "Normal": "rbxassetid://107746973362121",
+    "Shiny": "rbxassetid://73613405566319",
+    "Mythic": "rbxassetid://120563237192953",
+    "MythicShiny": "rbxassetid://76096929175480"
+  },
+  "assetIds": [
+    "107746973362121",
+    "120563237192953",
+    "73613405566319",
+    "76096929175480"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cloudbuster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Axolotl Plushie",
+  "images": {
+    "Normal": "rbxassetid://126420140443944",
+    "Shiny": "rbxassetid://75724911771188",
+    "Mythic": "rbxassetid://99689638857121",
+    "MythicShiny": "rbxassetid://114181776072200"
+  },
+  "assetIds": [
+    "114181776072200",
+    "126420140443944",
+    "75724911771188",
+    "99689638857121"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Axolotl Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

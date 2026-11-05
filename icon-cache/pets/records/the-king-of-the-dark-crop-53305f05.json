@@ -1,0 +1,21 @@
+{
+  "name": "The King of the Dark Crop",
+  "images": {
+    "Normal": "rbxassetid://132289819109417",
+    "Shiny": "rbxassetid://84727080336127",
+    "Mythic": "rbxassetid://106702157656852",
+    "MythicShiny": "rbxassetid://79032826138264"
+  },
+  "assetIds": [
+    "106702157656852",
+    "132289819109417",
+    "79032826138264",
+    "84727080336127"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The King of the Dark Crop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

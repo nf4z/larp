@@ -1,0 +1,17 @@
+{
+  "name": "Hollow Reflection",
+  "images": {
+    "Normal": "rbxassetid://97976707721166",
+    "Shiny": "rbxassetid://136654710917654"
+  },
+  "assetIds": [
+    "136654710917654",
+    "97976707721166"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hollow Reflection"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

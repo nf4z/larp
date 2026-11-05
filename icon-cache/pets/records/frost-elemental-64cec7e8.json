@@ -1,0 +1,21 @@
+{
+  "name": "Frost Elemental",
+  "images": {
+    "Normal": "rbxassetid://125898301281070",
+    "Shiny": "rbxassetid://128745623918913",
+    "Mythic": "rbxassetid://106701307433140",
+    "MythicShiny": "rbxassetid://115993556772887"
+  },
+  "assetIds": [
+    "106701307433140",
+    "115993556772887",
+    "125898301281070",
+    "128745623918913"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

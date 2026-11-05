@@ -1,0 +1,17 @@
+{
+  "name": "Angel",
+  "images": {
+    "Normal": "rbxassetid://112292360768269",
+    "Shiny": "rbxassetid://99959000304515"
+  },
+  "assetIds": [
+    "112292360768269",
+    "99959000304515"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

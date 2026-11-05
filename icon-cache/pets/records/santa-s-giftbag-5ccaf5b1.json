@@ -1,0 +1,17 @@
+{
+  "name": "Santa's Giftbag",
+  "images": {
+    "Normal": "rbxassetid://105618667687527",
+    "Shiny": "rbxassetid://127254873844207"
+  },
+  "assetIds": [
+    "105618667687527",
+    "127254873844207"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Santa's Giftbag"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

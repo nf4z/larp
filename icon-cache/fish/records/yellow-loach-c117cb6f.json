@@ -1,0 +1,15 @@
+{
+  "name": "Yellow Loach",
+  "images": {
+    "Image": "rbxassetid://82869448984923"
+  },
+  "assetIds": [
+    "82869448984923"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Yellow Loach"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

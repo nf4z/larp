@@ -1,0 +1,21 @@
+{
+  "name": "Nightmare Monster",
+  "images": {
+    "Normal": "rbxassetid://84124246488915",
+    "Shiny": "rbxassetid://137738753166309",
+    "Mythic": "rbxassetid://110294551791872",
+    "MythicShiny": "rbxassetid://90466857233982"
+  },
+  "assetIds": [
+    "110294551791872",
+    "137738753166309",
+    "84124246488915",
+    "90466857233982"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nightmare Monster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

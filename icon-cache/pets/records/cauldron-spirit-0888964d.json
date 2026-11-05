@@ -1,0 +1,21 @@
+{
+  "name": "Cauldron Spirit",
+  "images": {
+    "Normal": "rbxassetid://121314713696484",
+    "Shiny": "rbxassetid://108650580433246",
+    "Mythic": "rbxassetid://114926187789072",
+    "MythicShiny": "rbxassetid://76640438398308"
+  },
+  "assetIds": [
+    "108650580433246",
+    "114926187789072",
+    "121314713696484",
+    "76640438398308"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cauldron Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

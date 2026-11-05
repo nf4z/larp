@@ -1,0 +1,21 @@
+{
+  "name": "Axolotl Plushie",
+  "images": {
+    "Normal": "rbxassetid://110443901352664",
+    "Shiny": "rbxassetid://89183230069405",
+    "Mythic": "rbxassetid://120475074720809",
+    "MythicShiny": "rbxassetid://88069689941597"
+  },
+  "assetIds": [
+    "110443901352664",
+    "120475074720809",
+    "88069689941597",
+    "89183230069405"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Axolotl Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

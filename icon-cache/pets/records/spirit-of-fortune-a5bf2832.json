@@ -1,0 +1,21 @@
+{
+  "name": "Spirit of Fortune",
+  "images": {
+    "Normal": "rbxassetid://83706841737106",
+    "Shiny": "rbxassetid://74069528999816",
+    "Mythic": "rbxassetid://112064662809252",
+    "MythicShiny": "rbxassetid://125861414668084"
+  },
+  "assetIds": [
+    "112064662809252",
+    "125861414668084",
+    "74069528999816",
+    "83706841737106"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spirit of Fortune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

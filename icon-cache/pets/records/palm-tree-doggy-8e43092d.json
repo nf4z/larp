@@ -1,0 +1,17 @@
+{
+  "name": "Palm Tree Doggy",
+  "images": {
+    "Normal": "rbxassetid://75298293964982",
+    "Shiny": "rbxassetid://73276482616949"
+  },
+  "assetIds": [
+    "73276482616949",
+    "75298293964982"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Palm Tree Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

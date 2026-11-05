@@ -1,0 +1,21 @@
+{
+  "name": "Frost Winged Hydra",
+  "images": {
+    "Normal": "rbxassetid://137938491358864",
+    "Shiny": "rbxassetid://77547605201291",
+    "Mythic": "rbxassetid://112804076539493",
+    "MythicShiny": "rbxassetid://95686249320224"
+  },
+  "assetIds": [
+    "112804076539493",
+    "137938491358864",
+    "77547605201291",
+    "95686249320224"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Frost Winged Hydra"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Common Fangtooth",
+  "images": {
+    "Image": "rbxassetid://134812576233586"
+  },
+  "assetIds": [
+    "134812576233586"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Common Fangtooth"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

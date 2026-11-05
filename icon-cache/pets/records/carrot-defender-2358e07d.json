@@ -1,0 +1,21 @@
+{
+  "name": "Carrot Defender",
+  "images": {
+    "Normal": "rbxassetid://81778065646213",
+    "Shiny": "rbxassetid://98518280241330",
+    "Mythic": "rbxassetid://93806375790809",
+    "MythicShiny": "rbxassetid://81133629827972"
+  },
+  "assetIds": [
+    "81133629827972",
+    "81778065646213",
+    "93806375790809",
+    "98518280241330"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Carrot Defender"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

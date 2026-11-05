@@ -1,0 +1,21 @@
+{
+  "name": "Strawberry Snowcone",
+  "images": {
+    "Normal": "rbxassetid://136166772169121",
+    "Shiny": "rbxassetid://102212606969177",
+    "Mythic": "rbxassetid://97412163581785",
+    "MythicShiny": "rbxassetid://90824908321767"
+  },
+  "assetIds": [
+    "102212606969177",
+    "136166772169121",
+    "90824908321767",
+    "97412163581785"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Strawberry Snowcone"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

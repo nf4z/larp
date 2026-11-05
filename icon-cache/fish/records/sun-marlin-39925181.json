@@ -1,0 +1,15 @@
+{
+  "name": "Sun Marlin",
+  "images": {
+    "Image": "rbxassetid://135446307723536"
+  },
+  "assetIds": [
+    "135446307723536"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Sun Marlin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

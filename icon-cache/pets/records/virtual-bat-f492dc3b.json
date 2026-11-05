@@ -1,0 +1,17 @@
+{
+  "name": "Virtual Bat",
+  "images": {
+    "Normal": "rbxassetid://138624152923208",
+    "Shiny": "rbxassetid://92319823535455"
+  },
+  "assetIds": [
+    "138624152923208",
+    "92319823535455"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Virtual Bat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

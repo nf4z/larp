@@ -1,0 +1,21 @@
+{
+  "name": "Vaporwave Elemental",
+  "images": {
+    "Normal": "rbxassetid://90646395599332",
+    "Shiny": "rbxassetid://122261532576538",
+    "Mythic": "rbxassetid://83949490136972",
+    "MythicShiny": "rbxassetid://137048717703908"
+  },
+  "assetIds": [
+    "122261532576538",
+    "137048717703908",
+    "83949490136972",
+    "90646395599332"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vaporwave Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

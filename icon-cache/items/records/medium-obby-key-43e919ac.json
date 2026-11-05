@@ -1,0 +1,15 @@
+{
+  "name": "Medium Obby Key",
+  "images": {
+    "Image": "rbxassetid://123673125573070"
+  },
+  "assetIds": [
+    "123673125573070"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Medium Obby Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

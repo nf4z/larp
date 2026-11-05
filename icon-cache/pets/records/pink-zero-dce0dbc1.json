@@ -1,0 +1,17 @@
+{
+  "name": "Pink Zero",
+  "images": {
+    "Normal": "rbxassetid://123671498766493",
+    "Shiny": "rbxassetid://126289460260152"
+  },
+  "assetIds": [
+    "123671498766493",
+    "126289460260152"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pink Zero"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Void Soul",
+  "images": {
+    "Normal": "rbxassetid://123352561511123",
+    "Shiny": "rbxassetid://117534667668685",
+    "Mythic": "rbxassetid://98952192450309",
+    "MythicShiny": "rbxassetid://70875738839908"
+  },
+  "assetIds": [
+    "117534667668685",
+    "123352561511123",
+    "70875738839908",
+    "98952192450309"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

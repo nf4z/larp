@@ -1,0 +1,21 @@
+{
+  "name": "Game Master",
+  "images": {
+    "Normal": "rbxassetid://120685980526060",
+    "Shiny": "rbxassetid://126718995367861",
+    "Mythic": "rbxassetid://108919908305331",
+    "MythicShiny": "rbxassetid://136491378615234"
+  },
+  "assetIds": [
+    "108919908305331",
+    "120685980526060",
+    "126718995367861",
+    "136491378615234"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Game Master"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

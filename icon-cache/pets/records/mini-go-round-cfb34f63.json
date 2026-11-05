@@ -1,0 +1,17 @@
+{
+  "name": "Mini-Go Round",
+  "images": {
+    "Normal": "rbxassetid://84576346407334",
+    "Shiny": "rbxassetid://94217864927614"
+  },
+  "assetIds": [
+    "84576346407334",
+    "94217864927614"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Mini-Go Round"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

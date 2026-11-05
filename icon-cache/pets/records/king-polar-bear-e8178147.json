@@ -1,0 +1,17 @@
+{
+  "name": "King Polar Bear",
+  "images": {
+    "Normal": "rbxassetid://135903730291048",
+    "Shiny": "rbxassetid://74757334628207"
+  },
+  "assetIds": [
+    "135903730291048",
+    "74757334628207"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Polar Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

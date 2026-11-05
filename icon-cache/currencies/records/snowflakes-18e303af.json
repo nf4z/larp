@@ -1,0 +1,15 @@
+{
+  "name": "Snowflakes",
+  "images": {
+    "Image": "rbxassetid://89056259347032"
+  },
+  "assetIds": [
+    "89056259347032"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Snowflakes"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

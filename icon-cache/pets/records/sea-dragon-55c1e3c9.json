@@ -1,0 +1,21 @@
+{
+  "name": "Sea Dragon",
+  "images": {
+    "Normal": "rbxassetid://137885664795366",
+    "Shiny": "rbxassetid://84365545509816",
+    "Mythic": "rbxassetid://95802465897135",
+    "MythicShiny": "rbxassetid://115049202534907"
+  },
+  "assetIds": [
+    "115049202534907",
+    "137885664795366",
+    "84365545509816",
+    "95802465897135"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

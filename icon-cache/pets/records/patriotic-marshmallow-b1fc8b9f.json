@@ -1,0 +1,21 @@
+{
+  "name": "Patriotic Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://104997973584069",
+    "Shiny": "rbxassetid://75538717031944",
+    "Mythic": "rbxassetid://119882713844886",
+    "MythicShiny": "rbxassetid://113973165223841"
+  },
+  "assetIds": [
+    "104997973584069",
+    "113973165223841",
+    "119882713844886",
+    "75538717031944"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

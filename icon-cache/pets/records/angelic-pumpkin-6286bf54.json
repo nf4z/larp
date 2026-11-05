@@ -1,0 +1,17 @@
+{
+  "name": "Angelic Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://132897493050640",
+    "Shiny": "rbxassetid://95758541938054"
+  },
+  "assetIds": [
+    "132897493050640",
+    "95758541938054"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Angelic Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

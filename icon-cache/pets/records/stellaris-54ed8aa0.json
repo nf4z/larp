@@ -1,0 +1,21 @@
+{
+  "name": "Stellaris",
+  "images": {
+    "Normal": "rbxassetid://115363275203879",
+    "Shiny": "rbxassetid://98646490185904",
+    "Mythic": "rbxassetid://73430736832416",
+    "MythicShiny": "rbxassetid://85743287710298"
+  },
+  "assetIds": [
+    "115363275203879",
+    "73430736832416",
+    "85743287710298",
+    "98646490185904"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stellaris"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Pot O' Coins",
+  "images": {
+    "Image": "rbxassetid://85261333327258"
+  },
+  "assetIds": [
+    "85261333327258"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Pot O' Coins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

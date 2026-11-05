@@ -1,0 +1,15 @@
+{
+  "name": "Boost Crystal",
+  "images": {
+    "Image": "rbxassetid://83508843124273"
+  },
+  "assetIds": [
+    "83508843124273"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Boost Crystal"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

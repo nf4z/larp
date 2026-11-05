@@ -1,0 +1,17 @@
+{
+  "name": "Judgement",
+  "images": {
+    "Normal": "rbxassetid://102786140868252",
+    "Shiny": "rbxassetid://110006241851417"
+  },
+  "assetIds": [
+    "102786140868252",
+    "110006241851417"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Judgement"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

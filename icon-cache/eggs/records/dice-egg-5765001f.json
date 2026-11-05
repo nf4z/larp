@@ -1,0 +1,12 @@
+{
+  "name": "Dice Egg",
+  "images": {
+    "Image": "rbxassetid://99194703579991"
+  },
+  "assetIds": [
+    "99194703579991"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "ObscureEntity Plushie",
+  "images": {
+    "Normal": "rbxassetid://139472058692187",
+    "Shiny": "rbxassetid://88724800023721",
+    "Mythic": "rbxassetid://90071363811059",
+    "MythicShiny": "rbxassetid://92521350940356"
+  },
+  "assetIds": [
+    "139472058692187",
+    "88724800023721",
+    "90071363811059",
+    "92521350940356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "ObscureEntity Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

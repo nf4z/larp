@@ -1,0 +1,15 @@
+{
+  "name": "Silver Valentine's Letter",
+  "images": {
+    "Image": "rbxassetid://101443916808995"
+  },
+  "assetIds": [
+    "101443916808995"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Silver Valentine's Letter"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

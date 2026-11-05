@@ -1,0 +1,17 @@
+{
+  "name": "Sleepy Fox",
+  "images": {
+    "Normal": "rbxassetid://121999463140176",
+    "Shiny": "rbxassetid://119044213927098"
+  },
+  "assetIds": [
+    "119044213927098",
+    "121999463140176"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sleepy Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

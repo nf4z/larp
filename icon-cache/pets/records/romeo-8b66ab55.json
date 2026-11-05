@@ -1,0 +1,17 @@
+{
+  "name": "Romeo",
+  "images": {
+    "Normal": "rbxassetid://91887445617677",
+    "Shiny": "rbxassetid://103930387491710"
+  },
+  "assetIds": [
+    "103930387491710",
+    "91887445617677"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Romeo"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

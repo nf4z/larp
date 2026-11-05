@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Butterfly",
+  "images": {
+    "Normal": "rbxassetid://77572113052116",
+    "Shiny": "rbxassetid://123661502243574",
+    "Mythic": "rbxassetid://76786400940020",
+    "MythicShiny": "rbxassetid://140291155132969"
+  },
+  "assetIds": [
+    "123661502243574",
+    "140291155132969",
+    "76786400940020",
+    "77572113052116"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Butterfly"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

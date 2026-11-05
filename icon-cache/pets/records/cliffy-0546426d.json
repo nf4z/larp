@@ -1,0 +1,17 @@
+{
+  "name": "Cliffy",
+  "images": {
+    "Normal": "rbxassetid://108618274949231",
+    "Shiny": "rbxassetid://121382595609889"
+  },
+  "assetIds": [
+    "108618274949231",
+    "121382595609889"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cliffy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

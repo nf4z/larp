@@ -1,0 +1,21 @@
+{
+  "name": "Galactic Pyramidium",
+  "images": {
+    "Normal": "rbxassetid://113052650728651",
+    "Shiny": "rbxassetid://80391863881813",
+    "Mythic": "rbxassetid://75351694850559",
+    "MythicShiny": "rbxassetid://105535266005734"
+  },
+  "assetIds": [
+    "105535266005734",
+    "113052650728651",
+    "75351694850559",
+    "80391863881813"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Galactic Pyramidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

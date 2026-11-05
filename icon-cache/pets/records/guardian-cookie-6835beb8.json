@@ -1,0 +1,21 @@
+{
+  "name": "Guardian Cookie",
+  "images": {
+    "Normal": "rbxassetid://137073276779270",
+    "Shiny": "rbxassetid://102621611874840",
+    "Mythic": "rbxassetid://112991855130235",
+    "MythicShiny": "rbxassetid://121187860086782"
+  },
+  "assetIds": [
+    "102621611874840",
+    "112991855130235",
+    "121187860086782",
+    "137073276779270"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guardian Cookie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

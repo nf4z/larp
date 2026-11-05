@@ -1,0 +1,17 @@
+{
+  "name": "Gumdrop",
+  "images": {
+    "Normal": "rbxassetid://138530745346570",
+    "Shiny": "rbxassetid://74174605887902"
+  },
+  "assetIds": [
+    "138530745346570",
+    "74174605887902"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gumdrop"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

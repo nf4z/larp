@@ -1,0 +1,17 @@
+{
+  "name": "Ornament Round",
+  "images": {
+    "Normal": "rbxassetid://140627040633280",
+    "Shiny": "rbxassetid://106125722972137"
+  },
+  "assetIds": [
+    "106125722972137",
+    "140627040633280"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ornament Round"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

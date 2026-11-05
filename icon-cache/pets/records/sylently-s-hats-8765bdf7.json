@@ -1,0 +1,17 @@
+{
+  "name": "Sylently's Hats",
+  "images": {
+    "Normal": "rbxassetid://131818570262382",
+    "Shiny": "rbxassetid://134894404262260"
+  },
+  "assetIds": [
+    "131818570262382",
+    "134894404262260"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sylently's Hats"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

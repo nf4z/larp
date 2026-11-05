@@ -1,0 +1,17 @@
+{
+  "name": "Haunted Spirit",
+  "images": {
+    "Normal": "rbxassetid://76195608298083",
+    "Shiny": "rbxassetid://99172870835241"
+  },
+  "assetIds": [
+    "76195608298083",
+    "99172870835241"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Haunted Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

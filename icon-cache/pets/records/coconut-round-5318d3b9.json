@@ -1,0 +1,21 @@
+{
+  "name": "Coconut Round",
+  "images": {
+    "Normal": "rbxassetid://130270739399705",
+    "Shiny": "rbxassetid://71384709843967",
+    "Mythic": "rbxassetid://105369850700099",
+    "MythicShiny": "rbxassetid://98722562980929"
+  },
+  "assetIds": [
+    "105369850700099",
+    "130270739399705",
+    "71384709843967",
+    "98722562980929"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coconut Round"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

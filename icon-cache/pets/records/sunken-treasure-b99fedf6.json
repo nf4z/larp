@@ -1,0 +1,21 @@
+{
+  "name": "Sunken Treasure",
+  "images": {
+    "Normal": "rbxassetid://81600064277160",
+    "Shiny": "rbxassetid://76135956398077",
+    "Mythic": "rbxassetid://128209569789369",
+    "MythicShiny": "rbxassetid://134926190746564"
+  },
+  "assetIds": [
+    "128209569789369",
+    "134926190746564",
+    "76135956398077",
+    "81600064277160"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sunken Treasure"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

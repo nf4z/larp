@@ -1,0 +1,21 @@
+{
+  "name": "Hatted Dragon",
+  "images": {
+    "Normal": "rbxassetid://112355780837335",
+    "Shiny": "rbxassetid://72560142640313",
+    "Mythic": "rbxassetid://74625046872226",
+    "MythicShiny": "rbxassetid://111116964652690"
+  },
+  "assetIds": [
+    "111116964652690",
+    "112355780837335",
+    "72560142640313",
+    "74625046872226"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hatted Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

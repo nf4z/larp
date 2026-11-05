@@ -1,0 +1,17 @@
+{
+  "name": "Festivus",
+  "images": {
+    "Normal": "rbxassetid://137482111368571",
+    "Shiny": "rbxassetid://101914547168806"
+  },
+  "assetIds": [
+    "101914547168806",
+    "137482111368571"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Festivus"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

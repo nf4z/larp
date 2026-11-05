@@ -1,0 +1,21 @@
+{
+  "name": "Cubidium",
+  "images": {
+    "Normal": "rbxassetid://118680473263012",
+    "Shiny": "rbxassetid://130901016790290",
+    "Mythic": "rbxassetid://80196724928619",
+    "MythicShiny": "rbxassetid://87117983914140"
+  },
+  "assetIds": [
+    "118680473263012",
+    "130901016790290",
+    "80196724928619",
+    "87117983914140"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Cubidium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

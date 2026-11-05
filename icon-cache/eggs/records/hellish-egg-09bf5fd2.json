@@ -1,0 +1,12 @@
+{
+  "name": "Hellish Egg",
+  "images": {
+    "Image": "rbxassetid://105782533085553"
+  },
+  "assetIds": [
+    "105782533085553"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

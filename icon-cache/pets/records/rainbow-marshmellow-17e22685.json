@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Marshmellow",
+  "images": {
+    "Normal": "rbxassetid://99797164913127",
+    "Shiny": "rbxassetid://113156755564013",
+    "Mythic": "rbxassetid://95756192435113",
+    "MythicShiny": "rbxassetid://93613196809607"
+  },
+  "assetIds": [
+    "113156755564013",
+    "93613196809607",
+    "95756192435113",
+    "99797164913127"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Marshmellow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

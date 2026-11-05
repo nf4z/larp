@@ -1,0 +1,15 @@
+{
+  "name": "Snowdrift Wyrm",
+  "images": {
+    "Image": "rbxassetid://74261828433561"
+  },
+  "assetIds": [
+    "74261828433561"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Snowdrift Wyrm"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

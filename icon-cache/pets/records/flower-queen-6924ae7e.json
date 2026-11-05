@@ -1,0 +1,21 @@
+{
+  "name": "Flower Queen",
+  "images": {
+    "Normal": "rbxassetid://119779263384949",
+    "Shiny": "rbxassetid://121142834003769",
+    "Mythic": "rbxassetid://106123626028963",
+    "MythicShiny": "rbxassetid://136113090638552"
+  },
+  "assetIds": [
+    "106123626028963",
+    "119779263384949",
+    "121142834003769",
+    "136113090638552"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Flower Queen"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

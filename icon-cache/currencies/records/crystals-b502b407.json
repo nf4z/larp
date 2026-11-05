@@ -1,0 +1,15 @@
+{
+  "name": "Crystals",
+  "images": {
+    "Image": "rbxassetid://123388169427236"
+  },
+  "assetIds": [
+    "123388169427236"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "Crystals"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

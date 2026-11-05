@@ -1,0 +1,17 @@
+{
+  "name": "Egged",
+  "images": {
+    "Normal": "rbxassetid://72471169733714",
+    "Shiny": "rbxassetid://136198115415916"
+  },
+  "assetIds": [
+    "136198115415916",
+    "72471169733714"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Egged"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

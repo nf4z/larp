@@ -1,0 +1,21 @@
+{
+  "name": "Dark Matter Elemental",
+  "images": {
+    "Normal": "rbxassetid://131519459232983",
+    "Shiny": "rbxassetid://97115250502356",
+    "Mythic": "rbxassetid://102556167335250",
+    "MythicShiny": "rbxassetid://105845534147789"
+  },
+  "assetIds": [
+    "102556167335250",
+    "105845534147789",
+    "131519459232983",
+    "97115250502356"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

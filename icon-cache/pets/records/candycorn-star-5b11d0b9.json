@@ -1,0 +1,17 @@
+{
+  "name": "Candycorn Star",
+  "images": {
+    "Normal": "rbxassetid://113432808357247",
+    "Shiny": "rbxassetid://102441565794740"
+  },
+  "assetIds": [
+    "102441565794740",
+    "113432808357247"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Candycorn Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

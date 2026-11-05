@@ -1,0 +1,15 @@
+{
+  "name": "Poseidon's Relic",
+  "images": {
+    "Image": "rbxassetid://104521716089418"
+  },
+  "assetIds": [
+    "104521716089418"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Poseidon's Relic"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

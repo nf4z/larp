@@ -1,0 +1,15 @@
+{
+  "name": "Condensed Mystery Box",
+  "images": {
+    "Image": "rbxassetid://119389806331590"
+  },
+  "assetIds": [
+    "119389806331590"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Condensed Mystery Box"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Forgotten Pet",
+  "images": {
+    "Normal": "rbxassetid://89753110538416",
+    "Shiny": "rbxassetid://85864245073966",
+    "Mythic": "rbxassetid://140010493151605",
+    "MythicShiny": "rbxassetid://98737434793344"
+  },
+  "assetIds": [
+    "140010493151605",
+    "85864245073966",
+    "89753110538416",
+    "98737434793344"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Forgotten Pet"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

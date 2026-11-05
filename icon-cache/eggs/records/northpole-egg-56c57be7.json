@@ -1,0 +1,12 @@
+{
+  "name": "Northpole Egg",
+  "images": {
+    "Image": "rbxassetid://123570376403334"
+  },
+  "assetIds": [
+    "123570376403334"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Dark Gryphon",
+  "images": {
+    "Normal": "rbxassetid://123689562820842",
+    "Shiny": "rbxassetid://84120339870483",
+    "Mythic": "rbxassetid://81194983984582",
+    "MythicShiny": "rbxassetid://129399561810286"
+  },
+  "assetIds": [
+    "123689562820842",
+    "129399561810286",
+    "81194983984582",
+    "84120339870483"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

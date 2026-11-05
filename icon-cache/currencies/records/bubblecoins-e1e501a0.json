@@ -1,0 +1,15 @@
+{
+  "name": "BubbleCoins",
+  "images": {
+    "Image": "rbxassetid://119700057440243"
+  },
+  "assetIds": [
+    "119700057440243"
+  ],
+  "item": {
+    "Type": "Currency",
+    "Currency": "BubbleCoins"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Currency"
+}

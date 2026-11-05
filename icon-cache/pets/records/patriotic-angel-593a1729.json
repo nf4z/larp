@@ -1,0 +1,17 @@
+{
+  "name": "Patriotic Angel",
+  "images": {
+    "Normal": "rbxassetid://133511996382745",
+    "Shiny": "rbxassetid://102573065909172"
+  },
+  "assetIds": [
+    "102573065909172",
+    "133511996382745"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Patriotic Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

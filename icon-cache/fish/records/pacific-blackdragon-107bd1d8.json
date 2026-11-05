@@ -1,0 +1,15 @@
+{
+  "name": "Pacific Blackdragon",
+  "images": {
+    "Image": "rbxassetid://137171219497211"
+  },
+  "assetIds": [
+    "137171219497211"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Pacific Blackdragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

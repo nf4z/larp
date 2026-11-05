@@ -1,0 +1,21 @@
+{
+  "name": "Dementor Plushie",
+  "images": {
+    "Normal": "rbxassetid://116513871957606",
+    "Shiny": "rbxassetid://71550666762959",
+    "Mythic": "rbxassetid://110321072987514",
+    "MythicShiny": "rbxassetid://137369334530457"
+  },
+  "assetIds": [
+    "110321072987514",
+    "116513871957606",
+    "137369334530457",
+    "71550666762959"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dementor Plushie"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

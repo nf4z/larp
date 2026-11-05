@@ -1,0 +1,21 @@
+{
+  "name": "Rainbow Overlord",
+  "images": {
+    "Normal": "rbxassetid://103548849417602",
+    "Shiny": "rbxassetid://105926921286000",
+    "Mythic": "rbxassetid://82287605761144",
+    "MythicShiny": "rbxassetid://118054869708588"
+  },
+  "assetIds": [
+    "103548849417602",
+    "105926921286000",
+    "118054869708588",
+    "82287605761144"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Rainbow Overlord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

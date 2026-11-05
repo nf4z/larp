@@ -1,0 +1,17 @@
+{
+  "name": "Polar Bear",
+  "images": {
+    "Normal": "rbxassetid://74189506845007",
+    "Shiny": "rbxassetid://104526732113294"
+  },
+  "assetIds": [
+    "104526732113294",
+    "74189506845007"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Polar Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

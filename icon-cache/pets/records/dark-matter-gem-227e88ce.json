@@ -1,0 +1,17 @@
+{
+  "name": "Dark Matter Gem",
+  "images": {
+    "Normal": "rbxassetid://100081748935887",
+    "Shiny": "rbxassetid://104874126482574"
+  },
+  "assetIds": [
+    "100081748935887",
+    "104874126482574"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Matter Gem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

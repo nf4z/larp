@@ -1,0 +1,21 @@
+{
+  "name": "The Shocklord",
+  "images": {
+    "Normal": "rbxassetid://128874247260350",
+    "Shiny": "rbxassetid://84157097867741",
+    "Mythic": "rbxassetid://95539913238641",
+    "MythicShiny": "rbxassetid://88360337304162"
+  },
+  "assetIds": [
+    "128874247260350",
+    "84157097867741",
+    "88360337304162",
+    "95539913238641"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "The Shocklord"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

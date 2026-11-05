@@ -1,0 +1,21 @@
+{
+  "name": "Diamond Tamer",
+  "images": {
+    "Normal": "rbxassetid://83056571914701",
+    "Shiny": "rbxassetid://92502747789395",
+    "Mythic": "rbxassetid://123527873399258",
+    "MythicShiny": "rbxassetid://131793535476347"
+  },
+  "assetIds": [
+    "123527873399258",
+    "131793535476347",
+    "83056571914701",
+    "92502747789395"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Diamond Tamer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

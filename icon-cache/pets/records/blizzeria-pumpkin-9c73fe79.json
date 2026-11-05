@@ -1,0 +1,21 @@
+{
+  "name": "Blizzeria Pumpkin",
+  "images": {
+    "Normal": "rbxassetid://120026106580594",
+    "Shiny": "rbxassetid://76343844686872",
+    "Mythic": "rbxassetid://107790383324807",
+    "MythicShiny": "rbxassetid://94952931046906"
+  },
+  "assetIds": [
+    "107790383324807",
+    "120026106580594",
+    "76343844686872",
+    "94952931046906"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Blizzeria Pumpkin"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Sea Star",
+  "images": {
+    "Normal": "rbxassetid://124515344393954",
+    "Shiny": "rbxassetid://95233783333160"
+  },
+  "assetIds": [
+    "124515344393954",
+    "95233783333160"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sea Star"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

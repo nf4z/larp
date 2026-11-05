@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://127968588896793",
+    "Shiny": "rbxassetid://89249413513697",
+    "Mythic": "rbxassetid://76096905575708",
+    "MythicShiny": "rbxassetid://113558684846104"
+  },
+  "assetIds": [
+    "113558684846104",
+    "127968588896793",
+    "76096905575708",
+    "89249413513697"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

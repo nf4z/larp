@@ -1,0 +1,21 @@
+{
+  "name": "Surreal Seeker",
+  "images": {
+    "Normal": "rbxassetid://93744693055774",
+    "Shiny": "rbxassetid://93484190471231",
+    "Mythic": "rbxassetid://130518093545368",
+    "MythicShiny": "rbxassetid://131866379356849"
+  },
+  "assetIds": [
+    "130518093545368",
+    "131866379356849",
+    "93484190471231",
+    "93744693055774"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Surreal Seeker"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

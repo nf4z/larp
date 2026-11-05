@@ -1,0 +1,21 @@
+{
+  "name": "Shadow Skull",
+  "images": {
+    "Normal": "rbxassetid://109358101511112",
+    "Shiny": "rbxassetid://73281979910883",
+    "Mythic": "rbxassetid://107259961686456",
+    "MythicShiny": "rbxassetid://77609884796245"
+  },
+  "assetIds": [
+    "107259961686456",
+    "109358101511112",
+    "73281979910883",
+    "77609884796245"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shadow Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

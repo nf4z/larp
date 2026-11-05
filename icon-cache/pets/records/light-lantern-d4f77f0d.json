@@ -1,0 +1,21 @@
+{
+  "name": "Light Lantern",
+  "images": {
+    "Normal": "rbxassetid://98564855044047",
+    "Shiny": "rbxassetid://82970562763720",
+    "Mythic": "rbxassetid://138864277681528",
+    "MythicShiny": "rbxassetid://74099302982622"
+  },
+  "assetIds": [
+    "138864277681528",
+    "74099302982622",
+    "82970562763720",
+    "98564855044047"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Light Lantern"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

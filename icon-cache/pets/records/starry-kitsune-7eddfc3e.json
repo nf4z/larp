@@ -1,0 +1,21 @@
+{
+  "name": "Starry Kitsune",
+  "images": {
+    "Normal": "rbxassetid://129674313668141",
+    "Shiny": "rbxassetid://100930088206400",
+    "Mythic": "rbxassetid://93748929885446",
+    "MythicShiny": "rbxassetid://80318514777840"
+  },
+  "assetIds": [
+    "100930088206400",
+    "129674313668141",
+    "80318514777840",
+    "93748929885446"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Starry Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

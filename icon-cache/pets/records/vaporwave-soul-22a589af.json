@@ -1,0 +1,21 @@
+{
+  "name": "Vaporwave Soul",
+  "images": {
+    "Normal": "rbxassetid://101589473309076",
+    "Shiny": "rbxassetid://118487652945147",
+    "Mythic": "rbxassetid://97473729448150",
+    "MythicShiny": "rbxassetid://74131417191685"
+  },
+  "assetIds": [
+    "101589473309076",
+    "118487652945147",
+    "74131417191685",
+    "97473729448150"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Vaporwave Soul"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

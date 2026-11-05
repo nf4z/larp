@@ -1,0 +1,21 @@
+{
+  "name": "Gold Marshmallow",
+  "images": {
+    "Normal": "rbxassetid://74285988128406",
+    "Shiny": "rbxassetid://126540911208560",
+    "Mythic": "rbxassetid://136402201527505",
+    "MythicShiny": "rbxassetid://138345725625405"
+  },
+  "assetIds": [
+    "126540911208560",
+    "136402201527505",
+    "138345725625405",
+    "74285988128406"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Gold Marshmallow"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

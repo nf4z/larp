@@ -1,0 +1,21 @@
+{
+  "name": "Stuffed Dweller",
+  "images": {
+    "Normal": "rbxassetid://112092569485046",
+    "Shiny": "rbxassetid://78851876058964",
+    "Mythic": "rbxassetid://91095662365207",
+    "MythicShiny": "rbxassetid://108923486051527"
+  },
+  "assetIds": [
+    "108923486051527",
+    "112092569485046",
+    "78851876058964",
+    "91095662365207"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Stuffed Dweller"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

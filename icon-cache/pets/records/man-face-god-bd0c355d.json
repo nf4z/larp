@@ -1,0 +1,21 @@
+{
+  "name": "MAN FACE GOD",
+  "images": {
+    "Normal": "rbxassetid://82965308391958",
+    "Shiny": "rbxassetid://84512985957151",
+    "Mythic": "rbxassetid://126432034432566",
+    "MythicShiny": "rbxassetid://110384554696096"
+  },
+  "assetIds": [
+    "110384554696096",
+    "126432034432566",
+    "82965308391958",
+    "84512985957151"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "MAN FACE GOD"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

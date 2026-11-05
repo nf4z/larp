@@ -1,0 +1,17 @@
+{
+  "name": "Void Hexarium",
+  "images": {
+    "Normal": "rbxassetid://133932166148773",
+    "Shiny": "rbxassetid://133960980532396"
+  },
+  "assetIds": [
+    "133932166148773",
+    "133960980532396"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Hexarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

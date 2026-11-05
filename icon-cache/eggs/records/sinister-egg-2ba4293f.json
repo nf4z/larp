@@ -1,0 +1,12 @@
+{
+  "name": "Sinister Egg",
+  "images": {
+    "Image": "rbxassetid://110225315865496"
+  },
+  "assetIds": [
+    "110225315865496"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

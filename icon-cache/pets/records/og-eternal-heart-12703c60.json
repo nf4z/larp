@@ -1,0 +1,17 @@
+{
+  "name": "OG Eternal Heart",
+  "images": {
+    "Normal": "rbxassetid://125789456962474",
+    "Shiny": "rbxassetid://81716630833734"
+  },
+  "assetIds": [
+    "125789456962474",
+    "81716630833734"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Eternal Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

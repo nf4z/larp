@@ -1,0 +1,21 @@
+{
+  "name": "Kitty Pot",
+  "images": {
+    "Normal": "rbxassetid://135569234290577",
+    "Shiny": "rbxassetid://81651890532605",
+    "Mythic": "rbxassetid://111491318133926",
+    "MythicShiny": "rbxassetid://76727415244953"
+  },
+  "assetIds": [
+    "111491318133926",
+    "135569234290577",
+    "76727415244953",
+    "81651890532605"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Kitty Pot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

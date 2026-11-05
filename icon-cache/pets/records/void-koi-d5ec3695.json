@@ -1,0 +1,17 @@
+{
+  "name": "VOID KOI",
+  "images": {
+    "Normal": "rbxassetid://88309936045211",
+    "Shiny": "rbxassetid://87980702371614"
+  },
+  "assetIds": [
+    "87980702371614",
+    "88309936045211"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "VOID KOI"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

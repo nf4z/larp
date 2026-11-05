@@ -1,0 +1,17 @@
+{
+  "name": "Dark Dragon",
+  "images": {
+    "Normal": "rbxassetid://114782025459874",
+    "Shiny": "rbxassetid://95291070160423"
+  },
+  "assetIds": [
+    "114782025459874",
+    "95291070160423"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dark Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

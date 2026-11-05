@@ -1,0 +1,21 @@
+{
+  "name": "Floral Dogcat",
+  "images": {
+    "Normal": "rbxassetid://139845910586546",
+    "Shiny": "rbxassetid://84443383426440",
+    "Mythic": "rbxassetid://121174660137567",
+    "MythicShiny": "rbxassetid://86536521392595"
+  },
+  "assetIds": [
+    "121174660137567",
+    "139845910586546",
+    "84443383426440",
+    "86536521392595"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Floral Dogcat"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

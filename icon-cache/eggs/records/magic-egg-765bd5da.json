@@ -1,0 +1,12 @@
+{
+  "name": "Magic Egg",
+  "images": {
+    "Image": "rbxassetid://117592508930902"
+  },
+  "assetIds": [
+    "117592508930902"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

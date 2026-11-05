@@ -1,0 +1,21 @@
+{
+  "name": "Sinister Skull",
+  "images": {
+    "Normal": "rbxassetid://132614293202787",
+    "Shiny": "rbxassetid://102270075320424",
+    "Mythic": "rbxassetid://81998339276840",
+    "MythicShiny": "rbxassetid://72791701827779"
+  },
+  "assetIds": [
+    "102270075320424",
+    "132614293202787",
+    "72791701827779",
+    "81998339276840"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Shimmering Shard",
+  "images": {
+    "Normal": "rbxassetid://140524527556083",
+    "Shiny": "rbxassetid://90131192230270",
+    "Mythic": "rbxassetid://113182557356167",
+    "MythicShiny": "rbxassetid://71363211629567"
+  },
+  "assetIds": [
+    "113182557356167",
+    "140524527556083",
+    "71363211629567",
+    "90131192230270"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Shimmering Shard"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

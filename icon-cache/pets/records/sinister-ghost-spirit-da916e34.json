@@ -1,0 +1,17 @@
+{
+  "name": "Sinister Ghost Spirit",
+  "images": {
+    "Normal": "rbxassetid://91884352336926",
+    "Shiny": "rbxassetid://91492353069554"
+  },
+  "assetIds": [
+    "91492353069554",
+    "91884352336926"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Sinister Ghost Spirit"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

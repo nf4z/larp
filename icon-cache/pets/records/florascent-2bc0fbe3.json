@@ -1,0 +1,21 @@
+{
+  "name": "Florascent",
+  "images": {
+    "Normal": "rbxassetid://71084481341471",
+    "Shiny": "rbxassetid://82045745025506",
+    "Mythic": "rbxassetid://133912138683853",
+    "MythicShiny": "rbxassetid://127101242179782"
+  },
+  "assetIds": [
+    "127101242179782",
+    "133912138683853",
+    "71084481341471",
+    "82045745025506"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Florascent"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Demonarium",
+  "images": {
+    "Normal": "rbxassetid://112515011517944",
+    "Shiny": "rbxassetid://85213564015876",
+    "Mythic": "rbxassetid://129530694035782",
+    "MythicShiny": "rbxassetid://100311558391366"
+  },
+  "assetIds": [
+    "100311558391366",
+    "112515011517944",
+    "129530694035782",
+    "85213564015876"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Demonarium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

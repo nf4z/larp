@@ -1,0 +1,17 @@
+{
+  "name": "Inferno Gryphon",
+  "images": {
+    "Normal": "rbxassetid://75574200686683",
+    "Shiny": "rbxassetid://140443684200028"
+  },
+  "assetIds": [
+    "140443684200028",
+    "75574200686683"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Inferno Gryphon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

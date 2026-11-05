@@ -1,0 +1,17 @@
+{
+  "name": "H Y P E R W A V E",
+  "images": {
+    "Normal": "rbxassetid://76256787941834",
+    "Shiny": "rbxassetid://137779474550329"
+  },
+  "assetIds": [
+    "137779474550329",
+    "76256787941834"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "H Y P E R W A V E"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

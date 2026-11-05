@@ -1,0 +1,17 @@
+{
+  "name": "Ruby Golem",
+  "images": {
+    "Normal": "rbxassetid://87283653227747",
+    "Shiny": "rbxassetid://76036527489917"
+  },
+  "assetIds": [
+    "76036527489917",
+    "87283653227747"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ruby Golem"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Giant Clockwork",
+  "images": {
+    "Normal": "rbxassetid://90758364845882",
+    "Shiny": "rbxassetid://88628062844241"
+  },
+  "assetIds": [
+    "88628062844241",
+    "90758364845882"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Giant Clockwork"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

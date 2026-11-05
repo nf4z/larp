@@ -8,6 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
+paths_file = ROOT / 'icon-cache/paths.json'
+if paths_file.exists():
+    paths = json.loads(paths_file.read_text(encoding='utf-8'))
+    entries = ', '.join('[' + json.dumps(k) + '] = ' + json.dumps(v) for k,v in paths.items())
+    adapter = adapter.replace('local ICON_CACHE_PATHS = {}', 'local ICON_CACHE_PATHS = {' + entries + '}')
 source = source.replace('function saveHubSettings()', 'local function saveHubSettings()', 1)
 source = source.replace('function loadHubSettings()', 'private.saveHubSettings = saveHubSettings\nfunction loadHubSettings()', 1)
 
@@ -37,11 +42,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 6 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 7 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 6 then
+if prior and prior.Starting and prior.Revision == 7 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -57,7 +62,7 @@ private.loadstring = function(text, name)
     return chunk, err
 end
 if prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 6, State = private}
+local runtime = {Starting = true, Revision = 7, State = private}
 actualGlobals._BGSI_TestHub = runtime
 local function start()
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end

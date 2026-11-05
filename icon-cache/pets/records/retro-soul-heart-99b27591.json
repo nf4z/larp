@@ -1,0 +1,17 @@
+{
+  "name": "Retro Soul Heart",
+  "images": {
+    "Normal": "rbxassetid://100371578597658",
+    "Shiny": "rbxassetid://104938276121174"
+  },
+  "assetIds": [
+    "100371578597658",
+    "104938276121174"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Retro Soul Heart"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

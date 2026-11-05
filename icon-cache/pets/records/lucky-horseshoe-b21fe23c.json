@@ -1,0 +1,21 @@
+{
+  "name": "Lucky Horseshoe",
+  "images": {
+    "Normal": "rbxassetid://137030570613739",
+    "Shiny": "rbxassetid://119211871302832",
+    "Mythic": "rbxassetid://79891215970174",
+    "MythicShiny": "rbxassetid://81838088033417"
+  },
+  "assetIds": [
+    "119211871302832",
+    "137030570613739",
+    "79891215970174",
+    "81838088033417"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Lucky Horseshoe"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

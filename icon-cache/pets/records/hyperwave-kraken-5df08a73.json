@@ -1,0 +1,21 @@
+{
+  "name": "Hyperwave Kraken",
+  "images": {
+    "Normal": "rbxassetid://72325200728182",
+    "Shiny": "rbxassetid://98680175223019",
+    "Mythic": "rbxassetid://73813399113514",
+    "MythicShiny": "rbxassetid://120540493442371"
+  },
+  "assetIds": [
+    "120540493442371",
+    "72325200728182",
+    "73813399113514",
+    "98680175223019"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Hyperwave Kraken"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

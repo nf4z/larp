@@ -1,0 +1,17 @@
+{
+  "name": "Spirit Jam",
+  "images": {
+    "Normal": "rbxassetid://138665927949049",
+    "Shiny": "rbxassetid://122331055338014"
+  },
+  "assetIds": [
+    "122331055338014",
+    "138665927949049"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Spirit Jam"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

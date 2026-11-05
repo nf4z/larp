@@ -85,16 +85,16 @@ plain.NativePicker:SelectItem(2)
 assert(plain.Value=="Mystery" and plain.NativePicker==nil)
 assert(tab.NavigationButton.Label.TextScaled==false and tab.NavigationButton.Label.AnchorPoint.X==0)
 drop.Action.Activated:Fire()
-assert(#drop.pool==9, "Bounded row pool for 1000 options")
-local popup=ui.PickerGui:FindFirstChild("IconPicker",true)
+assert(#drop.NativePicker._frames==1000 and drop.pool==nil, "Use the native component even for item lists")
+local popup=drop.NativePicker._floater
 assert(popup:FindFirstChildOfClass("UIScale").Scale==window.Scale.Scale)
 assert(popup.Position.Y.Offset>=8, "Keep the picker inside the viewport")
-local pickerSearch=popup:FindFirstChildWhichIsA("TextBox",true)
-pickerSearch.Text="Egg 999"
-assert(drop.pool[1].title.Text=="Egg 999")
-drop.pool[1].button.Activated:Fire()
+assert(popup:FindFirstChildWhichIsA("TextBox",true)==nil, "No custom picker search/title/close UI")
+popup.Items.CanvasPosition=mock.vector(0,998*drop.NativeStride)
+assert(drop.NativeIcons[999] and drop.NativeIcons[999].Visible)
+drop.NativePicker:SelectItem(999)
 assert(selected=="Egg 999" and drop.Value=="Egg 999" and not popup.Visible)
-assert(drop.pool==nil, "Release closed row references")
+assert(drop.NativePicker==nil and drop.NativeIcons==nil, "Release native icon references on close")
 drop:Refresh({"Egg 2","Egg 3"});assert(#drop.Values==2)
 drop:Select("Egg 2");assert(selected=="Egg 2")
 local potion=tab:Dropdown({Title="Potion",Values={"Lucky 6"},Value="Lucky 6"})
@@ -150,7 +150,7 @@ assert(ui.ResolveIcon("Dog").item.Type=="Pet")
 assert(ui.ResolveIcon("Coins").item.Currency=="Coins")
 assert(ui.ResolveIcon("Mystery Box").item.Type=="Powerup")
 -- Repeated picker opens must keep one popup tree and nine live rows.
-for i=1,30 do drop.Action.Activated:Fire();assert(#drop.pool==9);window:Close();window:Open() end
+for i=1,30 do drop.Action.Activated:Fire();assert(#drop.NativePicker._frames==2);window:Close();window:Open() end
 ui:Destroy();assert(ui.ScreenGui.Parent==nil)
 mock.input.InputBegan:Fire({KeyCode=mock.Enum.KeyCode.K},false)
 -- Missing native templates must fail clearly instead of fabricating a custom shell.

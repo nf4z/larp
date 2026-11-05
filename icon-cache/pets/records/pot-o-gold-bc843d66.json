@@ -1,0 +1,21 @@
+{
+  "name": "Pot O' Gold",
+  "images": {
+    "Normal": "rbxassetid://140592671539561",
+    "Shiny": "rbxassetid://89794174223147",
+    "Mythic": "rbxassetid://88063149809276",
+    "MythicShiny": "rbxassetid://129362758054801"
+  },
+  "assetIds": [
+    "129362758054801",
+    "140592671539561",
+    "88063149809276",
+    "89794174223147"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pot O' Gold"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

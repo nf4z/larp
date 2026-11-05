@@ -1,0 +1,21 @@
+{
+  "name": "OG Fruity Shock",
+  "images": {
+    "Normal": "rbxassetid://99776351359014",
+    "Shiny": "rbxassetid://124642838391824",
+    "Mythic": "rbxassetid://121404764722765",
+    "MythicShiny": "rbxassetid://125159380526394"
+  },
+  "assetIds": [
+    "121404764722765",
+    "124642838391824",
+    "125159380526394",
+    "99776351359014"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Fruity Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

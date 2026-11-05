@@ -1,0 +1,15 @@
+{
+  "name": "Wooden Rod",
+  "images": {
+    "Image": "rbxassetid://106048450407383"
+  },
+  "assetIds": [
+    "106048450407383"
+  ],
+  "item": {
+    "Type": "FishingRod",
+    "Name": "Wooden Rod"
+  },
+  "recipe": "native-item",
+  "sourceModule": "FishingRods"
+}

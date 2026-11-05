@@ -1,0 +1,21 @@
+{
+  "name": "Darkstone Skull",
+  "images": {
+    "Normal": "rbxassetid://121607169106026",
+    "Shiny": "rbxassetid://96450756940817",
+    "Mythic": "rbxassetid://96357336830141",
+    "MythicShiny": "rbxassetid://96858388517378"
+  },
+  "assetIds": [
+    "121607169106026",
+    "96357336830141",
+    "96450756940817",
+    "96858388517378"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Darkstone Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

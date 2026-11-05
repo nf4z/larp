@@ -1,0 +1,17 @@
+{
+  "name": "Snow Fox",
+  "images": {
+    "Normal": "rbxassetid://103746564016219",
+    "Shiny": "rbxassetid://79375200761727"
+  },
+  "assetIds": [
+    "103746564016219",
+    "79375200761727"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Snow Fox"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

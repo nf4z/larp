@@ -1,0 +1,21 @@
+{
+  "name": "Guiding Light",
+  "images": {
+    "Normal": "rbxassetid://72843835561337",
+    "Shiny": "rbxassetid://106440028866548",
+    "Mythic": "rbxassetid://106529295527005",
+    "MythicShiny": "rbxassetid://82793908148391"
+  },
+  "assetIds": [
+    "106440028866548",
+    "106529295527005",
+    "72843835561337",
+    "82793908148391"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Guiding Light"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Easter Titan",
+  "images": {
+    "Normal": "rbxassetid://108926081363834",
+    "Shiny": "rbxassetid://101694707267254",
+    "Mythic": "rbxassetid://106172375609286",
+    "MythicShiny": "rbxassetid://122229725809493"
+  },
+  "assetIds": [
+    "101694707267254",
+    "106172375609286",
+    "108926081363834",
+    "122229725809493"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Easter Titan"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

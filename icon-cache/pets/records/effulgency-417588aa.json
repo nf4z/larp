@@ -1,0 +1,21 @@
+{
+  "name": "Effulgency",
+  "images": {
+    "Normal": "rbxassetid://89432755134472",
+    "Shiny": "rbxassetid://83810076975933",
+    "Mythic": "rbxassetid://81124833078849",
+    "MythicShiny": "rbxassetid://107763402236859"
+  },
+  "assetIds": [
+    "107763402236859",
+    "81124833078849",
+    "83810076975933",
+    "89432755134472"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Effulgency"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

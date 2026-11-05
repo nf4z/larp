@@ -1,0 +1,21 @@
+{
+  "name": "Fisher Elemental",
+  "images": {
+    "Normal": "rbxassetid://82862960529620",
+    "Shiny": "rbxassetid://128426119511101",
+    "Mythic": "rbxassetid://90201542593519",
+    "MythicShiny": "rbxassetid://74108822880410"
+  },
+  "assetIds": [
+    "128426119511101",
+    "74108822880410",
+    "82862960529620",
+    "90201542593519"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Fisher Elemental"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

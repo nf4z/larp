@@ -1,0 +1,21 @@
+{
+  "name": "OG Galaxium",
+  "images": {
+    "Normal": "rbxassetid://119156963306365",
+    "Shiny": "rbxassetid://71413063293999",
+    "Mythic": "rbxassetid://126636396603554",
+    "MythicShiny": "rbxassetid://127618536812822"
+  },
+  "assetIds": [
+    "119156963306365",
+    "126636396603554",
+    "127618536812822",
+    "71413063293999"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Galaxium"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

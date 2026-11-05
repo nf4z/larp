@@ -1,0 +1,17 @@
+{
+  "name": "Money Bag",
+  "images": {
+    "Normal": "rbxassetid://119485311086450",
+    "Shiny": "rbxassetid://134771845058463"
+  },
+  "assetIds": [
+    "119485311086450",
+    "134771845058463"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Money Bag"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

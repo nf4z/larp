@@ -1,0 +1,17 @@
+{
+  "name": "Bunny Angel",
+  "images": {
+    "Normal": "rbxassetid://109656896446539",
+    "Shiny": "rbxassetid://137646960252812"
+  },
+  "assetIds": [
+    "109656896446539",
+    "137646960252812"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Bunny Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

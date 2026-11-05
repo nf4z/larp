@@ -1,0 +1,21 @@
+{
+  "name": "Trickster",
+  "images": {
+    "Normal": "rbxassetid://98241497710129",
+    "Shiny": "rbxassetid://95069310308847",
+    "Mythic": "rbxassetid://112963188162160",
+    "MythicShiny": "rbxassetid://116212009349580"
+  },
+  "assetIds": [
+    "112963188162160",
+    "116212009349580",
+    "95069310308847",
+    "98241497710129"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Trickster"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Nebula",
+  "images": {
+    "Normal": "rbxassetid://131132006061222",
+    "Shiny": "rbxassetid://118971288564521",
+    "Mythic": "rbxassetid://123429576754180",
+    "MythicShiny": "rbxassetid://85080452280244"
+  },
+  "assetIds": [
+    "118971288564521",
+    "123429576754180",
+    "131132006061222",
+    "85080452280244"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Nebula"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

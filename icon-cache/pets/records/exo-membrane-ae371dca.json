@@ -1,0 +1,21 @@
+{
+  "name": "Exo Membrane",
+  "images": {
+    "Normal": "rbxassetid://91930055570778",
+    "Shiny": "rbxassetid://138089347899013",
+    "Mythic": "rbxassetid://128333348111648",
+    "MythicShiny": "rbxassetid://138037968321341"
+  },
+  "assetIds": [
+    "128333348111648",
+    "138037968321341",
+    "138089347899013",
+    "91930055570778"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Exo Membrane"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

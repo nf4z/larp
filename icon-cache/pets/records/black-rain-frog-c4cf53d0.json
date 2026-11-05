@@ -1,0 +1,17 @@
+{
+  "name": "Black Rain Frog",
+  "images": {
+    "Normal": "rbxassetid://78525628860954",
+    "Shiny": "rbxassetid://75310456247640"
+  },
+  "assetIds": [
+    "75310456247640",
+    "78525628860954"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Black Rain Frog"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

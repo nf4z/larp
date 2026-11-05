@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Koi",
+  "images": {
+    "Normal": "rbxassetid://87814316853056",
+    "Shiny": "rbxassetid://74303790610949",
+    "Mythic": "rbxassetid://83662018304532",
+    "MythicShiny": "rbxassetid://108156664032483"
+  },
+  "assetIds": [
+    "108156664032483",
+    "74303790610949",
+    "83662018304532",
+    "87814316853056"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Harvest Koi"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

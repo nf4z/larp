@@ -1,0 +1,21 @@
+{
+  "name": "OG Godly Shamrock",
+  "images": {
+    "Normal": "rbxassetid://110775744020930",
+    "Shiny": "rbxassetid://119173706459370",
+    "Mythic": "rbxassetid://139450123238334",
+    "MythicShiny": "rbxassetid://106813048649063"
+  },
+  "assetIds": [
+    "106813048649063",
+    "110775744020930",
+    "119173706459370",
+    "139450123238334"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Godly Shamrock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

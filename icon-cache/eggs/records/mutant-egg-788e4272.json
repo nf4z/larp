@@ -1,0 +1,12 @@
+{
+  "name": "Mutant Egg",
+  "images": {
+    "Image": "rbxassetid://131380883201168"
+  },
+  "assetIds": [
+    "131380883201168"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}

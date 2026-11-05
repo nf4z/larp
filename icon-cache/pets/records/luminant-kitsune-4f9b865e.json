@@ -1,0 +1,21 @@
+{
+  "name": "Luminant Kitsune",
+  "images": {
+    "Normal": "rbxassetid://110659959391140",
+    "Shiny": "rbxassetid://126256078216928",
+    "Mythic": "rbxassetid://110761711859870",
+    "MythicShiny": "rbxassetid://110286348405548"
+  },
+  "assetIds": [
+    "110286348405548",
+    "110659959391140",
+    "110761711859870",
+    "126256078216928"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Luminant Kitsune"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

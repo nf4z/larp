@@ -1,0 +1,17 @@
+{
+  "name": "Chocolate Bear",
+  "images": {
+    "Normal": "rbxassetid://92137445733571",
+    "Shiny": "rbxassetid://103539419268835"
+  },
+  "assetIds": [
+    "103539419268835",
+    "92137445733571"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Chocolate Bear"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

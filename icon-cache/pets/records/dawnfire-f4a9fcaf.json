@@ -1,0 +1,21 @@
+{
+  "name": "Dawnfire",
+  "images": {
+    "Normal": "rbxassetid://135929757833264",
+    "Shiny": "rbxassetid://91832332617480",
+    "Mythic": "rbxassetid://135118484554254",
+    "MythicShiny": "rbxassetid://75926514785948"
+  },
+  "assetIds": [
+    "135118484554254",
+    "135929757833264",
+    "75926514785948",
+    "91832332617480"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Dawnfire"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

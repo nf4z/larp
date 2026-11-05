@@ -1,0 +1,21 @@
+{
+  "name": "Captain's Curse",
+  "images": {
+    "Normal": "rbxassetid://100277795348555",
+    "Shiny": "rbxassetid://79211934661020",
+    "Mythic": "rbxassetid://78850882610486",
+    "MythicShiny": "rbxassetid://105746802239426"
+  },
+  "assetIds": [
+    "100277795348555",
+    "105746802239426",
+    "78850882610486",
+    "79211934661020"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Captain's Curse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Amour Archer",
+  "images": {
+    "Normal": "rbxassetid://136566086528191",
+    "Shiny": "rbxassetid://106259883149720",
+    "Mythic": "rbxassetid://71695854386048",
+    "MythicShiny": "rbxassetid://72967574639294"
+  },
+  "assetIds": [
+    "106259883149720",
+    "136566086528191",
+    "71695854386048",
+    "72967574639294"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Amour Archer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

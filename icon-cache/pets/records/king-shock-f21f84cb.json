@@ -1,0 +1,21 @@
+{
+  "name": "King Shock",
+  "images": {
+    "Normal": "rbxassetid://103489914709387",
+    "Shiny": "rbxassetid://102571246002589",
+    "Mythic": "rbxassetid://94934455571655",
+    "MythicShiny": "rbxassetid://94674390427438"
+  },
+  "assetIds": [
+    "102571246002589",
+    "103489914709387",
+    "94674390427438",
+    "94934455571655"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "King Shock"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

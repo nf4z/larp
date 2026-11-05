@@ -1,0 +1,15 @@
+{
+  "name": "Classic Crownfish",
+  "images": {
+    "Image": "rbxassetid://97208256944284"
+  },
+  "assetIds": [
+    "97208256944284"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Classic Crownfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

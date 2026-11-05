@@ -1,0 +1,17 @@
+{
+  "name": "Royal Panda",
+  "images": {
+    "Normal": "rbxassetid://118798648360140",
+    "Shiny": "rbxassetid://77565890996158"
+  },
+  "assetIds": [
+    "118798648360140",
+    "77565890996158"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Royal Panda"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Void Eclipse",
+  "images": {
+    "Normal": "rbxassetid://101445656407088",
+    "Shiny": "rbxassetid://140343044963217",
+    "Mythic": "rbxassetid://107320214342870",
+    "MythicShiny": "rbxassetid://72815681422198"
+  },
+  "assetIds": [
+    "101445656407088",
+    "107320214342870",
+    "140343044963217",
+    "72815681422198"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Void Eclipse"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

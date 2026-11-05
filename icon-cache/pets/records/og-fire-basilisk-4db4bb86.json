@@ -1,0 +1,21 @@
+{
+  "name": "OG Fire Basilisk",
+  "images": {
+    "Normal": "rbxassetid://96869714763348",
+    "Shiny": "rbxassetid://73192612923655",
+    "Mythic": "rbxassetid://102478927414691",
+    "MythicShiny": "rbxassetid://136484128469443"
+  },
+  "assetIds": [
+    "102478927414691",
+    "136484128469443",
+    "73192612923655",
+    "96869714763348"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Fire Basilisk"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

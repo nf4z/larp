@@ -1,0 +1,15 @@
+{
+  "name": "The Moon",
+  "images": {
+    "Image": "rbxassetid://75184696427727"
+  },
+  "assetIds": [
+    "75184696427727"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "The Moon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

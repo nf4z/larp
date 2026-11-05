@@ -1,0 +1,17 @@
+{
+  "name": "Coral Doggy",
+  "images": {
+    "Normal": "rbxassetid://134650782212458",
+    "Shiny": "rbxassetid://76516655797321"
+  },
+  "assetIds": [
+    "134650782212458",
+    "76516655797321"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Coral Doggy"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

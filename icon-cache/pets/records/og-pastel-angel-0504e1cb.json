@@ -1,0 +1,17 @@
+{
+  "name": "OG Pastel Angel",
+  "images": {
+    "Normal": "rbxassetid://107058882573457",
+    "Shiny": "rbxassetid://100241186245766"
+  },
+  "assetIds": [
+    "100241186245766",
+    "107058882573457"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "OG Pastel Angel"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

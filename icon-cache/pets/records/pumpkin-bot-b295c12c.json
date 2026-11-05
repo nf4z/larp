@@ -1,0 +1,17 @@
+{
+  "name": "Pumpkin-Bot",
+  "images": {
+    "Normal": "rbxassetid://121346113550504",
+    "Shiny": "rbxassetid://82730625489719"
+  },
+  "assetIds": [
+    "121346113550504",
+    "82730625489719"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Pumpkin-Bot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

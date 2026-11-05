@@ -1,0 +1,17 @@
+{
+  "name": "Ghost Skull",
+  "images": {
+    "Normal": "rbxassetid://92405030890197",
+    "Shiny": "rbxassetid://130841520816240"
+  },
+  "assetIds": [
+    "130841520816240",
+    "92405030890197"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Ghost Skull"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

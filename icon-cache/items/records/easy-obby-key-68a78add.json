@@ -1,0 +1,15 @@
+{
+  "name": "Easy Obby Key",
+  "images": {
+    "Image": "rbxassetid://99350435812999"
+  },
+  "assetIds": [
+    "99350435812999"
+  ],
+  "item": {
+    "Type": "Powerup",
+    "Name": "Easy Obby Key"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Powerups"
+}

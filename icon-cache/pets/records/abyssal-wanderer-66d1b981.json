@@ -1,0 +1,17 @@
+{
+  "name": "Abyssal Wanderer",
+  "images": {
+    "Normal": "rbxassetid://133832227114303",
+    "Shiny": "rbxassetid://131159072065871"
+  },
+  "assetIds": [
+    "131159072065871",
+    "133832227114303"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Abyssal Wanderer"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

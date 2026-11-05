@@ -1,0 +1,17 @@
+{
+  "name": "Neon Robot",
+  "images": {
+    "Normal": "rbxassetid://73251298966888",
+    "Shiny": "rbxassetid://104168700434256"
+  },
+  "assetIds": [
+    "104168700434256",
+    "73251298966888"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Neon Robot"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Elite Dragon",
+  "images": {
+    "Normal": "rbxassetid://103844090264076",
+    "Shiny": "rbxassetid://126166067935559"
+  },
+  "assetIds": [
+    "103844090264076",
+    "126166067935559"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Elite Dragon"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

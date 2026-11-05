@@ -1,0 +1,15 @@
+{
+  "name": "Frozen Catfish",
+  "images": {
+    "Image": "rbxassetid://116817954833762"
+  },
+  "assetIds": [
+    "116817954833762"
+  ],
+  "item": {
+    "Type": "Fish",
+    "Name": "Frozen Catfish"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Fish"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Big Flea",
+  "images": {
+    "Normal": "rbxassetid://72528981809542",
+    "Shiny": "rbxassetid://123617531788006"
+  },
+  "assetIds": [
+    "123617531788006",
+    "72528981809542"
+  ],
+  "item": {
+    "Type": "Pet",
+    "Name": "Big Flea"
+  },
+  "recipe": "native-item",
+  "sourceModule": "Pets"
+}

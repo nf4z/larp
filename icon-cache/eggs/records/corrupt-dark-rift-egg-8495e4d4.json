@@ -1,0 +1,12 @@
+{
+  "name": "Corrupt Dark Rift Egg",
+  "images": {
+    "Image": "rbxassetid://85312105384048"
+  },
+  "assetIds": [
+    "85312105384048"
+  ],
+  "item": null,
+  "recipe": "egg-image-or-model",
+  "sourceModule": "Eggs"
+}
