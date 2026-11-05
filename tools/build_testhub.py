@@ -8,6 +8,7 @@ from testhub_features import enhance
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
+SCRIPT_VERSION = 'v102'
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
 paths_file = ROOT / 'icon-cache/paths.json'
@@ -47,11 +48,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 16 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 17 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 16 then
+if prior and prior.Starting and prior.Revision == 17 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -78,7 +79,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 16, State = private}
+local runtime = {Starting = true, Revision = 17, ScriptVersion = "__SCRIPT_VERSION__", State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()
@@ -100,6 +101,13 @@ local function onTestHubGetTopbar()
     assert(type(module) == "table" and type(module.new) == "function", "Invalid TopbarPlus module")
     actualGlobals._BGSI_TopbarPlus = module
     return module
+end
+local function onTestHubDecorateVersion(screen)
+    local label=screen:FindFirstChild("VersionLabel")
+    if label then runtime.DecorateVersionLabel(label)
+    else runtime.Connect(screen.ChildAdded,function(child)
+        if child.Name=="VersionLabel" then runtime.DecorateVersionLabel(child) end
+    end) end
 end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
@@ -127,6 +135,7 @@ return runtime.UI and runtime.UI.Window
 bundle_manifest = ROOT/'vendor/TopbarPlus/bundle-path.json'
 if bundle_manifest.exists():
     header=header.replace('vendor/TopbarPlus/bundle.lua',json.loads(bundle_manifest.read_text(encoding='utf-8'))['path'])
+header=header.replace('__SCRIPT_VERSION__',SCRIPT_VERSION)
 result = header + source + footer
 (ROOT / 'bgsiscript').write_text(result, encoding='utf-8', newline='\n')
 print(json.dumps({'bytes': len(result.encode()), 'featureModules': len(re.findall(r'-- // Embedded module:', source)),

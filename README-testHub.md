@@ -132,3 +132,7 @@ Main row labels use 28-pixel text, descriptions 20 and headings 28. Information 
 ## Text inset and close glyph (revision 16)
 
 Setting titles and descriptions start 8 logical pixels from the row's left edge instead of 17. Titles increase from 28 to 30 pixels, and the information column reclaims unused space. Description rows provide a separate 36-pixel title area and two lines below. The close target stays 44 pixels with a centered 34-pixel X, native red coloring, and a modest rounded-square corner rather than a circular background. The existing gentle centered animation remains.
+
+## Native version label (script v102 / runtime revision 17)
+
+The place's ClientScript writes its build text to PlayerGui.ScreenGui.VersionLabel. While this script runs, that existing label receives the suffix ` | v102`. The base version and `(t)`/`(p)` trading markers are retained, game-driven text changes are reflected, reruns do not duplicate the suffix, and unload restores the latest native text. The script release identifier is configured once as SCRIPT_VERSION in tools/build_testhub.py. Native label styling and the loadstring stay unchanged.

@@ -67,7 +67,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.16", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.17", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -178,6 +178,7 @@ local root = create("ScreenGui", {
 }, playerGui)
 library.ScreenGui = root
 if type(onTestHubUiCreated) == "function" then onTestHubUiCreated(library) end
+if type(onTestHubDecorateVersion) == "function" then onTestHubDecorateVersion(nativeScreen) end
 -- Compatibility names in afbq's setup; all overlays use the same private root.
 library.NotificationGui, library.DropdownGui, library.TooltipGui = root, root, root
 function library:SetParent(parent) root.Parent = parent end

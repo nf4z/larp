@@ -20,6 +20,24 @@ function runtime.Set(object, property, value)
     runtime.Remember(object, property)
     pcall(function() object[property] = value end)
 end
+function runtime.DecorateVersionLabel(label)
+    if not label or not label:IsA("TextLabel") or runtime.VersionLabel==label then return end
+    runtime.VersionLabel=label
+    local base=label.Text
+    local suffix=" | "..runtime.ScriptVersion
+    local writing=false
+    local function update()
+        if writing or not runtime.Active then return end
+        local text=label.Text
+        if text:sub(-#suffix)==suffix then text=text:sub(1,-#suffix-1) end
+        base=text
+        if text=="" then return end
+        writing=true;label.Text=text..suffix;writing=false
+    end
+    runtime.Connect(label:GetPropertyChangedSignal("Text"),update)
+    table.insert(runtime.Restore,function() label.Text=base end)
+    update()
+end
 function runtime.EnableDebug(remote, player)
     if runtime.DebugRemembered then return end
     -- Read the authoritative setting before changing it; leave it alone if unknown.
@@ -95,6 +113,6 @@ function runtime.Unload()
     -- Retain the private environment and stop flags for auxiliary callbacks.
     -- Clearing its getgenv would make late callbacks touch another hub's globals.
     private.WindUI = nil; private.Window = nil; private.HubSettings = nil
-    runtime.UI = nil; runtime.State = nil
+    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil
     if actualGlobals._BGSI_TestHub == runtime then actualGlobals._BGSI_TestHub = nil end
 end

@@ -152,7 +152,7 @@ child(data,"ModuleScript","Currency")._module={Coins={}}
 local intro=child(assets,"ScreenGui","Intro");local play=child(intro,"Frame","Play")
 local nativeButton=child(play,"ImageButton","Button");child(nativeButton,"TextLabel","Label")
 local pg=Instance.new("PlayerGui")
-local nativeScreen=child(pg,"ScreenGui","ScreenGui");local settings=child(nativeScreen,"Frame","Settings")
+local nativeScreen=child(pg,"ScreenGui","ScreenGui");child(nativeScreen,"TextLabel","VersionLabel").Text="v10724";local settings=child(nativeScreen,"Frame","Settings")
 local frame=child(settings,"Frame","Frame");child(frame,"UIStroke","UIStroke")
 local main=child(frame,"Frame","Main");local list=child(main,"ScrollingFrame","ScrollingFrame")
 local template=child(list,"Frame","Template");local info=child(template,"Frame","Information");child(info,"TextLabel","Label")

@@ -284,6 +284,10 @@ mock.env.task={
 local startupFn=assert(loadstring(startupSource));setfenv(startupFn,mock.env)
 local firstWindow=startupFn()
 assert(firstWindow and liveGlobals._BGSI_TestHub.UI)
+local gameVersion=mock.playerGui.ScreenGui.VersionLabel
+assert(gameVersion.Text=="v10724 | v102")
+gameVersion.Text="v10725 (t)"
+assert(gameVersion.Text=="v10725 (t) | v102", "Preserve changes and plaza markers")
 assert(next(liveGlobals._BGSI_TestHub.State.HubSettings)==nil, "Start with fresh settings")
 for _=1,8 do
     local co=table.remove(jobs,1)
@@ -297,6 +301,7 @@ assert(#liveGlobals._BGSI_TestHub.UI.ModuleErrors==0)
 assert(liveGlobals.Window.original and liveGlobals.HubSettings.original)
 local created=mock.counters.created
 assert(startupFn()==firstWindow and mock.counters.created==created, "Rerun should reopen, not stack instances")
+assert(gameVersion.Text=="v10725 (t) | v102", "Do not duplicate suffix on rerun")
 -- saveHubSettings was defined in the private environment, never in afbq's globals.
 assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()
@@ -306,6 +311,7 @@ local unloaded=liveGlobals._BGSI_TestHub
 liveGlobals._BGSI_TestHub.UI.UnloadControl.Action.Activated:Fire()
 assert(liveGlobals._BGSI_TestHub==nil and not unloaded.Active and firstWindow.Native.Parent==nil)
 assert(unloaded.UI==nil and unloaded.State==nil, "Release UI/state references on unload")
+assert(gameVersion.Text=="v10725 (t)", "Unload restores the latest native game version")
 mock.env.readfile=function(name)
     assert(name=="qtrzip_settings.json")
     return "qtrzip-json"

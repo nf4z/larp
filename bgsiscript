@@ -2,11 +2,11 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 16 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 17 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 16 then
+if prior and prior.Starting and prior.Revision == 17 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -70,7 +70,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 16, State = private}
+local runtime = {Starting = true, Revision = 17, ScriptVersion = "v102", State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -93,6 +93,24 @@ function runtime.Set(object, property, value)
     if not runtime.Active then return end
     runtime.Remember(object, property)
     pcall(function() object[property] = value end)
+end
+function runtime.DecorateVersionLabel(label)
+    if not label or not label:IsA("TextLabel") or runtime.VersionLabel==label then return end
+    runtime.VersionLabel=label
+    local base=label.Text
+    local suffix=" | "..runtime.ScriptVersion
+    local writing=false
+    local function update()
+        if writing or not runtime.Active then return end
+        local text=label.Text
+        if text:sub(-#suffix)==suffix then text=text:sub(1,-#suffix-1) end
+        base=text
+        if text=="" then return end
+        writing=true;label.Text=text..suffix;writing=false
+    end
+    runtime.Connect(label:GetPropertyChangedSignal("Text"),update)
+    table.insert(runtime.Restore,function() label.Text=base end)
+    update()
 end
 function runtime.EnableDebug(remote, player)
     if runtime.DebugRemembered then return end
@@ -169,7 +187,7 @@ function runtime.Unload()
     -- Retain the private environment and stop flags for auxiliary callbacks.
     -- Clearing its getgenv would make late callbacks touch another hub's globals.
     private.WindUI = nil; private.Window = nil; private.HubSettings = nil
-    runtime.UI = nil; runtime.State = nil
+    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil
     if actualGlobals._BGSI_TestHub == runtime then actualGlobals._BGSI_TestHub = nil end
 end
 
@@ -192,6 +210,13 @@ local function onTestHubGetTopbar()
     assert(type(module) == "table" and type(module.new) == "function", "Invalid TopbarPlus module")
     actualGlobals._BGSI_TopbarPlus = module
     return module
+end
+local function onTestHubDecorateVersion(screen)
+    local label=screen:FindFirstChild("VersionLabel")
+    if label then runtime.DecorateVersionLabel(label)
+    else runtime.Connect(screen.ChildAdded,function(child)
+        if child.Name=="VersionLabel" then runtime.DecorateVersionLabel(child) end
+    end) end
 end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
@@ -300,7 +325,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.16", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.17", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -411,6 +436,7 @@ local root = create("ScreenGui", {
 }, playerGui)
 library.ScreenGui = root
 if type(onTestHubUiCreated) == "function" then onTestHubUiCreated(library) end
+if type(onTestHubDecorateVersion) == "function" then onTestHubDecorateVersion(nativeScreen) end
 -- Compatibility names in afbq's setup; all overlays use the same private root.
 library.NotificationGui, library.DropdownGui, library.TooltipGui = root, root, root
 function library:SetParent(parent) root.Parent = parent end
