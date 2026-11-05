@@ -133,13 +133,13 @@ local utils=child(shared,"Folder","Utils");local stats=child(utils,"Folder","Sta
 local itemUtil=child(stats,"ModuleScript","ItemUtil")
 itemUtil._module={UpdateIcon=function(_,host,item)
 	if not item then counters.cleaned+=1;return end
-	counters.icons+=1;host.Label.Image="item:"..tostring(item.Name or item.Currency)
+	counters.icons+=1;host.Label.AnchorPoint=vector(0.5,0.5);host.Label.Image="item:"..tostring(item.Name or item.Currency)
 end}
 child(shared,"ModuleScript","Constants")._module={UnknownImage="unknown"}
 local eggs=child(data,"ModuleScript","Eggs");eggs._module={}
 for i=1,1000 do eggs._module["Egg "..i]={Image="rbxassetid://"..i} end
-child(data,"ModuleScript","Potions")._module={Lucky={}}
-child(data,"ModuleScript","Powerups")._module={["Mystery Box"]={Icon="box"}}
+child(data,"ModuleScript","Potions")._module={Lucky={},["Infinity Elixir"]={Image="infinity-elixir"}}
+child(data,"ModuleScript","Powerups")._module={["Mystery Box"]={Icon="box"},["Dice Key"]={Icon="dice-key"},["Giant Dice"]={Icon="giant-dice"},["Golden Dice"]={Icon="gold-dice"}}
 child(data,"ModuleScript","Pets")._module={Dog={}}
 child(data,"ModuleScript","Runes")._module={Luck={}}
 child(data,"ModuleScript","Currency")._module={Coins={}}
@@ -181,7 +181,12 @@ for _,name in ipairs({"Pets","Items","Titles","Currency"}) do
 	local entryButton=nativeButton:Clone();entryButton.Parent=entry;entryButton.Label.Text=name
 end
 local tray=child(inventoryFrame,"Frame","Tray");child(tray,"Frame","Buttons")
-local searchHost=child(tray,"Frame","Search");local search=child(searchHost,"Frame","Search");local bar=child(search,"Frame","Bar");child(bar,"TextBox","TextBox")
+local searchHost=child(tray,"Frame","Search");local search=child(searchHost,"Frame","Search")
+child(search,"ImageLabel","MagnifyingGlass").Image="native-search-glass"
+child(search,"ImageLabel","Background").Image="native-search-background"
+local bar=child(search,"Frame","Bar");bar.Position=UDim2.fromOffset(56,4);bar.Size=UDim2.new(1,-64,1,-8)
+local searchInput=child(bar,"TextBox","TextBox");searchInput.Position=UDim2.fromOffset(8,0);searchInput.Size=UDim2.new(1,-16,1,0)
+searchInput.TextXAlignment=Enum.TextXAlignment.Left;searchInput.TextColor3={nativeSearchText=true};searchInput.PlaceholderColor3={nativeSearchPlaceholder=true}
 top:Clone().Parent=frame;side:Clone().Parent=frame
 frame.BackgroundColor3={nativeSettingsColor=true}
 child(frame,"ImageLabel","Background").Image="native-settings-art"

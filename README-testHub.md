@@ -1,7 +1,7 @@
 # @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-9"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-10"))()
 ```
 
 The repository entry remains `testHub` for compatibility. The window has no title or status footer. The reopen button and hub branding use **@qtrzip**.
@@ -78,3 +78,13 @@ Box Condenser adds one-craft and automatic operation with a gem reserve, live co
 A Server tab adds Copy Job ID, Copy Join Script, Rejoin, Join Job ID and Hop To Emptiest Server. Hopping depends on access to Roblox's public server endpoint. These operations are user-triggered.
 
 The builder applies explicit transforms in tools/testhub_features.py and bundles testhub_src/extras.lua. The pinned afbq source is unchanged. Run python tools/test_testhub_features.py for catalog, rotation, inventory pacing, limits, reserve, and server-control tests. UI tests now use a poisoned keybind template with inherited layouts, alignment and sizing to guard against the reported regression. Live Roblox rendering and gameplay still require verification in the client.
+
+## Inventory search inputs and icon geometry (revision 10)
+
+All input fields and the bottom control filter clone Inventory.Frame.Tray.Search directly. The native search Bar geometry, magnifying-glass artwork, borders, colors, font and text insets are retained. Only the outer holder, editable value/placeholder and fixed font size are assigned by this hub. Inputs reserve the same 250 logical pixels as dropdowns.
+
+Item lookups now resolve punctuation, whitespace and case differences to the actual game data keys (Dice-Key -> Dice Key, Infinity-Elixir -> Infinity Elixir). Full exact names are checked before parsing potion levels, preventing numbered item names from being discarded. Live Image/Icon/Images.Normal assets take priority, with GitHub metadata and native animated item renderers as fallbacks. ImageLabels use centered anchors and positions to match ItemUtil's expectations. Visible dropdown options use a consistent 22-pixel font, including short names, and picker bounds are calculated relative to their overlay without subtracting the GUI inset twice.
+
+Unload Script is the final control in Misc, under Session. It is installed after the base features finish, independently of the optional extras module, and no longer appears in the header. It uses the existing lifecycle cleanup.
+
+Regression checks now cover cloned search artwork/insets, alias resolution, centered static and native item rendering, fixed option fonts, viewport-edge picker clamping, and unloading through the Misc action. Checks use Luau mocks; live appearance remains unverified.

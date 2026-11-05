@@ -64,7 +64,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.9", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.10", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -196,11 +196,22 @@ local function data(name)
 	if dataCache[name] == nil then dataCache[name] = safeRequire(path(shared, "Data", name)) or false end
 	return dataCache[name] or nil
 end
-local function findEntry(name, value)
-	local entries = data(name)
+local lookupIndexes = {}
+local function normalized(value) return tostring(value):lower():gsub("[%s%p]", "") end
+local function findEntry(category, value)
+	local entries = data(category)
 	if not entries then return nil end
 	entries = entries.Data or entries
-	return entries[value]
+	if entries[value] then return entries[value], value end
+	local index = lookupIndexes[category]
+	if not index then
+		index = {}; lookupIndexes[category] = index
+		for name, entry in pairs(entries) do
+			if type(name) == "string" and type(entry) == "table" then index[normalized(name)] = name end
+		end
+	end
+	local name = index[normalized(value)]
+	return name and entries[name], name
 end
 local function resolve(value, context)
 	if type(value) == "table" and value.Item then return {item = value.Item} end
@@ -209,38 +220,41 @@ local function resolve(value, context)
 	local key = tostring(context or "") .. ":" .. raw
 	if descriptorCache[key] then return descriptorCache[key] end
 	local descriptor
-	local egg = findEntry("Eggs", raw)
+	local egg, eggName = findEntry("Eggs", raw)
 	if egg then
-		local image = cachedImage("Eggs", raw) or egg.Image
-		if type(image) == "string" and image ~= constants.UnknownImage and image ~= "" then
-			descriptor = {image = image}
-		else
-			descriptor = {model = path(assets, "Eggs", raw), image = image}
-		end
+		local image = egg.Image or cachedImage("Eggs", eggName)
+		if type(image) == "string" and image ~= constants.UnknownImage and image ~= "" then descriptor = {image = image}
+		else descriptor = {model = path(assets, "Eggs", eggName)} end
 	end
-	local rune, tier = raw:match("^(.-) Tier (%d+)$")
-	if not descriptor and rune and findEntry("Runes", rune) then
-		local image = cachedImage("Runes", rune, "Tier" .. tier)
-		descriptor = image and {image = image} or {item = {Type = "Rune", Name = rune, Tier = tonumber(tier)}}
+	local rune, tier = raw:match("^(.-)%s+[Tt]ier%s*(%d+)$")
+	if not descriptor and rune then
+		local entry, name = findEntry("Runes", rune)
+		if not entry then entry, name = findEntry("Runes", rune:gsub("%s*[Rr]une$", "")) end
+		if entry then
+			local tierData = entry.Tiers and entry.Tiers[tonumber(tier)]
+			descriptor = {image = tierData and tierData.Icon or cachedImage("Runes", name, "Tier" .. tier),
+				item = {Type = "Rune", Name = name, Tier = tonumber(tier)}}
+		end
 	end
 	if not descriptor then
 		for _, kind in ipairs({{"Potions", "Potion"}, {"Powerups", "Powerup"}, {"Pets", "Pet"}, {"PermanentBuffs", "PermanentBuff"}, {"FishingRods", "FishingRod"}, {"FishingBait", "Bait"}, {"FishingBobbers", "Bobber"}, {"Fish", "Fish"}}) do
-			local name = raw
-			local level = tonumber(raw:match("[Ll]evel%s*(%d+)$")) or tonumber(raw:match("%s+(%d+)$"))
-			if level then name = raw:gsub("%s+[Ll]evel%s*%d+$", ""):gsub("%s+%d+$", "") end
-			if findEntry(kind[1], name) then
-				local image = cachedImage(kind[1], name)
-				descriptor = image and {image = image} or {item = {Type = kind[2], Name = name, Level = level or 1}}
+			local entry, name = findEntry(kind[1], raw)
+			local level
+			if not entry and kind[2] == "Potion" then
+				level = tonumber(raw:match("[Ll]evel%s*(%d+)$")) or tonumber(raw:match("%s+(%d+)$"))
+				local base = raw:gsub("%s+[Ll]evel%s*%d+$", ""):gsub("%s+%d+$", "")
+				entry, name = findEntry(kind[1], base)
+			end
+			if entry then
+				local image = entry.Image or entry.Icon or (entry.Images and entry.Images.Normal) or cachedImage(kind[1], name)
+				descriptor = {image = type(image) == "string" and image or nil, item = {Type = kind[2], Name = name, Level = level or 1}}
 				break
 			end
 		end
 	end
 	if not descriptor then
-		local currency = findEntry("Currency", raw)
-		if currency then
-			local image = cachedImage("Currency", raw)
-			descriptor = image and {image = image} or {item = {Type = "Currency", Currency = raw}}
-		end
+		local currency, name = findEntry("Currency", raw)
+		if currency then descriptor = {image = currency.Image or cachedImage("Currency", name), item = {Type = "Currency", Currency = name}} end
 	end
 	descriptor = descriptor or {fallback = raw:sub(1, 1):upper()}
 	descriptorCount += 1
@@ -248,6 +262,7 @@ local function resolve(value, context)
 	descriptorCache[key] = descriptor
 	return descriptor
 end
+
 local function clearIcon(host)
 	if itemUtil then pcall(itemUtil.UpdateIcon, itemUtil, host, nil) end
 	for _, child in ipairs(host:GetChildren()) do child:Destroy() end
@@ -256,13 +271,16 @@ local function renderIcon(host, value, context)
 	clearIcon(host)
 	local descriptor = resolve(value, context)
 	local image = create("ImageLabel", {
-		Name = "Label", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
+		Name = "Label", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(1, 1),
 		ScaleType = Enum.ScaleType.Fit, ZIndex = host.ZIndex + 1,
 	}, host)
+	if type(descriptor.image) == "string" and descriptor.image ~= "" and descriptor.image ~= constants.UnknownImage then
+		image.Image = descriptor.image; return
+	end
 	if descriptor.item and itemUtil then
 
 		local ok = pcall(itemUtil.UpdateIcon, itemUtil, host, descriptor.item)
-		if ok then return end
+		if ok then image.Position = UDim2.fromScale(0.5, 0.5); return end
 	end
 	if descriptor.model then
 		image.Visible = false
@@ -288,10 +306,29 @@ local function renderIcon(host, value, context)
 	end
 end
 library.ResolveIcon = resolve
+library.RenderIcon = renderIcon
 
 -- Keep the inventory's complete artwork and layout instead of rebuilding its shell.
 -- The native Inventory wrapper contains the fullscreen dimmer/input backdrop.
 -- Copy only its actual window into a fresh transparent, passive holder.
+local searchPrototype = assert(path(inventoryFrame, "Tray", "Search"), "[@qtrzip] Native Inventory search missing")
+local function nativeSearchBox(parent, name, placeholder)
+	local shell = cloneNative(searchPrototype, parent.ZIndex + 1)
+	shell.Name = name; shell.Parent = parent
+	shell.AnchorPoint = Vector2.zero; shell.Position = UDim2.fromOffset(0, 0); shell.Size = UDim2.fromScale(1, 1)
+	for _, child in ipairs(shell:GetChildren()) do
+		if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
+	end
+	local inner = assert(shell:FindFirstChild("Search"), "[@qtrzip] Inventory Search.Search missing")
+	inner.AnchorPoint = Vector2.zero; inner.Position = UDim2.fromOffset(0, 0); inner.Size = UDim2.fromScale(1, 1)
+	-- Preserve Bar, magnifying glass, borders, gradients, font and text insets.
+	local input = assert(path(inner, "Bar", "TextBox"), "[@qtrzip] Inventory search TextBox missing")
+	input.Text = ""; input.PlaceholderText = placeholder or "Search..."
+	input.ClearTextOnFocus = false; input.TextEditable = true
+	input.TextScaled = false; input.TextSize = 22; input.MultiLine = false; input.TextWrapped = false
+	input.ClipsDescendants = true; input.TextTransparency = 0
+	return shell, input
+end
 local holder = create("Frame", {Name = "QtrzipHolder", BackgroundTransparency = 1, Active = false,
 	Size = UDim2.fromScale(1, 1), ZIndex = 2}, root)
 local panel = cloneNative(nativeSettings, 2)
@@ -329,24 +366,9 @@ local topLeft = path(header, "Left")
 if topLeft then
 	for _, child in ipairs(topLeft:GetChildren()) do if child:IsA("GuiObject") then child.Visible = false end end
 end
-local tray = cloneNative(assert(path(inventoryFrame, "Tray"), "[@qtrzip] Native search tray missing"), 4)
-tray.Parent = panel
-tray.Visible = true
-local trayButtons = tray:FindFirstChild("Buttons")
-if trayButtons then trayButtons.Visible = false end
-local searchHost = assert(path(tray, "Search"), "[@qtrzip] Native inventory search missing")
-searchHost.Visible = true
-local search = assert(path(searchHost, "Search", "Bar", "TextBox"), "[@qtrzip] Native search TextBox missing")
-search.Text = ""; search.PlaceholderText = "Search this tab..."; search.ClearTextOnFocus = false
-search.TextSize = 18
-tray.AnchorPoint = Vector2.zero; tray.Position = UDim2.new(0, 168, 1, -52); tray.Size = UDim2.new(1, -190, 0, 36)
-searchHost.AnchorPoint = Vector2.zero; searchHost.Position = UDim2.fromOffset(0, 0); searchHost.Size = UDim2.fromScale(1, 1)
-local nativeSearch = searchHost:FindFirstChild("Search")
-nativeSearch.AnchorPoint = Vector2.zero; nativeSearch.Position = UDim2.fromOffset(0, 0); nativeSearch.Size = UDim2.fromScale(1, 1)
-nativeSearch.Bar.AnchorPoint = Vector2.zero; nativeSearch.Bar.Position = UDim2.fromOffset(0, 0)
-nativeSearch.Bar.Size = UDim2.fromScale(1, 1)
-search.TextScaled = false; search.TextWrapped = false; search.TextXAlignment = Enum.TextXAlignment.Left
-search.AnchorPoint = Vector2.zero; search.Position = UDim2.fromOffset(16, 0); search.Size = UDim2.new(1, -32, 1, 0)
+local tray = create("Frame", {Name = "ControlSearch", BackgroundTransparency = 1, ZIndex = panel.ZIndex + 5,
+	AnchorPoint = Vector2.zero, Position = UDim2.new(0, 168, 1, -54), Size = UDim2.new(1, -190, 0, 40)}, panel)
+local searchShell, search = nativeSearchBox(tray, "InventorySearch", "Search this tab...")
 local body = assert(path(panel, "Main"), "[@qtrzip] Native Settings.Main missing")
 local pagePrototype = path(body, "ScrollingFrame")
 assert(pagePrototype and pagePrototype:IsA("ScrollingFrame"), "[@qtrzip] Native inventory scroll panel missing")
@@ -371,17 +393,6 @@ sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sid
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
 side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 64); side.Size = UDim2.new(0, 144, 1, -80)
-local unload, unloadTitle = button(header, "Unload", "Red")
-unload.Name = "Unload"
-unload.AnchorPoint = Vector2.zero
-unloadTitle.AnchorPoint = Vector2.zero; unloadTitle.Position = UDim2.fromOffset(8, 0)
-unloadTitle.Size = UDim2.new(1, -16, 1, 0); unloadTitle.TextScaled = false
-unloadTitle.TextSize = 22; unloadTitle.TextXAlignment = Enum.TextXAlignment.Center
-local unloadChevron = unload:FindFirstChild("Chevron"); if unloadChevron then unloadChevron.Visible = false end
-unload.Position = UDim2.fromOffset(18, 12); unload.Size = UDim2.fromOffset(136, 38)
-connect(unload.Activated, function()
-	if onTestHubUnload then onTestHubUnload() else library:Destroy() end
-end)
 local reopen = button(root, "@qtrzip [K]", "Blue")
 reopen.Size = UDim2.fromOffset(116, 36); reopen.AnchorPoint = Vector2.new(1, 0); reopen.Position = UDim2.new(1, -12, 0, 82); reopen.Visible = false
 local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scale = panelScale}
@@ -428,6 +439,13 @@ function library:ModuleFailed(message)
 	status("Load error: " .. tostring(message), true)
 end
 function library:ModulesReady()
+	if not self.UnloadControl then
+		local misc = window:Tab({Title = "Misc"})
+		misc:Section({Title = "Session"})
+		self.UnloadControl = misc:Button({Title = "Unload Script", Desc = "Stops this hub and restores tracked local changes. Your config stays saved.", Callback = function()
+			if type(onTestHubUnload) == "function" then onTestHubUnload() else library:Destroy() end
+		end})
+	end
 	-- Startup diagnostics are recorded in ModuleErrors and the console.
 end
 local function invoke(control, value)
@@ -561,7 +579,7 @@ function methods:Layout(narrow)
 	if self.Kind == "Section" then return end
 	local actionable = self.Kind ~= "Paragraph" and self.Kind ~= "Section"
 	local height = self.Description ~= "" and 75 or 50
-	local width = self.Kind == "Dropdown" and 250 or (self.Kind == "Toggle" and 80 or 200)
+	local width = (self.Kind == "Dropdown" or self.Kind == "Input") and 250 or (self.Kind == "Toggle" and 80 or 200)
 	self.Frame.Size = UDim2.new(1, 0, 0, height)
 	self.Information.Size = UDim2.new(1, actionable and -width - 15 or -16, 1, 0)
 	self.Information.ClipsDescendants = true
@@ -657,28 +675,9 @@ function tabMethods:Toggle(props)
 end
 function tabMethods:Input(props)
 	local control = row(self, "Input", props)
-	-- Use only the native border artwork. The keybind container's UIListLayout
-	-- otherwise treats the background and editable text as separate list items.
-	local nativeInput = path(control.ActionHost, "Keybind", "InputBox")
-	local artwork = nativeInput and nativeInput:FindFirstChild("Background")
-	assert(artwork, "[@qtrzip] Native input background unavailable")
-	local surface = create("Frame", {Name = "InputSurface", BackgroundTransparency = 1,
-		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(0, 0), Size = UDim2.fromScale(1, 1),
-		ClipsDescendants = true, ZIndex = control.ActionHost.ZIndex + 1}, control.ActionHost)
-	local background = cloneNative(artwork, surface.ZIndex + 1)
-	background.Name = "Background"; background.Parent = surface; background.Active = false
-	background.AnchorPoint = Vector2.zero; background.Position = UDim2.fromOffset(0, 0)
-	background.Size = UDim2.fromScale(1, 1)
-	local input = create("TextBox", {Name = "InputBox", BackgroundTransparency = 1,
-		Text = tostring(props.Value or ""), PlaceholderText = props.Placeholder or "Enter value...",
-		ClearTextOnFocus = false, TextEditable = true, Active = true, Interactable = true,
-		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0),
-		FontFace = nativeFont, TextSize = 22, TextScaled = false, TextWrapped = false,
-		TextColor3 = colors.stroke, PlaceholderColor3 = Color3.fromRGB(65, 99, 124),
-		TextTransparency = 0, TextStrokeTransparency = 1, RichText = false, MultiLine = false,
-		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
-		TextTruncate = Enum.TextTruncate.None, ClipsDescendants = true, ZIndex = surface.ZIndex + 3}, surface)
-	control.Action = input
+	local shell, input = nativeSearchBox(control.ActionHost, "InventoryInput", props.Placeholder or "Enter value...")
+	input.Text = tostring(props.Value or "")
+	control.Action = input; control.SearchShell = shell
 	function control:Set(value, silent) input.Text = tostring(value or ""); if not silent then invoke(self, input.Text) end end
 	control.SetValue = control.Set
 	connect(input.FocusLost, function() if not control.Locked then invoke(control, input.Text) end end)
@@ -735,16 +734,24 @@ function tabMethods:Dropdown(props)
 		local picker = dropdownComponent.new(action, {Items = items, DefaultValue = selected,
 			Width = "Target", MaxItemsVisible = 6, Multiple = self.Multi, SelectedItems = selectedItems})
 		picker._floater.Parent = overlay
+		picker._floater.AnchorPoint = Vector2.zero
+		for _, option in ipairs(picker._frames) do
+			local text = option.Label
+			text.TextScaled = false; text.TextSize = 22; text.TextWrapped = false
+			text.TextTruncate = Enum.TextTruncate.AtEnd
+			text.AnchorPoint = Vector2.zero; text.Position = UDim2.fromOffset(8, 0)
+			text.Size = UDim2.new(1, -16, 1, 0); text.TextXAlignment = Enum.TextXAlignment.Left
+		end
 		local scale = create("UIScale", {Scale = panelScale.Scale}, picker._floater)
 		function picker:_observeSize()
 			local function update()
 				local s = scale.Scale
 				local p = action.AbsolutePosition - overlay.AbsolutePosition
-				local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
-				local height = math.min(self._height * s, viewport.Y - overlay.AbsolutePosition.Y - 16)
+				local viewport = overlay.AbsoluteSize
+				local height = math.min(self._height * s, viewport.Y - 16)
 				local y = p.Y + action.AbsoluteSize.Y + 4
-				if y + height > viewport.Y - 44 then y = math.max(4, p.Y - height - 4) end
-				y = math.clamp(y, 8, math.max(8, viewport.Y - overlay.AbsolutePosition.Y - height - 8))
+				if y + height > viewport.Y - 8 then y = math.max(4, p.Y - height - 4) end
+				y = math.clamp(y, 8, math.max(8, viewport.Y - height - 8))
 				self._floater.Size = UDim2.fromOffset(action.AbsoluteSize.X / s, height / s)
 				self._floater.Position = UDim2.fromOffset(math.clamp(p.X, 8, math.max(8, viewport.X - action.AbsoluteSize.X - 8)), y)
 			end
