@@ -2,6 +2,33 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def enhance(source):
+    # Restrict discovery to real catalog/tagged eggs, never visual lock helpers.
+    source=source.replace('        local lower = name:lower()\n        -- Imported mesh', '        local lower = name:lower()\n        if lower:find("egglock", 1, true) or lower:find("template", 1, true) or lower:find("hitbox", 1, true) then return false end\n        -- Imported mesh')
+    source=source.replace('\n            or lower:find("egg", 1, true) ~= nil', '')
+    a=source.index('local function getInventoryEggs()')
+    b=source.index('-- Shared chunk/render scanner;',a)
+    source=source[:a]+'''local function getInventoryEggs()
+    local eggs = {}
+    local catalog = require(ReplicatedStorage.Shared.Data.Powerups)
+    local current = LocalData:Get()
+    for name, info in pairs(catalog) do
+        if type(info)=="table" and info.Type=="Egg" and (tonumber(current and current.Powerups and current.Powerups[name]) or 0)>0 then
+            table.insert(eggs,name)
+        end
+    end
+    table.sort(eggs)
+    return eggs
+end
+
+'''+source[b:]
+    source=source.replace('EggsTab:Dropdown({\n    Title = "Select Inventory Egg",', 'local inventoryEggDropdown = EggsTab:Dropdown({\n    Title = "Select Inventory Egg",')
+    source=source.replace('        selectedInventoryEgg = inventoryEggList[1]\n        local text', '''        if not table.find(inventoryEggList,selectedInventoryEgg) then selectedInventoryEgg=inventoryEggList[1] or "" end
+        inventoryEggDropdown:Refresh(inventoryEggList)
+        inventoryEggDropdown:Select(selectedInventoryEgg,true)
+        eggSettings.inventoryEgg=selectedInventoryEgg;saveHubSettings()
+        local text''')
+    source=source.replace('eggDropdown:Select(selectedEgg)', 'eggDropdown:Select(selectedEgg,true)')
+    source=source.replace('local selectedInventoryEgg = eggSettings.inventoryEgg or inventoryEggList[1] or "Dominus Egg"', 'local selectedInventoryEgg = table.find(inventoryEggList,eggSettings.inventoryEgg) and eggSettings.inventoryEgg or inventoryEggList[1] or ""')
     a=source.index('local function getBoxes()')
     b=source.index('-- ======================================\n-- FUNCTIONS',a)
     source=source[:a]+source[b:]

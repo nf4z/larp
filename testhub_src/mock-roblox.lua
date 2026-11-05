@@ -172,7 +172,8 @@ inventoryFrame.BackgroundColor3={nativeInventoryColor=true}
 child(inventoryFrame,"ImageLabel","Background").Image="native-inventory-art"
 local top=child(inventoryFrame,"Frame","Top");local topTitle=child(top,"Frame","Title");child(topTitle,"TextLabel","Title")
 local topLeft=child(top,"Frame","Left");child(topLeft,"Frame","Stats");child(topLeft,"Frame","StorageHolder")
-local closeHost=child(top,"Frame","Close");nativeButton:Clone().Parent=closeHost
+local closeHost=child(top,"Frame","Close")
+local nativeClose=nativeButton:Clone();nativeClose.Image="native-close-x";nativeClose.Parent=closeHost
 local inner=child(inventoryFrame,"Frame","Inner")
 for _,name in ipairs({"Pets","Items"}) do local page=child(inner,"Frame",name);local main=child(page,"Frame","Main");child(main,"ScrollingFrame","ScrollingFrame") end
 local side=child(inventoryFrame,"Frame","Sidebar");local nav=child(side,"Frame","Buttons");child(nav,"UIListLayout","UIListLayout")
@@ -210,7 +211,11 @@ child(components,"ModuleScript","Dropdown")._module={new=function(_,props)
 	local floater=Instance.new("Frame");local items=child(floater,"ScrollingFrame","Items");child(items,"UIListLayout","UIListLayout")
 	local frames={}
 	for _,name in ipairs(props.Items) do local entry=nativeButton:Clone();entry.Parent=items;entry.Label.Text=name;table.insert(frames,entry) end
-	local picker={_floater=floater,_frames=frames,_height=math.min(#props.Items,6)*50,
+	local function positionRows()
+        for index,entry in ipairs(frames) do entry.AbsoluteSize=vector(192,100);entry.AbsolutePosition=vector(250,180+(index-1)*100-items.CanvasPosition.Y) end
+    end
+    positionRows();items:GetPropertyChangedSignal("CanvasPosition"):Connect(positionRows)
+    local picker={_floater=floater,_frames=frames,_height=math.min(#props.Items,6)*50,
 		OnSelectionChanged=signal(),Closed=signal(),_renderTrove={Add=function(_,v) return v end},_trove={Add=function(_,v) return v end}}
 	function picker:SetOpened(value) self.Opened=value;if value then if self._observeSize then self:_observeSize() end else self.Closed:Fire() end end
 	function picker:SelectItem(index) self:SetOpened(false);assert(not self.Destroyed,"Do not destroy before selection");self.OnSelectionChanged:Fire(props.Items[index],index) end

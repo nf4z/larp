@@ -98,3 +98,13 @@ Inputs and the control filter now clone only Inventory.Frame.Tray.Search.Search,
 The GitHub entry is now bgsiscript. Use bgsiscript-loadstring.lua: its URL has no version query to change between releases. Running a newer revision unloads a tracked older revision automatically.
 
 All text inputs and the bottom filter now contain one plain rounded dark-blue field and a fresh full-height textbox. There is no magnifier, nested search artwork, or copied inventory layout. The field is 34 logical pixels high inside its 40-pixel host, with centered 20-pixel text and a 10-pixel horizontal inset. Tests reject any ImageLabel/ImageButton or inherited layout in these fields and verify direct parentage and full-height text geometry. Live rendering remains unverified.
+
+## Text spacing and dropdown quality of life (revision 13)
+
+Row titles use 22-pixel text, descriptions 18, section headings 24, and dropdown options 20. Information columns have explicit left/stroke clearance, descriptions wrap into their own region, and pages have padding to keep outlines clear of scrolling edges. Decorative dashes are removed from section labels.
+
+Egg discovery rejects lock/template/hitbox objects and requires a catalog/asset match or the game's Egg tag. All dropdowns also reject VisualEggLock and duplicate values. Inventory eggs come only from owned Powerups entries with Type=Egg, with no fabricated empty-inventory fallback. Inventory refresh updates the actual dropdown and preserves valid selections. Dropdown refresh removes stale choices while keeping valid ones.
+
+Visible icon rows are found from actual row positions and sizes instead of estimating from CanvasPosition divided by an unscaled template height. This keeps rendering aligned while scrolling/scaling. Run tools/test_testhub_catalog.py to check the generated discovery predicates and owned-egg filtering. UI checks remain mocked rather than a live client test.
+
+The close button uses a 40-pixel red target with a separate centered 26-pixel X. Its anchor and position are normalized, with clearance above the white panel in the blue header. The UI test checks target/glyph sizes and the gap to the content panel.

@@ -64,7 +64,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.12", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.13", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -359,8 +359,30 @@ titleHost.Visible = false
 local dragHandle = create("Frame", {Name = "DragHandle", BackgroundTransparency = 1, Active = true,
 	Position = UDim2.fromOffset(170, 0), Size = UDim2.new(1, -240, 0, 64), ZIndex = header.ZIndex + 12}, panel)
 local close = assert(path(header, "Close", "Button"), "[@qtrzip] Native close button missing")
-close.Parent.AnchorPoint = Vector2.new(1, 0); close.Parent.Position = UDim2.new(1, -14, 0, 10); close.Parent.Size = UDim2.fromOffset(44, 44)
-close.Size = UDim2.fromScale(1, 1)
+close.Parent.AnchorPoint = Vector2.new(1, 0)
+close.Parent.Position = UDim2.new(1, -16, 0, 10); close.Parent.Size = UDim2.fromOffset(40, 40)
+for _, object in ipairs({close.Parent, close}) do
+	for _, child in ipairs(object:GetChildren()) do
+		if child:IsA("UISizeConstraint") or child:IsA("UIAspectRatioConstraint") then child:Destroy() end
+	end
+end
+close.AnchorPoint = Vector2.zero; close.Position = UDim2.fromOffset(0, 0); close.Size = UDim2.fromScale(1, 1)
+-- Separate the glyph from the red hit target so its X has breathing room.
+if close:IsA("ImageButton") and type(close.Image) == "string" and close.Image ~= "" then
+	local glyph = create("ImageLabel", {Name = "CloseGlyph", BackgroundTransparency = 1,
+		Image = close.Image, ImageColor3 = close.ImageColor3, ImageRectOffset = close.ImageRectOffset, ImageRectSize = close.ImageRectSize,
+		ScaleType = Enum.ScaleType.Fit, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(26, 26), Active = false, ZIndex = close.ZIndex + 2}, close)
+	close.ImageTransparency = 1
+end
+for _, child in ipairs(close:GetChildren()) do
+	if (child:IsA("ImageLabel") or child:IsA("TextLabel")) and child.Name ~= "Background" then
+		child.AnchorPoint = Vector2.new(0.5, 0.5); child.Position = UDim2.fromScale(0.5, 0.5)
+		child.Size = UDim2.fromOffset(26, 26)
+		if child:IsA("TextLabel") then child.TextScaled = false; child.TextSize = 26 end
+	end
+end
+
 autoButtonColor(close, palette.Button.Red)
 local topLeft = path(header, "Left")
 if topLeft then
@@ -399,7 +421,7 @@ local window = {Tabs = {}, Native = panel, Opened = true, TabsByTitle = {}, Scal
 local resizeGrip = create("TextButton", {Name = "ResizeGrip", Text = "//", FontFace = nativeFont, TextSize = 22,
 	TextColor3 = colors.text, BackgroundTransparency = 1, Size = UDim2.fromOffset(32, 32),
 	AnchorPoint = Vector2.new(1, 1), Position = UDim2.fromScale(1, 1), ZIndex = panel.ZIndex + 20}, panel)
-window.DragHandle = dragHandle; window.ResizeGrip = resizeGrip
+window.DragHandle = dragHandle; window.ResizeGrip = resizeGrip; window.CloseButton = close
 library.Window = window
 local activeTab, popup, popupOwner
 local function closePopup()
@@ -581,12 +603,22 @@ function methods:Layout(narrow)
 	local height = self.Description ~= "" and 75 or 50
 	local width = (self.Kind == "Dropdown" or self.Kind == "Input") and 250 or (self.Kind == "Toggle" and 80 or 200)
 	self.Frame.Size = UDim2.new(1, 0, 0, height)
-	self.Information.Size = UDim2.new(1, actionable and -width - 15 or -16, 1, 0)
+	self.Information.AnchorPoint = Vector2.zero; self.Information.Position = UDim2.fromOffset(12, 4)
+	self.Information.Size = UDim2.new(1, actionable and -width - 36 or -28, 1, -8)
 	self.Information.ClipsDescendants = true
-	self.Label.TextScaled = false
+	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(3, 0)
+	self.Label.TextScaled = false; self.Label.TextSize = 22
 	self.Label.TextWrapped = false; self.Label.TextTruncate = Enum.TextTruncate.AtEnd
-	self.Label.Size = UDim2.new(1, 0, self.Description ~= "" and 0.5 or 1, 0)
-	if self.Desc then self.Desc.TextScaled = false end
+	self.Label.Size = self.Description ~= "" and UDim2.new(1, -6, 0, 27) or UDim2.new(1, -6, 1, 0)
+	self.Label.TextYAlignment = Enum.TextYAlignment.Center
+	local outline = self.Label:FindFirstChildOfClass("UIStroke"); if outline then outline.Thickness = 1.5 end
+	if self.Desc then
+		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(3, 28)
+		self.Desc.Size = UDim2.new(1, -6, 1, -28)
+		self.Desc.TextScaled = false; self.Desc.TextSize = 18; self.Desc.TextWrapped = true
+		self.Desc.TextYAlignment = Enum.TextYAlignment.Top
+		local border = self.Desc:FindFirstChildOfClass("UIStroke"); if border then border.Thickness = 1 end
+	end
 	if self.ActionHost then
 		self.ActionHost.Visible = actionable
 		self.ActionHost.AnchorPoint = Vector2.new(1, 0.5)
@@ -600,7 +632,10 @@ row = function(tab, kind, props)
 	if kind == "Section" then
 		local category = cloneNative(nativeCategory, 4)
 		category.Name = props.Title or "General"; category.LayoutOrder = #tab.Controls + 1; category.Parent = tab.Page
-		category.Label.Text = props.Title or "General"; category.Label.TextScaled = false
+		category.Label.Text = (props.Title or "General"):gsub("^%s*%-+%s*", ""):gsub("%s*%-+%s*$", "")
+		category.Label.TextScaled = false; category.Label.TextSize = 24
+		category.Label.AnchorPoint = Vector2.zero; category.Label.Position = UDim2.fromOffset(6, 6)
+		category.Label.Size = UDim2.new(1, -12, 0, 30); category.Label.TextTruncate = Enum.TextTruncate.AtEnd
 		clearContent(category.Items)
 		local list = assert(category.Items:FindFirstChildOfClass("UIListLayout"), "[@qtrzip] Settings category layout missing")
 		local function updateSize()
@@ -686,12 +721,23 @@ end
 
 local function optionValue(value) return type(value) == "table" and (value.Value or value.Title) or value end
 local function optionTitle(value) return tostring(type(value) == "table" and (value.Title or value.Value) or value) end
+local function dropdownValues(values)
+	local result, seen = {}, {}
+	for _, value in ipairs(values or {}) do
+		local key = tostring(optionValue(value) or "")
+		if key ~= "" and not normalized(key):find("visualegglock", 1, true) and not seen[key] then
+			seen[key] = true; table.insert(result, value)
+		end
+	end
+	return result
+end
 function tabMethods:Dropdown(props)
 	local control = row(self, "Dropdown", props)
-	control.Values = table.clone(props.Values or {}); control.Value = props.Value; control.Multi = props.Multi == true
+	control.Values = dropdownValues(props.Values); control.Value = props.Value; control.Multi = props.Multi == true
 	local action, title = rowButton(control)
 	control.Action = action
-	title.TextScaled = false; title.TextTruncate = Enum.TextTruncate.AtEnd
+	title.TextScaled = false; title.TextSize = 22; title.TextTruncate = Enum.TextTruncate.AtEnd
+	title.AnchorPoint = Vector2.zero; title.Position = UDim2.fromOffset(8, 0); title.Size = UDim2.new(1, -40, 1, 0)
 	local nativeLabelPosition, nativeLabelSize, nativeLabelAnchor = title.Position, title.Size, title.AnchorPoint
 	control.Icon = create("Frame", {BackgroundTransparency = 1, Position = UDim2.fromOffset(5, 3), Size = UDim2.fromOffset(32, 32), ZIndex = 7}, action)
 	function control:UpdateIcon()
@@ -737,7 +783,7 @@ function tabMethods:Dropdown(props)
 		picker._floater.AnchorPoint = Vector2.zero
 		for _, option in ipairs(picker._frames) do
 			local text = option.Label
-			text.TextScaled = false; text.TextSize = 22; text.TextWrapped = false
+			text.TextScaled = false; text.TextSize = 20; text.TextWrapped = false
 			text.TextTruncate = Enum.TextTruncate.AtEnd
 			text.AnchorPoint = Vector2.zero; text.Position = UDim2.fromOffset(8, 0)
 			text.Size = UDim2.new(1, -16, 1, 0); text.TextXAlignment = Enum.TextXAlignment.Left
@@ -770,8 +816,18 @@ function tabMethods:Dropdown(props)
 		local stride = math.max(1, dropdownRow.Size.Y.Offset + padding)
 		self.NativeStride = stride
 		local function updateIcons()
-			local first = math.max(1, math.floor(list.CanvasPosition.Y / stride) + 1)
-			local last = math.min(#self.Values, first + 8)
+			-- CanvasPosition and template offsets can use different units under UIScale.
+			-- Find visible rows from their actual screen geometry instead.
+			local top = list.AbsolutePosition.Y
+			local low, high = 1, #picker._frames
+			while low < high do
+				local middle = math.floor((low + high) / 2)
+				local frame = picker._frames[middle]
+				if frame.AbsolutePosition.Y + frame.AbsoluteSize.Y < top then low = middle + 1 else high = middle end
+			end
+			local first = low
+			local rowHeight = math.max(1, picker._frames[first].AbsoluteSize.Y)
+			local last = math.min(#self.Values, first + math.min(15, math.ceil(list.AbsoluteSize.Y / rowHeight) + 1))
 			for index, icon in pairs(icons) do
 				if index < first or index > last then clearIcon(icon); icon.Visible = false end
 			end
@@ -797,6 +853,8 @@ function tabMethods:Dropdown(props)
 			end
 		end
 		picker._trove:Add(list:GetPropertyChangedSignal("CanvasPosition"):Connect(updateIcons))
+		picker._trove:Add(list:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateIcons))
+		picker._trove:Add(picker._frames[1]:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateIcons))
 		picker.OnSelectionChanged:Connect(function(value, index, checked)
 			if self.Multi then
 				local values = type(self.Value) == "table" and table.clone(self.Value) or {}
@@ -819,8 +877,19 @@ function tabMethods:Dropdown(props)
 		updateIcons()
 	end
 	function control:Refresh(values)
-		self.Values = table.clone(values or {})
+		self.Values = dropdownValues(values)
 		if popupOwner == self then closePopup() end
+		local available = {}
+		for _, option in ipairs(self.Values) do available[optionValue(option)] = true end
+		if self.Multi then
+			local kept = {}
+			for _, value in ipairs(type(self.Value) == "table" and self.Value or {}) do
+				if available[value] then table.insert(kept, value) end
+			end
+			if #kept ~= #(type(self.Value) == "table" and self.Value or {}) then self:Select(kept) end
+		elseif self.Value ~= nil and not available[self.Value] then
+			self:Select(optionValue(self.Values[1]))
+		end
 	end
 	control:Select(props.Value, true)
 	connect(action.Activated, function()
@@ -837,6 +906,9 @@ function window:Tab(props)
 	for _, child in ipairs(page:GetChildren()) do if child:IsA("UIGridLayout") then child:Destroy() end end
 	page.Name = props.Title; page.Position = UDim2.fromOffset(0, 0); page.Size = UDim2.fromScale(1, 1)
 	page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.CanvasSize = UDim2.new(); page.Visible = false; page.Parent = body
+	local pagePadding = page:FindFirstChildOfClass("UIPadding") or create("UIPadding", {}, page)
+	pagePadding.PaddingLeft = UDim.new(0, 6); pagePadding.PaddingRight = UDim.new(0, 8)
+	pagePadding.PaddingTop = UDim.new(0, 4); pagePadding.PaddingBottom = UDim.new(0, 12)
 	local pageList = page:FindFirstChildOfClass("UIListLayout") or create("UIListLayout", {}, page)
 	pageList.SortOrder = Enum.SortOrder.LayoutOrder
 	local tab = setmetatable({Title = props.Title, Page = page, Controls = {}}, {__index = tabMethods})
