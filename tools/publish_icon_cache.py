@@ -28,7 +28,7 @@ def main():
     prefix=f'repos/{args.repo}'
     head=api(f'{prefix}/commits/{args.branch}')
     files=json.loads((ROOT/'icon-cache/publish-files.json').read_text())
-    files+=['icon-cache/publish-files.json','icon-cache/README.md','testHub']
+    files+=['icon-cache/publish-files.json','icon-cache/README.md','bgsiscript']
     files+= [p.relative_to(ROOT).as_posix() for p in (ROOT/'icon-cache/assets').glob('*.png')] if (ROOT/'icon-cache/assets').exists() else []
     if (ROOT/'icon-cache/mirrors.json').exists(): files.append('icon-cache/mirrors.json')
     entries=[]

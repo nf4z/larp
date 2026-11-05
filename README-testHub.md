@@ -1,10 +1,10 @@
 # @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-11"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/bgsiscript"))()
 ```
 
-The repository entry remains `testHub` for compatibility. The window has no title or status footer. The reopen button and hub branding use **@qtrzip**.
+The repository entry is `bgsiscript`. The window has no title or status footer. The reopen button and hub branding use **@qtrzip**.
 
 - Default size: **600 x 420**, with viewport fitting.
 - Drag the empty header area; resize with the bottom-right // handle.
@@ -92,3 +92,9 @@ Regression checks now cover cloned search artwork/insets, alias resolution, cent
 ## Compact inner search fields (revision 11)
 
 Inputs and the control filter now clone only Inventory.Frame.Tray.Search.Search, not its outer tray/search wrapper. The native inner background, magnifier and bar remain. Bar bounds and textbox anchor/position/height are explicitly fitted to the 40-pixel field, and inherited text/layout constraints are removed so short fields cannot clip text vertically. Text is vertically centered at a fixed 20-pixel size; the magnifier occupies a separate 32-pixel slot. Regression fixtures include unwanted outer artwork and a textbox with a stale vertical offset and fixed height.
+
+## Compact fields and stable entry (revision 12)
+
+The GitHub entry is now bgsiscript. Use bgsiscript-loadstring.lua: its URL has no version query to change between releases. Running a newer revision unloads a tracked older revision automatically.
+
+All text inputs and the bottom filter now contain one plain rounded dark-blue field and a fresh full-height textbox. There is no magnifier, nested search artwork, or copied inventory layout. The field is 34 logical pixels high inside its 40-pixel host, with centered 20-pixel text and a 10-pixel horizontal inset. Tests reject any ImageLabel/ImageButton or inherited layout in these fields and verify direct parentage and full-height text geometry. Live rendering remains unverified.

@@ -11,12 +11,12 @@ from testhub_features import enhance
 ROOT = Path(__file__).resolve().parents[1]
 LUAU = os.environ.get('LUAU', str(ROOT / '.tools/luau/luau.exe'))
 COMPILER = os.environ.get('LUAU_COMPILE', str(ROOT / '.tools/luau/luau-compile.exe'))
-for path in ['testHub', 'testhub_src/native-ui.lua', 'testhub_src/mock-roblox.lua']:
+for path in ['bgsiscript', 'testhub_src/native-ui.lua', 'testhub_src/mock-roblox.lua']:
     result = subprocess.run([COMPILER, '--null', str(ROOT / path)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
 print('Standalone script, adapter, and harness compile: PASS')
 base = (ROOT / 'testhub_src/afbq-base.lua').read_text(encoding='utf-8')
-built = (ROOT / 'testHub').read_text(encoding='utf-8')
+built = (ROOT / 'bgsiscript').read_text(encoding='utf-8')
 marker = '-- Shared egg scanner adapted from'
 feature_code = base[base.index(marker):]
 feature_code = feature_code.replace('Afbq Hub', '@qtrzip')
@@ -74,22 +74,21 @@ toggle:Lock();toggle.Action.Activated:Fire();assert(changes==1)
 toggle:Unlock()
 local field=tab:Input({Title="Amount",Value="12",Callback=function(value) inputValue=value end})
 assert(field.Action:TypeText("24"), "Editable text entry")
-assert(field.SearchShell.MagnifyingGlass.Image=="native-search-glass")
-assert(not field.SearchShell:FindFirstChild("OuterTrayArtwork",true) and not field.SearchShell:FindFirstChild("Search"), "Use only the inner search, never its wrapper")
+assert(field.Action.Parent==field.SearchShell and field.Action==field.SearchShell.TextBox)
+assert(field.SearchShell.Size.Y.Offset==-6 and field.SearchShell.Position.Y.Offset==3, "Compact 34-pixel field inside 40-pixel host")
 assert(field.Action.AnchorPoint.X==0 and field.Action.AnchorPoint.Y==0)
 assert(field.Action.Position.Y.Offset==0 and field.Action.Size.Y.Scale==1 and field.Action.Size.Y.Offset==0)
 assert(field.Action.TextYAlignment==mock.Enum.TextYAlignment.Center)
-assert(not field.Action:FindFirstChildOfClass("UITextSizeConstraint"))
-assert(field.SearchShell.MagnifyingGlass.Size.X.Offset==32)
-assert(field.SearchShell.Background.Image=="native-search-background")
-assert(field.Action.Parent==field.SearchShell.Bar and field.Action.Parent.Position.X.Offset==42)
-assert(not field.ActionHost.Keybind.Visible, "Do not reuse the keybind art or layout")
+for _, node in ipairs(field.SearchShell:GetDescendants()) do
+    assert(not node:IsA("ImageLabel") and not node:IsA("ImageButton"), "No magnifier or inherited search artwork")
+    assert(not node:IsA("UIListLayout") and not node:IsA("UITextSizeConstraint"), "No inherited text layout")
+end
+assert(not field.ActionHost.Keybind.Visible)
 field.Action.FocusLost:Fire();assert(inputValue=="24")
-assert(field.Action.TextColor3.nativeSearchText and field.Action.PlaceholderColor3.nativeSearchPlaceholder)
 assert(field.Action.TextEditable and field.Action.TextTransparency==0)
 assert(not field.Action.TextScaled and field.Action.TextSize==20)
-assert(field.Action.Position.X.Offset==8 and field.Action.Size.X.Offset==-16, "Keep Inventory text insets")
-assert(window.Native.ControlSearch.InventorySearch.Bar.Position.X.Offset==42, "Do not stretch the bar over the magnifier")
+assert(field.Action.Position.X.Offset==10 and field.Action.Size.X.Offset==-20)
+assert(window.Native.ControlSearch.InventorySearch.TextBox.Size.Y.Scale==1)
 local ran=0
 local run=tab:Button({Title="Rescan",Callback=function() ran+=1 end})
 run.Action.Activated:Fire();assert(ran==1)
@@ -154,7 +153,7 @@ for _,t in ipairs(window.Tabs) do t.NavigationButton.AbsolutePosition=mock.vecto
 other.NavigationButton.AbsolutePosition=mock.vector(30,110);other.NavigationButton.AbsoluteSize=mock.vector(100,30)
 mock.input.InputBegan:Fire({UserInputType=mock.Enum.UserInputType.MouseButton1,Position=mock.vector(40,120)},true)
 assert(other.Page.Visible and not tab.Page.Visible, "Global pointer routing selects the intended tab")
-tab:Select();local search=window.Native.ControlSearch.InventorySearch.Bar.TextBox;search.Text="Rescan"
+tab:Select();local search=window.Native.ControlSearch.InventorySearch.TextBox;search.Text="Rescan"
 assert(run.Frame.Visible and not toggle.Frame.Visible)
 search.Text="";assert(toggle.Frame.Visible)
 local mouse={UserInputType=mock.Enum.UserInputType.MouseButton1,Position=mock.vector(10,10)}

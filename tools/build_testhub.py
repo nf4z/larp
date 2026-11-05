@@ -47,11 +47,11 @@ header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 11 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 12 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 11 then
+if prior and prior.Starting and prior.Revision == 12 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -68,7 +68,7 @@ private.loadstring = function(text, name)
 end
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 11, State = private}
+local runtime = {Starting = true, Revision = 12, State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()
@@ -98,6 +98,6 @@ end
 return runtime.UI and runtime.UI.Window
 '''
 result = header + source + footer
-(ROOT / 'testHub').write_text(result, encoding='utf-8', newline='\n')
+(ROOT / 'bgsiscript').write_text(result, encoding='utf-8', newline='\n')
 print(json.dumps({'bytes': len(result.encode()), 'featureModules': len(re.findall(r'-- // Embedded module:', source)),
                   'shortenedModuleWaits': shortened, 'baseSHA256': hashlib.sha256(BASE.read_bytes()).hexdigest()}))
