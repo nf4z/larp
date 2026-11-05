@@ -2,11 +2,11 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 8 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 9 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 8 then
+if prior and prior.Starting and prior.Revision == 9 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -23,7 +23,7 @@ private.loadstring = function(text, name)
 end
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 8, State = private}
+local runtime = {Starting = true, Revision = 9, State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -233,7 +233,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.8", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.9", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -540,8 +540,13 @@ sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sid
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
 side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 64); side.Size = UDim2.new(0, 144, 1, -80)
-local unload = button(panel, "Unload", "Red")
+local unload, unloadTitle = button(header, "Unload", "Red")
 unload.Name = "Unload"
+unload.AnchorPoint = Vector2.zero
+unloadTitle.AnchorPoint = Vector2.zero; unloadTitle.Position = UDim2.fromOffset(8, 0)
+unloadTitle.Size = UDim2.new(1, -16, 1, 0); unloadTitle.TextScaled = false
+unloadTitle.TextSize = 22; unloadTitle.TextXAlignment = Enum.TextXAlignment.Center
+local unloadChevron = unload:FindFirstChild("Chevron"); if unloadChevron then unloadChevron.Visible = false end
 unload.Position = UDim2.fromOffset(18, 12); unload.Size = UDim2.fromOffset(136, 38)
 connect(unload.Activated, function()
 	if onTestHubUnload then onTestHubUnload() else library:Destroy() end
@@ -821,40 +826,27 @@ function tabMethods:Toggle(props)
 end
 function tabMethods:Input(props)
 	local control = row(self, "Input", props)
-	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[@qtrzip] Native input action missing")
-	keybind.Visible = true
-	keybind.AnchorPoint = Vector2.zero; keybind.Position = UDim2.fromOffset(0, 0); keybind.Size = UDim2.fromScale(1, 1)
-	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
-	local input = assert(keybind:FindFirstChild("InputBox"), "[@qtrzip] Native InputBox missing")
-	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
-	input.Size = UDim2.new(1, -20, 1, 0)
-	input.TextEditable = true; input.Active = true; input.Interactable = true
-	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(10, 0)
-	input.TextTransparency = 0; input.BackgroundTransparency = 1; input.ClipsDescendants = true
-	local display = input:FindFirstChild("Label")
-	if display then
-		for _, name in ipairs({"FontFace", "TextSize", "TextColor3", "TextStrokeColor3", "TextStrokeTransparency", "TextXAlignment"}) do input[name] = display[name] end
-		display.Visible = false
-	end
-	-- Native keybind artwork is retained, but placed behind its editable sibling.
-	local background = input:FindFirstChild("Background")
-	if background then
-		background.Parent = keybind; background.AnchorPoint = Vector2.zero
-		background.Position = UDim2.fromOffset(0, 0); background.Size = UDim2.fromScale(1, 1)
-		background.ZIndex = keybind.ZIndex + 1; background.Active = false
-	end
-	-- Keybind templates may retain right alignment, padding, and text constraints.
-	-- Normalize the editable text independently of the native background artwork.
-	for _, child in ipairs(input:GetChildren()) do
-		if child:IsA("UIConstraint") or child:IsA("UIPadding") or child:IsA("UIStroke") then child:Destroy() end
-	end
-	input.TextScaled = false; input.TextSize = 22; input.TextWrapped = false
-	input.RichText = false; input.MultiLine = false
-	input.TextXAlignment = Enum.TextXAlignment.Left; input.TextYAlignment = Enum.TextYAlignment.Center
-	input.TextTruncate = Enum.TextTruncate.None
-	input.ZIndex = keybind.ZIndex + 4
-	input.PlaceholderText = props.Placeholder or "Enter value..."
-
+	-- Use only the native border artwork. The keybind container's UIListLayout
+	-- otherwise treats the background and editable text as separate list items.
+	local nativeInput = path(control.ActionHost, "Keybind", "InputBox")
+	local artwork = nativeInput and nativeInput:FindFirstChild("Background")
+	assert(artwork, "[@qtrzip] Native input background unavailable")
+	local surface = create("Frame", {Name = "InputSurface", BackgroundTransparency = 1,
+		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(0, 0), Size = UDim2.fromScale(1, 1),
+		ClipsDescendants = true, ZIndex = control.ActionHost.ZIndex + 1}, control.ActionHost)
+	local background = cloneNative(artwork, surface.ZIndex + 1)
+	background.Name = "Background"; background.Parent = surface; background.Active = false
+	background.AnchorPoint = Vector2.zero; background.Position = UDim2.fromOffset(0, 0)
+	background.Size = UDim2.fromScale(1, 1)
+	local input = create("TextBox", {Name = "InputBox", BackgroundTransparency = 1,
+		Text = tostring(props.Value or ""), PlaceholderText = props.Placeholder or "Enter value...",
+		ClearTextOnFocus = false, TextEditable = true, Active = true, Interactable = true,
+		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0),
+		FontFace = nativeFont, TextSize = 22, TextScaled = false, TextWrapped = false,
+		TextColor3 = colors.stroke, PlaceholderColor3 = Color3.fromRGB(65, 99, 124),
+		TextTransparency = 0, TextStrokeTransparency = 1, RichText = false, MultiLine = false,
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None, ClipsDescendants = true, ZIndex = surface.ZIndex + 3}, surface)
 	control.Action = input
 	function control:Set(value, silent) input.Text = tostring(value or ""); if not silent then invoke(self, input.Text) end end
 	control.SetValue = control.Set
@@ -1040,7 +1032,7 @@ function library:CreateWindow(props)
 	heading.Text = ""
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
-	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc"}) do window:Tab({Title = title}) end
+	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do window:Tab({Title = title}) end
 	table.insert(self.Windows, window)
 	return window
 end
@@ -4318,26 +4310,6 @@ local allMasteryThread = nil
 -- ======================================
 -- GET BOXES
 -- ======================================
-local function getBoxes()
-    local boxes = {}
-    local data = LocalData:Get()
-    if data and data.Powerups then
-        for name, amount in pairs(data.Powerups) do
-            if (name:find("Box") or name:find("Crate") or name:find("Giftbox") or name:find("Present")) and amount > 0 then
-                table.insert(boxes, name)
-            end
-        end
-    end
-    if #boxes == 0 then
-        boxes = {"Mystery Box", "Golden Crate", "Wooden Crate"}
-    end
-    table.sort(boxes)
-    return boxes
-end
-
-local boxList = getBoxes()
-local selectedBox = autoSettings.selectedBox or boxList[1] or "Mystery Box"
-
 -- ======================================
 -- FUNCTIONS
 -- ======================================
@@ -4540,37 +4512,6 @@ end
 local function stopAutoPlaytime()
     playtimeRunning = false
     if playtimeThread then task.cancel(playtimeThread); playtimeThread = nil end
-end
-
-local function startAutoBox()
-    if boxThread then return end
-    boxEnabled = true
-    boxThread = task.spawn(function()
-        local VIM = game:GetService("VirtualInputManager")
-        while boxEnabled do
-            local data = LocalData:Get()
-            local amount = data and data.Powerups and data.Powerups[selectedBox] or 0
-            if amount > 0 then
-                local openAmount = math.min(amount, 25)
-                getgenv().ActivityStatus.current = "Opening " .. selectedBox .. " x" .. openAmount
-                getgenv().ActivityStatus.trigger = true
-                pcall(function() fire("UseGift", selectedBox, openAmount) end)
-                for i = 1, openAmount do
-                    if not boxEnabled then break end
-                    VIM:SendMouseButtonEvent(0, 0, 0, true, game, 1)
-                    VIM:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-                end
-                task.wait(0.1)
-            else
-                task.wait(5)
-            end
-        end
-    end)
-end
-
-local function stopAutoBox()
-    boxEnabled = false
-    if boxThread then task.cancel(boxThread); boxThread = nil end
 end
 
 local function startAutoDaily()
@@ -5227,51 +5168,6 @@ AutoTab:Toggle({
 -- ======================================
 -- UI - AUTO OPEN BOX
 -- ======================================
-AutoTab:Section({ Title = "Auto Open Box" })
-
-AutoTab:Dropdown({
-    Title = "Select Box",
-    Values = boxList,
-    Value = selectedBox,
-    Callback = function(v)
-        selectedBox = v
-        autoSettings.selectedBox = v
-        getgenv().HubSettings.auto = autoSettings
-        saveHubSettings()
-    end,
-})
-
-local boxListParagraph = AutoTab:Paragraph({
-    Title = "Box List",
-    Desc = "Boxes loaded. Click Rescan to refresh.",
-})
-
-AutoTab:Button({
-    Title = "Re Scan Boxes",
-    Desc = "Refresh the list of available boxes",
-    Callback = function()
-        boxList = getBoxes()
-        selectedBox = boxList[1] or "Mystery Box"
-        local text = "Found " .. #boxList .. " boxes"
-        pcall(function() boxListParagraph:SetDesc(text) end)
-    end,
-})
-
-AutoTab:Toggle({
-    Title = "Auto Open Box (don't use near egg)",
-    Desc = "Opens selected box 25 at a time",
-    Value = autoSettings.autoOpenBox or false,
-    Callback = function(v)
-        autoSettings.autoOpenBox = v
-        getgenv().HubSettings.auto = autoSettings
-        saveHubSettings()
-        if v then startAutoBox() else stopAutoBox() end
-    end,
-})
-
--- ======================================
--- UI - FISHING
--- ======================================
 AutoTab:Section({ Title = "Fishing" })
 
 AutoTab:Paragraph({
@@ -5304,7 +5200,7 @@ task.spawn(function()
     if autoSettings.dailyStreak then startAutoDaily() end
     if autoSettings.autoGoldenOrb then startAutoGoldenOrb() end
     if autoSettings.autoPlaytime then startAutoPlaytime() end
-    if autoSettings.autoOpenBox then startAutoBox() end
+
     if autoSettings.autoFishing then startAutoFishing() end
     if autoSettings.autoMastery then startAutoMastery() end
     if autoSettings.autoAllMastery then startAllMastery() end
@@ -12377,6 +12273,220 @@ print("[Misc] Loaded!")
     task.wait(0.3)
 
     WindUI:ModulesReady()
+
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local function optional(module) local good,value=pcall(require,module);return good and value or nil end
+            local install=(function()
+-- Selected Larplite features adapted to this hub's private settings and owned tasks.
+return function(context)
+    local Window, profile, powerups = context.Window, context.Profile, context.Powerups
+    local settings, save = context.Settings, context.Save
+    settings.auto = settings.auto or {}
+    local config = settings.auto
+    local function data() local ok, value = pcall(function() return profile:Get() end); return ok and value or {} end
+    local function owned(name)
+        local current = data()
+        if context.ItemUtil then
+            local ok, amount = pcall(function() return context.ItemUtil:GetOwnedAmount(current, {Type="Powerup", Name=name}) end)
+            if ok and tonumber(amount) then return math.max(0, math.floor(tonumber(amount))) end
+        end
+        return math.max(0, math.floor(tonumber(current.Powerups and current.Powerups[name]) or 0))
+    end
+    local function giftNames()
+        local result = {}
+        for name, info in pairs(powerups) do
+            if type(name)=="string" and type(info)=="table" and info.Type=="Gift" then table.insert(result,name) end
+        end
+        table.sort(result); return result
+    end
+    local function selectedNames(value)
+        local result, seen = {}, {}
+        if type(value)=="string" then value={value} end
+        for key, item in pairs(type(value)=="table" and value or {}) do
+            local name = type(key)=="string" and item==true and key or item
+            if type(name)=="string" and powerups[name] and powerups[name].Type=="Gift" and not seen[name] then
+                seen[name]=true;table.insert(result,name)
+            end
+        end
+        table.sort(result);return result
+    end
+    config.selectedBoxes=selectedNames(config.selectedBoxes or config.selectedBox)
+    config.boxBatch=math.clamp(math.floor(tonumber(config.boxBatch) or 25),1,context.MaxGifts)
+    config.boxDelay=math.clamp(tonumber(config.boxDelay) or 0.5,0.2,60)
+    config.condenserReserve=math.max(0,math.floor(tonumber(config.condenserReserve) or 0))
+    local auto=Window:Tab({Title="Auto"})
+    auto:Section({Title="Mystery Boxes"})
+    local picker=auto:Dropdown({Title="Boxes To Open",Desc="All gift types, including Guild and Condensed boxes. Takes turns between owned selections.",
+        Values=giftNames(),Value=config.selectedBoxes,Multi=true,Callback=function(value) config.selectedBoxes=selectedNames(value);save() end})
+    local inventory=auto:Paragraph({Title="Box Inventory",Desc="Loading owned counts..."})
+    local function refreshInventory()
+        local parts={}
+        for _, name in ipairs(config.selectedBoxes) do table.insert(parts,name..": "..owned(name)) end
+        inventory:SetDesc(#parts>0 and table.concat(parts," | ") or "Select boxes above. Unowned types stay available in the list.")
+    end
+    auto:Button({Title="Refresh Box List",Callback=function() picker:Refresh(giftNames());refreshInventory() end})
+    auto:Input({Title="Box Batch Size",Value=tostring(config.boxBatch),Callback=function(value)
+        local n=tonumber(value);if n then config.boxBatch=math.clamp(math.floor(n),1,context.MaxGifts);save() end
+    end})
+    auto:Input({Title="Box Open Delay",Desc="Seconds between batches (0.2–60).",Value=tostring(config.boxDelay),Callback=function(value)
+        local n=tonumber(value);if n then config.boxDelay=math.clamp(n,0.2,60);save() end
+    end})
+    auto:Toggle({Title="Auto Open Boxes",Desc="Opens and collects selected gifts without clicking the screen.",Value=config.autoOpenBox==true,
+        Callback=function(value) config.autoOpenBox=value;save() end})
+    local condenser=context.Condenser or {Input="Mystery Box",Output="Condensed Mystery Box",Boxes=100,Gems=500}
+    local inputName,outputName=condenser.Input or "Mystery Box",condenser.Output or "Condensed Mystery Box"
+    local costBoxes=math.max(1,tonumber(condenser.Boxes) or 100)
+    local costGems=math.max(1,tonumber(condenser.Gems) or 500)
+    local function canCondense()
+        return owned(inputName)>=costBoxes and (tonumber(data().Gems) or 0)-config.condenserReserve>=costGems
+    end
+    auto:Section({Title="Box Condenser"})
+    local condenserStatus=auto:Paragraph({Title="Condenser",Desc=costBoxes.." "..inputName.." + "..costGems.." Gems per craft."})
+    auto:Input({Title="Keep Gems",Desc="Condensing stops before spending this reserve.",Value=tostring(config.condenserReserve),Callback=function(value)
+        local n=tonumber(value);if n then config.condenserReserve=math.max(0,math.floor(n));save() end
+    end})
+    local pendingCondenser
+    local function condenseOne()
+        if not context.Active() or not canCondense() then return false end
+        if pendingCondenser and owned(outputName)<=pendingCondenser.output and owned(inputName)>=pendingCondenser.input and context.Now()-pendingCondenser.time<5 then return false end
+        local beforeInput,beforeOutput=owned(inputName),owned(outputName)
+        local ok,err=context.Condense()
+        if ok then
+            pendingCondenser={input=beforeInput,output=beforeOutput,time=context.Now()}
+            condenserStatus:SetDesc("Craft requested. Waiting for the inventory update.")
+        else condenserStatus:SetDesc(tostring(err or "Load Zen Island's condenser first.")) end
+        return ok
+    end
+    auto:Button({Title="Condense One",Desc="Crafts once, keeping your gem reserve.",Callback=condenseOne})
+    auto:Toggle({Title="Auto Condense Mystery Boxes",Desc="Reserves normal boxes for crafting while affordable; the opener uses other selections.",Value=config.autoCondenseBoxes==true,
+        Callback=function(value) config.autoCondenseBoxes=value;save() end})
+    local rotation,lastOpen,pending=0,-math.huge,{}
+    local collecting=setmetatable({}, {__mode="k"})
+    local function collectGifts()
+        local physical=context.PhysicalItem
+        if not physical or type(physical.GetActiveGifts)~="function" then return end
+        local ok,gifts=pcall(function() return physical:GetActiveGifts() end)
+        if not ok or type(gifts)~="table" then return end
+        for _,gift in pairs(gifts) do
+            if type(gift)=="table" and gift.Animating~=true and type(gift.Collect)=="function" and not collecting[gift] then
+                collecting[gift]=true
+                task.spawn(function()
+                    if not context.Active() then return end
+                    local success=pcall(function() gift:Collect() end)
+                    if not success then collecting[gift]=nil end
+                end)
+            end
+        end
+    end
+    local function stepBoxes()
+        if not context.Active() or not config.autoOpenBox then return end
+        collectGifts()
+        if context.Now()-lastOpen<config.boxDelay then return end
+        local active=0
+        if context.PhysicalItem and context.PhysicalItem.GetActiveObjects then
+            local ok,count=pcall(function() return context.PhysicalItem:GetActiveObjects("Gift") end)
+            if ok then active=tonumber(count) or 0 end
+        end
+        local capacity=context.MaxGifts-active
+        if capacity<=0 then return end
+        local names=config.selectedBoxes
+        for _=1,#names do
+            rotation=rotation%#names+1
+            local name=names[rotation]
+            local amount=owned(name)
+            local waiting=pending[name] and amount>=pending[name].before and context.Now()-pending[name].time<5
+            local reserved=name==inputName and config.autoCondenseBoxes and canCondense()
+            if amount>0 and not waiting and not reserved then
+                local batch=math.min(amount,config.boxBatch,capacity)
+                local ok=pcall(context.Fire,"UseGift",name,batch)
+                if ok then pending[name]={before=amount,time=context.Now()};lastOpen=context.Now() end
+                return
+            end
+        end
+    end
+    refreshInventory()
+    task.spawn(function()
+        local lastRefresh,lastCondense=-math.huge,-math.huge
+        while context.Active() do
+            local ok,err=pcall(function()
+                stepBoxes()
+                if config.autoCondenseBoxes and context.Now()-lastCondense>=1 then lastCondense=context.Now();condenseOne() end
+                if context.Now()-lastRefresh>=3 then lastRefresh=context.Now();refreshInventory() end
+            end)
+            if not ok then warn("[@qtrzip] Boxes: "..tostring(err)) end
+            task.wait(config.autoOpenBox and 0.25 or 1)
+        end
+    end)
+    local server=Window:Tab({Title="Server"})
+    server:Section({Title="Server Tools"})
+    local message=server:Paragraph({Title="Current Server",Desc=tostring(context.JobId)})
+    local function report(callback)
+        local ok,err=pcall(callback)
+        if not ok then message:SetDesc(tostring(err)) end
+    end
+    server:Button({Title="Copy Job ID",Callback=function() report(function() assert(context.Copy,"Clipboard unavailable");context.Copy(context.JobId);message:SetDesc("Job ID copied.") end) end})
+    server:Button({Title="Copy Join Script",Callback=function() report(function()
+        assert(context.Copy,"Clipboard unavailable")
+        context.Copy(string.format('game:GetService("TeleportService"):TeleportToPlaceInstance(%d, %q, game:GetService("Players").LocalPlayer)',context.PlaceId,context.JobId))
+        message:SetDesc("Join script copied.")
+    end) end})
+    server:Button({Title="Rejoin Server",Callback=function() report(function() context.Join(context.JobId) end) end})
+    local jobId=""
+    server:Input({Title="Server Job ID",Placeholder="Paste a Job ID",Value="",Callback=function(value) jobId=tostring(value):gsub("%s+","") end})
+    server:Button({Title="Join Job ID",Callback=function() report(function() assert(jobId~="","Enter a Job ID first.");context.Join(jobId) end) end})
+    server:Button({Title="Hop To Emptiest Server",Desc="Checks up to three pages of public servers.",Callback=function() report(function()
+        local id=context.FindServer();assert(id,"No other joinable public server found.");context.Join(id)
+    end) end})
+    return {GiftNames=giftNames,StepBoxes=stepBoxes,CondenseOne=condenseOne,CanCondense=canCondense,RefreshInventory=refreshInventory}
+end
+
+            end)()
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                Profile=require(storage.Client.Framework.Services.LocalData),
+                Powerups=require(storage.Shared.Data.Powerups),
+                ItemUtil=optional(storage.Shared.Utils.Stats.ItemUtil),
+                PhysicalItem=optional(storage.Client.Effects.PhysicalItem),
+                Condenser=optional(storage.Shared.Data:FindFirstChild("BoxCondenser")),
+                MaxGifts=math.max(1,math.floor(tonumber(require(storage.Shared.Constants).MaxSpawnableLimit) or 25)),
+                Active=function() return runtime.Active end,Now=os.clock,
+                Fire=function(...) storage.Shared.Framework.Network.Remote.RemoteEvent:FireServer(...) end,
+                Condense=function()
+                    local player=Players.LocalPlayer
+                    local root=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    local ok,target=pcall(function()
+                        local machine=workspace.Worlds["The Overworld"].Islands.Zen.Island.BoxCondenser
+                        local activation=machine:FindFirstChild("Activation") or machine
+                        return activation:IsA("BasePart") and activation.CFrame or activation:GetPivot()
+                    end)
+                    if not root or not ok then return false,"Visit Zen Island to load the condenser." end
+                    local position=root.CFrame
+                    root.CFrame=target
+                    local fired,reason=pcall(function() storage.Shared.Framework.Network.Remote.RemoteEvent:FireServer("CondenseMysteryBox",false) end)
+                    root.CFrame=position
+                    return fired,reason
+                end,
+                PlaceId=game.PlaceId,JobId=game.JobId,Copy=setclipboard or toclipboard,
+                Join=function(id) game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId,id,Players.LocalPlayer) end,
+                FindServer=function()
+                    local best,cursor=nil,nil
+                    for _=1,3 do
+                        if not runtime.Active then return nil end
+                        local url="https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+                        if cursor then url..="&cursor="..HttpService:UrlEncode(cursor) end
+                        local page=HttpService:JSONDecode(game:HttpGet(url))
+                        for _,server in ipairs(page.data or {}) do
+                            if server.id~=game.JobId and server.playing<server.maxPlayers and (not best or server.playing<best.playing) then best=server end
+                        end
+                        cursor=page.nextPageCursor;if not cursor or best then break end
+                    end
+                    return best and best.id
+                end,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Larplite extras: "..tostring(err)) end
+    end
     print("[Hub] All repository modules initialized.")
 end)
 

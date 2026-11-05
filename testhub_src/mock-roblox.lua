@@ -158,8 +158,12 @@ template.BackgroundTransparency=0.75
 local action=child(template,"Frame","Action");local drop=child(action,"Frame","Dropdown");nativeButton:Clone().Parent=drop
 local toggle=child(action,"ImageButton","Toggle");child(toggle,"Frame","Blob");child(toggle,"UIGradient","UIGradient")
 local keybind=child(action,"Frame","Keybind");child(keybind,"Frame","Clear")
+-- Real keybind geometry is layout-driven. Editable fields must not reuse this host.
+child(keybind,"UIListLayout","UIListLayout")
 local inputBox=child(keybind,"TextBox","InputBox");child(inputBox,"TextLabel","Label");child(inputBox,"Frame","Background")
-inputBox.TextEditable=false
+inputBox.TextEditable=false;inputBox.AnchorPoint=vector(1,0.5)
+inputBox.TextSize=72;inputBox.TextXAlignment=Enum.TextXAlignment.Right
+child(inputBox,"UIPadding","UIPadding");child(inputBox,"UITextSizeConstraint","UITextSizeConstraint")
 local inventory=child(nativeScreen,"Frame","Inventory")
 inventory.BackgroundTransparency=0.45;inventory.Interactable=false;inventory.Active=true
 local inventoryFrame=child(inventory,"Frame","Frame");inventoryFrame.Size=UDim2.fromOffset(1235,770)

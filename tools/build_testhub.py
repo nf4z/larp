@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 from testhub_lifecycle import instrument
+from testhub_features import enhance
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
@@ -39,17 +40,18 @@ source, shortened = re.subn(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedd
 source = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', source)
 source = source.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
 
+source = enhance(source)
 source = instrument(source)
 
 header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 8 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 9 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 8 then
+if prior and prior.Starting and prior.Revision == 9 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -66,7 +68,7 @@ private.loadstring = function(text, name)
 end
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 8, State = private}
+local runtime = {Starting = true, Revision = 9, State = private}
 actualGlobals._BGSI_TestHub = runtime
 ''' + (ROOT / 'testhub_src/runtime.lua').read_text(encoding='utf-8') + '''
 local function start()

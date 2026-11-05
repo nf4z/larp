@@ -64,7 +64,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.8", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.9", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -371,8 +371,13 @@ sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder; sidebarLayout.Parent = sid
 sidebarLayout.Padding = UDim.new(0, 6)
 create("UIPadding", {PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6)}, sidebar)
 side.AnchorPoint = Vector2.zero; side.Position = UDim2.fromOffset(12, 64); side.Size = UDim2.new(0, 144, 1, -80)
-local unload = button(panel, "Unload", "Red")
+local unload, unloadTitle = button(header, "Unload", "Red")
 unload.Name = "Unload"
+unload.AnchorPoint = Vector2.zero
+unloadTitle.AnchorPoint = Vector2.zero; unloadTitle.Position = UDim2.fromOffset(8, 0)
+unloadTitle.Size = UDim2.new(1, -16, 1, 0); unloadTitle.TextScaled = false
+unloadTitle.TextSize = 22; unloadTitle.TextXAlignment = Enum.TextXAlignment.Center
+local unloadChevron = unload:FindFirstChild("Chevron"); if unloadChevron then unloadChevron.Visible = false end
 unload.Position = UDim2.fromOffset(18, 12); unload.Size = UDim2.fromOffset(136, 38)
 connect(unload.Activated, function()
 	if onTestHubUnload then onTestHubUnload() else library:Destroy() end
@@ -652,40 +657,27 @@ function tabMethods:Toggle(props)
 end
 function tabMethods:Input(props)
 	local control = row(self, "Input", props)
-	local keybind = assert(control.ActionHost:FindFirstChild("Keybind"), "[@qtrzip] Native input action missing")
-	keybind.Visible = true
-	keybind.AnchorPoint = Vector2.zero; keybind.Position = UDim2.fromOffset(0, 0); keybind.Size = UDim2.fromScale(1, 1)
-	local clear = keybind:FindFirstChild("Clear"); if clear then clear.Visible = false end
-	local input = assert(keybind:FindFirstChild("InputBox"), "[@qtrzip] Native InputBox missing")
-	input.Text = tostring(props.Value or ""); input.PlaceholderText = props.Placeholder or "Enter value..."; input.ClearTextOnFocus = false
-	input.Size = UDim2.new(1, -20, 1, 0)
-	input.TextEditable = true; input.Active = true; input.Interactable = true
-	input.AnchorPoint = Vector2.zero; input.Position = UDim2.fromOffset(10, 0)
-	input.TextTransparency = 0; input.BackgroundTransparency = 1; input.ClipsDescendants = true
-	local display = input:FindFirstChild("Label")
-	if display then
-		for _, name in ipairs({"FontFace", "TextSize", "TextColor3", "TextStrokeColor3", "TextStrokeTransparency", "TextXAlignment"}) do input[name] = display[name] end
-		display.Visible = false
-	end
-	-- Native keybind artwork is retained, but placed behind its editable sibling.
-	local background = input:FindFirstChild("Background")
-	if background then
-		background.Parent = keybind; background.AnchorPoint = Vector2.zero
-		background.Position = UDim2.fromOffset(0, 0); background.Size = UDim2.fromScale(1, 1)
-		background.ZIndex = keybind.ZIndex + 1; background.Active = false
-	end
-	-- Keybind templates may retain right alignment, padding, and text constraints.
-	-- Normalize the editable text independently of the native background artwork.
-	for _, child in ipairs(input:GetChildren()) do
-		if child:IsA("UIConstraint") or child:IsA("UIPadding") or child:IsA("UIStroke") then child:Destroy() end
-	end
-	input.TextScaled = false; input.TextSize = 22; input.TextWrapped = false
-	input.RichText = false; input.MultiLine = false
-	input.TextXAlignment = Enum.TextXAlignment.Left; input.TextYAlignment = Enum.TextYAlignment.Center
-	input.TextTruncate = Enum.TextTruncate.None
-	input.ZIndex = keybind.ZIndex + 4
-	input.PlaceholderText = props.Placeholder or "Enter value..."
-
+	-- Use only the native border artwork. The keybind container's UIListLayout
+	-- otherwise treats the background and editable text as separate list items.
+	local nativeInput = path(control.ActionHost, "Keybind", "InputBox")
+	local artwork = nativeInput and nativeInput:FindFirstChild("Background")
+	assert(artwork, "[@qtrzip] Native input background unavailable")
+	local surface = create("Frame", {Name = "InputSurface", BackgroundTransparency = 1,
+		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(0, 0), Size = UDim2.fromScale(1, 1),
+		ClipsDescendants = true, ZIndex = control.ActionHost.ZIndex + 1}, control.ActionHost)
+	local background = cloneNative(artwork, surface.ZIndex + 1)
+	background.Name = "Background"; background.Parent = surface; background.Active = false
+	background.AnchorPoint = Vector2.zero; background.Position = UDim2.fromOffset(0, 0)
+	background.Size = UDim2.fromScale(1, 1)
+	local input = create("TextBox", {Name = "InputBox", BackgroundTransparency = 1,
+		Text = tostring(props.Value or ""), PlaceholderText = props.Placeholder or "Enter value...",
+		ClearTextOnFocus = false, TextEditable = true, Active = true, Interactable = true,
+		AnchorPoint = Vector2.zero, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0),
+		FontFace = nativeFont, TextSize = 22, TextScaled = false, TextWrapped = false,
+		TextColor3 = colors.stroke, PlaceholderColor3 = Color3.fromRGB(65, 99, 124),
+		TextTransparency = 0, TextStrokeTransparency = 1, RichText = false, MultiLine = false,
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None, ClipsDescendants = true, ZIndex = surface.ZIndex + 3}, surface)
 	control.Action = input
 	function control:Set(value, silent) input.Text = tostring(value or ""); if not silent then invoke(self, input.Text) end end
 	control.SetValue = control.Set
@@ -871,7 +863,7 @@ function library:CreateWindow(props)
 	heading.Text = ""
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
-	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc"}) do window:Tab({Title = title}) end
+	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do window:Tab({Title = title}) end
 	table.insert(self.Windows, window)
 	return window
 end

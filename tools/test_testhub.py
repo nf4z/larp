@@ -6,6 +6,7 @@ import re
 import subprocess
 import tempfile
 from testhub_lifecycle import instrument
+from testhub_features import enhance
 
 ROOT = Path(__file__).resolve().parents[1]
 LUAU = os.environ.get('LUAU', str(ROOT / '.tools/luau/luau.exe'))
@@ -17,16 +18,17 @@ print('Standalone script, adapter, and harness compile: PASS')
 base = (ROOT / 'testhub_src/afbq-base.lua').read_text(encoding='utf-8')
 built = (ROOT / 'testHub').read_text(encoding='utf-8')
 marker = '-- Shared egg scanner adapted from'
-feature_code = instrument(base)[instrument(base).index(marker):]
+feature_code = base[base.index(marker):]
 feature_code = feature_code.replace('Afbq Hub', '@qtrzip')
 feature_code = re.sub(r'(    end\n)    task.wait\(0\.3\)(\n\s*-- // Embedded module:)', r'\1    task.wait()\2', feature_code)
 feature_code = re.sub(r'else warn\(("\[Hub\] Failed: [^\n]+)\) end', r'else warn(\1); WindUI:ModuleFailed(tostring(err)) end', feature_code)
 feature_code = feature_code.replace('print("[Hub] All repository modules initialized.")', 'WindUI:ModulesReady()\n    print("[Hub] All repository modules initialized.")')
+feature_code = instrument(enhance(feature_code))
 actual = built[built.index(marker):built.rindex('\nend\nlocal ok, err = pcall(start)')]
-assert actual == feature_code, 'Feature code changed beyond module scheduling'
+assert actual == feature_code, 'Unexpected change outside explicit lifecycle/feature transforms'
 assert 'Footagesus/WindUI/releases' not in built
 assert len(re.findall('-- // Embedded module:', built)) == 17
-print('All 17 feature module bodies preserved; no WindUI download: PASS')
+print('17 base modules retained with explicit feature/lifecycle transforms; no WindUI download: PASS')
 mock = (ROOT / 'testhub_src/mock-roblox.lua').read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
 code = 'local mock = (function()\n' + mock + '\nend)()\n'
@@ -50,8 +52,10 @@ assert(window.Native.BackgroundColor3.nativeSettingsColor)
 assert(window.Native:FindFirstChild("Background").Image=="native-settings-art")
 assert(window.Native.Main.Background.Image=="native-settings-content", "Keep the Settings light content panel")
 assert(not window.Native.Top.Title.Title.Visible and window.Native:FindFirstChild("TestHubStatus")==nil)
-assert(window.Native:FindFirstChild("Unload"))
-assert(#window.Tabs==16, "Native navigation exists before feature worker startup")
+local unload=window.Native.Top:FindFirstChild("Unload")
+assert(unload and unload.AnchorPoint.X==0 and unload.AnchorPoint.Y==0)
+assert(not unload:FindFirstChild("Chevron") or not unload.Chevron.Visible)
+assert(#window.Tabs==17, "Native navigation exists before feature worker startup")
 local tab = window:Tab({Title="Eggs"})
 tab:Select()
 local section=tab:Section({Title="Hatching"})
@@ -67,9 +71,12 @@ toggle.Action.Activated:Fire();assert(changes==1 and toggle.Value==false)
 toggle:Lock();toggle.Action.Activated:Fire();assert(changes==1)
 toggle:Unlock()
 local field=tab:Input({Title="Amount",Value="12",Callback=function(value) inputValue=value end})
-assert(field.Action:TypeText("24"), "Native keybind textbox must become editable")
+assert(field.Action:TypeText("24"), "Editable text entry")
+assert(field.Action.Parent.Name=="InputSurface" and not field.Action.Parent:FindFirstChildOfClass("UIListLayout"))
+assert(not field.Action:FindFirstChildOfClass("UIPadding") and not field.Action:FindFirstChildOfClass("UITextSizeConstraint"))
+assert(not field.ActionHost.Keybind.Visible and field.ActionHost.Keybind.UIListLayout, "Keep inherited keybind layout out of the input surface")
 field.Action.FocusLost:Fire();assert(inputValue=="24")
-assert(field.Action.TextEditable and field.Action.TextTransparency==0 and not field.Action.Label.Visible)
+assert(field.Action.TextEditable and field.Action.TextTransparency==0 and field.Action:FindFirstChild("Label")==nil)
 assert(not field.Action.TextScaled and field.Action.TextSize==22 and field.Action.TextXAlignment==mock.Enum.TextXAlignment.Left)
 assert(field.Action.Position.X.Offset==10 and field.Information.ClipsDescendants)
 assert(field.Action.Parent.Background.ZIndex<field.Action.ZIndex, "The native artwork must sit behind the editable box")
@@ -231,7 +238,7 @@ liveGlobals._BGSI_TestHub.State.saveHubSettings()
 assert(writes["qtrzip_settings.json"]=="encoded-test-settings" and writes["renoa_hub_settings.json"]==nil and writes["testhub_settings.json"]==nil)
 for _,name in ipairs(reads) do assert(name=="qtrzip_settings.json") end
 local unloaded=liveGlobals._BGSI_TestHub
-firstWindow.Native.Unload.Activated:Fire()
+firstWindow.Native.Top.Unload.Activated:Fire()
 assert(liveGlobals._BGSI_TestHub==nil and not unloaded.Active and firstWindow.Native.Parent==nil)
 assert(unloaded.UI==nil and unloaded.State==nil, "Release UI/state references on unload")
 mock.env.readfile=function(name)

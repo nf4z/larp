@@ -1,7 +1,7 @@
 # @qtrzip
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-8"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/testHub?v=qtrzip-9"))()
 ```
 
 The repository entry remains `testHub` for compatibility. The window has no title or status footer. The reopen button and hub branding use **@qtrzip**.
@@ -9,7 +9,7 @@ The repository entry remains `testHub` for compatibility. The window has no titl
 - Default size: **600 x 420**, with viewport fitting.
 - Drag the empty header area; resize with the bottom-right // handle.
 - Press **K** to open/close. Keyboard text entry does not trigger it.
-- Scroll the sidebar for all 16 tabs; search controls in the selected tab.
+- Scroll the sidebar for all 17 tabs; search controls in the selected tab.
 
 ## Separate configuration
 
@@ -66,3 +66,15 @@ python tools/test_icon_cache.py
 ```
 
 The lifecycle harness tests cancellation of both running and delayed/deferred jobs, event disconnection, instance cleanup, original-value/hook restoration, and idempotent unload. These are deterministic Luau tests, not a live Roblox playtest.
+
+## Clean inputs, header action, and Larplite additions (revision 9)
+
+Editable inputs now use a fresh TextBox inside an isolated InputSurface, retaining only the native keybind background artwork. The native Keybind container remains hidden; its layout/padding/text constraints cannot position the placeholder independently of the white field. Text uses a readable dark color, fixed size, and a 10-pixel inset. The Unload button now has a zero anchor, sits inside the header, and has no dropdown chevron.
+
+The Auto tab's previous box opener is replaced with catalog-based Gift discovery, including zero-owned types, multi-selection, owned-count rotation, batch/delay controls, working list refresh, and inventory counts. Collection uses the native PhysicalItem gift API instead of simulated mouse clicks. Requests respect active gift capacity and wait for inventory changes before repeating a batch for the same item.
+
+Box Condenser adds one-craft and automatic operation with a gem reserve, live costs from BoxCondenser data, and response pacing. When auto-condensing is affordable, the opener reserves its input boxes and opens other selected types. Zen Island's condenser must be loaded. New settings live only in this hub's qtrzip_settings.json; no Larplite config is imported.
+
+A Server tab adds Copy Job ID, Copy Join Script, Rejoin, Join Job ID and Hop To Emptiest Server. Hopping depends on access to Roblox's public server endpoint. These operations are user-triggered.
+
+The builder applies explicit transforms in tools/testhub_features.py and bundles testhub_src/extras.lua. The pinned afbq source is unchanged. Run python tools/test_testhub_features.py for catalog, rotation, inventory pacing, limits, reserve, and server-control tests. UI tests now use a poisoned keybind template with inherited layouts, alignment and sizing to guard against the reported regression. Live Roblox rendering and gameplay still require verification in the client.
