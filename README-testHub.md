@@ -128,3 +128,7 @@ The supplied console errors identified an absent Janitor.clean alias, followed b
 Button scale animation is local to this hub: 1.012 hover and 0.985 press with Sine/Out easing. Buttons anchor at their center, keep native color/sound effects, and cancel outstanding scale tweens on cleanup. Native game ClickableButton constants are not mutated.
 
 Main row labels use 28-pixel text, descriptions 20 and headings 28. Information no longer clips text strokes, inherited layout/text constraints are removed, alignment is explicitly left, and scrolling is vertical with an initial zero horizontal offset. Description rows have enough height for two lines. The input design and permanent bgsiscript loadstring are unchanged. These are regression-tested changes; live rendering remains unverified.
+
+## Text inset and close glyph (revision 16)
+
+Setting titles and descriptions start 8 logical pixels from the row's left edge instead of 17. Titles increase from 28 to 30 pixels, and the information column reclaims unused space. Description rows provide a separate 36-pixel title area and two lines below. The close target stays 44 pixels with a centered 34-pixel X, native red coloring, and a modest rounded-square corner rather than a circular background. The existing gentle centered animation remains.
