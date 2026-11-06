@@ -2,6 +2,7 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def enhance(source):
+    source=source.replace('InfoTab:Section({ Title = "Discord" })','if type(onTestHubSetupConfigs)=="function" then onTestHubSetupConfigs(InfoTab) end\nInfoTab:Section({ Title = "Discord" })',1)
     # Restrict discovery to real catalog/tagged eggs, never visual lock helpers.
     source=source.replace('        local lower = name:lower()\n        -- Imported mesh', '        local lower = name:lower()\n        if lower:find("egglock", 1, true) or lower:find("template", 1, true) or lower:find("hitbox", 1, true) then return false end\n        -- Imported mesh')
     source=source.replace('\n            or lower:find("egg", 1, true) ~= nil', '')

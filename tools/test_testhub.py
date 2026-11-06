@@ -117,6 +117,8 @@ assert(drop.ActionHost.Size.X.Offset==250 and drop.Frame.Size.Y.Offset==50, "Mat
 local internal=tab:Dropdown({Title="Eggs",Values={"Egg 1","VisualEggLock","Egg 1","Egg 2"},Value="Egg 1"})
 assert(#internal.Values==2 and internal.Values[2]=="Egg 2")
 internal:Refresh({"VisualEggLock","Egg 3"});assert(#internal.Values==1)
+local labeled=tab:Dropdown({Title="Config File",Values={{Title="Larplite | 111",Value="1rzHubLiteConfig_111.json"}},Value="1rzHubLiteConfig_111.json"})
+assert(labeled.Action.Label.Text=="Larplite | 111", "Show a readable option title while retaining the filename value")
 local plain=tab:Dropdown({Title="Target Tile",Values={"Chance","Mystery"},Value="Chance"})
 assert(not plain.Icon.Visible and plain.Action.Label.TextScaled==false, "No fake letter icons or inflated labels on plain choices")
 plain.Action.Activated:Fire()
@@ -286,9 +288,9 @@ local startupFn=assert(loadstring(startupSource));setfenv(startupFn,mock.env)
 local firstWindow=startupFn()
 assert(firstWindow and liveGlobals._BGSI_TestHub.UI)
 local gameVersion=mock.playerGui.ScreenGui.VersionLabel
-assert(gameVersion.Text=="v10724 | v104")
+assert(gameVersion.Text=="v10724 | v105")
 gameVersion.Text="v10725 (t)"
-assert(gameVersion.Text=="v10725 (t) | v104", "Preserve changes and plaza markers")
+assert(gameVersion.Text=="v10725 (t) | v105", "Preserve changes and plaza markers")
 assert(next(liveGlobals._BGSI_TestHub.State.HubSettings)==nil, "Start with fresh settings")
 for _=1,8 do
     local co=table.remove(jobs,1)
@@ -302,7 +304,7 @@ assert(#liveGlobals._BGSI_TestHub.UI.ModuleErrors==0)
 assert(liveGlobals.Window.original and liveGlobals.HubSettings.original)
 local created=mock.counters.created
 assert(startupFn()==firstWindow and mock.counters.created==created, "Rerun should reopen, not stack instances")
-assert(gameVersion.Text=="v10725 (t) | v104", "Do not duplicate suffix on rerun")
+assert(gameVersion.Text=="v10725 (t) | v105", "Do not duplicate suffix on rerun")
 -- saveHubSettings was defined in the private environment, never in afbq's globals.
 assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()

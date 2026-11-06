@@ -166,3 +166,11 @@ The inventory-difference scanner is removed. Only the server's HatchEgg, HatchPo
 Eligible IDs are claimed before asynchronous formatting, shared across reloads for 120 seconds and bounded to 4096 records. Same-name hatch results with different IDs remain separate, and batches without IDs are not deduplicated by pet name. Payload tables are copied before deferred work. Unload disconnects the listener and clears pending work. Auto-update waits for pending hatch formatting/sends before replacing the runtime.
 
 python tools/test_hatch_events.py tests no startup/inventory/reward/trade messages, real event shapes, duplicate suppression, multiple same-name hatches, payload mutation, reload persistence, bounded state and unload cancellation offline. No Discord messages are sent by these tests.
+
+## Detected workspace configs (script v105 / runtime revision 20)
+
+Info / Detected Configs scans workspace-root config/settings JSON files on load. It recognizes 1rzHubLiteConfig_<userid>.json as Larplite profiles and qtrzip_settings.json as this hub's active file, and can identify renamed files from known flat/nested settings shapes. The selector uses concise account labels and marks the active file; the preview shows the full filename, format, current/other account, top-level key count and recognized sections. Rescan Configs preserves the selected file when it still exists.
+
+Discovery reads files only to derive metadata: it does not display webhook URLs or other values, retain decoded config contents, apply/import settings, or write to another config. Invalid/oversized files are marked without echoing parser errors. Both listfiles root conventions and absolute/relative Windows paths are handled. Executors without directory listing can check only known current-account filenames; missing read APIs are reported in the panel. Scans do not recurse into cache folders and show at most 200 files.
+
+Run python tools/test_config_discovery.py for schema/account detection, filename aliases, Windows/root API fallbacks, duplicate filtering, malformed JSON, metadata privacy and rescan selection tests. The provided personal config files are not included in the repository.

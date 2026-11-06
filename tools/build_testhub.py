@@ -10,8 +10,8 @@ from port_testhub_hatch import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
-SCRIPT_VERSION = 'v104'
-RUNTIME_REVISION = 19
+SCRIPT_VERSION = 'v105'
+RUNTIME_REVISION = 20
 generate()
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
@@ -197,6 +197,16 @@ local function onTestHubSetupUpdates(tab)
             end)
             return true
         end,
+    })
+end
+local function onTestHubSetupConfigs(tab)
+    if runtime.ConfigDiscovery then return end
+    local install=(function()
+''' + (ROOT / 'testhub_src/config-discovery.lua').read_text(encoding='utf-8') + '''
+    end)()
+    runtime.ConfigDiscovery=install({Tab=tab,UserId=game:GetService("Players").LocalPlayer.UserId,
+        List=listfiles,Read=readfile,IsFile=isfile,
+        Decode=function(text) return game:GetService("HttpService"):JSONDecode(text) end,
     })
 end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end

@@ -270,6 +270,7 @@ local env=setmetatable({
 	workspace=workspace,Instance=Instance,Enum=Enum,Vector2=Vector2,Vector3=Vector3,UDim=UDim,UDim2=UDim2,
 	TweenInfo={new=function(...) return {...} end},Color3=Color3,ColorSequence=ColorSequence,Font=Font,CFrame=CFrame,
 	onTestHubGetTopbar=function() return Icon end,
+	listfiles=function() return {} end,
 	require=function(module) return module._module or {} end,
 	task={spawn=function(fn,...) fn(...) end,defer=function() end},
 }, {__index=getfenv()})

@@ -114,6 +114,6 @@ function runtime.Unload()
     -- Retain the private environment and stop flags for auxiliary callbacks.
     -- Clearing its getgenv would make late callbacks touch another hub's globals.
     private.WindUI = nil; private.Window = nil; private.HubSettings = nil
-    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil; runtime.Updater = nil; runtime.HasPendingWebhooks = nil
+    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil; runtime.Updater = nil; runtime.HasPendingWebhooks = nil; runtime.ConfigDiscovery = nil
     if actualGlobals._BGSI_TestHub == runtime then actualGlobals._BGSI_TestHub = nil end
 end

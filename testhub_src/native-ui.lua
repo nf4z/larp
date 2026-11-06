@@ -67,7 +67,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.19", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.20", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -843,7 +843,11 @@ function tabMethods:Dropdown(props)
 		self.Value = value
 		if self.Multi and type(value) == "table" then
 			title.Text = #value == 0 and "None selected" or (#value == 1 and optionTitle(value[1]) or (#value .. " selected"))
-		else title.Text = value ~= nil and optionTitle(value) or "Choose..." end
+		else
+			local display=value
+			for _,option in ipairs(self.Values) do if optionValue(option)==value then display=option;break end end
+			title.Text = value ~= nil and optionTitle(display) or "Choose..."
+		end
 		self:UpdateIcon()
 		if not silent then invoke(self, value) end
 	end
