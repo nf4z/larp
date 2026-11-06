@@ -67,7 +67,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.18", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.19", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -532,6 +532,7 @@ end
 function library:ModulesReady()
 	if not self.UnloadControl then
 		local misc = window:Tab({Title = "Misc"})
+		if type(onTestHubSetupUpdates)=="function" then onTestHubSetupUpdates(misc) end
 		misc:Section({Title = "Session"})
 		self.UnloadControl = misc:Button({Title = "Unload Script", Desc = "Stops this hub and restores tracked local changes. Your config stays saved.", Callback = function()
 			if type(onTestHubUnload) == "function" then onTestHubUnload() else library:Destroy() end

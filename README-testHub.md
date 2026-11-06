@@ -146,3 +146,23 @@ Show User Info in Webhook / Hatch Embed adds Larplite's currencies, hatch totals
 The 15 source functions are pinned with hashes in testhub_src/hatch-upstream.json, verified against GitHub core blob 3e53aea248b108c6f0585286b2111eed93950bc4. tools/port_testhub_hatch.py generates the isolated formatter; tools/testhub_hatch.py connects it to the existing scanner and simulation controls. Core values and layout remain from upstream; the adapter supplies this hub's settings, canonical pet flags and configured mention. The existing Super enchant image helper is shared with Larplite.
 
 python tools/test_testhub_hatch.py compares full envelopes and V2 cards against the original upstream builder for normal/Shiny/Mythic/XL/Super cases, optional User Info and hiding. It exercises the generated bgsiscript bridge, source handling, real-enchant preservation and allowed mentions. Tests are offline and send no Discord messages. Live delivery is not verified. The permanent loadstring is unchanged; the native game label now appends v103.
+
+## Automatic updates (script v104 / runtime revision 19)
+
+Misc / Updates contains Auto Update (enabled by default), Check For Updates, and a status paragraph. Automatic checks start after 10 seconds and normally poll every 2 minutes. Checks fetch only bgsiscript-version.json; the full script is downloaded only when the manifest revision is newer. Disabled automatic updates stay disabled in this hub's saved config, while manual checks remain available. Network, metadata and compile failures keep the current script running and back off to at most 15 minutes.
+
+Before replacing the hub, the updater compiles both the new immutable release and the current release for rollback, saves qtrzip_settings.json, and schedules execution using the original task scheduler. The new entry unloads the old runtime and its owned workers. If startup fails or no new window initializes, the previous release is restored with a 10-minute cooldown for that failed update. Unloading the hub cancels checks and queued reloads. A successful reload retains the window position, selected tab and minimized state.
+
+The builder now writes three release artifacts: bgsiscript, bgsiscript-version.json and releases/bgsiscript/v104-r19.lua (the versioned path is generated from SCRIPT_VERSION and RUNTIME_REVISION). Future releases must increment RUNTIME_REVISION and the displayed SCRIPT_VERSION, rebuild and publish all three atomically. tools/publish_icon_cache.py includes the manifest and versioned source automatically. The manifest SHA-256 supports artifact verification; runtime checks the revision/version and compilation before replacing anything.
+
+Run python tools/test_auto_update.py for offline tests of unchanged/current/new releases, metadata mismatch, compilation errors, staged rollback, toggle/manual behavior, overlapping checks, cancellation, backoff, failed startup recovery and preserved UI state. The real generated reload scheduler is exercised in the harness. The permanent user loadstring stays unchanged; execute it once to install this first auto-updating release.
+
+Update reloads also use a one-time, revision-scoped in-memory settings handoff, so current preferences survive even if local file saving is unavailable. Rollback receives a fresh copy of the original settings rather than preferences mutated by a failed release. The handoff is consumed at startup and cleared after either reload path.
+
+## Hatch-event-only notifications (included in v104)
+
+The inventory-difference scanner is removed. Only the server's HatchEgg, HatchPowerupEgg and ExclusiveHatch client events feed automatic hatch cards. Existing inventory contents, startup/profile syncs, trades and ItemsReceived reward messages never enter that path. Manual simulation remains explicit. Actual hatch results carry their source egg/event into the Larplite formatter; animation hiding does not affect the listener.
+
+Eligible IDs are claimed before asynchronous formatting, shared across reloads for 120 seconds and bounded to 4096 records. Same-name hatch results with different IDs remain separate, and batches without IDs are not deduplicated by pet name. Payload tables are copied before deferred work. Unload disconnects the listener and clears pending work. Auto-update waits for pending hatch formatting/sends before replacing the runtime.
+
+python tools/test_hatch_events.py tests no startup/inventory/reward/trade messages, real event shapes, duplicate suppression, multiple same-name hatches, payload mutation, reload persistence, bounded state and unload cancellation offline. No Discord messages are sent by these tests.

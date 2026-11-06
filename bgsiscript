@@ -2,11 +2,11 @@
 -- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 18 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 19 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 18 then
+if prior and prior.Starting and prior.Revision == 19 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -17,10 +17,13 @@ private._G = private
 private.getgenv = function() return private end
 -- Auxiliary feature scripts inherit the same private runtime.
 local originalLoadstring = loadstring
-private.LoadSharedLibrary = function(source, name)
-    local chunk = assert(originalLoadstring(source, name))
-    setfenv(chunk, sharedEnvironment)
-    return chunk()
+private.CompileSharedLibrary = function(source, name)
+    local chunk,reason=originalLoadstring(source,name)
+    if chunk then setfenv(chunk,sharedEnvironment) end
+    return chunk,reason
+end
+private.LoadSharedLibrary = function(source,name)
+    return assert(private.CompileSharedLibrary(source,name))()
 end
 private.loadstring = function(text, name)
     local chunk, err = originalLoadstring(text, name)
@@ -70,7 +73,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 18, ScriptVersion = "v103", State = private}
+local runtime = {Starting = true, Revision = 19, ScriptVersion = "v104", State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -171,6 +174,7 @@ function runtime.Unload()
     private.RdotAfishingConfig = {Enabled = false, Mode = "Off"}
     private.animationHidden = false
     runtime.Active = false
+    if runtime.HatchEvents then runtime.HatchEvents:Destroy();runtime.HatchEvents=nil end
     local current = coroutine.running()
     for thread in pairs(runtime.Threads) do
         if thread ~= current then pcall(realTask.cancel, thread) end
@@ -187,13 +191,17 @@ function runtime.Unload()
     -- Retain the private environment and stop flags for auxiliary callbacks.
     -- Clearing its getgenv would make late callbacks touch another hub's globals.
     private.WindUI = nil; private.Window = nil; private.HubSettings = nil
-    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil
+    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil; runtime.Updater = nil; runtime.HasPendingWebhooks = nil
     if actualGlobals._BGSI_TestHub == runtime then actualGlobals._BGSI_TestHub = nil end
 end
 
 local function start()
 local task, Instance = ownedTask, ownedInstance
 local function onTestHubUnload() runtime.Unload() end
+local function onTestHubHatchDedupState()
+    if type(actualGlobals._BGSI_HatchEventDedup)~="table" then actualGlobals._BGSI_HatchEventDedup={} end
+    return actualGlobals._BGSI_HatchEventDedup
+end
 local function onTestHubGetTopbar()
     if actualGlobals._BGSI_TopbarPlus then return actualGlobals._BGSI_TopbarPlus end
     local storage = game:GetService("ReplicatedStorage")
@@ -217,6 +225,145 @@ local function onTestHubDecorateVersion(screen)
     else runtime.Connect(screen.ChildAdded,function(child)
         if child.Name=="VersionLabel" then runtime.DecorateVersionLabel(child) end
     end) end
+end
+local function onTestHubSetupUpdates(tab)
+    if runtime.Updater then return end
+    if type(private.HubSettings.updates)~="table" then private.HubSettings.updates={} end
+    local install=(function()
+-- Small release-manifest polling; script sources are fetched only for an update.
+return function(ctx)
+    local options=ctx.Settings
+    if options.enabled==nil then options.enabled=true end
+    local updater={Busy=false,Failures=0,RetryDelay=120}
+    local tab=ctx.Tab
+    tab:Section({Title="Updates"})
+    local status=tab:Paragraph({Title="Script "..ctx.Version,Desc="Auto update checks every 2 minutes."})
+    local function show(message) if ctx.Active() then status:SetDesc(message) end end
+    local function compile(source,revision,version)
+        assert(type(source)=="string","Empty release response")
+        local gotRevision,gotVersion=source:match('Revision = (%d+), ScriptVersion = "(v%d+)"')
+        assert(tonumber(gotRevision)==revision and gotVersion==version,"Release metadata does not match its script")
+        local chunk,reason=ctx.Compile(source,"@bgsiscript-"..version)
+        assert(type(chunk)=="function",tostring(reason or "Release did not compile"))
+        return chunk
+    end
+    function updater:Check(manual)
+        if self.Busy or not ctx.Active() then return false,"busy" end
+        self.Busy=true
+        local ok,result=pcall(function()
+            show("Checking for updates...")
+            local release=ctx.Manifest()
+            assert(type(release)=="table" and release.schema==1,"Invalid update manifest")
+            assert(type(release.revision)=="number" and release.revision%1==0 and type(release.version)=="string","Invalid release version")
+            assert(release.version:match('^v%d+$') and release.path=="releases/bgsiscript/"..release.version.."-r"..release.revision..".lua","Invalid release path")
+            if release.revision<=ctx.Revision then show("Up to date: "..ctx.Version);return "current" end
+            if not manual and not options.enabled then return "disabled" end
+            if not ctx.CanApply(release.revision,manual) then show("The last update failed. Retrying later; manual checks are available.");return "cooldown" end
+            if ctx.Busy and ctx.Busy() then show("Update ready; waiting for pending hatch notifications.");return "pending" end
+            show("Downloading "..release.version.."...")
+            local chunk=compile(ctx.Fetch(release.path),release.revision,release.version)
+            -- Stage a known working rollback before allowing the current hub to unload.
+            local rollback=compile(ctx.Fetch(ctx.CurrentPath),ctx.Revision,ctx.Version)
+            if not ctx.Active() or (not manual and not options.enabled) then return "cancelled" end
+            if ctx.Busy and ctx.Busy() then show("Update ready; waiting for pending hatch notifications.");return "pending" end
+            ctx.Save()
+            if not ctx.Queue(chunk,rollback,release.revision) then return "cancelled" end
+            show("Updating to "..release.version.."...")
+            return "queued"
+        end)
+        self.Busy=false
+        if ok then
+            self.Failures=0;self.RetryDelay=result=="pending" and 5 or (result=="cooldown" and 600 or 120)
+            return true,result
+        end
+        self.Failures+=1;self.RetryDelay=math.min(900,120*2^math.min(self.Failures-1,3))
+        show("Update check failed; current script kept running. "..tostring(result))
+        return false,result
+    end
+    tab:Toggle({Title="Auto Update",Desc="Checks for new releases and reloads with your saved config.",Value=options.enabled,
+        Callback=function(value)
+            options.enabled=value;ctx.Save()
+            show(value and "Auto update enabled. Checking for a release..." or "Auto update disabled.")
+            if value then task.spawn(function() updater:Check(false) end) end
+        end})
+    tab:Button({Title="Check For Updates",Desc="Checks now, even when automatic updates are off.",Callback=function() updater:Check(true) end})
+    task.spawn(function()
+        task.wait(10)
+        while ctx.Active() do
+            if options.enabled then updater:Check(false) end
+            task.wait(options.enabled and updater.RetryDelay or 5)
+        end
+    end)
+    return updater
+end
+
+    end)()
+    local prefix="https://raw.githubusercontent.com/nf4z/larp/main/"
+    runtime.Updater=install({Tab=tab,Settings=private.HubSettings.updates,Version=runtime.ScriptVersion,Revision=runtime.Revision,
+        CurrentPath="releases/bgsiscript/"..runtime.ScriptVersion.."-r"..runtime.Revision..".lua",
+        Active=function() return runtime.Active and actualGlobals._BGSI_TestHub==runtime and not runtime.UpdateQueued end,
+        Save=private.saveHubSettings,Compile=private.CompileSharedLibrary,
+        Busy=function() return runtime.HasPendingWebhooks and runtime.HasPendingWebhooks() end,
+        Manifest=function()
+            local response=game:HttpGet(prefix.."bgsiscript-version.json?check="..os.time(),true)
+            return game:GetService("HttpService"):JSONDecode(response)
+        end,
+        Fetch=function(path) return game:HttpGet(prefix..path,true) end,
+        CanApply=function(revision,manual)
+            local failure=actualGlobals._BGSI_AutoUpdateFailure
+            return manual or not failure or failure.revision~=revision or os.clock()>=failure.untilTime
+        end,
+        Queue=function(chunk,rollback,revision)
+            if not runtime.Active or runtime.UpdateQueued or actualGlobals._BGSI_TestHub~=runtime then return false end
+            runtime.UpdateQueued=true
+            local function copy(value,seen)
+                if type(value)~="table" then return value end
+                seen=seen or {};if seen[value] then return seen[value] end
+                local result={};seen[value]=result
+                for key,item in pairs(value) do result[key]=copy(item,seen) end
+                return result
+            end
+            local savedSettings=copy(private.HubSettings)
+            local function handoff(target)
+                actualGlobals._BGSI_UpdateSettings={revision=target,settings=copy(savedSettings)}
+            end
+            local oldWindow=runtime.UI and runtime.UI.Window
+            local opened=not oldWindow or oldWindow.Opened
+            local position=oldWindow and oldWindow.Native.Position
+            local selected
+            for _,tab in ipairs(oldWindow and oldWindow.Tabs or {}) do if tab.Page.Visible then selected=tab.Title end end
+            -- Use the original scheduler so unloading owned workers cannot cancel the replacement.
+            realTask.defer(function()
+                if not runtime.Active or actualGlobals._BGSI_TestHub~=runtime then return end
+                handoff(revision)
+                local good,reason=pcall(chunk)
+                actualGlobals._BGSI_UpdateSettings=nil
+                local started=actualGlobals._BGSI_TestHub
+                if good and (not started or started==runtime or started.Revision~=revision or not started.Active or not started.UI or not started.UI.Window) then
+                    good=false;reason="The new release did not initialize its window"
+                end
+                if not good then
+                    warn("[@qtrzip] Update failed, restoring previous release: "..tostring(reason))
+                    local failed=actualGlobals._BGSI_TestHub
+                    if failed and failed~=runtime and failed.Unload then pcall(failed.Unload) end
+                    actualGlobals._BGSI_AutoUpdateFailure={revision=revision,untilTime=os.clock()+600}
+                    runtime.UpdateQueued=false
+                    handoff(runtime.Revision)
+                    local restored,restoreError=pcall(rollback)
+                    actualGlobals._BGSI_UpdateSettings=nil
+                    if not restored then warn("[@qtrzip] Restore failed: "..tostring(restoreError));return end
+                else actualGlobals._BGSI_AutoUpdateFailure=nil end
+                local current=actualGlobals._BGSI_TestHub
+                local window=current and current.UI and current.UI.Window
+                if window then
+                    if position then window.Native.Position=position end
+                    if selected and window.TabsByTitle[selected] then window.TabsByTitle[selected]:Select() end
+                    if not opened then window:Close() end
+                end
+            end)
+            return true
+        end,
+    })
 end
 local function onTestHubUiCreated(ui) runtime.UI = ui; private.WindUI = ui end
 -- Lexical bindings survive executors whose task threads reset their environment.
@@ -245,6 +392,12 @@ local function saveHubSettings()
 end
 private.saveHubSettings = saveHubSettings
 local function loadHubSettings()
+    local handoff=actualGlobals._BGSI_UpdateSettings
+    if type(handoff)=="table" and handoff.revision==runtime.Revision and type(handoff.settings)=="table" then
+        getgenv().HubSettings=handoff.settings
+        actualGlobals._BGSI_UpdateSettings=nil
+        return
+    end
     local success, saved = pcall(function() return readfile(settingsFile) end)
     local decoded, settings
     if success and type(saved) == "string" then
@@ -325,7 +478,7 @@ local colors = {
 	green = Color3.fromRGB(82, 255, 51), red = Color3.fromRGB(255, 99, 100),
 }
 local connections = {}
-local library = { Version = "2026.11.05.18", Windows = {}, ModuleErrors = {} }
+local library = { Version = "2026.11.05.19", Windows = {}, ModuleErrors = {} }
 local function connect(signal, fn)
 	local connection = signal:Connect(fn)
 	table.insert(connections, connection)
@@ -790,6 +943,7 @@ end
 function library:ModulesReady()
 	if not self.UnloadControl then
 		local misc = window:Tab({Title = "Misc"})
+		if type(onTestHubSetupUpdates)=="function" then onTestHubSetupUpdates(misc) end
 		misc:Section({Title = "Session"})
 		self.UnloadControl = misc:Button({Title = "Unload Script", Desc = "Stops this hub and restores tracked local changes. Your config stays saved.", Callback = function()
 			if type(onTestHubUnload) == "function" then onTestHubUnload() else library:Destroy() end
@@ -4818,95 +4972,135 @@ task.spawn(function()
 end)
 
 -- ======================================
--- FULL INVENTORY SCANNER
+-- ACCEPTED HATCH EVENTS ONLY (never inventory differences)
 -- ======================================
-local knownPets = {}
-local inventoryScanCount = 0
-local function inventoryPetId(pet, key)
-    if type(pet) ~= "table" then return nil end
-    return HatchWebhook.GetId(pet) or (type(key) == "string" and key) or nil
+local function eligibleHatch(pet)
+    local _,_,rarity,super=HatchWebhook.Describe(pet)
+    return super or rarity=="Secret" or rarity=="Celestial" or rarity=="Infinity" or rarity=="Void"
 end
-
-local initData = LocalData:Get()
-if initData and initData.Pets then
-    for key, pet in pairs(initData.Pets) do
-        local id = inventoryPetId(pet, key)
-        if id then knownPets[tostring(id)] = true end
+local function processAcceptedHatch(pet,eventName,hatchResult)
+    if not runtime.Active or not isCurrentWebhookGeneration() then return end
+    local name,info,rarity,isSuper,isShiny,isMythic,isXL=HatchWebhook.Describe(pet)
+    local origin=getPetOrigin(info)
+    if shouldSkipPet(origin,rarity) then return end
+    local shouldSendPrivate=not SKIP_PRIVATE_PETS[name]
+    local threshold=getThreshold()
+    local isInfinityOrVoid=rarity=="Infinity" or rarity=="Void"
+    if threshold and not isSuper and not isXL and not isInfinityOrVoid and not isOriginBypass(origin,rarity) then
+        local oneIn,known=HatchWebhook.GetOdds(pet,name,info,isShiny,isMythic,isXL)
+        if known and oneIn<=threshold then shouldSendPrivate=false end
+    end
+    if not (shouldSendPrivate and HATCH_WEBHOOK_URL~="") and PUBLIC_WEBHOOK_URL=="" then return end
+    local payload,embed=HatchWebhook.Build(pet,{
+        info=info,hideUsername=hideUsername,userId=shouldSendPrivate and DISCORD_USER_ID or "",
+        petId=HatchWebhook.GetId(pet),eventName=eventName,hatchResult=hatchResult,
+    })
+    if not runtime.Active then return end
+    if shouldSendPrivate and HATCH_WEBHOOK_URL~="" then table.insert(hatchQueue,payload);processHatch() end
+    if PUBLIC_WEBHOOK_URL~="" then
+        local publicEmbed=table.clone(embed);publicEmbed.fields=table.clone(embed.fields)
+        local visibleName=hideUsername and "Player" or player.Name
+        local prefix="# **"..visibleName
+        if type(publicEmbed.description)=="string" and publicEmbed.description:sub(1,#prefix)==prefix then
+            publicEmbed.description="# **Player"..publicEmbed.description:sub(#prefix+1)
+        end
+        table.insert(publicQueue,HatchWebhook.Render({embeds={publicEmbed}}));processPublic()
     end
 end
-
-task.spawn(function()
-    while isCurrentWebhookGeneration() do
-        task.wait(5)
-        if not isCurrentWebhookGeneration() then break end
-        local data = LocalData:Get()
-        if data and data.Pets then
-            inventoryScanCount = inventoryScanCount + 1
-            -- Drop IDs of pets no longer in inventory; prevents unbounded tracking.
-            -- Refresh at most once per 5 minutes, not every 5-second poll.
-            if inventoryScanCount % 60 == 0 then
-                local currentIds = {}
-                for key, storedPet in pairs(data.Pets) do
-                    local storedId = inventoryPetId(storedPet, key)
-                    if storedId then currentIds[tostring(storedId)] = true end
-                end
-                for oldId in pairs(knownPets) do
-                    if not currentIds[oldId] then knownPets[oldId] = nil end
-                end
+local makeHatchEvents=(function()
+-- Only accepted server hatch results can enter this notification pipeline.
+return function(ctx)
+    local allowed={HatchEgg=true,HatchPowerupEgg=true,ExclusiveHatch=true}
+    local state=ctx.State
+    state.ids=state.ids or {};state.order=state.order or {};state.head=state.head or 1;state.tail=state.tail or 0
+    local objects=setmetatable({}, {__mode="k"})
+    local queue,head,tail,working={},1,0,false
+    local alive=true
+    local controller={}
+    local function active() return alive and ctx.Active() end
+    local function claim(id)
+        local now=ctx.Now()
+        while state.head<=state.tail do
+            local first=state.order[state.head]
+            if now-first.time<120 and state.tail-state.head+1<4096 then break end
+            if state.ids[first.id]==first.time then state.ids[first.id]=nil end
+            state.order[state.head]=nil;state.head+=1
+        end
+        if state.head>4096 then
+            local compact={};for i=state.head,state.tail do table.insert(compact,state.order[i]) end
+            state.order=compact;state.head=1;state.tail=#compact
+        end
+        if id==nil or tostring(id)=="" then return true end
+        id=tostring(id)
+        if state.ids[id] and now-state.ids[id]<120 then return false end
+        state.ids[id]=now;state.tail+=1;state.order[state.tail]={id=id,time=now}
+        return true
+    end
+    local function copy(value,seen)
+        if type(value)~="table" then return value end
+        seen=seen or {};if seen[value] then return seen[value] end
+        local result={};seen[value]=result
+        for k,v in pairs(value) do result[k]=copy(v,seen) end
+        return result
+    end
+    local function run()
+        if working then return end
+        working=true
+        task.spawn(function()
+            while active() and head<=tail do
+                local entry=queue[head];queue[head]=nil;head+=1
+                local ok,reason=pcall(ctx.OnPet,entry.pet,entry.event,entry.result)
+                if not ok then ctx.Error(reason) end
             end
-            for key, pet in pairs(data.Pets) do
-                local id = inventoryPetId(pet, key)
-                if not id or knownPets[tostring(id)] then continue end
-                local name, info, rarity, isSuper, isShiny, isMythic, isXL = HatchWebhook.Describe(pet)
-                if not isSuper and rarity ~= "Secret" and rarity ~= "Celestial"
-                    and rarity ~= "Infinity" and rarity ~= "Void" then continue end
-                knownPets[tostring(id)] = true
-                local origin = getPetOrigin(info)
-                if shouldSkipPet(origin, rarity) then continue end
-                local shouldSendPrivate = not SKIP_PRIVATE_PETS[name]
-                local threshold = getThreshold()
-                local isInfinityOrVoid = rarity == "Infinity" or rarity == "Void"
-                if threshold and not isSuper and not isXL and not isInfinityOrVoid
-                    and not isOriginBypass(origin, rarity) then
-                    local oneIn, known = HatchWebhook.GetOdds(pet, name, info, isShiny, isMythic, isXL)
-                    if known and oneIn <= threshold then
-                        shouldSendPrivate = false
-                    end
-                end
-                if not (shouldSendPrivate and HATCH_WEBHOOK_URL ~= "") and PUBLIC_WEBHOOK_URL == "" then
-                    continue
-                end
-                local ok, payload, embed = pcall(HatchWebhook.Build, pet, {
-                    info = info, hideUsername = hideUsername,
-                    userId = shouldSendPrivate and DISCORD_USER_ID or "",
-                    petId = id,
-
-                })
-                if not ok then
-                    warn("[Webhook] Hatch formatting failed: " .. tostring(payload))
-                    continue
-                end
-                if shouldSendPrivate and HATCH_WEBHOOK_URL ~= "" then
-                    table.insert(hatchQueue, payload)
-                    processHatch()
-                end
-                if PUBLIC_WEBHOOK_URL ~= "" then
-                    -- Keep the existing public feed anonymous when it is configured.
-                    local publicEmbed = table.clone(embed)
-                    publicEmbed.fields = table.clone(embed.fields)
-                    local visibleName = hideUsername and "Player" or player.Name
-                    local titlePrefix = "# **" .. visibleName
-                    if type(publicEmbed.description) == "string"
-                        and publicEmbed.description:sub(1, #titlePrefix) == titlePrefix then
-                        publicEmbed.description = "# **Player" .. publicEmbed.description:sub(#titlePrefix + 1)
-                    end
-                    table.insert(publicQueue, HatchWebhook.Render({embeds = {publicEmbed}}))
-                    processPublic()
+            queue={};head=1;tail=0;working=false
+        end)
+    end
+    function controller.Accept(event,result)
+        if not active() or not allowed[event] or type(result)~="table" then return 0 end
+        local owner=result.UserId or result.PlayerId or result.Player or result.Owner
+        if owner~=nil then
+            local id=tonumber(owner)
+            if not id then local ok,value=pcall(function() return owner.UserId end);if ok then id=tonumber(value) end end
+            if id and id~=ctx.UserId then return 0 end
+        end
+        if objects[result] then return 0 end
+        objects[result]=true
+        local pets=result.Pets
+        if type(pets)~="table" then
+            if #result>0 then pets=result
+            elseif ctx.Name(result)~="Unknown" then pets={result}
+            else return 0 end
+        end
+        local accepted=0
+        for _,pet in ipairs(pets) do
+            if type(pet)=="table" and ctx.Eligible(pet) then
+                if tail-head>=511 then ctx.Error("Hatch notification backlog is full; skipping excess results");break end
+                if claim(ctx.Id(pet)) then
+                    tail+=1;queue[tail]={pet=copy(pet),event=event,result={Name=result.Name,Egg=result.Egg,EggName=result.EggName,Pets=type(result.Pets)=="table" and {} or nil}}
+                    accepted+=1
                 end
             end
         end
+        if accepted>0 then run() end
+        return accepted
     end
-end)
+    function controller:IsBusy() return working or head<=tail end
+    function controller:Destroy() alive=false;queue={};head=1;tail=0 end
+    return controller
+end
+
+end)()
+runtime.HatchEvents=makeHatchEvents({
+    State=onTestHubHatchDedupState(),UserId=player.UserId,Now=os.clock,
+    Active=function() return runtime.Active and isCurrentWebhookGeneration() end,
+    Id=function(pet) return HatchWebhook.GetId(type(pet.Pet)=="table" and pet.Pet or pet) end,Name=function(pet) return HatchWebhook.Describe(pet) end,
+    Eligible=eligibleHatch,OnPet=processAcceptedHatch,
+    Error=function(reason) warn("[@qtrzip] Hatch notification: "..tostring(reason)) end,
+})
+runtime.HasPendingWebhooks=function()
+    return runtime.HatchEvents:IsBusy() or hatchProcessing or publicProcessing or #hatchQueue>0 or #publicQueue>0
+end
+runtime.Connect(ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent.OnClientEvent,runtime.HatchEvents.Accept)
 
 -- ======================================
 -- 4X EGG SCANNER

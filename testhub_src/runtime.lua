@@ -97,6 +97,7 @@ function runtime.Unload()
     private.RdotAfishingConfig = {Enabled = false, Mode = "Off"}
     private.animationHidden = false
     runtime.Active = false
+    if runtime.HatchEvents then runtime.HatchEvents:Destroy();runtime.HatchEvents=nil end
     local current = coroutine.running()
     for thread in pairs(runtime.Threads) do
         if thread ~= current then pcall(realTask.cancel, thread) end
@@ -113,6 +114,6 @@ function runtime.Unload()
     -- Retain the private environment and stop flags for auxiliary callbacks.
     -- Clearing its getgenv would make late callbacks touch another hub's globals.
     private.WindUI = nil; private.Window = nil; private.HubSettings = nil
-    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil
+    runtime.UI = nil; runtime.State = nil; runtime.VersionLabel = nil; runtime.Updater = nil; runtime.HasPendingWebhooks = nil
     if actualGlobals._BGSI_TestHub == runtime then actualGlobals._BGSI_TestHub = nil end
 end
