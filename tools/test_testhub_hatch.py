@@ -88,13 +88,25 @@ local function makeSimulation() end
 local bridgeModule=(function()
 '''+bridge+r'''
 end)()
-local payload,embed=bridgeModule.Build({Name='Example Pet'},{info=info,userId='123456789012345678'})
+profile.Get=function() return {EggsOpened={['Example Egg']=12500},Coins=1234,Gems=4321} end
+local payload,embed=bridgeModule.Build({Name='Example Pet'},{info=info,userId='123456789012345678',hatchedCount=25})
 assert(payload.flags==32768 and embed.fields[1].name=='Pet Info')
+assert(embed.fields[1].value:find('Rarity: **Secret**',1,true)==1)
+assert(embed.fields[1].value:find('Eggs opened from this egg: **12,500**',1,true))
+assert(embed.fields[1].value:find("Exist: **123**\nYou've hatched this pet 25 times!",1,true))
+assert(not embed.fields[1].value:find('Bubbles:',1,true))
+local cardText=''
+for _,component in ipairs(payload.components[1].components) do
+    if component.type==10 then cardText..=component.content end
+    if component.type==9 then for _,part in ipairs(component.components) do cardText..=part.content or '' end end
+end
+assert(cardText:find("You've hatched this pet 25 times!",1,true),'Customization survives V2 rendering')
 assert(payload.allowed_mentions.users[1]=='123456789012345678' and #payload.allowed_mentions.parse==0)
 assert(payload.components[1].components[1].content=='<@123456789012345678>')
 settings.webhook.showUserInfo=true
 local _,withInfo=bridgeModule.Build({Name='Example Pet'},{info=info,hideUsername=true})
 assert(withInfo.fields[1].name=='User Info' and withInfo.description=='# **Player hatched a Example Pet**')
+assert(not withInfo.fields[1].value:find('Coins:',1,true) and not withInfo.fields[1].value:find('Current Bubbles:',1,true))
 print('Larplite parity: normal/variant/XL/Super cards, fields/emojis/colors/images/odds/stats, privacy/User Info, V2, mentions and real bridge: PASS (offline)')
 '''
 with tempfile.TemporaryDirectory() as d:

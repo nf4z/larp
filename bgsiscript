@@ -1,10 +1,10 @@
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 26 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 27 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 26 then
+if prior and prior.Starting and prior.Revision == 27 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -71,7 +71,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 26, ScriptVersion = "v111", State = private}
+local runtime = {Starting = true, Revision = 27, ScriptVersion = "v112", State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -2352,7 +2352,10 @@ ActivityTab:Paragraph({
     Desc = "Sends webhook when your character is actively doing something. Only sends when action is actually being performed, not on toggle.",
 })
 
-ActivityTab:Input({
+ActivityTab:Paragraph({Title="Notification Settings",Desc="Activity webhook destination and enable control are in the Webhook tab."})
+runtime.BuildActivityWebhookControls=function(tab)
+    tab:Section({Title="Activity Notifications"})
+tab:Input({
     Title = "Activity Webhook URL",
     Value = activityWebhookURL,
     Placeholder = "https://discord.com/api/webhooks/...",
@@ -2364,8 +2367,8 @@ ActivityTab:Input({
     end,
 })
 
-ActivityTab:Toggle({
-    Title = "Turn On/Turn Off",
+tab:Toggle({
+    Title = "Enable Activity Notifications",
     Desc = "Enables/disables activity webhook notifications",
     Value = activityEnabled,
     Callback = function(v)
@@ -2376,6 +2379,8 @@ ActivityTab:Toggle({
         saveHubSettings()
     end,
 })
+
+end
 
 -- ======================================
 -- AUTO-START SAVED TOGGLES
@@ -4850,13 +4855,58 @@ end)()({Player=player,Players=Players,ReplicatedStorage=ReplicatedStorage,HttpSe
     GetName=getName,GetFlag=getFlag,GetValue=getValue,
     EnchantText=getWebhookSuperLegendaryEnchantText,EnchantIcon=getEnchantedSuperWebhookIcon,
     RollEnchants=rollSimulatedSuperEnchants})
+local customizeHatch=(function()
+-- Customize the isolated Larplite envelope before rendering Discord Components V2.
+return function(envelope,options,config,rarity,profile)
+    local embed=envelope.embeds[1]
+    local function number(value)
+        local text=tostring(math.floor(value))
+        return text:reverse():gsub("(%d%d%d)","%1,"):reverse():gsub("^,","")
+    end
+    for _,field in ipairs(embed.fields or {}) do
+        if field.name=="Pet Info" then
+            local lines={}
+            if config.showRarity~=false then table.insert(lines,"Rarity: **"..tostring(rarity or "Unknown").."**") end
+            for line in (field.value.."\n"):gmatch("(.-)\n") do
+                local stat=line:match(": %*%*") and not line:find(" Egg:",1,true) and not line:find(" Chance:",1,true)
+                    and not line:find("Enchants:",1,true) and not line:find("Exist:",1,true)
+                if config.showPetStats==true or not stat then table.insert(lines,line) end
+                if line:find(" Egg:",1,true) and config.showEggTotal~=false then
+                    local egg=line:match("Egg: %*%*(.-)%*%*")
+                    local total=type(profile)=="table" and type(profile.EggsOpened)=="table" and tonumber(profile.EggsOpened[egg])
+                    table.insert(lines,"Eggs opened from this egg: **"..(total and number(total) or "Unavailable").."**")
+                end
+                if line:find("Exist:",1,true) and config.showPetHatchCount~=false then
+                    local count=tonumber(options.hatchedCount)
+                    table.insert(lines,count and ("You've hatched this pet "..number(count)..(count==1 and " time" or " times!"))
+                        or (options.simulated and "Personal hatch count: Preview only (not counted)" or "Personal hatch count: Unavailable"))
+                end
+            end
+            field.value=table.concat(lines,"\n")
+        elseif field.name=="User Info" and config.showCurrencies~=true then
+            local lines={}
+            for line in (field.value.."\n"):gmatch("(.-)\n") do
+                if not line:find("Current Bubbles:",1,true) and not line:find("Coins:",1,true) and not line:find("Gems:",1,true) then table.insert(lines,line) end
+            end
+            field.value=table.concat(lines,"\n")
+        end
+    end
+    local color=tostring(config.embedColor or ""):gsub("^#","")
+    if #color==6 and color:match("^%x+$") then embed.color=tonumber(color,16) end
+    return envelope
+end
+
+end)()
 local function build(pet,options)
     options=options or {}
     local name,info,rarity,super,shiny,mythic,xl=describe(pet,options.info)
     local canonical=table.clone(pet)
     canonical.Name=name;canonical.Super=super;canonical.Shiny=shiny;canonical.Mythic=mythic;canonical.XL=xl
-    options.showUserInfo=settings.webhook.showUserInfo==true
+    options.showUserInfo=settings.webhook.showUserInfo~=false
     local envelope=LarpliteFormatter.Build(canonical,info,options)
+    local profile
+    pcall(function() if profileStore and profileStore:IsReady() then profile=profileStore:Get() end end)
+    customizeHatch(envelope,options,settings.webhook,rarity,profile)
     local userId=getRebirthMachineCost(options.userId)
     if userId then envelope.content="<@"..userId..">";envelope.allowed_mentions={users={userId},parse={}} end
     return LarpliteFormatter.Render(envelope),envelope.embeds[1]
@@ -5307,6 +5357,80 @@ end)
 -- ======================================
 -- ACCEPTED HATCH EVENTS ONLY (never inventory differences)
 -- ======================================
+local hatchHistory=(function()
+-- Each runtime writes its own shard: simultaneous alts never overwrite each other.
+-- The root JSON is a readable snapshot; shards are the authoritative counters.
+return function(ctx)
+    local folder="qtrzip_hatch_history"
+    local snapshot="qtrzip_hatch_totals.json"
+    local own={schema=1,account=tostring(ctx.UserId),pets={}}
+    local path=folder.."/"..tostring(ctx.UserId).."-"..ctx.Session..".json"
+    local warned=false
+    local function warning(reason)
+        if not warned then warned=true;ctx.Warn("Hatch totals cannot be saved: "..tostring(reason)) end
+    end
+    local function key(name,super,shiny,mythic,xl)
+        return tostring(#name)..":"..name..":"..(super and "S" or "-")..(shiny and "H" or "-")..(mythic and "M" or "-")..(xl and "X" or "-")
+    end
+    local function merge(totals,data)
+        if type(data)~="table" or data.schema~=1 or type(data.pets)~="table" then return end
+        for id,count in pairs(data.pets) do
+            if type(id)=="string" and type(count)=="number" and count>=0 and count<math.huge then
+                totals[id]=(totals[id] or 0)+math.floor(count)
+            end
+        end
+    end
+    local function aggregate()
+        local totals={}
+        if ctx.List and ctx.Read then
+            local ok,files=pcall(ctx.List,folder)
+            if ok and type(files)=="table" then
+                for _,file in ipairs(files) do
+                    local normalized=tostring(file):gsub("\\","/")
+                    if normalized:match("/[%w%-]+%.json$") and normalized:sub(-#path)~=path then
+                        local success,data=pcall(function() return ctx.Decode(ctx.Read(file)) end)
+                        if success then merge(totals,data) else warning("an unreadable history shard was skipped") end
+                    end
+                end
+            elseif not ok then warning(files) end
+        end
+        merge(totals,own)
+        return totals
+    end
+    local ready=false
+    local function prepare()
+        if ready then return true end
+        if not (ctx.MakeFolder and ctx.Write and ctx.Read and ctx.List) then warning("executor file functions unavailable");return false end
+        local ok,reason=pcall(function()
+            if not ctx.IsFolder or not ctx.IsFolder(folder) then ctx.MakeFolder(folder) end
+        end)
+        if not ok then warning(reason);return false end
+        ready=true;return true
+    end
+    return {
+        Record=function(name,super,shiny,mythic,xl)
+            local id=key(name,super,shiny,mythic,xl)
+            own.pets[id]=(own.pets[id] or 0)+1
+            if prepare() then
+                local ok,reason=pcall(ctx.Write,path,ctx.Encode(own))
+                if not ok then warning(reason) end
+            end
+            local totals=aggregate()
+            if ready then
+                local ok,reason=pcall(ctx.Write,snapshot,ctx.Encode({schema=1,pets=totals,updatedAt=ctx.Time()}))
+                if not ok then warning(reason) end
+            end
+            return totals[id] or own.pets[id]
+        end,
+        Key=key,
+    }
+end
+
+end)()({UserId=player.UserId,Session=HttpService:GenerateGUID(false),
+    Read=readfile,Write=writefile,List=listfiles,IsFolder=isfolder,MakeFolder=makefolder,
+    Encode=function(value) return HttpService:JSONEncode(value) end,
+    Decode=function(value) return HttpService:JSONDecode(value) end,
+    Time=os.time,Warn=function(reason) warn("[@qtrzip] "..reason) end})
 local function eligibleHatch(pet)
     local _,_,rarity,super=HatchWebhook.Describe(pet)
     return super or rarity=="Secret" or rarity=="Celestial" or rarity=="Infinity" or rarity=="Void"
@@ -5314,6 +5438,7 @@ end
 local function processAcceptedHatch(pet,eventName,hatchResult)
     if not runtime.Active or not isCurrentWebhookGeneration() then return end
     local name,info,rarity,isSuper,isShiny,isMythic,isXL=HatchWebhook.Describe(pet)
+    local hatchedCount=hatchHistory.Record(name,isSuper,isShiny,isMythic,isXL)
     local origin=getPetOrigin(info)
     if shouldSkipPet(origin,rarity) then return end
     local shouldSendPrivate=not SKIP_PRIVATE_PETS[name]
@@ -5326,7 +5451,7 @@ local function processAcceptedHatch(pet,eventName,hatchResult)
     if not (shouldSendPrivate and HATCH_WEBHOOK_URL~="") and PUBLIC_WEBHOOK_URL=="" then return end
     local payload,embed=HatchWebhook.Build(pet,{
         info=info,hideUsername=hideUsername,userId=shouldSendPrivate and DISCORD_USER_ID or "",
-        petId=HatchWebhook.GetId(pet),eventName=eventName,hatchResult=hatchResult,
+        petId=HatchWebhook.GetId(pet),eventName=eventName,hatchResult=hatchResult,hatchedCount=hatchedCount,
     })
     if not runtime.Active then return end
     if shouldSendPrivate and HATCH_WEBHOOK_URL~="" then table.insert(hatchQueue,payload);processHatch() end
@@ -5474,7 +5599,7 @@ end
 -- ======================================
 -- UI
 -- ======================================
-WebhookTab:Section({ Title = "Webhook Settings" })
+WebhookTab:Section({ Title = "Webhook Destinations & Mentions" })
 
 WebhookTab:Input({
     Title = "Hatch Webhook URL",
@@ -5512,7 +5637,27 @@ WebhookTab:Input({
     end,
 })
 
-WebhookTab:Section({ Title = "Simulate Pet Hatch" })
+WebhookTab:Section({ Title = "Hatch Embed Customization" })
+WebhookTab:Paragraph({Title="Shared Hatch History",Desc="Confirmed rare/Super hatches only, counted per exact pet variant across alts sharing this workspace. Saved in qtrzip_hatch_totals.json with separate history shards. Previews never count."})
+WebhookTab:Toggle({Title="Show Pet Rarity",Desc="Displays the rarity above the egg name.",Value=settings.webhook.showRarity~=false,
+    Callback=function(value) settings.webhook.showRarity=value;saveHubSettings() end})
+WebhookTab:Toggle({Title="Show Egg Hatch Total",Desc="Uses this account's lifetime count for the source egg.",Value=settings.webhook.showEggTotal~=false,
+    Callback=function(value) settings.webhook.showEggTotal=value;saveHubSettings() end})
+WebhookTab:Toggle({Title="Show Shared Pet Hatch Count",Desc="Your observed total for this variant across workspace alts, below Exist.",Value=settings.webhook.showPetHatchCount~=false,
+    Callback=function(value) settings.webhook.showPetHatchCount=value;saveHubSettings() end})
+WebhookTab:Toggle({Title="Show Pet Stats",Desc="Includes the pet's multiplier stats.",Value=settings.webhook.showPetStats==true,
+    Callback=function(value) settings.webhook.showPetStats=value;saveHubSettings() end})
+WebhookTab:Toggle({Title="Show User Info",Desc="Includes total eggs and current luck multipliers.",Value=settings.webhook.showUserInfo~=false,
+    Callback=function(value) settings.webhook.showUserInfo=value;saveHubSettings() end})
+WebhookTab:Toggle({Title="Show Account Currencies",Desc="Includes bubbles, coins and gems in User Info.",Value=settings.webhook.showCurrencies==true,
+    Callback=function(value) settings.webhook.showCurrencies=value;saveHubSettings() end})
+WebhookTab:Input({Title="Embed Accent Color",Desc="Six hex digits, e.g. 00AAFF. Leave blank for variant colors.",Value=settings.webhook.embedColor or "",Placeholder="Automatic",
+    Callback=function(value)
+        local hex=tostring(value):gsub("^#","")
+        if hex=="" or (#hex==6 and hex:match("^%x+$")) then settings.webhook.embedColor=hex;saveHubSettings() end
+    end})
+
+WebhookTab:Section({ Title = "Preview Hatch Notification" })
 
 local simulatedPetName = ""
 local simulationSending = false
@@ -5607,12 +5752,6 @@ WebhookTab:Input({
     end,
 })
 
-WebhookTab:Section({ Title = "Hatch Embed" })
-WebhookTab:Toggle({
-    Title = "Show User Info",Desc = "Adds Larplite's account currencies, hatch count and luck section.",
-    Value = settings.webhook.showUserInfo==true,
-    Callback = function(value) settings.webhook.showUserInfo=value;saveHubSettings() end,
-})
 WebhookTab:Section({ Title = "Settings" })
 
 WebhookTab:Toggle({
@@ -5655,7 +5794,7 @@ WebhookTab:Section({ Title = "Status" })
 
 WebhookTab:Paragraph({
     Title = "Active",
-    Desc = "Tracking: Secret, Celestial, Infinity, Void, Super Legendary, XL\nAlerts: 4x Egg, Rare Inventory Eggs (VOID EGG??, Shadow Realm Egg), Inventory Full\nOnline ping: Every 30 minutes\nStuck detection: Every 2 min, rejoin after 6 min\nFragments + Stats + Buff Times\nOdds Threshold: Private only, XL & Super exempt\nInfinity/Void: ALWAYS notify\nHatch layout: classic Renoa embeds\nSuper icons: game pet image with enchant badges",
+    Desc = "Tracking: Secret, Celestial, Infinity, Void, Super Legendary, XL\nAlerts: 4x Egg, Rare Inventory Eggs (VOID EGG??, Shadow Realm Egg), Inventory Full\nOnline ping: Every 30 minutes\nStuck detection: Every 2 min, rejoin after 6 min\nFragments + Stats + Buff Times\nOdds Threshold: Private only, XL & Super exempt\nInfinity/Void: ALWAYS notify\nHatch layout: customizable native hatch cards; saved variant totals shared across workspace alts\nSuper icons: game pet image with enchant badges",
 })
 
 WebhookTab:Paragraph({
@@ -5663,6 +5802,7 @@ WebhookTab:Paragraph({
     Desc = DISCORD_USER_ID ~= "" and ("ON <@" .. DISCORD_USER_ID .. ">") or "OFF",
 })
 
+if runtime.BuildActivityWebhookControls then runtime.BuildActivityWebhookControls(WebhookTab) end
 print("[Webhook] Loaded!")
         end)
         if ok then print("[Hub] Loaded: Webhook.Lua")
