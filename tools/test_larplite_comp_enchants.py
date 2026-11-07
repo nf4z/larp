@@ -148,7 +148,7 @@ comp = next(n.text.decode() for n in nodes if n.text.decode().startswith('do\n\t
 run('''
 local activeStates = {}
 local Config = {autoClaimCompHatches=true,autoClaimCompBubbles=true}
-local labels, toggles, jobs, listener = {}, {}, {}, nil
+local labels, toggles, jobs, listener, buttons = {}, {}, {}, nil, {}
 local now, running, claims, views = 0, true, {}, 0
 local contribution={Team="Pink",Hatches=1500,Bubbles=1000000,Claims={}}
 local profileStore={IsReady=function()return true end,Get=function()return {PinkVsBlue={["1"]=contribution}} end}
@@ -156,13 +156,19 @@ local LocalPlayer={UserId=42}
 local competition={Enabled=true,Teams={Pink={Name="Seals"},Blue={Name="Frog Dogs"}}}
 local season={Id="1",PersonalRewards={Hatches={{Requirement=500},{Requirement=1500},{Requirement=5000}},Bubbles={{Requirement=1000000},{Requirement=5000000}}}}
 competition.GetSeason=function()return season end
-local require=function()return competition end
-local ReplicatedStorage={Shared={Data={FindFirstChild=function()return {} end}}}
+local opened,minimized,canOpen=0,0,true
+local frames={Open=function(_,name)assert(name=="PinkVsBlue");opened+=1 end,IsOpen=function()return canOpen end}
+local scriptStateOG={Minimize=function()minimized+=1 end}
+local popup={IsOpen=function(self)return not self.closed end,Close=function(self)self.closed=true end,Update=function(self,snapshot)self.snapshot=snapshot end}
+local Interface={CreateCompetitionPopup=function()opened+=1;return popup end}
+local warn=function()end
+local require=function(module)if module==frames then return frames end;return competition end
+local ReplicatedStorage={Shared={Data={FindFirstChild=function()return {} end}},Client={Gui={GuiFrame=frames}}}
 local function tick()return now end
 local function isCurrentRun()return running end
 local function saveConfig()end
 local task={spawn=function(fn)table.insert(jobs,coroutine.create(fn))end,wait=function(dt)now+=dt;coroutine.yield()end}
-local compTab={AddSection=function()end,AddToggle=function(_,id,props)toggles[id]=props end,AddButton=function()end,
+local compTab={AddSection=function()end,AddToggle=function(_,id,props)toggles[id]=props end,AddButton=function(_,props)buttons[props.Title]=props end,
 AddParagraph=function(_,props)local p={value=props.Content,SetDesc=function(self,v)self.value=v end};labels[props.Title]=p;return p end}
 local disconnected=false
 local remoteEvent={OnClientEvent={Connect=function(_,fn)listener=fn;return {Disconnect=function()disconnected=true end}end},
@@ -174,8 +180,10 @@ FireServer=function(_,action,id,metric,index)
 end}
 ''' + comp + '''
 local function resume()local ok,err=coroutine.resume(jobs[1]);assert(ok,tostring(err))end
+buttons["View Live Leaderboards"].Callback();assert(opened==1 and minimized==0)
 resume()
 listener("PinkVsBlueSnapshot",{Season=season,Standings={Boards={Pink={Hatches={{UserId=3,Score=2000},{UserId=42,Score=1000}},Bubbles={}}}}})
+assert(popup.snapshot.Boards.Pink.Hatches[1].Score==2000,"Live push updates popup")
 for i=1,4 do resume() end
 assert(labels["Your Team"].value=="Seals")
 assert(labels["Hatches"].value=="1500")
@@ -184,10 +192,11 @@ assert(labels["Bubbles"].value=="1000000")
 assert(labels["Bubble Place"].value=="#1")
 assert(claims["Personal:Hatches:1"] and claims["Personal:Hatches:2"] and claims["Personal:Bubbles:1"])
 assert(not claims["Personal:Hatches:3"] and not claims["Personal:Bubbles:2"])
-assert(views==1)
+assert(views>=1)
 Config.safeMode=true; contribution.Hatches=99999
 resume(); assert(not claims["Personal:Hatches:3"])
 running=false; resume(); assert(disconnected)
+buttons["View Live Leaderboards"].Callback();assert(opened==1 and popup.closed,"No actions after unload")
 ''', 'Comp: team placement, live contribution, eligible hatch/bubble rewards, pending dedupe, safe mode, cleanup')
 
 run('''

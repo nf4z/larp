@@ -855,7 +855,9 @@ function tabMethods:Dropdown(props)
 	function control:Select(value, silent)
 		self.Value = value
 		if self.Multi and type(value) == "table" then
-			title.Text = #value == 0 and "None selected" or (#value == 1 and optionTitle(value[1]) or (#value .. " selected"))
+			local display=value[1]
+			for _,option in ipairs(self.Values)do if optionValue(option)==value[1]then display=option;break end end
+			title.Text = #value == 0 and "None selected" or (#value == 1 and optionTitle(display) or (#value .. " selected"))
 		else
 			local display=value
 			for _,option in ipairs(self.Values) do if optionValue(option)==value then display=option;break end end
@@ -1064,9 +1066,141 @@ function library:CreateWindow(props)
 	table.insert(self.Windows, window)
 	return window
 end
+function library:CreateCompetitionPopup(options)
+	if self.CompetitionPopup and self.CompetitionPopup:IsOpen() then return self.CompetitionPopup end
+	if guiFrame then pcall(guiFrame.Initialize, guiFrame, "PinkVsBlue") end
+	local prototype = path(nativeScreen, "PinkVsBlue", "Frame")
+	if not prototype then return nil end
+	if not path(prototype,"Top","NameLabel") or not path(prototype,"Close")
+		or not path(prototype,"Body","Boards","Columns","Pink","List","Template")
+		or not path(prototype,"Body","Boards","Columns","Blue","List","Template") then return nil end
+	local popupGui = create("ScreenGui", {Name="QtrzipCompetition", ResetOnSpawn=false, IgnoreGuiInset=true,
+		DisplayOrder=self.ScreenGui.DisplayOrder+20, ZIndexBehavior=Enum.ZIndexBehavior.Sibling}, playerGui)
+	local stylingStart=#connections
+	local frame = cloneNative(prototype, 2); frame.Parent=popupGui
+	for _, child in ipairs(frame:GetChildren()) do
+		if child:IsA("GuiObject") and child.Name~="Top" and child.Name~="Body" and child.Name~="Close" and child.Name~="Background" then child:Destroy()
+		elseif child:IsA("UIScale") or child:IsA("UIAspectRatioConstraint") or child:IsA("UIListLayout") then child:Destroy() end
+	end
+	frame.AnchorPoint=Vector2.new(0.5,0.5);frame.Position=UDim2.fromScale(0.5,0.5);frame.Size=UDim2.fromOffset(880,560)
+	local scale=create("UIScale",{Scale=1},frame)
+	local top, body, closeHost = frame.Top, frame.Body, frame.Close
+	for _, container in ipairs({frame,top,body}) do
+		for _, child in ipairs(container:GetChildren()) do
+			if child:IsA("UIListLayout") or child:IsA("UIGridLayout") or child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end
+		end
+	end
+	for _, child in ipairs(top:GetChildren()) do if child:IsA("GuiObject") and child.Name~="NameLabel" then child:Destroy() end end
+	top.AnchorPoint=Vector2.zero;top.Position=UDim2.fromOffset(16,8);top.Size=UDim2.new(1,-80,0,40)
+	top.NameLabel.Text="Live Competition";top.NameLabel.AnchorPoint=Vector2.zero
+	for _, child in ipairs(top.NameLabel:GetChildren()) do
+		if child:IsA("GuiObject") or child:IsA("UITextSizeConstraint") then child:Destroy() end
+	end
+	top.NameLabel.Position=UDim2.fromOffset(0,0);top.NameLabel.Size=UDim2.fromScale(1,1)
+	top.NameLabel.TextScaled=false;top.NameLabel.TextSize=28;top.NameLabel.TextXAlignment=Enum.TextXAlignment.Left
+	closeHost.AnchorPoint=Vector2.new(1,0);closeHost.Position=UDim2.new(1,-12,0,10);closeHost.Size=UDim2.fromOffset(38,38)
+	local closeButton=closeHost:FindFirstChild("Button") or closeHost
+	animateButton(closeButton);autoButtonColor(closeButton,palette.Button.Red)
+	body.AnchorPoint=Vector2.zero;body.Position=UDim2.fromOffset(12,96);body.Size=UDim2.new(1,-24,1,-108)
+	for _, child in ipairs(body:GetChildren()) do if child:IsA("GuiObject") and child.Name~="Boards" then child:Destroy() end end
+	local boards=body.Boards;boards.AnchorPoint=Vector2.zero;boards.Position=UDim2.fromOffset(0,0);boards.Size=UDim2.fromScale(1,1);boards.Visible=true
+	for _, child in ipairs(boards:GetChildren()) do if child:IsA("GuiObject") and child.Name~="Columns" then child:Destroy() end end
+	local columns=boards.Columns;columns.AnchorPoint=Vector2.zero;columns.Position=UDim2.fromOffset(0,0);columns.Size=UDim2.fromScale(1,1)
+	for _, child in ipairs(columns:GetChildren()) do if child.Name~="Pink" and child.Name~="Blue" then child:Destroy() end end
+	local popup={Gui=popupGui,Frame=frame,Columns={},Rows={Pink={},Blue={}},Metric="Hatches",Connections={},Closed=false}
+	local function bind(signal, fn) local c=signal:Connect(fn);table.insert(popup.Connections,c);return c end
+	function popup:IsOpen() return not self.Closed and self.Gui.Parent~=nil end
+	function popup:Close()
+		if self.Closed then return end
+		self.Closed=true
+		for _, c in ipairs(self.Connections) do c:Disconnect() end
+		table.clear(self.Connections);self.Gui:Destroy();self.Snapshot=nil
+		table.clear(self.Rows.Pink);table.clear(self.Rows.Blue);table.clear(self.Columns)
+		if library.CompetitionPopup==self then library.CompetitionPopup=nil end
+		if options and options.OnClose then options.OnClose() end
+	end
+	for index, team in ipairs({"Pink","Blue"}) do
+		local column=columns[team]
+		column.AnchorPoint=Vector2.zero;column.Position=UDim2.new((index-1)*0.5,index==1 and 0 or 5,0,0)
+		column.Size=UDim2.new(0.5,-5,1,0);column.Visible=true
+		for _, child in ipairs(column:GetChildren()) do
+			if child:IsA("UIListLayout") or child:IsA("UIGridLayout") or child:IsA("UISizeConstraint") or child:IsA("UIAspectRatioConstraint") then child:Destroy()
+			elseif child:IsA("GuiObject") and child.Name~="Title" and child.Name~="Total" and child.Name~="List" and child.Name~="Empty" then child:Destroy() end
+		end
+		for _, key in ipairs({"Title","Total"}) do
+			local text=column[key];text.AnchorPoint=Vector2.zero;text.Position=UDim2.fromOffset(8,key=="Title" and 6 or 40)
+			text.Size=UDim2.new(1,-16,0,30);text.TextScaled=false;text.TextSize=key=="Title" and 26 or 18
+			text.TextTruncate=Enum.TextTruncate.AtEnd;text.RichText=false
+		end
+		local list=column.List;list.Position=UDim2.fromOffset(6,76);list.AnchorPoint=Vector2.zero;list.Size=UDim2.new(1,-12,1,-82)
+		list.AutomaticCanvasSize=Enum.AutomaticSize.Y;list.CanvasSize=UDim2.new();list.CanvasPosition=Vector2.zero
+		list.ScrollingDirection=Enum.ScrollingDirection.Y
+		local template=list.Template;template.Visible=false
+		for _, child in ipairs(list:GetChildren()) do if child:IsA("GuiObject") and child~=template then child:Destroy() end end
+		local layout=list:FindFirstChildOfClass("UIListLayout") or create("UIListLayout",{},list)
+		layout.SortOrder=Enum.SortOrder.LayoutOrder;layout.Padding=UDim.new(0,3)
+		popup.Columns[team]={Frame=column,List=list,Template=template}
+	end
+	local formatScore=safeRequire(path(shared,"Framework","Utilities","String","FormatSuffix"))
+	if type(formatScore)~="function" then formatScore=function(n)return string.format("%.0f",tonumber(n) or 0)end end
+	function popup:Update(snapshot, competition)
+		if not self:IsOpen() then return end
+		self.Snapshot=snapshot;self.Competition=competition or self.Competition
+		for _, team in ipairs({"Pink","Blue"}) do
+			local column=self.Columns[team];local definition=self.Competition and self.Competition.Teams[team]
+			local entries=snapshot and snapshot.Boards and snapshot.Boards[team] and snapshot.Boards[team][self.Metric] or {}
+			column.Frame.Title.Text=definition and definition.Name or team
+			local total=snapshot and snapshot.Totals and snapshot.Totals[team] and snapshot.Totals[team][self.Metric] or 0
+			column.Frame.Total.Text=formatScore(total).." "..self.Metric
+			column.Frame.Empty.Visible=#entries==0;column.Frame.Empty.Text=snapshot and "No contributions yet" or "Waiting for live standings..."
+			for rank=1,math.min(100,#entries) do
+				local entry=entries[rank];local row=self.Rows[team][rank]
+				if not row then
+					row=cloneNative(column.Template,6);row.Parent=column.List;row.AnchorPoint=Vector2.zero;row.Size=UDim2.new(1,-4,0,38);row.LayoutOrder=rank
+					for _, child in ipairs(row:GetChildren()) do
+						if child:IsA("UIListLayout") or child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy()
+						elseif child:IsA("GuiObject") and child.Name~="Rank" and child.Name~="Username" and child.Name~="Score" then child:Destroy() end
+					end
+					for _, field in ipairs({"Rank","Username","Score"}) do
+						local text=row[field];text.AnchorPoint=Vector2.zero;text.TextScaled=false;text.TextSize=18;text.RichText=false
+						text.TextTruncate=Enum.TextTruncate.AtEnd;text.TextYAlignment=Enum.TextYAlignment.Center
+						for _, child in ipairs(text:GetChildren()) do if child:IsA("UITextSizeConstraint") or child:IsA("UIAspectRatioConstraint") then child:Destroy() end end
+					end
+					row.Rank.Position=UDim2.fromOffset(4,0);row.Rank.Size=UDim2.new(0,38,1,0)
+					row.Username.Position=UDim2.fromOffset(46,0);row.Username.Size=UDim2.new(1,-142,1,0);row.Username.TextXAlignment=Enum.TextXAlignment.Left
+					row.Score.Position=UDim2.new(1,-92,0,0);row.Score.Size=UDim2.new(0,86,1,0);row.Score.TextXAlignment=Enum.TextXAlignment.Right
+					self.Rows[team][rank]=row
+				end
+				row.Visible=true;row.Rank.Text="#"..rank;row.Username.Text=tostring(entry.Name or entry.UserId or "Player");row.Score.Text=formatScore(entry.Score)
+			end
+			for rank=math.min(100,#entries)+1,#self.Rows[team] do self.Rows[team][rank].Visible=false end
+		end
+	end
+	local paints={}
+	for index, metric in ipairs({"Hatches","Bubbles"}) do
+		local holder=create("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(16+(index-1)*180,52),Size=UDim2.fromOffset(170,34),ZIndex=5},frame)
+		local control, _, paint=button(holder,metric,"Blue",dropdownRow);paints[metric]=paint
+		bind(control.Activated,function()
+			popup.Metric=metric;for name,p in pairs(paints)do p(name==metric and "Green" or "Blue")end
+			popup:Update(popup.Snapshot,popup.Competition)
+		end)
+	end
+	paints.Hatches("Green")
+	local function fit()
+		local viewport=workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(900,650)
+		scale.Scale=math.max(0.25,math.min(1,(viewport.X-24)/880,(viewport.Y-48)/560))
+	end
+	fit();if workspace.CurrentCamera then bind(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),fit) end
+	bind(closeButton.Activated,function()popup:Close()end)
+	bind(UserInputService.InputBegan,function(input,processed)if not processed and input.KeyCode==Enum.KeyCode.Escape then popup:Close()end end)
+	for index=#connections,stylingStart+1,-1 do table.insert(popup.Connections,table.remove(connections,index)) end
+	self.CompetitionPopup=popup
+	return popup
+end
 function library:Destroy()
 	if self.Destroyed then return end
 	self.Destroyed = true
+	if self.CompetitionPopup then self.CompetitionPopup:Close() end
 	for _, state in pairs(animatedButtons) do if state.Tween then state.Tween:Cancel() end end
 	if self.TopbarIcon then self.TopbarIcon:destroy(); self.TopbarIcon = nil end
 	closePopup()

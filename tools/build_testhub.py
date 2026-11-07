@@ -10,8 +10,8 @@ from port_testhub_hatch import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
-SCRIPT_VERSION = 'v106'
-RUNTIME_REVISION = 21
+SCRIPT_VERSION = 'v107'
+RUNTIME_REVISION = 22
 generate()
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')
@@ -54,9 +54,7 @@ source = source.replace('print("[Hub] All repository modules initialized.")', 'W
 source = port_hatch(enhance(source))
 source = instrument(source)
 
-header = '''-- TestHub: afbq features with BGSI-native visuals and icon pickers.
--- Generated with tools/build_testhub.py. Press K to open/close.
-local actualGlobals = (getgenv and getgenv()) or _G
+header = '''local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
 if prior and prior.Revision == __RUNTIME_REVISION__ and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()

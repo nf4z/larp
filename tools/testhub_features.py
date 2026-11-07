@@ -2,6 +2,10 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def enhance(source):
+    # A donation cooldown is only a server limit. Renew after the full blessing expires.
+    source=source.replace('    if remaining >= 86400 then return nil end', '    if tonumber(state.ShrineBlessingEndTime)==nil or remaining > 0 then return nil end',1)
+    source=source.replace('when the cooldown is ready and the blessing timer has room.', 'only after the blessing expires.',2)
+    source=source.replace('Keeps the blessing timer topped up when donations are allowed; checks immediately, then every 15 seconds.', 'Renews after the blessing expires; avoids spending items on active blessings.',2)
     source=source.replace('InfoTab:Section({ Title = "Discord" })','if type(onTestHubSetupConfigs)=="function" then onTestHubSetupConfigs(InfoTab) end\nInfoTab:Section({ Title = "Discord" })',1)
     # Restrict discovery to real catalog/tagged eggs, never visual lock helpers.
     source=source.replace('        local lower = name:lower()\n        -- Imported mesh', '        local lower = name:lower()\n        if lower:find("egglock", 1, true) or lower:find("template", 1, true) or lower:find("hitbox", 1, true) then return false end\n        -- Imported mesh')
@@ -114,10 +118,29 @@ COMPETITION
                     local frame=screen and screen:FindFirstChild("PinkVsBlue")
                     return frame and frame.Visible==true
                 end,
+                CreateLeaderboard=function() return WindUI:CreateCompetitionPopup({}) end,
             })
         end)
         if not ok then WindUI:ModuleFailed("Comp: "..tostring(err)) end
     end
 '''.replace('COMPETITION',(ROOT/'testhub_src/competition.lua').read_text(encoding='utf-8'))
-    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+'    print("[Hub] All repository modules initialized.")')
+    shop_installer='''
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local install=(function()
+PENGUIN_SHOP
+            end)()
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                Shops=require(storage.Shared.Data.Shops),ShopUtil=require(storage.Shared.Utils.ShopUtil),
+                ItemUtil=require(storage.Shared.Utils.Stats.ItemUtil),Player=Players.LocalPlayer,
+                Profile=require(storage.Client.Framework.Services.LocalData),
+                Active=function()return runtime.Active end,Now=os.clock,
+                Fire=function(...)storage.Shared.Framework.Network.Remote.RemoteEvent:FireServer(...)end,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Penguin Shop: "..tostring(err)) end
+    end
+'''.replace('PENGUIN_SHOP',(ROOT/'testhub_src/penguin-shop.lua').read_text(encoding='utf-8'))
+    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+shop_installer+'    print("[Hub] All repository modules initialized.")')
     return source

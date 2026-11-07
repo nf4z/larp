@@ -62,7 +62,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.43"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.44"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +89,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.07.44",
+		releasedAt = "November 7, 2026",
+		notes = {
+			{ title = "Shrine item savings", description = "Bubble and Dreamer shrines renew only after the blessing expires, without hourly top-ups.", icon = "hourglass" },
+			{ title = "Live competition boards", description = "A live popout shows both teams' top 100, with hatch and bubble views.", icon = "trophy" },
+		},
+	},
 	{
 		version = "2026.11.07.43",
 		releasedAt = "November 7, 2026",
@@ -3763,6 +3771,94 @@ do
 		})
 		activeStates.RayfieldGen2Window = rayfieldWindow
 		return setmetatable({ Native = rayfieldWindow, Tabs = {} }, { __index = windowMethods })
+	end
+	function Interface:CreateCompetitionPopup(properties)
+		if not rayfieldWindow or rayfieldWindow.unloaded then return nil end
+		local shell=rayfieldWindow:Popup({title="Live Competition",subtitle="Both teams / Top 100",options={{text="Close"}}})
+		if not shell or not shell.card then return nil end
+		local card=shell.card
+		for _, child in ipairs(card:GetChildren()) do
+			if child:IsA("UIListLayout") or child:IsA("UIPadding") then child:Destroy() end
+		end
+		card.Size=UDim2.fromOffset(780,550);card.AutomaticSize=Enum.AutomaticSize.None
+		local header=card:FindFirstChild("Header");local footer=card:FindFirstChild("Footer")
+		if header then header.Position=UDim2.fromOffset(18,12);header.Size=UDim2.new(1,-36,0,44) end
+		if footer then footer.Position=UDim2.new(0,18,1,-50);footer.Size=UDim2.new(1,-36,0,34) end
+		local function make(class,props,theme)
+			props.Parent=props.Parent or card
+			return rayfieldWindow:Create(class,props,theme)
+		end
+		local function bind(signal,callback)
+			local c=rayfieldWindow:Connect(signal,callback);table.insert(shell._connections,c);return c
+		end
+		local scale=make("UIScale",{Scale=1})
+		local popup={Shell=shell,Metric="Hatches",Columns={},Rows={Pink={},Blue={}}}
+		function popup:IsOpen() return not shell._closed and shell.screenGui.Parent~=nil end
+		function popup:Close() self.Snapshot=nil;shell:Close() end
+		for index,team in ipairs({"Pink","Blue"}) do
+			local column=make("Frame",{Name=team,Position=UDim2.new((index-1)*0.5,index==1 and 18 or 8,0,108),Size=UDim2.new(0.5,-26,1,-170),BorderSizePixel=0}, {BackgroundColor3="NeutralButton"})
+			make("UICorner",{CornerRadius=UDim.new(0,8),Parent=column})
+			local title=make("TextLabel",{Text=team,Position=UDim2.fromOffset(10,6),Size=UDim2.new(1,-20,0,26),TextSize=18,
+				BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd,Parent=column}, {FontFace="TitleFont",TextColor3="ContentColor"})
+			local total=make("TextLabel",{Text="",Position=UDim2.fromOffset(10,34),Size=UDim2.new(1,-20,0,22),TextSize=13,
+				BackgroundTransparency=1,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd,Parent=column}, {FontFace="Font",TextColor3="ContentColor"})
+			local list=make("ScrollingFrame",{Name="Ranks",Position=UDim2.fromOffset(6,62),Size=UDim2.new(1,-12,1,-68),
+				BackgroundTransparency=1,BorderSizePixel=0,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),
+				ScrollBarThickness=4,ScrollingDirection=Enum.ScrollingDirection.Y,Parent=column})
+			make("UIListLayout",{Padding=UDim.new(0,3),SortOrder=Enum.SortOrder.LayoutOrder,Parent=list})
+			local empty=make("TextLabel",{Text="Waiting for live standings...",BackgroundTransparency=1,TextSize=14,
+				Size=UDim2.new(1,0,0,38),Parent=list}, {FontFace="Font",TextColor3="ContentColor"})
+			popup.Columns[team]={Title=title,Total=total,List=list,Empty=empty}
+		end
+		local function number(value)
+			return (string.format("%.0f",math.max(0,tonumber(value) or 0)):reverse():gsub("(%d%d%d)","%1,"):reverse():gsub("^,",""))
+		end
+		function popup:Update(snapshot,competition)
+			if not self:IsOpen() then return end
+			self.Snapshot=snapshot;self.Competition=competition or self.Competition
+			for _,team in ipairs({"Pink","Blue"}) do
+				local col=self.Columns[team];local definition=self.Competition and self.Competition.Teams[team]
+				col.Title.Text=definition and definition.Name or team
+				local entries=snapshot and snapshot.Boards and snapshot.Boards[team] and snapshot.Boards[team][self.Metric] or {}
+				local total=snapshot and snapshot.Totals and snapshot.Totals[team] and snapshot.Totals[team][self.Metric] or 0
+				col.Total.Text=number(total).." "..self.Metric
+				col.Empty.Visible=#entries==0;col.Empty.Text=snapshot and "No contributions yet" or "Waiting for live standings..."
+				for rank=1,math.min(100,#entries) do
+					local row=self.Rows[team][rank]
+					if not row then
+						local host=make("Frame",{Name="Rank"..rank,BackgroundTransparency=1,Size=UDim2.new(1,-4,0,30),LayoutOrder=rank,Parent=col.List})
+						local function text(name,x,w,alignment)
+							return make("TextLabel",{Name=name,BackgroundTransparency=1,Position=x,Size=w,TextSize=13,RichText=false,
+								TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=alignment,Parent=host}, {FontFace="Font",TextColor3="ContentColor"})
+						end
+						row={Frame=host,Rank=text("Rank",UDim2.fromOffset(2,0),UDim2.new(0,32,1,0),Enum.TextXAlignment.Left),
+							Name=text("Username",UDim2.fromOffset(36,0),UDim2.new(0.53,-38,1,0),Enum.TextXAlignment.Left),
+							Score=text("Score",UDim2.new(0.53,2,0,0),UDim2.new(0.47,-6,1,0),Enum.TextXAlignment.Right)}
+						self.Rows[team][rank]=row
+					end
+					local entry=entries[rank];row.Frame.Visible=true;row.Rank.Text="#"..rank
+					row.Name.Text=tostring(entry.Name or entry.UserId or "Player");row.Score.Text=number(entry.Score)
+				end
+				for rank=math.min(100,#entries)+1,#self.Rows[team] do self.Rows[team][rank].Frame.Visible=false end
+			end
+		end
+		for index,metric in ipairs({"Hatches","Bubbles"}) do
+			local control=make("TextButton",{Text=metric,Position=UDim2.fromOffset(18+(index-1)*146,64),Size=UDim2.fromOffset(136,32),
+				TextSize=14,BorderSizePixel=0,AutoButtonColor=true}, {FontFace="Font",TextColor3="ContentColor",BackgroundColor3="NeutralButton"})
+			make("UICorner",{CornerRadius=UDim.new(0,6),Parent=control})
+			bind(control.Activated,function()popup.Metric=metric;popup:Update(popup.Snapshot,popup.Competition)end)
+		end
+		local function fit()
+			local viewport=Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(900,650)
+			scale.Scale=math.max(0.25,math.min(1,(viewport.X-24)/780,(viewport.Y-48)/550))
+		end
+		fit();if Workspace.CurrentCamera then bind(Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),fit) end
+		local originalClose=shell.Close
+		shell.Close=function(self)
+			popup.Snapshot=nil;table.clear(popup.Rows.Pink);table.clear(popup.Rows.Blue)
+			originalClose(self)
+		end
+		return popup
 	end
 	function Interface:Notify(properties)
 		if rayfieldWindow then
@@ -9090,6 +9186,9 @@ if type(getgenv) == "function" then
 					end
 				end)
 			end
+			pcall(function()
+				if activeStates.BGSI_Lite_CompPopup then activeStates.BGSI_Lite_CompPopup:Close();activeStates.BGSI_Lite_CompPopup=nil end
+			end)
 			activeStates.RayfieldGen2 = nil
 			activeStates.RayfieldGen2Window = nil
 			activeStates.BGSI_Lite_EventBoard = nil
@@ -11308,6 +11407,17 @@ do
 		local season = competition.GetSeason()
 		local standings, snapshotAt
 		local pending = {}
+		local leaderboardPopup
+		compTab:AddButton({Title="View Live Leaderboards",Description="Live popout with both teams' top 100. Switch between hatches and bubbles.",Callback=function()
+			if not isCurrentRun() then return end
+			if not leaderboardPopup or not leaderboardPopup:IsOpen() then
+				leaderboardPopup=Interface:CreateCompetitionPopup({})
+				activeStates.BGSI_Lite_CompPopup=leaderboardPopup
+			end
+			if not leaderboardPopup then return end
+			leaderboardPopup:Update(standings,competition)
+			snapshotAt=tick();remoteEvent:FireServer("PinkVsBlueView",true)
+		end})
 		local function getContribution()
 			local data = profileStore:IsReady() and profileStore:Get() or nil
 			return data and type(data.PinkVsBlue) == "table" and data.PinkVsBlue[tostring(season.Id)] or nil
@@ -11346,6 +11456,7 @@ do
 			if type(snapshot.Season) ~= "table" or type(snapshot.Standings) ~= "table" then return end
 			if tostring(snapshot.Season.Id) ~= tostring(season.Id) then pending = {} end
 			season, standings, snapshotAt = snapshot.Season, snapshot.Standings, tick()
+			if leaderboardPopup and leaderboardPopup:IsOpen() then leaderboardPopup:Update(standings,competition) end
 			pcall(updateComp)
 		end)
 		activeStates.BGSI_Lite_CompSnapshotConnection = snapshotConnection
@@ -11358,7 +11469,8 @@ do
 				pcall(function()
 					local contribution = updateComp()
 					if Config.safeMode == true then return end
-					if not snapshotAt or tick() - snapshotAt >= 30 then
+					local refreshEvery=leaderboardPopup and leaderboardPopup:IsOpen() and 5 or 30
+					if not snapshotAt or tick() - snapshotAt >= refreshEvery then
 						snapshotAt = tick()
 						remoteEvent:FireServer("PinkVsBlueView", true)
 					end
@@ -11383,6 +11495,8 @@ do
 				task.wait(2)
 			end
 			snapshotConnection:Disconnect()
+			if leaderboardPopup then leaderboardPopup:Close() end
+			if activeStates.BGSI_Lite_CompPopup==leaderboardPopup then activeStates.BGSI_Lite_CompPopup=nil end
 			if activeStates.BGSI_Lite_CompSnapshotConnection == snapshotConnection then
 				activeStates.BGSI_Lite_CompSnapshotConnection = nil
 			end
@@ -20471,7 +20585,7 @@ do
 	scriptStateOB:AddSection("Dream Fountain")
 	scriptStateOB:AddToggle("DreamShrine", {
 		Title = "Auto Dreamer Fountain",
-		Description = "Rations Dream Shards and restocks them from available shops and free rerolls when needed.",
+		Description = "Waits for the blessing to expire before donating or restocking. 15 Dream Shards gives 24 hours.",
 		Default = Config.DreamerShrineEnabled,
 		Callback = function(scriptStateAV)
 			Config.DreamerShrineEnabled = scriptStateAV
@@ -20529,18 +20643,19 @@ do
 	scriptStateOB:AddInput("ShrineAmount", {
 		Title = "Amount",
 		Default = tostring(Config.shrineAmount),
-		Placeholder = "0-1000",
+		Placeholder = "0-500",
 		Numeric = true,
 		Callback = function(scriptStateDC)
 			local scriptStateABI = tonumber(scriptStateDC)
 			if scriptStateABI then
-				Config.shrineAmount = math.clamp(math.floor(scriptStateABI), 0, 1000)
+				Config.shrineAmount = math.clamp(math.floor(scriptStateABI), 0, 500)
 				saveConfig()
 			end
 		end,
 	})
 	scriptStateOB:AddToggle("AutoShrine", {
 		Title = "Auto Donate to Bubble Shrine",
+		Description = "Renews after the blessing expires. 500 potions gives 24 hours; never tops up an active blessing.",
 		Default = Config.shrineAuto,
 		Callback = function(scriptStateXQ)
 			Config.shrineAuto = scriptStateXQ
@@ -20571,15 +20686,16 @@ task.spawn(function()
 		if currentTimestamp < (tonumber(dreamerShrine.LastDonationTime) or 0) + donationInterval then
 			continue
 		end
-		local blessingRemaining =
-			math.max(0, (tonumber(dreamerShrine.ShrineBlessingEndTime) or 0) - currentTimestamp)
+		local blessingEndTime = tonumber(dreamerShrine.ShrineBlessingEndTime)
+		if not blessingEndTime or currentTimestamp < blessingEndTime then
+			continue -- An hourly donation cooldown does not mean the blessing needs renewing.
+		end
 		local configuredAmount = math.clamp(math.floor(tonumber(Config.DreamerShrineAmount) or 15), 1, 15)
 		local ownedShards = type(activeStates.BGSI_Lite_GetInventoryItemAmount) == "function"
 				and activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
 			or 0
 		if
 			ownedShards < configuredAmount
-			and blessingRemaining < 86400
 			and tick() >= (tonumber(activeStates.BGSI_Lite_NextDreamShardRestockAt) or 0)
 			and type(activeStates.BGSI_Lite_SmartShopRestock) == "function"
 		then
@@ -20593,7 +20709,7 @@ task.spawn(function()
 			playerData = profileStore:IsReady() and profileStore:Get() or playerData
 			ownedShards = activeStates.BGSI_Lite_GetInventoryItemAmount("Dream Shard")
 		end
-		local donationAmount = blessingRemaining < 86400 and math.min(configuredAmount, ownedShards) or 0
+		local donationAmount = math.min(configuredAmount, ownedShards)
 		if donationAmount > 0 then
 			local donationOk, donationAccepted =
 				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToDreamerShrine", donationAmount)
@@ -20626,10 +20742,10 @@ task.spawn(function()
 			local donationInterval = type(bubbleShrineUtil) == "table"
 				and tonumber(bubbleShrineUtil.DONATION_INTERVAL) or 3600
 			local blessingRemaining = type(shrineState) == "table"
-				and math.max(0, (tonumber(shrineState.ShrineBlessingEndTime) or 0) - now) or 86400
+				and math.max(0, (tonumber(shrineState.ShrineBlessingEndTime) or math.huge) - now) or math.huge
 			if type(shrineState) == "table"
 				and now >= (tonumber(shrineState.LastDonationTime) or 0) + donationInterval
-				and blessingRemaining < 86400 then
+				and blessingRemaining <= 0 then
 			local potionItem = {
 				Level = Config.shrineLevel,
 				Type = "Potion",
@@ -20656,7 +20772,7 @@ task.spawn(function()
 			end
 			potionItem.Amount = math.min(
 				ownedAmount,
-				math.max(0, math.floor(tonumber(Config.shrineAmount) or 500))
+				math.clamp(math.floor(tonumber(Config.shrineAmount) or 500), 0, 500)
 			)
 			if potionItem.Amount > 0 then
 				pcall(remoteFunction.InvokeServer, remoteFunction, "DonateToShrine", potionItem)

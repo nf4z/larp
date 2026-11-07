@@ -22,6 +22,17 @@ return function(context)
     local status = tab:Paragraph({Title="Reward Status", Desc="Automatic claiming is off."})
     local season = competition and competition.GetSeason()
     local standings, snapshotAt, pending = nil, -math.huge, {}
+    local leaderboardPopup
+    tab:Button({Title="Live Leaderboards", Desc="Both teams' top 100 in a live popout.", Callback=function()
+        if not context.Active() then return end
+        if not leaderboardPopup or not leaderboardPopup:IsOpen() then
+            local ok, popup=pcall(context.CreateLeaderboard)
+            leaderboardPopup=ok and popup or nil
+        end
+        if not leaderboardPopup then teamCard:SetDesc("Competition frame is not available in this server.");return end
+        leaderboardPopup:Update(standings,competition)
+        snapshotAt=context.Now();context.Fire("PinkVsBlueView",true)
+    end})
     local function contribution()
         local ok, current = pcall(context.Profile.Get,context.Profile)
         if not ok or type(current)~="table" then return nil end
@@ -84,13 +95,15 @@ return function(context)
         if type(snapshot.Season)~="table" or type(snapshot.Season.PersonalRewards)~="table" or type(snapshot.Standings)~="table" then return end
         if season and tostring(season.Id)~=tostring(snapshot.Season.Id) then pending={} end
         season, standings, snapshotAt = snapshot.Season, snapshot.Standings, context.Now()
+        if leaderboardPopup and leaderboardPopup:IsOpen() then leaderboardPopup:Update(standings,competition) end
         refresh()
     end
     local function step()
         if not context.Active() then return end
         local own = refresh()
         if not season or not competition or competition.Enabled~=true then return end
-        if context.Now()-snapshotAt>=30 then
+        local refreshEvery=leaderboardPopup and leaderboardPopup:IsOpen() and 5 or 30
+        if context.Now()-snapshotAt>=refreshEvery then
             snapshotAt=context.Now()
             context.Fire("PinkVsBlueView",true)
         end
@@ -121,6 +134,7 @@ return function(context)
     if competition and competition.Enabled==true then
         context.Connect(context.Signal,receive)
         context.Restore(function()
+            if leaderboardPopup then leaderboardPopup:Close() end
             if not context.NativeOpen() then context.Fire("PinkVsBlueView",false) end
         end)
     end

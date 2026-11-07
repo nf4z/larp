@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.43"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.44"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,14 +19,14 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/c2a082b82733cd833564.lua", bytes = 444535, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/798f20a83509989fc69e.lua", bytes = 64030, blocks = 1 },
+	["core"] = { path = "modules/core/643f39b03aea6418d47c.lua", bytes = 450796, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/a3506bd2a758cb2f66f6.lua", bytes = 64429, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
 	["eggs"] = { path = "modules/eggs/d3b530685972463b64fb.lua", bytes = 24804, blocks = 3 },
 	["halloween"] = { path = "modules/halloween/a6c425a51263adf9d2df.lua", bytes = 4648, blocks = 2 },
-	["comp"] = { path = "modules/comp/15c49ac0ee098b42864d.lua", bytes = 5424, blocks = 2 },
+	["comp"] = { path = "modules/comp/3d15cde4568623505866.lua", bytes = 6364, blocks = 2 },
 	["event"] = { path = "modules/event/402e630e2e462d98adc9.lua", bytes = 4526, blocks = 2 },
 	["chests"] = { path = "modules/chests/dddfb9396648bf0c2718.lua", bytes = 8207, blocks = 2 },
 	["potions"] = { path = "modules/potions/8ba0c1c8c853e7491125.lua", bytes = 20322, blocks = 2 },
@@ -35,7 +35,7 @@ local modules = {
 	["enchant"] = { path = "modules/enchant/3c9d620a40839b4d93bd.lua", bytes = 9107, blocks = 3 },
 	["quests"] = { path = "modules/quests/360d1f4d50e5c575da7e.lua", bytes = 19977, blocks = 2 },
 	["guilds"] = { path = "modules/guilds/f5f5270763a120767394.lua", bytes = 16307, blocks = 2 },
-	["shrines"] = { path = "modules/shrines/2903c548c7921a2fb444.lua", bytes = 2258, blocks = 2 },
+	["shrines"] = { path = "modules/shrines/d6386cdad77ae64123c1.lua", bytes = 2378, blocks = 2 },
 	["rebirth"] = { path = "modules/rebirth/f83bff1eb4d94773a35b.lua", bytes = 2265, blocks = 1 },
 	["fishing"] = { path = "modules/fishing/c039ea74eb14395ff187.lua", bytes = 15769, blocks = 1 },
 	["webhooks"] = { path = "modules/webhooks/0538a8ad0246f4beaac5.lua", bytes = 10119, blocks = 2 },
@@ -195,4 +195,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 table.clear(compiledModules)
-return { Version = "2026.11.07.43" }
+return { Version = "2026.11.07.44" }
