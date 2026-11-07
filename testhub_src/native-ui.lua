@@ -1098,8 +1098,19 @@ function library:CreateCompetitionPopup(options)
 	end
 	top.NameLabel.Position=UDim2.fromOffset(0,0);top.NameLabel.Size=UDim2.fromScale(1,1)
 	top.NameLabel.TextScaled=false;top.NameLabel.TextSize=28;top.NameLabel.TextXAlignment=Enum.TextXAlignment.Left
-	closeHost.AnchorPoint=Vector2.new(1,0);closeHost.Position=UDim2.new(1,-12,0,10);closeHost.Size=UDim2.fromOffset(38,38)
-	local closeButton=closeHost:FindFirstChild("Button") or closeHost
+	-- The Comp template's button carries its original large glyph and offset.
+	-- Use the hub's normalized native close control in an independent, inset holder.
+	closeHost:Destroy()
+	closeHost=create("Frame",{Name="Close",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,0),
+		Position=UDim2.new(1,-14,0,10),Size=UDim2.fromOffset(42,42),ZIndex=frame.ZIndex+10},frame)
+	local closeButton=cloneNative(close,closeHost.ZIndex+1);closeButton.Name="Button";closeButton.Parent=closeHost
+	closeButton.AnchorPoint=Vector2.zero;closeButton.Position=UDim2.fromOffset(0,0);closeButton.Size=UDim2.fromScale(1,1)
+	for _, child in ipairs(closeButton:GetChildren()) do
+		if (child:IsA("ImageLabel") or child:IsA("TextLabel")) and child.Name~="Background" then
+			child.AnchorPoint=Vector2.new(0.5,0.5);child.Position=UDim2.fromScale(0.5,0.5);child.Size=UDim2.fromOffset(28,28)
+			if child:IsA("TextLabel") then child.TextScaled=false;child.TextSize=28 end
+		end
+	end
 	animateButton(closeButton);autoButtonColor(closeButton,palette.Button.Red)
 	body.AnchorPoint=Vector2.zero;body.Position=UDim2.fromOffset(12,96);body.Size=UDim2.new(1,-24,1,-108)
 	for _, child in ipairs(body:GetChildren()) do if child:IsA("GuiObject") and child.Name~="Boards" then child:Destroy() end end
@@ -1107,7 +1118,7 @@ function library:CreateCompetitionPopup(options)
 	for _, child in ipairs(boards:GetChildren()) do if child:IsA("GuiObject") and child.Name~="Columns" then child:Destroy() end end
 	local columns=boards.Columns;columns.AnchorPoint=Vector2.zero;columns.Position=UDim2.fromOffset(0,0);columns.Size=UDim2.fromScale(1,1)
 	for _, child in ipairs(columns:GetChildren()) do if child.Name~="Pink" and child.Name~="Blue" then child:Destroy() end end
-	local popup={Gui=popupGui,Frame=frame,Columns={},Rows={Pink={},Blue={}},Metric="Hatches",Connections={},Closed=false}
+	local popup={Gui=popupGui,Frame=frame,CloseButton=closeButton,Columns={},Rows={Pink={},Blue={}},Metric="Hatches",Connections={},Closed=false}
 	local function bind(signal, fn) local c=signal:Connect(fn);table.insert(popup.Connections,c);return c end
 	function popup:IsOpen() return not self.Closed and self.Gui.Parent~=nil end
 	function popup:Close()
@@ -1128,10 +1139,12 @@ function library:CreateCompetitionPopup(options)
 			elseif child:IsA("GuiObject") and child.Name~="Title" and child.Name~="Total" and child.Name~="List" and child.Name~="Empty" then child:Destroy() end
 		end
 		for _, key in ipairs({"Title","Total"}) do
-			local text=column[key];text.AnchorPoint=Vector2.zero;text.Position=UDim2.fromOffset(8,key=="Title" and 6 or 40)
-			text.Size=UDim2.new(1,-16,0,30);text.TextScaled=false;text.TextSize=key=="Title" and 26 or 18
+			local text=column[key];text.AnchorPoint=Vector2.zero;text.Position=UDim2.fromOffset(64,key=="Title" and 6 or 40)
+			text.Size=UDim2.new(1,-72,0,30);text.TextScaled=false;text.TextSize=key=="Title" and 26 or 18
 			text.TextTruncate=Enum.TextTruncate.AtEnd;text.RichText=false
 		end
+		local teamIcon=create("ImageLabel",{Name="TeamIcon",BackgroundTransparency=1,Position=UDim2.fromOffset(8,12),
+			Size=UDim2.fromOffset(48,48),ScaleType=Enum.ScaleType.Fit,Active=false,ZIndex=column.Title.ZIndex},column)
 		local list=column.List;list.Position=UDim2.fromOffset(6,76);list.AnchorPoint=Vector2.zero;list.Size=UDim2.new(1,-12,1,-82)
 		list.AutomaticCanvasSize=Enum.AutomaticSize.Y;list.CanvasSize=UDim2.new();list.CanvasPosition=Vector2.zero
 		list.ScrollingDirection=Enum.ScrollingDirection.Y
@@ -1139,7 +1152,7 @@ function library:CreateCompetitionPopup(options)
 		for _, child in ipairs(list:GetChildren()) do if child:IsA("GuiObject") and child~=template then child:Destroy() end end
 		local layout=list:FindFirstChildOfClass("UIListLayout") or create("UIListLayout",{},list)
 		layout.SortOrder=Enum.SortOrder.LayoutOrder;layout.Padding=UDim.new(0,3)
-		popup.Columns[team]={Frame=column,List=list,Template=template}
+		popup.Columns[team]={Frame=column,List=list,Template=template,Icon=teamIcon}
 	end
 	local formatScore=safeRequire(path(shared,"Framework","Utilities","String","FormatSuffix"))
 	if type(formatScore)~="function" then formatScore=function(n)return string.format("%.0f",tonumber(n) or 0)end end
@@ -1150,6 +1163,9 @@ function library:CreateCompetitionPopup(options)
 			local column=self.Columns[team];local definition=self.Competition and self.Competition.Teams[team]
 			local entries=snapshot and snapshot.Boards and snapshot.Boards[team] and snapshot.Boards[team][self.Metric] or {}
 			column.Frame.Title.Text=definition and definition.Name or team
+			local shield=definition and definition.Shield or ""
+			if column.Icon.Image~=shield then column.Icon.Image=shield end
+			column.Icon.Visible=shield~=""
 			local total=snapshot and snapshot.Totals and snapshot.Totals[team] and snapshot.Totals[team][self.Metric] or 0
 			column.Frame.Total.Text=formatScore(total).." "..self.Metric
 			column.Frame.Empty.Visible=#entries==0;column.Frame.Empty.Text=snapshot and "No contributions yet" or "Waiting for live standings..."
@@ -1159,7 +1175,7 @@ function library:CreateCompetitionPopup(options)
 					row=cloneNative(column.Template,6);row.Parent=column.List;row.AnchorPoint=Vector2.zero;row.Size=UDim2.new(1,-4,0,38);row.LayoutOrder=rank
 					for _, child in ipairs(row:GetChildren()) do
 						if child:IsA("UIListLayout") or child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy()
-						elseif child:IsA("GuiObject") and child.Name~="Rank" and child.Name~="Username" and child.Name~="Score" then child:Destroy() end
+						elseif child:IsA("GuiObject") and child.Name~="Rank" and child.Name~="Username" and child.Name~="Score" and child.Name~="Avatar" then child:Destroy() end
 					end
 					for _, field in ipairs({"Rank","Username","Score"}) do
 						local text=row[field];text.AnchorPoint=Vector2.zero;text.TextScaled=false;text.TextSize=18;text.RichText=false
@@ -1167,11 +1183,19 @@ function library:CreateCompetitionPopup(options)
 						for _, child in ipairs(text:GetChildren()) do if child:IsA("UITextSizeConstraint") or child:IsA("UIAspectRatioConstraint") then child:Destroy() end end
 					end
 					row.Rank.Position=UDim2.fromOffset(4,0);row.Rank.Size=UDim2.new(0,38,1,0)
-					row.Username.Position=UDim2.fromOffset(46,0);row.Username.Size=UDim2.new(1,-142,1,0);row.Username.TextXAlignment=Enum.TextXAlignment.Left
+					local avatar=row:FindFirstChild("Avatar") or create("ImageLabel",{Name="Avatar",BackgroundTransparency=1},row)
+					for _, child in ipairs(avatar:GetChildren()) do if child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then child:Destroy() end end
+					avatar.AnchorPoint=Vector2.zero;avatar.Position=UDim2.fromOffset(46,4);avatar.Size=UDim2.fromOffset(30,30)
+					avatar.BackgroundTransparency=1;avatar.ImageTransparency=0;avatar.ScaleType=Enum.ScaleType.Fit;avatar.Active=false
+					row.Username.Position=UDim2.fromOffset(82,0);row.Username.Size=UDim2.new(1,-178,1,0);row.Username.TextXAlignment=Enum.TextXAlignment.Left
 					row.Score.Position=UDim2.new(1,-92,0,0);row.Score.Size=UDim2.new(0,86,1,0);row.Score.TextXAlignment=Enum.TextXAlignment.Right
 					self.Rows[team][rank]=row
 				end
 				row.Visible=true;row.Rank.Text="#"..rank;row.Username.Text=tostring(entry.Name or entry.UserId or "Player");row.Score.Text=formatScore(entry.Score)
+				local userId=tonumber(entry.UserId) or 0
+				local image=userId>0 and ("rbxthumb://type=AvatarHeadShot&id="..string.format("%.0f",userId).."&w=100&h=100") or ""
+				if row.Avatar.Image~=image then row.Avatar.Image=image end
+				row.Avatar.Visible=userId>0
 			end
 			for rank=math.min(100,#entries)+1,#self.Rows[team] do self.Rows[team][rank].Visible=false end
 		end

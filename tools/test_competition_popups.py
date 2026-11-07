@@ -37,7 +37,7 @@ for _,team in ipairs({"Pink","Blue"})do
  for _,name in ipairs({"Rank","Username","Score"})do child(template,"TextLabel",name)end
  child(template,"ImageLabel","Avatar")
 end
-local definition={Teams={Pink={Name="Seals"},Blue={Name="Frog Dogs"}}}
+local definition={Teams={Pink={Name="Seals",Shield="rbxassetid://105235648283544"},Blue={Name="Frog Dogs",Shield="rbxassetid://81317703874820"}}}
 local data={Boards={Pink={Hatches={},Bubbles={}},Blue={Hatches={},Bubbles={}}},Totals={Pink={Hatches=100000,Bubbles=200000},Blue={Hatches=300000,Bubbles=400000}}}
 for _,team in ipairs({"Pink","Blue"})do
  for i=1,105 do
@@ -53,7 +53,16 @@ assert(popup.Frame.Background.Image=="native-comp-art" and not popup.Frame:FindF
 popup:Update(data,definition)
 assert(#popup.Rows.Pink==100 and #popup.Rows.Blue==100)
 assert(popup.Rows.Pink[1].Username.Text=="Pink1" and popup.Rows.Blue[100].Rank.Text=="#100")
-assert(not popup.Rows.Pink[1]:FindFirstChild("Avatar"),"No avatar downloads for every live row")
+assert(popup.Rows.Pink[1].Avatar.Image=="rbxthumb://type=AvatarHeadShot&id=1&w=100&h=100")
+assert(popup.Rows.Blue[100].Avatar.Image=="rbxthumb://type=AvatarHeadShot&id=100&w=100&h=100")
+assert(popup.Rows.Pink[1].Avatar.Size.X.Offset==30 and popup.Rows.Pink[1].Username.Position.X.Offset==82)
+assert(popup.Columns.Pink.Icon.Image==definition.Teams.Pink.Shield and popup.Columns.Blue.Icon.Image==definition.Teams.Blue.Shield)
+assert(popup.Columns.Blue.Frame.Title.Position.X.Offset==64 and popup.Columns.Blue.Frame.Total.Position.X.Offset==64)
+assert(popup.Frame.Close.Size.X.Offset==42 and popup.Frame.Close.Position.X.Offset==-14 and popup.Frame.Close.Position.Y.Offset==10)
+assert(popup.CloseButton.Size.X.Scale==1 and popup.CloseButton.AnchorPoint.X==0.5 and popup.CloseButton.Position.X.Scale==0.5)
+for _,node in ipairs(popup.CloseButton:GetChildren())do
+ if node:IsA("ImageLabel") or node:IsA("TextLabel") then assert(node.Size.X.Offset==28 and node.Position.X.Scale==0.5)end
+end
 local first=popup.Rows.Pink[1]
 popup.Columns.Pink.List.CanvasPosition=mock.vector(0,700)
 data.Boards.Pink.Hatches[1].Name="UpdatedName";data.Boards.Pink.Hatches[1].Score=123456
@@ -64,9 +73,10 @@ for _,node in ipairs(popup.Frame:GetDescendants())do
  if node:IsA("GuiButton") and node:FindFirstChild("Label") and node.Label.Text=="Bubbles" then node.Activated:Fire()end
 end
 assert(popup.Metric=="Bubbles" and popup.Rows.Blue[1].Username.Text=="Bubble1")
+assert(popup.Rows.Blue[1].Avatar.Image=="rbxthumb://type=AvatarHeadShot&id=1001&w=100&h=100","Headshot follows metric/player changes")
 assert(ui:CreateCompetitionPopup({})==popup,"Reuse open popup")
 data.Boards.Blue.Bubbles={};popup:Update(data,definition);assert(not popup.Rows.Blue[1].Visible and popup.Columns.Blue.Frame.Empty.Visible)
-popup:Close();assert(not popup:IsOpen() and #popup.Rows.Pink==0 and #popup.Connections==0)
+popup.CloseButton.Activated:Fire();assert(not popup:IsOpen() and #popup.Rows.Pink==0 and #popup.Connections==0)
 ui:CreateCompetitionPopup({});ui:Destroy();assert(not ui.CompetitionPopup)
 local rfwindow={}
 function rfwindow:Create(class,props)
