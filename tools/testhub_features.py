@@ -2,6 +2,12 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def enhance(source):
+    # Guild quests have their own ownership flag; higher-priority questActive stays untouched.
+    source=source.replace('            if getgenv().questActive then', '            if getgenv().questActive or getgenv().guildQuestActive then',1)
+    for flag in ('autoHatchEnabled','bountyEnabled','xlBountyRunning'):
+        source=source.replace('while getgenv().questActive and '+flag+' do', 'while (getgenv().questActive or getgenv().guildQuestActive) and '+flag+' do')
+    source=source.replace('        while bubbleEnabled do\n            pcall(function() fire("BlowBubble") end)', '        while bubbleEnabled do\n            if getgenv().guildQuestActive then task.wait(0.1);continue end\n            pcall(function() fire("BlowBubble") end)',1)
+    source=source.replace('        while sellEnabled do\n            local bubbles = getBubbles()', '        while sellEnabled do\n            if getgenv().guildQuestActive then task.wait(0.1);continue end\n            local bubbles = getBubbles()',1)
     # A donation cooldown is only a server limit. Renew after the full blessing expires.
     source=source.replace('    if remaining >= 86400 then return nil end', '    if tonumber(state.ShrineBlessingEndTime)==nil or remaining > 0 then return nil end',1)
     source=source.replace('when the cooldown is ready and the blessing timer has room.', 'only after the blessing expires.',2)
@@ -142,5 +148,40 @@ PENGUIN_SHOP
         if not ok then WindUI:ModuleFailed("Penguin Shop: "..tostring(err)) end
     end
 '''.replace('PENGUIN_SHOP',(ROOT/'testhub_src/penguin-shop.lua').read_text(encoding='utf-8'))
-    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+shop_installer+'    print("[Hub] All repository modules initialized.")')
+    guild_installer='''
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local profile=require(storage.Client.Framework.Services.LocalData)
+            local function optional(module)local good,value=pcall(require,module);return good and value or nil end
+            local event=storage.Shared.Framework.Network.Remote.RemoteEvent
+            local remoteFunction=storage.Shared.Framework.Network.Remote.RemoteFunction
+            local makeBridge=(function()
+GUILD_BRIDGE
+            end)()
+            local bridge=makeBridge({Player=Players.LocalPlayer,State=getgenv(),Settings=getgenv().HubSettings,
+                Profile=profile,Workspace=workspace,EggScanner=EggScanner,Stats=optional(storage.Shared.Utils.Stats.StatsUtil),
+                CheckSpace=optional(storage.Client.Gui.Utils.CheckInventorySpace),
+                Active=function()return runtime.Active end,Now=os.clock,
+                Time=function()return require(storage.Shared.Framework.Utilities.Math.Time).now()end,
+                Fire=function(...)event:FireServer(...)end,
+            })
+            local install=(function()
+GUILD_FEATURES
+            end)()
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                GuildUtil=optional(storage.Shared.Utils.Stats.GuildUtil),
+                Active=function()return runtime.Active end,Now=os.clock,Time=os.time,
+                Unlocked=function()return Players.LocalPlayer:GetAttribute("GuildUnlocked")==true end,
+                Signal=event.OnClientEvent,Connect=runtime.Connect,
+                Invoke=function(...)return remoteFunction:InvokeServer(...)end,
+                Fire=function(...)event:FireServer(...)end,
+                Restore=function(callback)table.insert(runtime.Restore,callback)end,
+                PriorityBusy=bridge.PriorityBusy,SetWorking=bridge.SetWorking,QuestStep=bridge.QuestStep,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Guilds: "..tostring(err)) end
+    end
+'''.replace('GUILD_BRIDGE',(ROOT/'testhub_src/guild-bridge.lua').read_text(encoding='utf-8')).replace('GUILD_FEATURES',(ROOT/'testhub_src/guild.lua').read_text(encoding='utf-8'))
+    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+shop_installer+guild_installer+'    print("[Hub] All repository modules initialized.")')
     return source

@@ -9,7 +9,7 @@ The repository entry is `bgsiscript`. The window has no title or status footer. 
 - Default size: **600 x 420**, with viewport fitting.
 - Drag the empty header area; resize with the bottom-right // handle.
 - Press **K** to open/close. Keyboard text entry does not trigger it.
-- Scroll the sidebar for all 18 tabs; search controls in the selected tab.
+- Scroll the sidebar for all 19 tabs; search controls in the selected tab.
 
 ## Separate configuration
 
@@ -196,3 +196,13 @@ Event / Penguin Trio Shop reads the game's `winter-shop` catalog, including all 
 ## Leaderboard close button and images (script v108 / runtime revision 23)
 
 The leaderboard popup uses the hub's normalized native close control with a 42-pixel target and centered 28-pixel X. Its holder has a fixed inset from the top/right edges, and the button fills its holder. Team headers now show the actual Seals/Frog Dogs shield assets; every rank retains its native Avatar image and requests Roblox's 100 x 100 headshot for that entry's UserId. The image changes only when the player at that rank changes, and follows hatch/bubble switching. Rank, avatar, name and score have separate fixed layout regions. Popup tests cover the real close activation, geometry, team shields and headshot reassignment. Live client appearance remains unverified.
+
+## Guilds (script v109 / runtime revision 24)
+
+Guilds appears directly below Quest, using the game's guild level badge and native Settings cards. Like Larplite, it shows the guild name/level/member count, current season/week, Guild/Global points, earned rewards, and three weekly quests with their current tier and next target. Refresh Guild requests a fresh snapshot; pushed GuildSnapshot events update the view between cached requests.
+
+Auto Guild Quests handles Bubbles, Hatch and Sell tasks tier by tier. Hatching uses the Eggs tab's selected egg, available pet space, actual hatch capacity and native cooldown. Guild work pauses normal hatch/bubble/sell/present automation through a separate ownership flag, yields when another quest owns automation, and restores its original position when stopped normally. Tasks without progress for 60 seconds are deferred so another quest can run. Playtime is passive; chest, potion, fishing and minigame tasks remain manual, matching Larplite's supported task types.
+
+Auto Claim Guild Rewards uses the native Guild/Global reward requirements and claim keys with the guild action cooldown and pending-claim deduplication. Auto Accept Guild Invites joins the first unexpired invitation only while unlocked and not already in a guild. All three toggles default off and save only under `guild` in `qtrzip_settings.json`. Guild mystery boxes and eggs remain available through the existing box opener and inventory egg hatcher.
+
+Run `python tools/test_guild.py` for real module/bridge checks covering status and tiers, claim eligibility and deduplication, invitation validity, priority and stall handling, snapshot caching/races, hatch position/cooldown/capacity, sell behavior, position restoration and unload. UI/startup regressions run with `python tools/test_testhub.py`. Tests use controlled fixtures; live game behavior remains unverified.

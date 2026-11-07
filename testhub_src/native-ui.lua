@@ -1060,8 +1060,8 @@ function library:CreateWindow(props)
 	heading.Text = ""
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
-	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Comp", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do
-		window:Tab({Title = title, Icon = title == "Comp" and "rbxassetid://102958595859917" or nil})
+	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Comp", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Guilds", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do
+		window:Tab({Title = title, Icon = title == "Comp" and "rbxassetid://102958595859917" or title == "Guilds" and "rbxassetid://74907707973523" or nil})
 	end
 	table.insert(self.Windows, window)
 	return window
