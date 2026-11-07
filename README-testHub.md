@@ -9,7 +9,7 @@ The repository entry is `bgsiscript`. The window has no title or status footer. 
 - Default size: **600 x 420**, with viewport fitting.
 - Drag the empty header area; resize with the bottom-right // handle.
 - Press **K** to open/close. Keyboard text entry does not trigger it.
-- Scroll the sidebar for all 17 tabs; search controls in the selected tab.
+- Scroll the sidebar for all 18 tabs; search controls in the selected tab.
 
 ## Separate configuration
 
@@ -34,7 +34,7 @@ python tools/build_testhub.py
 python tools/test_testhub.py
 ```
 
-The builder combines `testhub_src/native-ui.lua` with the pinned `testhub_src/afbq-base.lua` into the standalone root `testHub` script. It preserves feature logic with startup diagnostics and branding changes. Tests use `.tools/luau`, or `LUAU` and `LUAU_COMPILE` environment variables.
+The builder combines `testhub_src/native-ui.lua` with the pinned `testhub_src/afbq-base.lua` and explicit feature additions into the standalone root `bgsiscript` script. Tests use `.tools/luau`, or `LUAU` and `LUAU_COMPILE` environment variables.
 
 Regression checks cover compilation, the earlier invalid ScreenGui.ZIndex startup failure, disabled native input flags, click-aware tab switching, global pointer navigation/dragging, resize, viewport fitting, icons, large-list search, native item cleanup, fresh config without legacy reads, own-config persistence, no cloned dim backdrop, branding, and the real asynchronous Info worker. Event tests use mocks; live client appearance and gameplay have not been verified for this revision.
 
@@ -174,3 +174,11 @@ Info / Detected Configs scans workspace-root config/settings JSON files on load.
 Discovery reads files only to derive metadata: it does not display webhook URLs or other values, retain decoded config contents, apply/import settings, or write to another config. Invalid/oversized files are marked without echoing parser errors. Both listfiles root conventions and absolute/relative Windows paths are handled. Executors without directory listing can check only known current-account filenames; missing read APIs are reported in the panel. Scans do not recurse into cache folders and show at most 200 files.
 
 Run python tools/test_config_discovery.py for schema/account detection, filename aliases, Windows/root API fallbacks, duplicate filtering, malformed JSON, metadata privacy and rescan selection tests. The provided personal config files are not included in the repository.
+
+## Comp tab (script v106 / runtime revision 21)
+
+Comp appears directly after Event. It uses the game's PinkVsBlue competition badge in the sidebar, the player's team shield, and the game's hatch and bubble art on native Settings cards. Team, contributions, and milestone controls have separate sections. Each contribution card shows the count in its title and team placement underneath, so the two values do not overlap. Only the top 100 places are exposed by the game; other placements show Outside top 100.
+
+The two auto-claim toggles save under `comp` in this hub's own `qtrzip_settings.json` and default off. Claims use the game's personal milestone requirements and claim keys, track pending requests, and retry unconfirmed claims after 15 seconds. The tab does not join a team for the player. Refresh requests fresh standings; background updates run in owned tasks and the snapshot listener disconnects on unload. Unloading releases the competition subscription when the native competition screen is closed.
+
+Run `python tools/test_competition.py` for team/art selection, contribution formatting, placement, earned-only claims, pending deduplication, private settings, profile readiness and cleanup checks. `python tools/test_testhub.py` also verifies navigation order and icon/text spacing with the real UI adapter. Live Roblox visuals and server responses still need in-game verification.

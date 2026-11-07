@@ -665,6 +665,17 @@ function methods:SetDesc(text)
 	if self.Desc then self.Desc.Text = self.Description; self.Desc.Visible = self.Description ~= "" end
 	self:Layout(false); applyFilter()
 end
+function methods:SetIcon(asset)
+	local image = type(asset) == "string" and asset:match("^rbxassetid://%d+$") or nil
+	if image and not self.StatusIcon then
+		self.StatusIcon = create("ImageLabel", {Name = "GameStatusIcon", BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 2, 0.5, 0),
+			Size = UDim2.fromOffset(40, 40), ScaleType = Enum.ScaleType.Fit,
+			Active = false, ZIndex = self.Label.ZIndex}, self.Information)
+	end
+	if self.StatusIcon then self.StatusIcon.Image = image or ""; self.StatusIcon.Visible = image ~= nil end
+	self:Layout(false)
+end
 function methods:Lock() self.Locked = true; if self.Action then self.Action.Active = false end end
 function methods:Unlock() self.Locked = false; if self.Action then self.Action.Active = true end end
 function methods:Layout(narrow)
@@ -676,15 +687,16 @@ function methods:Layout(narrow)
 	self.Information.AnchorPoint = Vector2.zero; self.Information.Position = UDim2.fromOffset(6, 4)
 	self.Information.Size = UDim2.new(1, actionable and -width - 28 or -20, 1, -8)
 	self.Information.ClipsDescendants = false
-	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(2, 0)
+	local iconInset = self.StatusIcon and self.StatusIcon.Visible and 48 or 2
+	self.Label.AnchorPoint = Vector2.zero; self.Label.Position = UDim2.fromOffset(iconInset, 0)
 	self.Label.TextScaled = false; self.Label.TextSize = 30
 	self.Label.TextWrapped = false; self.Label.TextTruncate = Enum.TextTruncate.AtEnd
-	self.Label.Size = self.Description ~= "" and UDim2.new(1, -6, 0, 36) or UDim2.new(1, -6, 1, 0)
+	self.Label.Size = self.Description ~= "" and UDim2.new(1, -iconInset - 4, 0, 36) or UDim2.new(1, -iconInset - 4, 1, 0)
 	self.Label.TextYAlignment = Enum.TextYAlignment.Center; self.Label.TextXAlignment = Enum.TextXAlignment.Left
 	local outline = self.Label:FindFirstChildOfClass("UIStroke"); if outline then outline.Thickness = 1.5 end
 	if self.Desc then
-		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(2, 38)
-		self.Desc.Size = UDim2.new(1, -6, 1, -38)
+		self.Desc.AnchorPoint = Vector2.zero; self.Desc.Position = UDim2.fromOffset(iconInset, 38)
+		self.Desc.Size = UDim2.new(1, -iconInset - 4, 1, -38)
 		self.Desc.TextScaled = false; self.Desc.TextSize = 20; self.Desc.TextWrapped = true
 		self.Desc.TextYAlignment = Enum.TextYAlignment.Top; self.Desc.TextXAlignment = Enum.TextXAlignment.Left
 		local border = self.Desc:FindFirstChildOfClass("UIStroke"); if border then border.Thickness = 1 end
@@ -740,6 +752,7 @@ row = function(tab, kind, props)
 		Title = props.Title or kind, Description = props.Desc or "", Callback = props.Callback, Tab = tab}, methods)
 	table.insert(tab.Controls, control); table.insert(controls, control)
 	control:Layout(false)
+	if props.Icon then control:SetIcon(props.Icon) end
 	return control
 end
 local function rowButton(control)
@@ -986,7 +999,11 @@ function tabMethods:Dropdown(props)
 	return control
 end
 function window:Tab(props)
-	if self.TabsByTitle[props.Title] then return self.TabsByTitle[props.Title] end
+	if self.TabsByTitle[props.Title] then
+		local existing = self.TabsByTitle[props.Title]
+		if props.Icon then existing:SetIcon(props.Icon) end
+		return existing
+	end
 	local page = cloneNative(pagePrototype, 3)
 	clearContent(page)
 	for _, child in ipairs(page:GetChildren()) do if child:IsA("UIGridLayout") then child:Destroy() end end
@@ -1007,6 +1024,19 @@ function window:Tab(props)
 	tabTitle.AnchorPoint = Vector2.zero; tabTitle.Position = UDim2.fromOffset(6, 0); tabTitle.Size = UDim2.new(1, -12, 1, 0)
 	tabTitle.TextYAlignment = Enum.TextYAlignment.Center
 	tab.Paint = paint; tab.NavigationButton = tabButton
+	function tab:SetIcon(asset)
+		local image = type(asset) == "string" and asset:match("^rbxassetid://%d+$") or nil
+		if image and not self.NavigationIcon then
+			self.NavigationIcon = create("ImageLabel", {Name = "GameTabIcon", BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 6, 0.5, 0),
+				Size = UDim2.fromOffset(26, 26), ScaleType = Enum.ScaleType.Fit,
+				Active = false, ZIndex = tabTitle.ZIndex}, tabButton)
+		end
+		if self.NavigationIcon then self.NavigationIcon.Image = image or ""; self.NavigationIcon.Visible = image ~= nil end
+		tabTitle.Position = UDim2.fromOffset(image and 38 or 6, 0)
+		tabTitle.Size = UDim2.new(1, image and -44 or -12, 1, 0)
+	end
+	if props.Icon then tab:SetIcon(props.Icon) end
 	function tab:Select()
 		closePopup()
 		if activeTab then
@@ -1028,7 +1058,9 @@ function library:CreateWindow(props)
 	heading.Text = ""
 	window.ToggleKey = props.ToggleKey or Enum.KeyCode.K
 	-- Register navigation before feature code, so failures stay visible and diagnosable.
-	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do window:Tab({Title = title}) end
+	for _, title in ipairs({"Info", "Activity Info", "Webhook", "Auto", "Eggs", "Rift", "Event", "Comp", "Enchant", "Potions", "Pets", "Shrine", "Quest", "Dice Board", "Trade", "Teleport", "Misc", "Server"}) do
+		window:Tab({Title = title, Icon = title == "Comp" and "rbxassetid://102958595859917" or nil})
+	end
 	table.insert(self.Windows, window)
 	return window
 end

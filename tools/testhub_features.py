@@ -93,5 +93,31 @@ EXTRAS
         if not ok then WindUI:ModuleFailed("Larplite extras: "..tostring(err)) end
     end
 '''.replace('EXTRAS',(ROOT/'testhub_src/extras.lua').read_text(encoding='utf-8'))
-    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+'    print("[Hub] All repository modules initialized.")')
+    competition_installer='''
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local good,competition=pcall(require,storage.Shared.Data:FindFirstChild("PinkVsBlue"))
+            local install=(function()
+COMPETITION
+            end)()
+            local event=storage.Shared.Framework.Network.Remote.RemoteEvent
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                Profile=require(storage.Client.Framework.Services.LocalData),
+                Competition=good and competition or nil,UserId=Players.LocalPlayer.UserId,
+                Active=function() return runtime.Active end,Now=os.clock,
+                Signal=event.OnClientEvent,Connect=runtime.Connect,
+                Fire=function(...) event:FireServer(...) end,
+                Restore=function(callback) table.insert(runtime.Restore,callback) end,
+                NativeOpen=function()
+                    local screen=Players.LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
+                    local frame=screen and screen:FindFirstChild("PinkVsBlue")
+                    return frame and frame.Visible==true
+                end,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Comp: "..tostring(err)) end
+    end
+'''.replace('COMPETITION',(ROOT/'testhub_src/competition.lua').read_text(encoding='utf-8'))
+    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+'    print("[Hub] All repository modules initialized.")')
     return source
