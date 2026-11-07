@@ -1,5 +1,3 @@
--- TestHub: afbq features with BGSI-native visuals and icon pickers.
--- Generated with tools/build_testhub.py. Press K to open/close.
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
 if prior and prior.Revision == 21 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
