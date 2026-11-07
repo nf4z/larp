@@ -183,5 +183,32 @@ GUILD_FEATURES
         if not ok then WindUI:ModuleFailed("Guilds: "..tostring(err)) end
     end
 '''.replace('GUILD_BRIDGE',(ROOT/'testhub_src/guild-bridge.lua').read_text(encoding='utf-8')).replace('GUILD_FEATURES',(ROOT/'testhub_src/guild.lua').read_text(encoding='utf-8'))
-    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+shop_installer+guild_installer+'    print("[Hub] All repository modules initialized.")')
+    halloween_installer='''
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local good,definition=pcall(function()return require(storage.Shared.Shrines.HalloweenShrine)end)
+            local makeEngine=(function()
+HALLOWEEN_ENGINE
+            end)()
+            local install=(function()
+HALLOWEEN_UI
+            end)()
+            local event=storage.Shared.Framework.Network.Remote.RemoteEvent
+            local remoteFunction=storage.Shared.Framework.Network.Remote.RemoteFunction
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                Definition=good and definition or nil,MakeEngine=makeEngine,
+                Profile=require(storage.Client.Framework.Services.LocalData),
+                ItemUtil=require(storage.Shared.Utils.Stats.ItemUtil),
+                RerollCost=require(storage.Shared.Constants).ShrineRerollCost,
+                Active=function()return runtime.Active end,Now=os.clock,
+                Time=function()return require(storage.Shared.Framework.Utilities.Math.Time).now()end,
+                Invoke=function(...)return remoteFunction:InvokeServer(...)end,
+                Fire=function(...)event:FireServer(...)end,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Halloween Shrine: "..tostring(err))end
+    end
+'''.replace('HALLOWEEN_ENGINE',(ROOT/'shared_src/halloween-shrine.lua').read_text(encoding='utf-8')).replace('HALLOWEEN_UI',(ROOT/'testhub_src/halloween-shrine.lua').read_text(encoding='utf-8'))
+    source=source.replace('    print("[Hub] All repository modules initialized.")',installer+competition_installer+shop_installer+guild_installer+halloween_installer+'    print("[Hub] All repository modules initialized.")')
     return source

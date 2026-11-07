@@ -837,13 +837,15 @@ function tabMethods:Dropdown(props)
 	control.Icon = create("Frame", {BackgroundTransparency = 1, Position = UDim2.fromOffset(5, 3), Size = UDim2.fromOffset(32, 32), ZIndex = 7}, action)
 	function control:UpdateIcon()
 		if window.Opened and self.Tab == activeTab and self.Value ~= nil and not self.Multi then
-			local descriptor = resolve(self.Value, self.Title)
+			local display=self.Value
+			for _,option in ipairs(self.Values)do if optionValue(option)==self.Value then display=option;break end end
+			local descriptor = resolve(display, self.Title)
 			local hasIcon = descriptor.item ~= nil or descriptor.model ~= nil or descriptor.image ~= nil
 			self.Icon.Visible = hasIcon
 			if hasIcon then
 				title.AnchorPoint = Vector2.zero; title.Position = UDim2.fromOffset(43, 0); title.Size = UDim2.new(1, -65, 1, 0)
 				title.TextXAlignment = Enum.TextXAlignment.Left
-				local ok, err = pcall(renderIcon, self.Icon, self.Value, self.Title)
+				local ok, err = pcall(renderIcon, self.Icon, display, self.Title)
 				if not ok then warn("[@qtrzip] Icon: " .. tostring(err)) end
 			else
 				clearIcon(self.Icon)

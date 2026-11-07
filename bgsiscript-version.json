@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "version": "v109",
-  "revision": 24,
-  "path": "releases/bgsiscript/v109-r24.lua",
-  "sha256": "ebafdd48fa9cbd8f8caf61ce1a0186853ae380e29d1f73ac594f722463130fca"
+  "version": "v110",
+  "revision": 25,
+  "path": "releases/bgsiscript/v110-r25.lua",
+  "sha256": "165ed41bf5b9ab9c87f00fdc5344983c45d851739dadd19225a2758ae1068f19"
 }

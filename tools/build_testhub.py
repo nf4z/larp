@@ -10,8 +10,8 @@ from port_testhub_hatch import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'testhub_src/afbq-base.lua'
-SCRIPT_VERSION = 'v109'
-RUNTIME_REVISION = 24
+SCRIPT_VERSION = 'v110'
+RUNTIME_REVISION = 25
 generate()
 source = BASE.read_text(encoding='utf-8')
 adapter = (ROOT / 'testhub_src/native-ui.lua').read_text(encoding='utf-8')

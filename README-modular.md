@@ -29,6 +29,8 @@ Auto Enchant reads the current targets before each reroll, including while worki
 
 Bubble Shrine and Dreamer Fountain renew only after their actual `ShrineBlessingEndTime` expires. An available hourly donation cooldown does not trigger a top-up or restock while the blessing is active. The default 500 potions or 15 Dream Shards gives 24 hours; lower configured amounts remain supported. Bubble donations are capped at 500 because extra potions do not extend the 24-hour maximum. Run `python tools/test_shrine_expiry.py` to check both hubs against a virtual clock, including expiry, reloads, restocking and missing timers.
 
+Shrines / Halloween Shrine supports the game's separate 12-hour Halloween egg blessing. Select one donation potion and enable Auto Halloween Shrine to fill the remaining XP, claim the buff and wait for its actual expiry. Donation quantities come from the native potion XP catalog and are capped to owned stock and the XP deficit. Optional target rerolls consume Shrine Tickets and stop on the selected buff. Both toggles default off. Existing XP, active buffs and other settings are preserved. `python tools/test_halloween_shrine.py` checks both hubs' shared policy, native remote arguments, expiry and request confirmation.
+
 The loader downloads up to four modules concurrently (configurable from 1 to 8). Each module filename contains a content digest. Successful modules are cached in the executor workspace's `LarpLiteModules` directory when file APIs are available. Unchanged modules need no new download after an update; changed modules get a new cache filename. Corrupt or incomplete cache files that fail size/compile checks are downloaded again. File API failures fall back to network loading. Set `Cache = false` to bypass the cache. Old cache versions remain on disk; they are not retained as source strings in memory.
 
 Downloads retry three times. All modules must download and compile before the previous instance is cleaned up. Initialization errors include the tab/module and block number. An initialization failure can still leave a partially initialized instance; download preflight cannot validate Roblox runtime behavior. Executors must support `loadstring`, `setfenv`, HTTP, and normal Roblox task APIs.
@@ -38,6 +40,8 @@ Runtime memory work includes releasing initialization blocks as they execute, is
 ## Maintaining modules
 
 `src/larplite.lua` is the editable full source in GitHub (`larplite.lua` in the local workspace). Install `tree-sitter` and `tree-sitter-luau`, then run `python tools/build_modules.py`. The build emits `modular_dist/larp`, `modules-manifest.json`, and content-addressed module files. Publish the loader and every file listed in `modular_dist/publish-files.json` in one commit. Retain older module paths so an already downloaded loader can finish starting during an update. Never edit a published digest path in place; rebuild it.
+
+The marked Halloween shrine region is generated from `shared_src/halloween-shrine.lua` and `tools/templates/larplite-halloween-shrine.lua` by `tools/port_halloween_shrine.py` before module splitting. Edit those inputs for Halloween policy/UI changes; the build refreshes that region automatically. bgsiscript embeds the same shared policy.
 
 Run `python tools/test_modules.py` for compiler, statement-order, loader/cache/failure/concurrency, and real config regression checks. It uses `.tools/luau/luau-compile.exe` and `.tools/luau/luau.exe` locally, or the `LUAU_COMPILE` and `LUAU` environment variables.
 

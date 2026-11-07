@@ -137,6 +137,8 @@ assert(shopItem.Action.Label.Text=="Lucky VII", "Single multi-selection displays
 shopItem.Action.Activated:Fire()
 assert(shopItem.NativeIcons[1] and shopItem.NativeIcons[1].Visible, "Typed shop item renders its native icon in dropdown")
 shopItem.NativePicker:Destroy()
+local shrinePotion=tab:Dropdown({Title="Halloween Potion",Values={{Title="Lucky VI",Value="Lucky/6",Item={Type="Potion",Name="Lucky",Level=6}}},Value="Lucky/6"})
+assert(shrinePotion.Icon.Visible and shrinePotion.Action.Label.Text=="Lucky VI", "Selected stable IDs retain their typed item icon and readable label")
 local plain=tab:Dropdown({Title="Target Tile",Values={"Chance","Mystery"},Value="Chance"})
 assert(not plain.Icon.Visible and plain.Action.Label.TextScaled==false, "No fake letter icons or inflated labels on plain choices")
 plain.Action.Activated:Fire()
@@ -306,9 +308,9 @@ local startupFn=assert(loadstring(startupSource));setfenv(startupFn,mock.env)
 local firstWindow=startupFn()
 assert(firstWindow and liveGlobals._BGSI_TestHub.UI)
 local gameVersion=mock.playerGui.ScreenGui.VersionLabel
-assert(gameVersion.Text=="v10724 | v109")
+assert(gameVersion.Text=="v10724 | v110")
 gameVersion.Text="v10725 (t)"
-assert(gameVersion.Text=="v10725 (t) | v109", "Preserve changes and plaza markers")
+assert(gameVersion.Text=="v10725 (t) | v110", "Preserve changes and plaza markers")
 assert(next(liveGlobals._BGSI_TestHub.State.HubSettings)==nil, "Start with fresh settings")
 for _=1,8 do
     local co=table.remove(jobs,1)
@@ -322,7 +324,7 @@ assert(#liveGlobals._BGSI_TestHub.UI.ModuleErrors==0)
 assert(liveGlobals.Window.original and liveGlobals.HubSettings.original)
 local created=mock.counters.created
 assert(startupFn()==firstWindow and mock.counters.created==created, "Rerun should reopen, not stack instances")
-assert(gameVersion.Text=="v10725 (t) | v109", "Do not duplicate suffix on rerun")
+assert(gameVersion.Text=="v10725 (t) | v110", "Do not duplicate suffix on rerun")
 -- saveHubSettings was defined in the private environment, never in afbq's globals.
 assert(mock.env.saveHubSettings==nil and liveGlobals.saveHubSettings==nil)
 liveGlobals._BGSI_TestHub.State.saveHubSettings()

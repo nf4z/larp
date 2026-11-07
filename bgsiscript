@@ -1,10 +1,10 @@
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 24 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 25 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 24 then
+if prior and prior.Starting and prior.Revision == 25 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -71,7 +71,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 24, ScriptVersion = "v109", State = private}
+local runtime = {Starting = true, Revision = 25, ScriptVersion = "v110", State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -1384,13 +1384,15 @@ function tabMethods:Dropdown(props)
 	control.Icon = create("Frame", {BackgroundTransparency = 1, Position = UDim2.fromOffset(5, 3), Size = UDim2.fromOffset(32, 32), ZIndex = 7}, action)
 	function control:UpdateIcon()
 		if window.Opened and self.Tab == activeTab and self.Value ~= nil and not self.Multi then
-			local descriptor = resolve(self.Value, self.Title)
+			local display=self.Value
+			for _,option in ipairs(self.Values)do if optionValue(option)==self.Value then display=option;break end end
+			local descriptor = resolve(display, self.Title)
 			local hasIcon = descriptor.item ~= nil or descriptor.model ~= nil or descriptor.image ~= nil
 			self.Icon.Visible = hasIcon
 			if hasIcon then
 				title.AnchorPoint = Vector2.zero; title.Position = UDim2.fromOffset(43, 0); title.Size = UDim2.new(1, -65, 1, 0)
 				title.TextXAlignment = Enum.TextXAlignment.Left
-				local ok, err = pcall(renderIcon, self.Icon, self.Value, self.Title)
+				local ok, err = pcall(renderIcon, self.Icon, display, self.Title)
 				if not ok then warn("[@qtrzip] Icon: " .. tostring(err)) end
 			else
 				clearIcon(self.Icon)
@@ -14513,6 +14515,188 @@ end
             })
         end)
         if not ok then WindUI:ModuleFailed("Guilds: "..tostring(err)) end
+    end
+
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local good,definition=pcall(function()return require(storage.Shared.Shrines.HalloweenShrine)end)
+            local makeEngine=(function()
+-- Shared policy for both hubs. The game owns XP, buffs, costs and expiry timestamps.
+return function(context)
+    local definition=context.Definition
+    local catalog,byId={},{}
+    for _,entry in ipairs(definition and definition.Potions or {})do
+        if type(entry.Item)=="table" and entry.Item.Type=="Potion" and (tonumber(entry.XP) or 0)>0 then
+            local item=table.clone(entry.Item);item.Level=tonumber(item.Level) or 1
+            local id=item.Name.."/"..item.Level
+            local title=item.Name..(item.Level>1 and (" "..item.Level)or"")
+            if context.ItemUtil and type(context.ItemUtil.GetName)=="function"then
+                local ok,name=pcall(context.ItemUtil.GetName,context.ItemUtil,item)
+                if ok then title=name end
+            end
+            local option={id=id,title=tostring(title),item=item,xp=entry.XP}
+            table.insert(catalog,option);byId[id]=option
+        end
+    end
+    local pending,nextAction=nil,-math.huge
+    local function read()
+        local config=context.Config()
+        local view={available=false,enabled=config.enabled==true,activity="Waiting for Halloween shrine data."}
+        if not definition or (tonumber(definition.Duration) or 0)<=0 or (tonumber(definition.XPRequired) or 0)<=0 then
+            view.activity="Halloween shrine is unavailable in this server.";return view
+        end
+        local ok,data=pcall(context.Profile.Get,context.Profile)
+        local state=ok and type(data)=="table" and data.HalloweenShrine
+        if type(state)~="table" or tonumber(state.StartTime)==nil or tonumber(state.XPOffered)==nil then return view end
+        local start=tonumber(state.StartTime)
+        local buff=state.Buff
+        local remaining=buff and math.max(0,start+definition.Duration-context.Time()) or 0
+        local selected=byId[config.potion]
+        local owned=0
+        if selected then
+            local good,amount=pcall(function()return context.ItemUtil:GetOwnedAmount(data,selected.item)end)
+            if good then owned=math.max(0,math.floor(tonumber(amount) or 0))end
+        end
+        view.available=true;view.data=data;view.state=state;view.start=start;view.buff=buff
+        view.buffName=tostring(buff or "No active blessing")
+        if buff and type(definition.GetBuffDisplayName)=="function"then
+            local good,name=pcall(definition.GetBuffDisplayName,definition,buff)
+            if good then view.buffName=name end
+        end
+        if buff and type(definition.GetBuffIcon)=="function"then
+            local good,icon=pcall(definition.GetBuffIcon,definition,buff)
+            if good then view.buffIcon=icon end
+        end
+        view.active=remaining>0;view.remaining=remaining
+        view.xp=math.max(0,tonumber(state.XPOffered));view.required=definition.XPRequired
+        view.selected=selected;view.owned=owned
+        view.needed=selected and math.max(0,math.ceil((view.required-view.xp)/selected.xp)) or 0
+        view.activity=view.enabled and "Ready to renew."or"Automatic Halloween shrine is off."
+        return view
+    end
+    local function step()
+        local view=read()
+        if not context.Active() or not view.enabled or not view.available then return view end
+        local config=context.Config()
+        if pending then
+            local changed=pending.action=="donate" and view.xp~=pending.xp
+                or pending.action=="claim" and (view.start~=pending.start or view.active)
+                or pending.action=="reroll" and view.buff~=pending.buff
+            if not changed and context.Now()-pending.at<10 then
+                view.activity="Waiting for the shrine's update.";return view
+            end
+            pending=nil
+        end
+        if context.Now()<nextAction then view.activity="Waiting before the next shrine request.";return view end
+        if view.active then
+            view.activity="Blessing active; donations paused."
+            if config.reroll~=true or view.buff==config.target then return view end
+            if not definition.BuffPool or not definition.BuffPool[config.target] then
+                view.activity="Choose a valid target buff.";return view
+            end
+            local cost=context.RerollCost
+            if not cost or not context.ItemUtil or not context.ItemUtil:CanAfford(view.data,cost)then
+                view.activity="No Shrine Tickets for target rerolls.";return view
+            end
+            if not context.Active() or context.Config().enabled~=true then return view end
+            pending={action="reroll",buff=view.buff,at=context.Now()};nextAction=context.Now()+1
+            local ok=pcall(context.Fire,"RerollHalloweenShrine")
+            if not ok then pending=nil;nextAction=context.Now()+5 end
+            view.activity="Rerolling toward "..tostring(config.target)..".";return view
+        end
+        if view.xp>=view.required then
+            if not context.Active() or context.Config().enabled~=true then return view end
+            pending={action="claim",start=view.start,buff=view.buff,at=context.Now()};nextAction=context.Now()+1
+            local ok=pcall(context.Fire,"ClaimHalloweenShrineBuff")
+            if not ok then pending=nil;nextAction=context.Now()+5 end
+            view.activity="Claiming the Halloween blessing.";return view
+        end
+        if not view.selected then view.activity="Choose a donation potion.";return view end
+        local amount=math.min(view.owned,view.needed)
+        if amount<=0 then view.activity="No selected potion in inventory.";return view end
+        if not context.Active() or context.Config().enabled~=true then return view end
+        pending={action="donate",xp=view.xp,at=context.Now()};nextAction=context.Now()+1
+        local item=view.selected.item
+        local ok,accepted=pcall(context.Invoke,"DonateToHalloweenShrine",item.Name,item.Level,amount)
+        if not ok or accepted~=true then
+            pending=nil;nextAction=context.Now()+5;view.activity="Donation rejected; retrying shortly."
+        else view.activity="Donated "..amount.."; waiting for updated XP."end
+        return view
+    end
+    return {Catalog=catalog,Read=read,Step=step}
+end
+
+            end)()
+            local install=(function()
+return function(context)
+    local tab=context.Window:Tab({Title="Shrine"})
+    context.Settings.halloweenShrine=type(context.Settings.halloweenShrine)=="table" and context.Settings.halloweenShrine or {}
+    local config=context.Settings.halloweenShrine
+    if type(config.potion)~="string"then config.potion="Lucky/6"end
+    if type(config.target)~="string"then config.target="Secret"end
+    local engine=context.MakeEngine({Definition=context.Definition,Profile=context.Profile,ItemUtil=context.ItemUtil,
+        Config=function()return config end,Active=context.Active,Now=context.Now,Time=context.Time,
+        Invoke=context.Invoke,Fire=context.Fire,RerollCost=context.RerollCost})
+    tab:Section({Title="Halloween Shrine"})
+    tab:Paragraph({Title="Shrine Info",Desc="12-hour buffs for Halloween eggs only."})
+    local buff=tab:Paragraph({Title="Halloween Blessing",Desc="Loading..."})
+    local progress=tab:Paragraph({Title="Shrine XP",Desc="Loading..."})
+    local stock=tab:Paragraph({Title="Donation Stock",Desc="Loading..."})
+    local options={}
+    for _,entry in ipairs(engine.Catalog)do options[#options+1]={Title=entry.title,Value=entry.id,Item=entry.item}end
+    tab:Dropdown({Title="Halloween Donation Potion",Desc="Donates only enough selected potions to fill required XP.",Values=options,Value=config.potion,
+        Callback=function(value)config.potion=value;context.Save()end})
+    tab:Toggle({Title="Auto Halloween Shrine",Desc="Donate, claim, then wait for the 12-hour blessing to expire.",Value=config.enabled==true,
+        Callback=function(value)config.enabled=value==true;context.Save()end})
+    local buffs={}
+    for _,name in ipairs(context.Definition and context.Definition.BuffNames or {})do
+        buffs[#buffs+1]={Title=context.Definition:GetBuffDisplayName(name),Value=name,Icon=context.Definition:GetBuffIcon(name)}
+    end
+    tab:Dropdown({Title="Halloween Target Buff",Values=buffs,Value=config.target,Callback=function(value)config.target=value;context.Save()end})
+    tab:Toggle({Title="Reroll Halloween Buff",Desc="Uses Shrine Tickets until the target buff lands.",Value=config.reroll==true,
+        Callback=function(value)config.reroll=value==true;context.Save()end})
+    local activity=tab:Paragraph({Title="Halloween Shrine Activity",Desc="Automatic Halloween shrine is off."})
+    local last={}
+    local shownIcon
+    local function describe(card,text)if last[card]~=text then last[card]=text;card:SetDesc(text)end end
+    local function render(view)
+        if not view.available then describe(buff,view.activity);describe(activity,view.activity);describe(progress,"Unavailable");describe(stock,"Unavailable");return end
+        local name=view.active and view.buffName or "No active blessing"
+        local remaining=math.floor(view.remaining or 0)
+        local timer=string.format("%02d:%02d:%02d",remaining//3600,(remaining%3600)//60,remaining%60)
+        describe(buff,name..(view.active and (" | "..timer)or""))
+        local icon=view.active and view.buffIcon or nil
+        if icon~=shownIcon then shownIcon=icon;buff:SetIcon(icon)end
+        describe(progress,tostring(math.floor(view.xp)).." / "..view.required.." XP")
+        describe(stock,view.selected and (view.owned.." owned | "..view.needed.." needed")or"Select a potion.")
+        describe(activity,view.activity)
+    end
+    task.spawn(function()
+        while context.Active()do
+            local ok,view=pcall(engine.Step)
+            if ok then render(view)else describe(activity,"Shrine data updating; retrying shortly.")end
+            task.wait(0.5)
+        end
+    end)
+    return {Engine=engine,Render=render}
+end
+
+            end)()
+            local event=storage.Shared.Framework.Network.Remote.RemoteEvent
+            local remoteFunction=storage.Shared.Framework.Network.Remote.RemoteFunction
+            install({Window=Window,Settings=getgenv().HubSettings,Save=saveHubSettings,
+                Definition=good and definition or nil,MakeEngine=makeEngine,
+                Profile=require(storage.Client.Framework.Services.LocalData),
+                ItemUtil=require(storage.Shared.Utils.Stats.ItemUtil),
+                RerollCost=require(storage.Shared.Constants).ShrineRerollCost,
+                Active=function()return runtime.Active end,Now=os.clock,
+                Time=function()return require(storage.Shared.Framework.Utilities.Math.Time).now()end,
+                Invoke=function(...)return remoteFunction:InvokeServer(...)end,
+                Fire=function(...)event:FireServer(...)end,
+            })
+        end)
+        if not ok then WindUI:ModuleFailed("Halloween Shrine: "..tostring(err))end
     end
     print("[Hub] All repository modules initialized.")
 end)
