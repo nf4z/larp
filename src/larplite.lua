@@ -62,7 +62,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.04.41"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.42"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +89,15 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.07.42",
+		releasedAt = "November 7, 2026",
+		notes = {
+			{ title = "Comp tab", description = "Track team places and contributions, and claim hatch and bubble milestone rewards.", icon = "trophy" },
+			{ title = "Live enchant targets", description = "Changing targets keeps a matching enchant locked and rerolls the unwanted slot immediately.", icon = "sparkles" },
+			{ title = "Inventory hatching", description = "Waits for confirmed inventory progress, available pet space, and the game's hatch cooldown.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.04.41",
 		releasedAt = "November 4, 2026",
@@ -2334,6 +2343,8 @@ local defaultConfig = {
 	safeModeSavedConfig = {},
 	autoCollectPresentRain = false,
 	autoHalloweenChest = false,
+	autoClaimCompHatches = false,
+	autoClaimCompBubbles = false,
 	autoTrickOrTreat = false,
 	autoFallRebirth = false,
 	autoFallLeaves = false,
@@ -5427,6 +5438,7 @@ end
 -- the very first fire for a window still goes out the instant that window opens.
 local lastFiredForNextEggOpenAt = -1
 function fireHatchEgg(scriptStateQC)
+	if activeStates.BGSI_Lite_InventoryEggBusy then return false end
 	if isAutomationBlocked() or activeStates.BGSI_Lite_BubbleQuestActive == true
 		or activeStates.BGSI_Lite_TrickOrTreatActive == true
 		or type(scriptStateQC) ~= "string" or scriptStateQC == "" then
@@ -8073,6 +8085,10 @@ local halloweenTab = scriptStateOG:AddTab({
 	Title = "Halloween",
 	Icon = "ghost",
 })
+local compTab = scriptStateOG:AddTab({
+	Title = "Comp",
+	Icon = "trophy",
+})
 local scriptStateCZ = scriptStateOG:AddTab({
 	Title = "Event",
 	Icon = "flower",
@@ -9054,6 +9070,7 @@ if type(getgenv) == "function" then
 				end
 			end)
 			for _, connectionKey in ipairs({
+				"BGSI_Lite_CompSnapshotConnection",
 				"BGSI_Lite_GamePromptChildConnection",
 				"BGSI_Lite_GamePopupFrameConnection",
 				"BGSI_Lite_PlayerGuiChildConnection",
@@ -11265,6 +11282,109 @@ task.spawn(function()
 	end
 end)
 do
+	compTab:AddSection("Seals vs Frog Dogs")
+	local teamText = compTab:AddParagraph({ Title = "Your Team", Content = "Loading..." })
+	local hatchText = compTab:AddParagraph({ Title = "Hatches Contributed / Team Place", Content = "Loading..." })
+	local bubbleText = compTab:AddParagraph({ Title = "Bubbles Contributed / Team Place", Content = "Loading..." })
+	for _, metric in ipairs({ "Hatches", "Bubbles" }) do
+		local key = "autoClaimComp" .. metric
+		compTab:AddToggle("AutoClaimComp" .. metric, {
+			Title = "Auto Claim " .. metric .. " Rewards",
+			Default = Config[key] == true,
+			Callback = function(value) Config[key] = value == true; saveConfig() end,
+		})
+	end
+	local ok, competition = pcall(require, ReplicatedStorage.Shared.Data:FindFirstChild("PinkVsBlue"))
+	if ok and type(competition) == "table" and competition.Enabled then
+		local season = competition.GetSeason()
+		local standings, snapshotAt
+		local pending = {}
+		local function getContribution()
+			local data = profileStore:IsReady() and profileStore:Get() or nil
+			return data and type(data.PinkVsBlue) == "table" and data.PinkVsBlue[tostring(season.Id)] or nil
+		end
+		local function getTeamPlace(contribution, metric)
+			local board = standings and standings.Boards and standings.Boards[contribution.Team]
+			board = board and board[metric]
+			if type(board) ~= "table" then return "Waiting for standings" end
+			local score = tonumber(contribution[metric]) or 0
+			local rank, found = 1, false
+			for index, entry in ipairs(board) do
+				if tostring(entry.UserId) == tostring(LocalPlayer.UserId) then
+					found = true
+					if standings.Final then return "#" .. tostring(index) end
+				elseif (tonumber(entry.Score) or 0) >= score then rank += 1 end
+			end
+			if standings.Final or score <= 0 or rank > 100 then return "Outside top 100" end
+			-- Only the top 100 are exposed by the server; never invent a lower placement.
+			if not found and #board >= 100 and score <= (tonumber(board[#board].Score) or 0) then return "Outside top 100" end
+			return "#" .. tostring(rank)
+		end
+		local function updateComp()
+			local contribution = getContribution()
+			local team = contribution and competition.Teams[contribution.Team]
+			teamText:SetDesc(team and team.Name or "Join the competition at the in-game event pad")
+			for metric, paragraph in pairs({ Hatches = hatchText, Bubbles = bubbleText }) do
+				paragraph:SetDesc(contribution and (string.format("%.0f", tonumber(contribution[metric]) or 0)
+					.. " | " .. getTeamPlace(contribution, metric)) or "Not joined")
+			end
+			return contribution
+		end
+		if activeStates.BGSI_Lite_CompSnapshotConnection then activeStates.BGSI_Lite_CompSnapshotConnection:Disconnect() end
+		local snapshotConnection = remoteEvent.OnClientEvent:Connect(function(action, snapshot)
+			if not isCurrentRun() or action ~= "PinkVsBlueSnapshot" or type(snapshot) ~= "table" then return end
+			if type(snapshot.Season) ~= "table" or type(snapshot.Standings) ~= "table" then return end
+			if tostring(snapshot.Season.Id) ~= tostring(season.Id) then pending = {} end
+			season, standings, snapshotAt = snapshot.Season, snapshot.Standings, tick()
+			pcall(updateComp)
+		end)
+		activeStates.BGSI_Lite_CompSnapshotConnection = snapshotConnection
+		compTab:AddButton({ Title = "Refresh Competition", Callback = function()
+			snapshotAt = nil
+			pcall(updateComp)
+		end })
+		task.spawn(function()
+			while isCurrentRun() do
+				pcall(function()
+					local contribution = updateComp()
+					if Config.safeMode == true then return end
+					if not snapshotAt or tick() - snapshotAt >= 30 then
+						snapshotAt = tick()
+						remoteEvent:FireServer("PinkVsBlueView", true)
+					end
+					if not contribution then return end
+					local claims = type(contribution.Claims) == "table" and contribution.Claims or {}
+					for _, metric in ipairs({ "Hatches", "Bubbles" }) do
+						if Config["autoClaimComp" .. metric] == true then
+							for index, reward in ipairs(season.PersonalRewards[metric] or {}) do
+								local key = "Personal:" .. metric .. ":" .. tostring(index)
+								if claims[key] then pending[key] = nil
+								elseif (tonumber(contribution[metric]) or 0) >= reward.Requirement
+									and (not pending[key] or tick() - pending[key] >= 15) then
+									pending[key] = tick()
+									remoteEvent:FireServer("PinkVsBlueClaim", season.Id, metric, index)
+									task.wait(0.15)
+									if not isCurrentRun() or Config.safeMode or not Config["autoClaimComp" .. metric] then break end
+								end
+							end
+						end
+					end
+				end)
+				task.wait(2)
+			end
+			snapshotConnection:Disconnect()
+			if activeStates.BGSI_Lite_CompSnapshotConnection == snapshotConnection then
+				activeStates.BGSI_Lite_CompSnapshotConnection = nil
+			end
+		end)
+	else
+		teamText:SetDesc("Competition unavailable in this server")
+		hatchText:SetDesc("Unavailable")
+		bubbleText:SetDesc("Unavailable")
+	end
+end
+
+do
 	halloweenTab:AddSection("Halloween Rebirths")
 	local rebirthCount = halloweenTab:AddInput("HalloweenRebirthsDisplay", {
 		Title = "Rebirths",
@@ -12217,7 +12337,7 @@ do
 	})
 	eggTab:AddToggle("AutoHatchInventoryEgg", {
 		Title = "Auto Hatch Inventory Egg",
-		Description = "Fires HatchPowerupEgg back to back while you own any. The 'No Hatch Animation' toggle above speeds this up further, since it's the same hatch effect that would otherwise gate each request.",
+		Description = "Hatches up to 12 owned eggs per batch. Respects the game cooldown, inventory space, and confirmed inventory changes.",
 		Default = Config.autoHatchInventoryEgg,
 		Callback = function(isEnabled)
 			Config.autoHatchInventoryEgg = isEnabled == true
@@ -12225,89 +12345,63 @@ do
 		end,
 	})
 
-	-- Inventory egg hatching. Keep the runner completely self-contained and
-	-- defensive: this section must never be able to stop the rest of the script.
+	local spaceOk, checkInventorySpace = pcall(require, ReplicatedStorage.Client.Gui.Utils:FindFirstChild("CheckInventorySpace"))
+	local function readInventoryEggData()
+		if profileStore and profileStore:IsReady() then return profileStore:Get() end
+		return nil
+	end
 	local function runInventoryEggHatch()
 		local selectedEggName = tostring(Config.selectedInventoryEgg or "")
-		if selectedEggName == "" then
-			return 0
+		if selectedEggName == "" or type(giftData[selectedEggName]) ~= "table" or giftData[selectedEggName].Type ~= "Egg" then return 0 end
+		local function shouldContinue()
+			return isCurrentRun() and Config.autoHatchInventoryEgg == true and Config.safeMode ~= true
+				and tostring(Config.selectedInventoryEgg or "") == selectedEggName
 		end
-
-		local playerData
-		local dataOk = pcall(function()
-			if profileStore and type(profileStore.Get) == "function" then
-				playerData = profileStore:Get()
-			end
-		end)
-		if not dataOk or type(playerData) ~= "table" then
-			return 0
-		end
-
-		local powerups = playerData.Powerups
-		if type(powerups) ~= "table" then
-			return 0
-		end
-
 		local totalRequested = 0
-		while true do
-			local continueOk, shouldContinue = pcall(function()
-				return isCurrentRun()
-					and Config.autoHatchInventoryEgg == true
-					and Config.safeMode ~= true
-					and tostring(Config.selectedInventoryEgg or "") == selectedEggName
-			end)
-			if not continueOk or not shouldContinue then
-				break
-			end
-
-			local ownedAmount = tonumber(powerups[selectedEggName]) or 0
-			ownedAmount = math.floor(ownedAmount)
-			if ownedAmount <= 0 then
-				break
-			end
-
+		while shouldContinue() do
+			local data = readInventoryEggData()
+			local ownedAmount = math.floor(tonumber(data and data.Powerups and data.Powerups[selectedEggName]) or 0)
+			if ownedAmount <= 0 then break end
+			if not spaceOk or type(checkInventorySpace) ~= "function" or not checkInventorySpace(data) then break end
+			local cooldown = tonumber(LocalPlayer:GetAttribute("NextEggOpenAt")) or 0
+			if cooldown > getCurrentTimestamp() then task.wait(0.1); continue end
+			local fire = activeStates.BGSI_Lite_FireGameRemote
+			if type(fire) ~= "function" then break end
 			local batchAmount = math.min(12, ownedAmount)
-			local fireOk = pcall(function()
-				local fire = activeStates.BGSI_Lite_FireGameRemote
-				if type(fire) ~= "function" then
-					error("game remote helper unavailable")
-				end
-				fire("HatchPowerupEgg", selectedEggName, batchAmount)
-			end)
-			if not fireOk then
+			fire("HatchPowerupEgg", selectedEggName, batchAmount)
+			totalRequested += batchAmount
+			local deadline = tick() + 5
+			local progressed = false
+			repeat
+				task.wait(0.1)
+				local fresh = readInventoryEggData()
+				local remaining = tonumber(fresh and fresh.Powerups and fresh.Powerups[selectedEggName]) or 0
+				progressed = remaining < ownedAmount
+			until progressed or not shouldContinue() or tick() >= deadline
+			if not progressed then
+				activeStates.BGSI_Lite_InventoryEggRetryAt = tick() + 2
 				break
 			end
-
-			totalRequested += batchAmount
-			task.wait(0.2)
-
-			-- Do not call HatchEgg:IsHatching() here. Some game builds expose a
-			-- different effect API, and this check is not required for the request
-			-- itself. The game's 0.2 second Auto Exclusive Egg pacing is sufficient.
 		end
-
 		return totalRequested
 	end
-
 	activeStates.BGSI_Lite_RunInventoryEggHatch = function()
+		if activeStates.BGSI_Lite_InventoryEggBusy or tick() < (activeStates.BGSI_Lite_InventoryEggRetryAt or 0) then return 0 end
+		activeStates.BGSI_Lite_InventoryEggBusy = true
 		local ok, result = pcall(runInventoryEggHatch)
+		activeStates.BGSI_Lite_InventoryEggBusy = false
+		if not ok then activeStates.BGSI_Lite_InventoryEggRetryAt = tick() + 2 end
 		return ok and (tonumber(result) or 0) or 0
 	end
-
 	task.spawn(function()
-		while true do
-			local runOk, running = pcall(isCurrentRun)
-			if not runOk or not running then
-				break
-			end
-
+		while isCurrentRun() do
 			if Config.autoHatchInventoryEgg == true and Config.safeMode ~= true then
-				pcall(runInventoryEggHatch)
+				activeStates.BGSI_Lite_RunInventoryEggHatch()
 			end
-
-			task.wait(Config.autoHatchInventoryEgg == true and 0.05 or 0.5)
+			task.wait(Config.autoHatchInventoryEgg == true and 0.1 or 0.5)
 		end
 	end)
+
 end
 do
 	local function getPotionNames()
@@ -15670,6 +15764,7 @@ do
 		Callback = function(scriptStateXJ)
 			if scriptStateXJ then
 				Config.equippedTargetEnchant = scriptStateXJ
+				activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
 				saveConfig()
 			end
 		end,
@@ -15682,6 +15777,7 @@ do
 		Callback = function(scriptStateHT)
 			if scriptStateHT then
 				Config.equippedTargetEnchant2 = (scriptStateHT == "(None - single target)") and "" or scriptStateHT
+				activeStates.BGSI_Lite_AutoEnchantBlockedUntil = 0
 				saveConfig()
 			end
 		end,
@@ -15698,7 +15794,7 @@ do
 	})
 	scriptStateTJ:AddInput("ReenchantThreshold", {
 		Title = "Re-enchant Below Level (0 = off)",
-		Description = "A pet that already has both targets but at this level or lower gets fully re-rolled on both slots again, instead of being left alone - useful for picking up a level increase on a pet enchanted a while ago.",
+		Description = "Refreshes target enchants at or below this level. Keeps a matching slot above the threshold locked while rerolling the other slot.",
 		Default = tostring(Config.equippedReenchantThreshold or 0),
 		Numeric = true,
 		Callback = function(value)
@@ -17299,27 +17395,12 @@ local function getMaxEnchantSlotsForPet(petData)
 	return 1
 end
 
--- Every enchant slot currently on the pet must already be one of the configured target
--- enchants (at or above the configured level, if any) for the pet to count as done. This
--- mirrors the official client's own reroll-until check - it reads the exact enchant list
--- the server just returned and checks each slot against the desired set - rather than
--- requiring one specific target per specific slot, so a pet that lands the same good
--- enchant in both slots is finished too instead of being rerolled forever.
---
--- requireBothSlotsFilled is what actually fixes "only does Secret Hunter, not Ultra
--- Roller too": with two distinct targets configured, a pet whose second enchant slot
--- hasn't landed (or hasn't even been rolled into) yet still only has ONE entry in its
--- Enchants list - and checking "every entry present is a target" says nothing about
--- entries that AREN'T present. The very first reroll to land the first target in
--- whichever slot came back already-present made this return true immediately, before
--- the second slot was ever confirmed filled with anything at all, target or not. Now,
--- whenever two different targets are configured, done also requires the enchant list to
--- actually be as long as the pet's real max slot count - so "done" can't be declared
--- until both slots genuinely exist and both satisfy a target.
+-- Distinct selected targets must both be present. Duplicate hits do not finish a two-target pet.
 function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel, requireBothSlotsFilled)
 	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
 	local sawAnyEnchant = false
 	local slotCount = 0
+	local seenTargets = {}
 	for _, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
 		sawAnyEnchant = true
 		slotCount += 1
@@ -17329,7 +17410,9 @@ function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel, 
 		local enchantLevel = type(enchantEntry) == "table"
 			and tonumber(enchantEntry.Level or enchantEntry.level)
 			or nil
-		if not targetLookup[normalizeEnchantName(enchantId)] then
+		local normalizedId = normalizeEnchantName(enchantId)
+		seenTargets[normalizedId] = true
+		if not targetLookup[normalizedId] then
 			return false
 		end
 		if targetEnchantLevel > 0 and (not enchantLevel or enchantLevel < targetEnchantLevel) then
@@ -17338,6 +17421,11 @@ function isPetEnchantTargetSatisfied(petData, targetLookup, targetEnchantLevel, 
 	end
 	if not sawAnyEnchant then
 		return false
+	end
+	if requireBothSlotsFilled then
+		for target in pairs(targetLookup) do
+			if not seenTargets[target] then return false end
+		end
 	end
 	if requireBothSlotsFilled and slotCount < getMaxEnchantSlotsForPet(petData) then
 		return false
@@ -17348,7 +17436,7 @@ end
 -- The first slot that already qualifies as a target. Passed back to the game as the
 -- reroll's protected slot, so a landed target enchant can never be rerolled away by the
 -- very next reroll - that's what makes the lock instant instead of "usually in time."
-function getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
+function getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel, reenchantThreshold)
 	local enchantList = type(petData) == "table" and (petData.Enchants or petData.Enchantments) or {}
 	for slot, enchantEntry in pairs(type(enchantList) == "table" and enchantList or {}) do
 		local enchantId = type(enchantEntry) == "table"
@@ -17360,8 +17448,9 @@ function getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
 		if
 			targetLookup[normalizeEnchantName(enchantId)]
 			and (targetEnchantLevel <= 0 or (enchantLevel and enchantLevel >= targetEnchantLevel))
+			and (not reenchantThreshold or reenchantThreshold <= 0 or not enchantLevel or enchantLevel > reenchantThreshold)
 		then
-			return slot
+			return tonumber(slot)
 		end
 	end
 	return nil
@@ -17409,9 +17498,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 	targetEnchantLevel = math.max(0, tonumber(targetEnchantLevel) or 0)
 	local reenchantThreshold = math.max(0, tonumber(Config.equippedReenchantThreshold) or 0)
 
-	-- A stale hit on either target counts the whole pet as unfinished, and (below) drops
-	-- the protect slot entirely so both slots reroll fresh rather than only the stale one -
-	-- matching "re-enchant that pet for both targets again" exactly as asked for.
+	-- Targets below are refreshed before every request, including mid-pet changes.
 	local function isFullyDone(currentPetData)
 		if
 			not isPetEnchantTargetSatisfied(
@@ -17426,8 +17513,24 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 		return not petHasStaleTargetEnchant(currentPetData, targetLookup, reenchantThreshold)
 	end
 
+	local confirmedPet
 	while Config.autoEnchant and isCurrentRun() do
+		targetEnchantOne = tostring(Config.equippedTargetEnchant or "secret-hunter")
+		targetEnchantTwo = tostring(Config.equippedTargetEnchant2 or "")
+		targetEnchantLevel = math.max(0, tonumber(Config.equippedTargetEnchantLevel) or 0)
+		selectedEnchantCurrencyMode = Config.equippedEnchantCurrency or "Auto (Secret = Crystals,Normal = Gems)"
+		targetLookup, hasSecondEnchantTarget = buildTargetEnchantLookup(targetEnchantOne, targetEnchantTwo)
+		reenchantThreshold = math.max(0, tonumber(Config.equippedReenchantThreshold) or 0)
 		local petData = getEnchantCurrency(petId)
+		if confirmedPet then
+			if petData and activeStates.BGSI_Lite_GetPetEnchantSignature(petData)
+				== activeStates.BGSI_Lite_GetPetEnchantSignature(confirmedPet) then
+				confirmedPet = nil
+			else
+				-- A late replication of an earlier roll must not overwrite a newer InvokeServer result.
+				petData = confirmedPet
+			end
+		end
 		if not petData then
 			task.wait(1)
 			continue
@@ -17439,8 +17542,7 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 			return true
 		end
 
-		local isStale = petHasStaleTargetEnchant(petData, targetLookup, reenchantThreshold)
-		local protectSlot = isStale and nil or getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel)
+		local protectSlot = getProtectedEnchantSlot(petData, targetLookup, targetEnchantLevel, reenchantThreshold)
 		local resolvedEnchantCurrency = resolveEnchantCurrency(selectedEnchantCurrencyMode, targetEnchantOne)
 
 		if resolvedEnchantCurrency == "Shadow Crystals" then
@@ -17467,10 +17569,11 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 				petData = getEnchantCurrency(petId)
 			until not petData
 				or activeStates.BGSI_Lite_GetPetEnchantSignature(petData) ~= signatureBeforeReroll
+				or tostring(Config.equippedTargetEnchant or "secret-hunter") ~= targetEnchantOne
+				or tostring(Config.equippedTargetEnchant2 or "") ~= targetEnchantTwo
+				or not Config.autoEnchant or not isCurrentRun()
 				or tick() >= confirmDeadline
-			if petData and isFullyDone(petData) then
-				return true
-			end
+			-- Recheck the current selection before deciding whether this pet is finished.
 		else
 			local currencyType = resolvedEnchantCurrency == "Reroll Orbs" and "Powerup" or "Gems"
 			-- RerollEnchants is a real InvokeServer call: the server hands back the pet's
@@ -17491,13 +17594,13 @@ activeStates.BGSI_Lite_RerollEnchantPet = function(
 				task.wait(0.1)
 				continue
 			end
-			if invokeOk and newPetIdOrStatus and newEnchants then
+			if invokeOk and newPetIdOrStatus and type(newEnchants) == "table" then
+				confirmedPet = table.clone(petData)
+				confirmedPet.Enchants = newEnchants
 				if tostring(newPetIdOrStatus) ~= tostring(petId) then
 					petId = newPetIdOrStatus
 				end
-				if isFullyDone({ Enchants = newEnchants }) then
-					return true
-				end
+				-- Evaluate the authoritative result with the latest targets at the next iteration.
 			end
 		end
 		task.wait(rerollCooldown)
@@ -23233,7 +23336,8 @@ activeStates.BGSI_Lite_FleetInit = function()
 			else
 				record = readJson(PREFIX .. "acct_" .. id .. ".json")
 			end
-			if record and now - (tonumber(record.lastSeen) or 0) <= ALIVE_SECONDS then
+			if record and record.stopped ~= true and now - (tonumber(record.lastSeen) or 0) >= 0
+				and now - (tonumber(record.lastSeen) or 0) <= ALIVE_SECONDS then
 				table.insert(list, {
 					id = id,
 					name = tostring(record.name or id),
@@ -23404,6 +23508,9 @@ activeStates.BGSI_Lite_FleetInit = function()
 		if fleet.role ~= "alt" or not fileExists(revFile) then
 			return
 		end
+		local leader = readJson(PREFIX .. "acct_" .. tostring(fleet.masterId) .. ".json")
+		local leaderAge = leader and tick() - (tonumber(leader.lastSeen) or 0) or math.huge
+		if not leader or leader.stopped == true or leaderAge < 0 or leaderAge > ALIVE_SECONDS then return end
 		local readOk, text = pcall(readfile, revFile)
 		if not readOk or type(text) ~= "string" or text == lastSeenRevText then
 			return
@@ -23425,6 +23532,7 @@ activeStates.BGSI_Lite_FleetInit = function()
 			or tonumber(payload.rev) ~= rev
 			or tostring(payload.from) ~= fromId
 			or type(payload.config) ~= "table"
+			or (tonumber(payload.at) or 0) < (tonumber(leader.startedAt) or 0)
 		then
 			return -- caught mid-write; the next poll picks it up
 		end
@@ -24110,6 +24218,12 @@ end)
 			return
 		end
 		fleet.stopped = true
+		pcall(function()
+			local record = readJson(myFile) or {}
+			record.stopped = true
+			record.lastSeen = 0
+			writeJson(myFile, record)
+		end)
 		for _, connection in ipairs(connections) do
 			connection:Disconnect()
 		end

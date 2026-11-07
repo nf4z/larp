@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.04.41"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.42"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,19 +19,20 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/2f0755df109e1b92c679.lua", bytes = 443043, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/730c5ceb44fcdefc5816.lua", bytes = 63226, blocks = 1 },
+	["core"] = { path = "modules/core/841b317b5f1c279fa70d.lua", bytes = 444535, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/68af603779558aef5581.lua", bytes = 63785, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
-	["eggs"] = { path = "modules/eggs/ab40aaf2628b033d02f1.lua", bytes = 24521, blocks = 3 },
+	["eggs"] = { path = "modules/eggs/d3b530685972463b64fb.lua", bytes = 24804, blocks = 3 },
 	["halloween"] = { path = "modules/halloween/a6c425a51263adf9d2df.lua", bytes = 4648, blocks = 2 },
+	["comp"] = { path = "modules/comp/5d01fc46baa0813474f8.lua", bytes = 5080, blocks = 2 },
 	["event"] = { path = "modules/event/402e630e2e462d98adc9.lua", bytes = 4526, blocks = 2 },
 	["chests"] = { path = "modules/chests/dddfb9396648bf0c2718.lua", bytes = 8207, blocks = 2 },
 	["potions"] = { path = "modules/potions/8ba0c1c8c853e7491125.lua", bytes = 20322, blocks = 2 },
 	["rifts"] = { path = "modules/rifts/2c538542f965cc06b6aa.lua", bytes = 11766, blocks = 2 },
 	["game"] = { path = "modules/game/6ffdbc402ea61c1b68f6.lua", bytes = 96005, blocks = 2 },
-	["enchant"] = { path = "modules/enchant/6546c4dba55d481321df.lua", bytes = 9072, blocks = 3 },
+	["enchant"] = { path = "modules/enchant/3c9d620a40839b4d93bd.lua", bytes = 9107, blocks = 3 },
 	["quests"] = { path = "modules/quests/360d1f4d50e5c575da7e.lua", bytes = 19977, blocks = 2 },
 	["guilds"] = { path = "modules/guilds/f5f5270763a120767394.lua", bytes = 16307, blocks = 2 },
 	["shrines"] = { path = "modules/shrines/2903c548c7921a2fb444.lua", bytes = 2258, blocks = 2 },
@@ -39,7 +40,7 @@ local modules = {
 	["fishing"] = { path = "modules/fishing/c039ea74eb14395ff187.lua", bytes = 15769, blocks = 1 },
 	["webhooks"] = { path = "modules/webhooks/0538a8ad0246f4beaac5.lua", bytes = 10119, blocks = 2 },
 	["other"] = { path = "modules/other/2182502d64fd507a5de1.lua", bytes = 5478, blocks = 2 },
-	["leader"] = { path = "modules/leader/e802cdf97877545ef487.lua", bytes = 33150, blocks = 1 }
+	["leader"] = { path = "modules/leader/9e39c6e40752383c0be5.lua", bytes = 33717, blocks = 1 }
 }
 local steps = {
 	{ "core", 1 },
@@ -51,6 +52,7 @@ local steps = {
 	{ "core", 3 },
 	{ "eggs", 1 },
 	{ "halloween", 1 },
+	{ "comp", 1 },
 	{ "event", 1 },
 	{ "chests", 1 },
 	{ "potions", 1 },
@@ -78,6 +80,7 @@ local steps = {
 	{ "core", 10 },
 	{ "eggs", 2 },
 	{ "core", 11 },
+	{ "comp", 2 },
 	{ "halloween", 2 },
 	{ "event", 2 },
 	{ "core", 12 },
@@ -102,7 +105,7 @@ local steps = {
 	{ "leader", 1 },
 	{ "core", 20 }
 }
-local declared = { ["loaderOptions"] = true, ["Players"] = true, ["ReplicatedStorage"] = true, ["Workspace"] = true, ["HttpService"] = true, ["RunService"] = true, ["VirtualInputManager"] = true, ["CollectionService"] = true, ["CoreGui"] = true, ["TeleportService"] = true, ["UserInputService"] = true, ["LocalPlayer"] = true, ["activeStates"] = true, ["currentRunToken"] = true, ["configAccountId"] = true, ["configFile"] = true, ["sharedConfigFile"] = true, ["defaultConfig"] = true, ["copyLoaderValue"] = true, ["applyLoaderSettings"] = true, ["legacyConfigFile"] = true, ["Config"] = true, ["webhookHatchTrackerFile"] = true, ["Interface"] = true, ["profileStore"] = true, ["timeModule"] = true, ["questModule"] = true, ["enchantModule"] = true, ["enchantData"] = true, ["petRarityData"] = true, ["eggDataModule"] = true, ["riftData"] = true, ["bountyUtil"] = true, ["potionData"] = true, ["giftData"] = true, ["itemUtil"] = true, ["carnivalRebirthUtil"] = true, ["carnivalRemoteModule"] = true, ["sharedConstants"] = true, ["networkRemote"] = true, ["remoteEvent"] = true, ["remoteFunction"] = true, ["hatchEffectModule"] = true, ["scriptStateID"] = true, ["fallbackUtilityE"] = true, ["sharedEnv"] = true, ["eggChunkerTracker"] = true, ["autoPatchEnabled"] = true, ["defaultTeleportHeight"] = true, ["infinityEggHeight"] = true, ["cachedEggLookup"] = true, ["cachedEggList"] = true, ["cacheTime"] = true, ["scriptStateTU"] = true, ["scanNotificationInProgress"] = true, ["teleportOffsetY"] = true, ["lastFiredForNextEggOpenAt"] = true, ["gemShopSlots"] = true, ["gemReserveThreshold"] = true, ["scriptStateAAN"] = true, ["scriptStateZG"] = true, ["scriptStateHD"] = true, ["scriptStateCE"] = true, ["pauseInProgress"] = true, ["scriptStateOG"] = true, ["scriptStateDB"] = true, ["eggTab"] = true, ["halloweenTab"] = true, ["scriptStateCZ"] = true, ["potionTab"] = true, ["scriptStateYT"] = true, ["riftsTabStub"] = true, ["riftsTab"] = true, ["gameTab"] = true, ["scriptStateTJ"] = true, ["scriptStateUC"] = true, ["scriptStateOB"] = true, ["scriptStateGB"] = true, ["scriptStateKM"] = true, ["scriptStateAFW"] = true, ["setLuckEggActive"] = true, ["scriptStateAAR"] = true, ["SUPER_LEGENDARY_ENCHANT_KEY_BY_ID"] = true, ["autoSetupTeamConfigGeneration"] = true, ["autoSetupTeamApplyQueued"] = true, ["CURRENCY_TEAM_KEYWORDS"] = true, ["CURRENCY_STAT_KEY_BY_CATEGORY"] = true, ["specialWebhookEnchantNames"] = true, ["superWebhookEnchantNames"] = true, ["superEnchantBadgeFiles"] = true, ["getEnchantedSuperWebhookIcon"] = true, ["dualEnchantWhitelist"] = true, ["normalizedDualEnchantWhitelist"] = true, ["isDualEnchantWhitelisted"] = true, ["autoEnchantThreadRunning"] = true, ["ENCHANT_REROLL_COOLDOWN"] = true, ["getMaxEnchantSlotsForPet"] = true, ["formatWebhookNumber"] = true, ["scriptStateDX"] = true, ["statsUtil"] = true, ["worldUtil"] = true, ["buildWebhookUserInfoField"] = true, ["isWebhookRebirthMachineReward"] = true, ["LIVE_WEBHOOK_UPDATE_INTERVAL"] = true, ["getLiveWebhookRequestFunction"] = true, ["normalizeLiveWebhookUrl"] = true, ["getLiveWebhookMessageUrl"] = true, ["formatLiveWebhookNumber"] = true, ["formatLiveWebhookUptime"] = true, ["liveWebhookHeadshotUrl"] = true, ["liveWebhookHeadshotFetchedAt"] = true, ["getLiveWebhookHeadshotUrl"] = true, ["getLiveWebhookStats"] = true, ["buildLiveWebhookPayload"] = true, ["postLiveWebhook"] = true, ["editLiveWebhook"] = true, ["stopLiveWebhook"] = true, ["startLiveWebhook"] = true, ["makeSimulatedHatchPet"] = true, ["simulatedSuperEnchantWeights"] = true, ["rollSimulatedSuperEnchants"] = true, ["buildSimulatedHatchPayload"] = true, ["autoUpdateReloadQueued"] = true }
+local declared = { ["loaderOptions"] = true, ["Players"] = true, ["ReplicatedStorage"] = true, ["Workspace"] = true, ["HttpService"] = true, ["RunService"] = true, ["VirtualInputManager"] = true, ["CollectionService"] = true, ["CoreGui"] = true, ["TeleportService"] = true, ["UserInputService"] = true, ["LocalPlayer"] = true, ["activeStates"] = true, ["currentRunToken"] = true, ["configAccountId"] = true, ["configFile"] = true, ["sharedConfigFile"] = true, ["defaultConfig"] = true, ["copyLoaderValue"] = true, ["applyLoaderSettings"] = true, ["legacyConfigFile"] = true, ["Config"] = true, ["webhookHatchTrackerFile"] = true, ["Interface"] = true, ["profileStore"] = true, ["timeModule"] = true, ["questModule"] = true, ["enchantModule"] = true, ["enchantData"] = true, ["petRarityData"] = true, ["eggDataModule"] = true, ["riftData"] = true, ["bountyUtil"] = true, ["potionData"] = true, ["giftData"] = true, ["itemUtil"] = true, ["carnivalRebirthUtil"] = true, ["carnivalRemoteModule"] = true, ["sharedConstants"] = true, ["networkRemote"] = true, ["remoteEvent"] = true, ["remoteFunction"] = true, ["hatchEffectModule"] = true, ["scriptStateID"] = true, ["fallbackUtilityE"] = true, ["sharedEnv"] = true, ["eggChunkerTracker"] = true, ["autoPatchEnabled"] = true, ["defaultTeleportHeight"] = true, ["infinityEggHeight"] = true, ["cachedEggLookup"] = true, ["cachedEggList"] = true, ["cacheTime"] = true, ["scriptStateTU"] = true, ["scanNotificationInProgress"] = true, ["teleportOffsetY"] = true, ["lastFiredForNextEggOpenAt"] = true, ["gemShopSlots"] = true, ["gemReserveThreshold"] = true, ["scriptStateAAN"] = true, ["scriptStateZG"] = true, ["scriptStateHD"] = true, ["scriptStateCE"] = true, ["pauseInProgress"] = true, ["scriptStateOG"] = true, ["scriptStateDB"] = true, ["eggTab"] = true, ["halloweenTab"] = true, ["compTab"] = true, ["scriptStateCZ"] = true, ["potionTab"] = true, ["scriptStateYT"] = true, ["riftsTabStub"] = true, ["riftsTab"] = true, ["gameTab"] = true, ["scriptStateTJ"] = true, ["scriptStateUC"] = true, ["scriptStateOB"] = true, ["scriptStateGB"] = true, ["scriptStateKM"] = true, ["scriptStateAFW"] = true, ["setLuckEggActive"] = true, ["scriptStateAAR"] = true, ["SUPER_LEGENDARY_ENCHANT_KEY_BY_ID"] = true, ["autoSetupTeamConfigGeneration"] = true, ["autoSetupTeamApplyQueued"] = true, ["CURRENCY_TEAM_KEYWORDS"] = true, ["CURRENCY_STAT_KEY_BY_CATEGORY"] = true, ["specialWebhookEnchantNames"] = true, ["superWebhookEnchantNames"] = true, ["superEnchantBadgeFiles"] = true, ["getEnchantedSuperWebhookIcon"] = true, ["dualEnchantWhitelist"] = true, ["normalizedDualEnchantWhitelist"] = true, ["isDualEnchantWhitelisted"] = true, ["autoEnchantThreadRunning"] = true, ["ENCHANT_REROLL_COOLDOWN"] = true, ["getMaxEnchantSlotsForPet"] = true, ["formatWebhookNumber"] = true, ["scriptStateDX"] = true, ["statsUtil"] = true, ["worldUtil"] = true, ["buildWebhookUserInfoField"] = true, ["isWebhookRebirthMachineReward"] = true, ["LIVE_WEBHOOK_UPDATE_INTERVAL"] = true, ["getLiveWebhookRequestFunction"] = true, ["normalizeLiveWebhookUrl"] = true, ["getLiveWebhookMessageUrl"] = true, ["formatLiveWebhookNumber"] = true, ["formatLiveWebhookUptime"] = true, ["liveWebhookHeadshotUrl"] = true, ["liveWebhookHeadshotFetchedAt"] = true, ["getLiveWebhookHeadshotUrl"] = true, ["getLiveWebhookStats"] = true, ["buildLiveWebhookPayload"] = true, ["postLiveWebhook"] = true, ["editLiveWebhook"] = true, ["stopLiveWebhook"] = true, ["startLiveWebhook"] = true, ["makeSimulatedHatchPet"] = true, ["simulatedSuperEnchantWeights"] = true, ["rollSimulatedSuperEnchants"] = true, ["buildSimulatedHatchPayload"] = true, ["autoUpdateReloadQueued"] = true }
 -- Each run owns its helpers, so replaced functions do not accumulate in globals.
 local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTicket = loaderTicket }, {
 	__index = function(_, key)
@@ -192,4 +195,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 table.clear(compiledModules)
-return { Version = "2026.11.04.41" }
+return { Version = "2026.11.07.42" }

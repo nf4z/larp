@@ -78,6 +78,7 @@ for name, spec in manifest['modules'].items():
 fixture = 'local sources = {\n' + ',\n'.join('[' + lua_string(path) + '] = ' + lua_string(text) for path, text in fake.items()) + '\n}\n'
 fixture += 'local expected = {' + ','.join(lua_string(f'{name}:{index}') for name, index in manifest['steps']) + '}\n'
 fixture += 'local loaderSource = ' + lua_string(loader) + '\n'
+fixture += 'local moduleCount = ' + str(len(manifest['modules'])) + '\n'
 fixture += r'''
 local base = getfenv()
 local globals, cache, records = {}, {}, {}
@@ -123,7 +124,7 @@ end
 local options = { Cache = true, DownloadConcurrency = 4, Defaults = { setfps = 77 }, Config = {} }
 assert(launch(options))
 assert(peak == 4, "Downloads should overlap, bounded at four")
-assert(downloads == 21)
+assert(downloads == moduleCount)
 assert(#records == #expected)
 for i, value in ipairs(expected) do assert(records[i] == value, value) end
 assert(globals._1rzHubLiteLoaderOptions ~= options, "Copy caller options")
@@ -141,14 +142,14 @@ cache = {}; broken = true; records = {}; downloads = 0
 local ok, err = launch(options)
 assert(not ok and tostring(err):match("eggs"))
 assert(#records == 0, "Failed preflight must not execute any module")
-assert(downloads == 23, "One failed module gets three attempts")
+assert(downloads == moduleCount + 2, "One failed module gets three attempts")
 cache = {}; broken = false; records = {}; downloads = 0
 options.Cache = false
 assert(launch(options)); assert(next(cache) == nil)
-assert(downloads == 21)
+assert(downloads == moduleCount)
 -- Without filesystem APIs the loader must still work.
 env.isfile = false; records = {}; downloads = 0; options.Cache = true
-assert(launch(options)); assert(downloads == 21)
+assert(launch(options)); assert(downloads == moduleCount)
 '''
 run(fixture, 'Real loader: ordering, shared scope, concurrent fetch, warm/invalid cache, retries, offline failure, no-file fallback')
 

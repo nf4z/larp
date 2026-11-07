@@ -22,7 +22,7 @@ assert not tree.root_node.has_error, 'Source has syntax errors'
 tabs = {
     'scriptStateDB': 'main', 'BGSI_Lite_StatsTab': 'stats',
     'BGSI_Lite_ServerTab': 'server', 'eggTab': 'eggs',
-    'halloweenTab': 'halloween', 'scriptStateCZ': 'event',
+    'halloweenTab': 'halloween', 'compTab': 'comp', 'scriptStateCZ': 'event',
     'potionTab': 'chests', 'scriptStateYT': 'potions', 'riftsTab': 'rifts',
     'gameTab': 'game', 'scriptStateTJ': 'enchant', 'scriptStateUC': 'quests',
     'BGSI_Lite_GuildTab': 'guilds', 'scriptStateOB': 'shrines',
