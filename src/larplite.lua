@@ -62,7 +62,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.42"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.43"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +89,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.07.43",
+		releasedAt = "November 7, 2026",
+		notes = {
+			{ title = "Comp layout", description = "Contributions and team placements have separate rows with shorter labels to prevent overlap.", icon = "trophy" },
+		},
+	},
 	{
 		version = "2026.11.07.42",
 		releasedAt = "November 7, 2026",
@@ -11284,8 +11291,10 @@ end)
 do
 	compTab:AddSection("Seals vs Frog Dogs")
 	local teamText = compTab:AddParagraph({ Title = "Your Team", Content = "Loading..." })
-	local hatchText = compTab:AddParagraph({ Title = "Hatches Contributed / Team Place", Content = "Loading..." })
-	local bubbleText = compTab:AddParagraph({ Title = "Bubbles Contributed / Team Place", Content = "Loading..." })
+	local hatchText = compTab:AddParagraph({ Title = "Hatches", Content = "Loading..." })
+	local hatchPlace = compTab:AddParagraph({ Title = "Hatch Place", Content = "Loading..." })
+	local bubbleText = compTab:AddParagraph({ Title = "Bubbles", Content = "Loading..." })
+	local bubblePlace = compTab:AddParagraph({ Title = "Bubble Place", Content = "Loading..." })
 	for _, metric in ipairs({ "Hatches", "Bubbles" }) do
 		local key = "autoClaimComp" .. metric
 		compTab:AddToggle("AutoClaimComp" .. metric, {
@@ -11325,9 +11334,10 @@ do
 			local team = contribution and competition.Teams[contribution.Team]
 			teamText:SetDesc(team and team.Name or "Join the competition at the in-game event pad")
 			for metric, paragraph in pairs({ Hatches = hatchText, Bubbles = bubbleText }) do
-				paragraph:SetDesc(contribution and (string.format("%.0f", tonumber(contribution[metric]) or 0)
-					.. " | " .. getTeamPlace(contribution, metric)) or "Not joined")
+				paragraph:SetDesc(contribution and string.format("%.0f", tonumber(contribution[metric]) or 0) or "Not joined")
 			end
+			hatchPlace:SetDesc(contribution and getTeamPlace(contribution, "Hatches") or "Not joined")
+			bubblePlace:SetDesc(contribution and getTeamPlace(contribution, "Bubbles") or "Not joined")
 			return contribution
 		end
 		if activeStates.BGSI_Lite_CompSnapshotConnection then activeStates.BGSI_Lite_CompSnapshotConnection:Disconnect() end
@@ -11381,6 +11391,8 @@ do
 		teamText:SetDesc("Competition unavailable in this server")
 		hatchText:SetDesc("Unavailable")
 		bubbleText:SetDesc("Unavailable")
+		hatchPlace:SetDesc("Unavailable")
+		bubblePlace:SetDesc("Unavailable")
 	end
 end
 

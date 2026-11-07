@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.07.42",
+  "version": "2026.11.07.43",
   "modules": {
     "core": {
-      "path": "modules/core/841b317b5f1c279fa70d.lua",
+      "path": "modules/core/c2a082b82733cd833564.lua",
       "bytes": 444535,
       "blocks": 20
     },
     "changelog": {
-      "path": "modules/changelog/68af603779558aef5581.lua",
-      "bytes": 63785,
+      "path": "modules/changelog/798f20a83509989fc69e.lua",
+      "bytes": 64030,
       "blocks": 1
     },
     "main": {
@@ -37,8 +37,8 @@
       "blocks": 2
     },
     "comp": {
-      "path": "modules/comp/5d01fc46baa0813474f8.lua",
-      "bytes": 5080,
+      "path": "modules/comp/15c49ac0ee098b42864d.lua",
+      "bytes": 5424,
       "blocks": 2
     },
     "event": {

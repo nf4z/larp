@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.42"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.43"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,14 +19,14 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/841b317b5f1c279fa70d.lua", bytes = 444535, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/68af603779558aef5581.lua", bytes = 63785, blocks = 1 },
+	["core"] = { path = "modules/core/c2a082b82733cd833564.lua", bytes = 444535, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/798f20a83509989fc69e.lua", bytes = 64030, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
 	["eggs"] = { path = "modules/eggs/d3b530685972463b64fb.lua", bytes = 24804, blocks = 3 },
 	["halloween"] = { path = "modules/halloween/a6c425a51263adf9d2df.lua", bytes = 4648, blocks = 2 },
-	["comp"] = { path = "modules/comp/5d01fc46baa0813474f8.lua", bytes = 5080, blocks = 2 },
+	["comp"] = { path = "modules/comp/15c49ac0ee098b42864d.lua", bytes = 5424, blocks = 2 },
 	["event"] = { path = "modules/event/402e630e2e462d98adc9.lua", bytes = 4526, blocks = 2 },
 	["chests"] = { path = "modules/chests/dddfb9396648bf0c2718.lua", bytes = 8207, blocks = 2 },
 	["potions"] = { path = "modules/potions/8ba0c1c8c853e7491125.lua", bytes = 20322, blocks = 2 },
@@ -195,4 +195,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 table.clear(compiledModules)
-return { Version = "2026.11.07.42" }
+return { Version = "2026.11.07.43" }
