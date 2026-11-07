@@ -7,12 +7,13 @@ __HALLOWEEN_ENGINE__
 	if not ok then definition=nil end
 	local engine=makeEngine({Definition=definition,Profile=profileStore,ItemUtil=itemUtil,
 		Config=function()return {enabled=Config.autoHalloweenShrine==true and Config.safeMode~=true,potion=Config.halloweenShrinePotion,
-			reroll=Config.halloweenShrineReroll==true,target=Config.halloweenShrineTarget}end,
+			reroll=Config.halloweenShrineReroll==true,targets=Config.halloweenShrineTargets,target=Config.halloweenShrineTarget}end,
 		Active=isCurrentRun,Now=tick,Time=getCurrentTimestamp,
 		Invoke=function(...)return remoteFunction:InvokeServer(...)end,
 		Fire=function(...)return activeStates.BGSI_Lite_FireGameRemote(...)end,
 		RerollCost=sharedConstants and sharedConstants.ShrineRerollCost,
 	})
+	if type(Config.halloweenShrineTargets)~="table"then Config.halloweenShrineTargets=engine.NormalizeTargets(Config.halloweenShrineTargets or Config.halloweenShrineTarget)end
 	scriptStateOB:AddSection("Halloween Shrine")
 	scriptStateOB:AddText({Title="Shrine Info",Content="12-hour buffs for Halloween eggs only."})
 	local buff=scriptStateOB:AddText({Title="Halloween Blessing",Content="Loading..."})
@@ -28,10 +29,12 @@ __HALLOWEEN_ENGINE__
 	scriptStateOB:AddToggle("AutoHalloweenShrine",{Title="Auto Halloween Shrine",Default=Config.autoHalloweenShrine,
 		Description="Donates selected potions, claims, then waits for the 12-hour blessing to expire.",
 		Callback=function(value)Config.autoHalloweenShrine=value==true;saveConfig()end})
-	scriptStateOB:AddDropdown("HalloweenShrineTarget",{Title="Halloween Target Buff",Values=definition and definition.BuffNames or {},Default=Config.halloweenShrineTarget,
-		Callback=function(value)if definition and definition.BuffPool[value]then Config.halloweenShrineTarget=value;saveConfig()end end})
+	scriptStateOB:AddDropdown("HalloweenShrineTargets",{Title="Halloween Target Buffs",Values=definition and definition.BuffNames or {},
+		Default=engine.NormalizeTargets(Config.halloweenShrineTargets),Multi=true,
+		Description="Stops on any selected buff. An empty selection pauses rerolls.",
+		Callback=function(value)Config.halloweenShrineTargets=engine.NormalizeTargets(value);saveConfig()end})
 	scriptStateOB:AddToggle("HalloweenShrineReroll",{Title="Reroll Halloween Buff",Default=Config.halloweenShrineReroll,
-		Description="Uses Shrine Tickets until the selected target buff lands.",
+		Description="Uses Shrine Tickets until any selected target buff lands.",
 		Callback=function(value)Config.halloweenShrineReroll=value==true;saveConfig()end})
 	local activity=scriptStateOB:AddText({Title="Halloween Shrine Activity",Content="Automatic Halloween shrine is off."})
 	local last={}

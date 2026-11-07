@@ -15,6 +15,20 @@ return function(context)
             table.insert(catalog,option);byId[id]=option
         end
     end
+    local function normalizeTargets(value)
+        if type(value)=="string"then value={value}end
+        local wanted,result={},{}
+        for key,item in pairs(type(value)=="table"and value or {})do
+            local name=type(key)=="string"and item==true and key or item
+            if type(name)=="string"and (not definition or (definition.BuffPool and definition.BuffPool[name]))then wanted[name]=true end
+        end
+        for _,name in ipairs(definition and definition.BuffNames or {})do
+            if wanted[name]then table.insert(result,name);wanted[name]=nil end
+        end
+        local extra={};for name in pairs(wanted)do table.insert(extra,name)end;table.sort(extra)
+        for _,name in ipairs(extra)do table.insert(result,name)end
+        return result
+    end
     local pending,nextAction=nil,-math.huge
     local function read()
         local config=context.Config()
@@ -55,6 +69,14 @@ return function(context)
         local view=read()
         if not context.Active() or not view.enabled or not view.available then return view end
         local config=context.Config()
+        local selectedTargets=normalizeTargets(config.targets~=nil and config.targets or config.target)
+        if view.active and config.reroll==true then
+            if table.find(selectedTargets,view.buff)then
+                view.activity="Selected buff active; rerolls stopped.";return view
+            elseif #selectedTargets==0 then
+                view.activity="Select at least one target buff.";return view
+            end
+        end
         if pending then
             local changed=pending.action=="donate" and view.xp~=pending.xp
                 or pending.action=="claim" and (view.start~=pending.start or view.active)
@@ -67,10 +89,7 @@ return function(context)
         if context.Now()<nextAction then view.activity="Waiting before the next shrine request.";return view end
         if view.active then
             view.activity="Blessing active; donations paused."
-            if config.reroll~=true or view.buff==config.target then return view end
-            if not definition.BuffPool or not definition.BuffPool[config.target] then
-                view.activity="Choose a valid target buff.";return view
-            end
+            if config.reroll~=true then return view end
             local cost=context.RerollCost
             if not cost or not context.ItemUtil or not context.ItemUtil:CanAfford(view.data,cost)then
                 view.activity="No Shrine Tickets for target rerolls.";return view
@@ -79,7 +98,7 @@ return function(context)
             pending={action="reroll",buff=view.buff,at=context.Now()};nextAction=context.Now()+1
             local ok=pcall(context.Fire,"RerollHalloweenShrine")
             if not ok then pending=nil;nextAction=context.Now()+5 end
-            view.activity="Rerolling toward "..tostring(config.target)..".";return view
+            view.activity="Rerolling toward selected buffs.";return view
         end
         if view.xp>=view.required then
             if not context.Active() or context.Config().enabled~=true then return view end
@@ -100,5 +119,5 @@ return function(context)
         else view.activity="Donated "..amount.."; waiting for updated XP."end
         return view
     end
-    return {Catalog=catalog,Read=read,Step=step}
+    return {Catalog=catalog,Read=read,Step=step,NormalizeTargets=normalizeTargets}
 end

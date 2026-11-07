@@ -55,6 +55,23 @@ f.api.Step();assert(#f.sent==0,"Rerolls require native Shrine Ticket cost")
 f.tickets=10;f.api.Step();assert(f.sent[1][1]=="RerollHalloweenShrine")
 f.clock=1;f.api.Step();assert(#f.sent==1,"Wait for confirmed reroll data")
 f.state.Buff="Secret";f.api.Step();assert(#f.sent==1,"Stop immediately when the target lands")
+for _,hit in ipairs({"Luck","Secret"})do
+ local multi=fixture();multi.config.enabled=true;multi.config.reroll=true;multi.config.targets={"Luck","Secret"};multi.tickets=10
+ multi.state.StartTime=multi.now;multi.state.Buff="Shiny"
+ multi.api.Step();assert(#multi.sent==1)
+ multi.clock=0.1;multi.state.Buff=hit
+ assert(multi.api.Step().activity=="Selected buff active; rerolls stopped." and #multi.sent==1,"Stop on either chosen buff, before pending/cooldown checks")
+ multi.clock=20;multi.api.Step();assert(#multi.sent==1)
+end
+local multi=fixture();multi.config.enabled=true;multi.config.reroll=true;multi.tickets=10;multi.state.StartTime=multi.now;multi.state.Buff="Luck"
+multi.config.targets={"Secret"};multi.api.Step();assert(#multi.sent==1)
+multi.config.targets={Luck=true,Secret=true};multi.clock=0.1
+assert(multi.api.Step().activity=="Selected buff active; rerolls stopped." and #multi.sent==1,"Live selection changes take effect immediately")
+multi.config.targets={};multi.clock=20
+assert(multi.api.Step().activity=="Select at least one target buff." and #multi.sent==1,"Clearing all targets pauses, even if the legacy target remains saved")
+multi.config.targets={"Invalid"};multi.api.Step();assert(#multi.sent==1)
+local normalized=multi.api.NormalizeTargets({Luck=true,Secret=true,Invalid=true})
+assert(#normalized==2 and table.find(normalized,"Luck") and table.find(normalized,"Secret"))
 f.state.Buff="Unknown future buff";f.config.reroll=false;assert(f.api.Step().buffName=="Unknown future buff")
 f=fixture();f.config.enabled=true;f.accept=false;f.api.Step();f.clock=1;f.api.Step();assert(#f.sent==1)
 f.clock=5;f.api.Step();assert(#f.sent==2,"Rejected requests back off")
@@ -75,10 +92,12 @@ local widget=install({Window={Tab=function(_,props)assert(props.Title=="Shrine")
  Active=f.context.Active,Time=f.context.Time,Now=f.context.Now,Fire=f.context.Fire,Invoke=f.context.Invoke})
 local potion=controls["Halloween Donation Potion"].Props
 assert(#potion.Values==2 and potion.Values[2].Item.Level==7 and potion.Values[1].Item.Type=="Potion")
-assert(controls["Halloween Target Buff"].Props.Values[2].Icon=="rbxassetid://2")
+assert(controls["Halloween Target Buffs"].Props.Values[2].Icon=="rbxassetid://2")
+assert(controls["Halloween Target Buffs"].Props.Multi and controls["Halloween Target Buffs"].Props.Value[1]=="Secret","Migrate the saved single target into multi-select")
 potion.Callback("Lucky/7");controls["Auto Halloween Shrine"].Props.Callback(true)
-controls["Halloween Target Buff"].Props.Callback("Secret");controls["Reroll Halloween Buff"].Props.Callback(true)
+controls["Halloween Target Buffs"].Props.Callback({Luck=true,Secret=true});controls["Reroll Halloween Buff"].Props.Callback(true)
 assert(settings.halloweenShrine.potion=="Lucky/7" and settings.halloweenShrine.enabled and settings.halloweenShrine.reroll and settings.guild.keep and saved==4)
+assert(#settings.halloweenShrine.targets==2)
 widget.Render(widget.Engine.Step());assert(f.sent[1][3]==7 and f.sent[1][4]==1)
 '''
 lua+=r'''
@@ -103,6 +122,10 @@ lua+=template.replace('__HALLOWEEN_ENGINE__',core)
 lua+=r'''
 liteControls.HalloweenShrinePotion.Props.Callback("Lucky 7")
 assert(Config.halloweenShrinePotion=="Lucky/7")
+assert(liteControls.HalloweenShrineTargets.Props.Multi and liteControls.HalloweenShrineTargets.Props.Default[1]=="Secret")
+liteControls.HalloweenShrineTargets.Props.Callback({Luck=true,Secret=true})
+assert(#Config.halloweenShrineTargets==2)
+liteControls.HalloweenShrineTargets.Props.Callback({});assert(#Config.halloweenShrineTargets==0)
 assert(liteControls.HalloweenShrinePotion.FleetValueTransform("Lucky/6")=="Lucky 6","Fleet receives a stable ID and displays the corresponding label")
 liteControls.AutoHalloweenShrine.Props.Callback(true);liteControls.HalloweenShrineReroll.Props.Callback(true)
 assert(Config.autoHalloweenShrine and Config.halloweenShrineReroll)

@@ -1,10 +1,10 @@
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 25 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 26 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 25 then
+if prior and prior.Starting and prior.Revision == 26 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -71,7 +71,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 25, ScriptVersion = "v110", State = private}
+local runtime = {Starting = true, Revision = 26, ScriptVersion = "v111", State = private}
 actualGlobals._BGSI_TestHub = runtime
 -- Owned runtime resources. Shared game modules keep their original task/Instance APIs.
 local realTask, realInstance = task, Instance
@@ -14539,6 +14539,20 @@ return function(context)
             table.insert(catalog,option);byId[id]=option
         end
     end
+    local function normalizeTargets(value)
+        if type(value)=="string"then value={value}end
+        local wanted,result={},{}
+        for key,item in pairs(type(value)=="table"and value or {})do
+            local name=type(key)=="string"and item==true and key or item
+            if type(name)=="string"and (not definition or (definition.BuffPool and definition.BuffPool[name]))then wanted[name]=true end
+        end
+        for _,name in ipairs(definition and definition.BuffNames or {})do
+            if wanted[name]then table.insert(result,name);wanted[name]=nil end
+        end
+        local extra={};for name in pairs(wanted)do table.insert(extra,name)end;table.sort(extra)
+        for _,name in ipairs(extra)do table.insert(result,name)end
+        return result
+    end
     local pending,nextAction=nil,-math.huge
     local function read()
         local config=context.Config()
@@ -14579,6 +14593,14 @@ return function(context)
         local view=read()
         if not context.Active() or not view.enabled or not view.available then return view end
         local config=context.Config()
+        local selectedTargets=normalizeTargets(config.targets~=nil and config.targets or config.target)
+        if view.active and config.reroll==true then
+            if table.find(selectedTargets,view.buff)then
+                view.activity="Selected buff active; rerolls stopped.";return view
+            elseif #selectedTargets==0 then
+                view.activity="Select at least one target buff.";return view
+            end
+        end
         if pending then
             local changed=pending.action=="donate" and view.xp~=pending.xp
                 or pending.action=="claim" and (view.start~=pending.start or view.active)
@@ -14591,10 +14613,7 @@ return function(context)
         if context.Now()<nextAction then view.activity="Waiting before the next shrine request.";return view end
         if view.active then
             view.activity="Blessing active; donations paused."
-            if config.reroll~=true or view.buff==config.target then return view end
-            if not definition.BuffPool or not definition.BuffPool[config.target] then
-                view.activity="Choose a valid target buff.";return view
-            end
+            if config.reroll~=true then return view end
             local cost=context.RerollCost
             if not cost or not context.ItemUtil or not context.ItemUtil:CanAfford(view.data,cost)then
                 view.activity="No Shrine Tickets for target rerolls.";return view
@@ -14603,7 +14622,7 @@ return function(context)
             pending={action="reroll",buff=view.buff,at=context.Now()};nextAction=context.Now()+1
             local ok=pcall(context.Fire,"RerollHalloweenShrine")
             if not ok then pending=nil;nextAction=context.Now()+5 end
-            view.activity="Rerolling toward "..tostring(config.target)..".";return view
+            view.activity="Rerolling toward selected buffs.";return view
         end
         if view.xp>=view.required then
             if not context.Active() or context.Config().enabled~=true then return view end
@@ -14624,7 +14643,7 @@ return function(context)
         else view.activity="Donated "..amount.."; waiting for updated XP."end
         return view
     end
-    return {Catalog=catalog,Read=read,Step=step}
+    return {Catalog=catalog,Read=read,Step=step,NormalizeTargets=normalizeTargets}
 end
 
             end)()
@@ -14638,6 +14657,7 @@ return function(context)
     local engine=context.MakeEngine({Definition=context.Definition,Profile=context.Profile,ItemUtil=context.ItemUtil,
         Config=function()return config end,Active=context.Active,Now=context.Now,Time=context.Time,
         Invoke=context.Invoke,Fire=context.Fire,RerollCost=context.RerollCost})
+    if type(config.targets)~="table"then config.targets=engine.NormalizeTargets(config.targets or config.target)end
     tab:Section({Title="Halloween Shrine"})
     tab:Paragraph({Title="Shrine Info",Desc="12-hour buffs for Halloween eggs only."})
     local buff=tab:Paragraph({Title="Halloween Blessing",Desc="Loading..."})
@@ -14653,8 +14673,11 @@ return function(context)
     for _,name in ipairs(context.Definition and context.Definition.BuffNames or {})do
         buffs[#buffs+1]={Title=context.Definition:GetBuffDisplayName(name),Value=name,Icon=context.Definition:GetBuffIcon(name)}
     end
-    tab:Dropdown({Title="Halloween Target Buff",Values=buffs,Value=config.target,Callback=function(value)config.target=value;context.Save()end})
-    tab:Toggle({Title="Reroll Halloween Buff",Desc="Uses Shrine Tickets until the target buff lands.",Value=config.reroll==true,
+    tab:Dropdown({Title="Halloween Target Buffs",Desc="Stops on any selected buff. An empty selection pauses rerolls.",
+        Values=buffs,Value=engine.NormalizeTargets(config.targets),Multi=true,Callback=function(value)
+            config.targets=engine.NormalizeTargets(value);context.Save()
+        end})
+    tab:Toggle({Title="Reroll Halloween Buff",Desc="Uses Shrine Tickets until any selected buff lands.",Value=config.reroll==true,
         Callback=function(value)config.reroll=value==true;context.Save()end})
     local activity=tab:Paragraph({Title="Halloween Shrine Activity",Desc="Automatic Halloween shrine is off."})
     local last={}

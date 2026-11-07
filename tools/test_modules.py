@@ -198,5 +198,23 @@ assert(config.setfps == 100 and config.autoSpamR and config.selectedEgg == "Lega
 files.account = "broken"
 assert(loadConfig().setfps == 100)
 files = {}; assert(loadConfig().setfps == 77)
+files.account={halloweenShrineTarget="Luck"}
+config=loadConfig();assert(#config.halloweenShrineTargets==1 and config.halloweenShrineTargets[1]=="Luck", "Migrate old saved single targets")
+files.legacy={halloweenShrineTargets={"Secret"}}
+assert(loadConfig().halloweenShrineTargets[1]=="Luck","Account single-target selection outranks a legacy multi-target file")
+files.legacy=nil
+files.account={halloweenShrineTarget="Secret",halloweenShrineTargets={}}
+assert(#loadConfig().halloweenShrineTargets==0,"An explicitly cleared target list stays empty")
+files.account={halloweenShrineTargets={"Luck","Secret"}}
+config=loadConfig();assert(#config.halloweenShrineTargets==2)
+loaderOptions.Config={halloweenShrineTarget="Luck"}
+assert(loadConfig().halloweenShrineTargets[1]=="Luck","Legacy inline override remains supported")
+loaderOptions.Config={halloweenShrineTargets={}}
+assert(#loadConfig().halloweenShrineTargets==0,"Inline empty targets override saved selections")
+loaderOptions.Config={};files={};loaderOptions.Defaults={halloweenShrineTargets={"Luck","Secret"}}
+applyLoaderSettings(defaultConfig,loaderOptions.Defaults)
+assert(#loadConfig().halloweenShrineTargets==2,"Inline defaults support multi targets")
+files.account={halloweenShrineTarget="Secret"}
+assert(#loadConfig().halloweenShrineTargets==1 and loadConfig().halloweenShrineTargets[1]=="Secret","Saved single choice outranks new defaults")
 '''
 run(config_test, 'Real config: saved priority, defaults, overrides, deep copies, invalid input, migration, corrupt JSON')

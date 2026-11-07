@@ -62,7 +62,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.45"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.46"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +89,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.07.46",
+		releasedAt = "November 7, 2026",
+		notes = {
+			{ title = "Multiple Halloween buffs", description = "Select several acceptable shrine buffs; rerolls stop as soon as any selected buff lands.", icon = "ghost" },
+		},
+	},
 	{
 		version = "2026.11.07.45",
 		releasedAt = "November 7, 2026",
@@ -2524,6 +2531,7 @@ local defaultConfig = {
 	halloweenShrinePotion = "Lucky/6",
 	halloweenShrineReroll = false,
 	halloweenShrineTarget = "Secret",
+	halloweenShrineTargets = {},
 	webhookEnabled = false,
 	webhookURL = "",
 	webhookMinimumChance = "",
@@ -2644,6 +2652,9 @@ function loadConfig()
 		if savedConfig.autoSpamR == nil and type(savedConfig.autoSpamE) == "boolean" then
 			savedConfig.autoSpamR = savedConfig.autoSpamE
 		end
+		if savedConfig.halloweenShrineTargets==nil and type(savedConfig.halloweenShrineTarget)=="string"then
+			savedConfig.halloweenShrineTargets={savedConfig.halloweenShrineTarget}
+		end
 		for loopSlotCL, scriptStateOE in pairs(loadedConfig) do
 			if savedConfig[loopSlotCL] ~= nil and typeof(savedConfig[loopSlotCL]) == typeof(scriptStateOE) then
 				if loopSlotCL ~= "LiveWebhookMessageIds" or allowSharedLiveIds then
@@ -2669,6 +2680,9 @@ function loadConfig()
 			if scriptStateQX.autoSpamR == nil and type(scriptStateQX.autoSpamE) == "boolean" then
 				scriptStateQX.autoSpamR = scriptStateQX.autoSpamE
 			end
+			if scriptStateQX.halloweenShrineTargets==nil and type(scriptStateQX.halloweenShrineTarget)=="string"then
+				scriptStateQX.halloweenShrineTargets={scriptStateQX.halloweenShrineTarget}
+			end
 			for loopSlotAL, scriptStateAN in pairs(loadedConfig) do
 				if
 					not scriptStateBB[loopSlotAL]
@@ -2676,6 +2690,7 @@ function loadConfig()
 					and typeof(scriptStateQX[loopSlotAL]) == typeof(scriptStateAN)
 				then
 					loadedConfig[loopSlotAL] = scriptStateQX[loopSlotAL]
+					scriptStateBB[loopSlotAL] = true
 				end
 			end
 		end
@@ -2686,6 +2701,15 @@ function loadConfig()
 	if loadedConfig.shrineAmount == 10 then loadedConfig.shrineAmount = 500 end
 	if loadedConfig.RebirthPetName == "Man Face Lord" then loadedConfig.RebirthPetName = "Classic Overlord" end
 	applyLoaderSettings(loadedConfig, loaderOptions.Config)
+	local inlineTargets=type(loaderOptions.Config)=="table"and loaderOptions.Config.halloweenShrineTargets
+	local inlineTarget=type(loaderOptions.Config)=="table"and loaderOptions.Config.halloweenShrineTarget
+	local defaultTargets=type(loaderOptions.Defaults)=="table"and loaderOptions.Defaults.halloweenShrineTargets
+	if type(inlineTargets)~="table"and type(inlineTarget)=="string"then
+		loadedConfig.halloweenShrineTargets={inlineTarget}
+	elseif not scriptStateBB.halloweenShrineTargets and type(inlineTargets)~="table"
+		and not(type(defaultTargets)=="table"and not scriptStateBB.halloweenShrineTarget)then
+		loadedConfig.halloweenShrineTargets={loadedConfig.halloweenShrineTarget}
+	end
 	return loadedConfig
 end
 -- Saves the current config when a setting changes.
@@ -20614,6 +20638,20 @@ return function(context)
             table.insert(catalog,option);byId[id]=option
         end
     end
+    local function normalizeTargets(value)
+        if type(value)=="string"then value={value}end
+        local wanted,result={},{}
+        for key,item in pairs(type(value)=="table"and value or {})do
+            local name=type(key)=="string"and item==true and key or item
+            if type(name)=="string"and (not definition or (definition.BuffPool and definition.BuffPool[name]))then wanted[name]=true end
+        end
+        for _,name in ipairs(definition and definition.BuffNames or {})do
+            if wanted[name]then table.insert(result,name);wanted[name]=nil end
+        end
+        local extra={};for name in pairs(wanted)do table.insert(extra,name)end;table.sort(extra)
+        for _,name in ipairs(extra)do table.insert(result,name)end
+        return result
+    end
     local pending,nextAction=nil,-math.huge
     local function read()
         local config=context.Config()
@@ -20654,6 +20692,14 @@ return function(context)
         local view=read()
         if not context.Active() or not view.enabled or not view.available then return view end
         local config=context.Config()
+        local selectedTargets=normalizeTargets(config.targets~=nil and config.targets or config.target)
+        if view.active and config.reroll==true then
+            if table.find(selectedTargets,view.buff)then
+                view.activity="Selected buff active; rerolls stopped.";return view
+            elseif #selectedTargets==0 then
+                view.activity="Select at least one target buff.";return view
+            end
+        end
         if pending then
             local changed=pending.action=="donate" and view.xp~=pending.xp
                 or pending.action=="claim" and (view.start~=pending.start or view.active)
@@ -20666,10 +20712,7 @@ return function(context)
         if context.Now()<nextAction then view.activity="Waiting before the next shrine request.";return view end
         if view.active then
             view.activity="Blessing active; donations paused."
-            if config.reroll~=true or view.buff==config.target then return view end
-            if not definition.BuffPool or not definition.BuffPool[config.target] then
-                view.activity="Choose a valid target buff.";return view
-            end
+            if config.reroll~=true then return view end
             local cost=context.RerollCost
             if not cost or not context.ItemUtil or not context.ItemUtil:CanAfford(view.data,cost)then
                 view.activity="No Shrine Tickets for target rerolls.";return view
@@ -20678,7 +20721,7 @@ return function(context)
             pending={action="reroll",buff=view.buff,at=context.Now()};nextAction=context.Now()+1
             local ok=pcall(context.Fire,"RerollHalloweenShrine")
             if not ok then pending=nil;nextAction=context.Now()+5 end
-            view.activity="Rerolling toward "..tostring(config.target)..".";return view
+            view.activity="Rerolling toward selected buffs.";return view
         end
         if view.xp>=view.required then
             if not context.Active() or context.Config().enabled~=true then return view end
@@ -20699,7 +20742,7 @@ return function(context)
         else view.activity="Donated "..amount.."; waiting for updated XP."end
         return view
     end
-    return {Catalog=catalog,Read=read,Step=step}
+    return {Catalog=catalog,Read=read,Step=step,NormalizeTargets=normalizeTargets}
 end
 
 	end)()
@@ -20707,12 +20750,13 @@ end
 	if not ok then definition=nil end
 	local engine=makeEngine({Definition=definition,Profile=profileStore,ItemUtil=itemUtil,
 		Config=function()return {enabled=Config.autoHalloweenShrine==true and Config.safeMode~=true,potion=Config.halloweenShrinePotion,
-			reroll=Config.halloweenShrineReroll==true,target=Config.halloweenShrineTarget}end,
+			reroll=Config.halloweenShrineReroll==true,targets=Config.halloweenShrineTargets,target=Config.halloweenShrineTarget}end,
 		Active=isCurrentRun,Now=tick,Time=getCurrentTimestamp,
 		Invoke=function(...)return remoteFunction:InvokeServer(...)end,
 		Fire=function(...)return activeStates.BGSI_Lite_FireGameRemote(...)end,
 		RerollCost=sharedConstants and sharedConstants.ShrineRerollCost,
 	})
+	if type(Config.halloweenShrineTargets)~="table"then Config.halloweenShrineTargets=engine.NormalizeTargets(Config.halloweenShrineTargets or Config.halloweenShrineTarget)end
 	scriptStateOB:AddSection("Halloween Shrine")
 	scriptStateOB:AddText({Title="Shrine Info",Content="12-hour buffs for Halloween eggs only."})
 	local buff=scriptStateOB:AddText({Title="Halloween Blessing",Content="Loading..."})
@@ -20728,10 +20772,12 @@ end
 	scriptStateOB:AddToggle("AutoHalloweenShrine",{Title="Auto Halloween Shrine",Default=Config.autoHalloweenShrine,
 		Description="Donates selected potions, claims, then waits for the 12-hour blessing to expire.",
 		Callback=function(value)Config.autoHalloweenShrine=value==true;saveConfig()end})
-	scriptStateOB:AddDropdown("HalloweenShrineTarget",{Title="Halloween Target Buff",Values=definition and definition.BuffNames or {},Default=Config.halloweenShrineTarget,
-		Callback=function(value)if definition and definition.BuffPool[value]then Config.halloweenShrineTarget=value;saveConfig()end end})
+	scriptStateOB:AddDropdown("HalloweenShrineTargets",{Title="Halloween Target Buffs",Values=definition and definition.BuffNames or {},
+		Default=engine.NormalizeTargets(Config.halloweenShrineTargets),Multi=true,
+		Description="Stops on any selected buff. An empty selection pauses rerolls.",
+		Callback=function(value)Config.halloweenShrineTargets=engine.NormalizeTargets(value);saveConfig()end})
 	scriptStateOB:AddToggle("HalloweenShrineReroll",{Title="Reroll Halloween Buff",Default=Config.halloweenShrineReroll,
-		Description="Uses Shrine Tickets until the selected target buff lands.",
+		Description="Uses Shrine Tickets until any selected target buff lands.",
 		Callback=function(value)Config.halloweenShrineReroll=value==true;saveConfig()end})
 	local activity=scriptStateOB:AddText({Title="Halloween Shrine Activity",Content="Automatic Halloween shrine is off."})
 	local last={}

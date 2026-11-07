@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.45"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.46"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/aacecacddccf075bf2c0.lua", bytes = 451094, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/2fdf7340d6e7b912cd94.lua", bytes = 64679, blocks = 1 },
+	["core"] = { path = "modules/core/3ca71121f672efe59682.lua", bytes = 452226, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/be81bee7e5422a3f984b.lua", bytes = 64932, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -35,7 +35,7 @@ local modules = {
 	["enchant"] = { path = "modules/enchant/3c9d620a40839b4d93bd.lua", bytes = 9107, blocks = 3 },
 	["quests"] = { path = "modules/quests/360d1f4d50e5c575da7e.lua", bytes = 19977, blocks = 2 },
 	["guilds"] = { path = "modules/guilds/f5f5270763a120767394.lua", bytes = 16307, blocks = 2 },
-	["shrines"] = { path = "modules/shrines/33eb3e4dab891063fd9e.lua", bytes = 12175, blocks = 2 },
+	["shrines"] = { path = "modules/shrines/a48061b42b819570e9ab.lua", bytes = 13524, blocks = 2 },
 	["rebirth"] = { path = "modules/rebirth/f83bff1eb4d94773a35b.lua", bytes = 2265, blocks = 1 },
 	["fishing"] = { path = "modules/fishing/c039ea74eb14395ff187.lua", bytes = 15769, blocks = 1 },
 	["webhooks"] = { path = "modules/webhooks/0538a8ad0246f4beaac5.lua", bytes = 10119, blocks = 2 },
@@ -195,4 +195,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 table.clear(compiledModules)
-return { Version = "2026.11.07.45" }
+return { Version = "2026.11.07.46" }
