@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.08.47",
+  "version": "2026.11.08.48",
   "modules": {
     "core": {
-      "path": "modules/core/61638dd5baecde169655.lua",
-      "bytes": 456386,
+      "path": "modules/core/f0bc4865e6a05df83164.lua",
+      "bytes": 469192,
       "blocks": 20
     },
     "changelog": {
-      "path": "modules/changelog/e3644fecaa9c691c9841.lua",
-      "bytes": 65183,
+      "path": "modules/changelog/9b89c6dc5a3b69e46420.lua",
+      "bytes": 65620,
       "blocks": 1
     },
     "main": {
@@ -102,8 +102,8 @@
       "blocks": 2
     },
     "other": {
-      "path": "modules/other/2182502d64fd507a5de1.lua",
-      "bytes": 5478,
+      "path": "modules/other/0659c0e790098e67d25b.lua",
+      "bytes": 6552,
       "blocks": 2
     },
     "leader": {
@@ -484,5 +484,5 @@
     "buildSimulatedHatchPayload",
     "autoUpdateReloadQueued"
   ],
-  "statements": 554
+  "statements": 561
 }

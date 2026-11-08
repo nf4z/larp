@@ -34,6 +34,7 @@ local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTick
 })
 local compiledModules = {}
 local failures = {}
+local function current() return globalEnv._1rzHubLiteLoaderTicket==loaderTicket end
 local cacheRoot = "LarpLiteModules"
 local useCache = options.Cache ~= false
 	and type(isfile) == "function" and type(readfile) == "function"
@@ -57,6 +58,7 @@ local function compileModule(name, spec, source)
 	return blocks
 end
 local function fetchModule(name, spec)
+	if not current() then return nil end
 	local cachePath = cacheRoot .. "/" .. name .. "_" .. spec.path:match("([^/]+)$")
 	if useCache then
 		local ok, blocks = pcall(function()
@@ -66,8 +68,10 @@ local function fetchModule(name, spec)
 	end
 	local lastError
 	for attempt = 1, 3 do
+		if not current() then return nil end
 		local ok, result = pcall(function()
 			local source = game:HttpGet(baseURL .. spec.path, true)
+			if not current() then return nil end
 			local blocks = compileModule(name, spec, source)
 			if useCache then pcall(writefile, cachePath, source) end
 			return blocks
@@ -83,35 +87,59 @@ local queue = {}
 for name in pairs(modules) do table.insert(queue, name) end
 table.sort(queue)
 local cursor, workers = 0, 0
+local moduleCount=#queue
 local concurrency = math.clamp(math.floor(tonumber(options.DownloadConcurrency) or 4), 1, 8)
+local budgetKB=tonumber(options.DownloadMemoryBudgetKB) or 512
+if budgetKB~=budgetKB or budgetKB==math.huge or budgetKB==-math.huge then budgetKB=512 end
+local budget=math.clamp(math.floor(budgetKB),128,8192)*1024
+local inFlightBytes,peakBytes=0,0
+local remaining={}
+for name,spec in pairs(modules) do remaining[name]=spec.blocks end
+local function discard()
+	table.clear(compiledModules);table.clear(queue);table.clear(failures)
+	table.clear(steps);table.clear(modules);table.clear(remaining)
+end
 for _ = 1, math.min(concurrency, #queue) do
 	workers += 1
 	task.spawn(function()
-		while true do
+		while current() do
 			cursor += 1
 			local name = queue[cursor]
 			if not name then break end
-			local ok, result = pcall(fetchModule, name, modules[name])
-			if ok then compiledModules[name] = result else table.insert(failures, tostring(result)) end
+			local spec=modules[name]
+			while current() and inFlightBytes>0 and inFlightBytes+spec.bytes>budget do task.wait() end
+			if not current() then break end
+			inFlightBytes+=spec.bytes;peakBytes=math.max(peakBytes,inFlightBytes)
+			local ok, result = pcall(fetchModule, name, spec)
+			inFlightBytes-=spec.bytes
+			if current() then
+				if ok then compiledModules[name] = result else table.insert(failures, tostring(result)) end
+			end
+			result=nil
 		end
 		workers -= 1
 	end)
 end
 while workers > 0 do task.wait() end
-assert(#failures == 0, table.concat(failures, "\n"))
 -- Concurrent invocations may fetch together, but only the newest request starts.
-if globalEnv._1rzHubLiteLoaderTicket ~= environment._loaderTicket then return end
+if not current() then discard();return end
+if #failures>0 then local reason=table.concat(failures,"\n");discard();error(reason,0) end
+table.clear(queue)
+globalEnv.BGSI_Lite_LoaderMetrics={SourceBudgetBytes=budget,PeakFetchBytes=peakBytes,Modules=moduleCount}
 globalEnv._1rzHubLiteLoaderOptions = options
 for _, step in ipairs(steps) do
-	if globalEnv._1rzHubLiteLoaderTicket ~= environment._loaderTicket then return end
+	if not current() then discard();return end
 	local blocks = compiledModules[step[1]]
 	local block = blocks[step[2]]
 	blocks[step[2]] = nil
 	local ok, err = pcall(block)
+	remaining[step[1]]-=1
+	if remaining[step[1]]==0 then compiledModules[step[1]]=nil;modules[step[1]]=nil;remaining[step[1]]=nil end
 	if not ok then
+		discard()
 		error("[LarpLite] " .. step[1] .. " block " .. step[2] .. ": " .. tostring(err), 0)
 	end
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
-table.clear(compiledModules)
+discard()
 return { Version = "@VERSION@" }

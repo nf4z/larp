@@ -79,10 +79,12 @@ fixture = 'local sources = {\n' + ',\n'.join('[' + lua_string(path) + '] = ' + l
 fixture += 'local expected = {' + ','.join(lua_string(f'{name}:{index}') for name, index in manifest['steps']) + '}\n'
 fixture += 'local loaderSource = ' + lua_string(loader) + '\n'
 fixture += 'local moduleCount = ' + str(len(manifest['modules'])) + '\n'
+fixture += 'local sourceSizes = {' + ','.join('['+lua_string(v['path'])+']='+str(v['bytes']) for v in manifest['modules'].values()) + '}\n'
 fixture += r'''
 local base = getfenv()
 local globals, cache, records = {}, {}, {}
-local downloads, active, peak = 0, 0, 0
+local downloads, active, peak, activeBytes, peakBytes = 0, 0, 0, 0, 0
+local cancelAt,compiles
 local broken = false
 local jobs = {}
 local mainThread = coroutine.running()
@@ -107,10 +109,13 @@ local env = setmetatable({
     makefolder = function() end,
     task = api,
     game = { HttpGet = function(_, url)
+        local path = url:match("/main/(.*)$")
         downloads += 1; active += 1; peak = math.max(peak, active)
+        activeBytes+=sourceSizes[path];peakBytes=math.max(peakBytes,activeBytes)
+        if cancelAt and downloads==cancelAt then globals._1rzHubLiteLoaderTicket={} end
         api.wait()
         active -= 1
-        local path = url:match("/main/(.*)$")
+        activeBytes-=sourceSizes[path]
         if broken and path:match("modules/eggs/") then error("simulated network failure") end
         assert(sources[path], url)
         return sources[path]
@@ -124,6 +129,8 @@ end
 local options = { Cache = true, DownloadConcurrency = 4, Defaults = { setfps = 77 }, Config = {} }
 assert(launch(options))
 assert(peak == 4, "Downloads should overlap, bounded at four")
+assert(peakBytes<=512*1024,"Bound simultaneous source reservations at the default memory budget")
+assert(globals.BGSI_Lite_LoaderMetrics.PeakFetchBytes==peakBytes and globals.BGSI_Lite_LoaderMetrics.Modules==moduleCount)
 assert(downloads == moduleCount)
 assert(#records == #expected)
 for i, value in ipairs(expected) do assert(records[i] == value, value) end
@@ -150,8 +157,18 @@ assert(downloads == moduleCount)
 -- Without filesystem APIs the loader must still work.
 env.isfile = false; records = {}; downloads = 0; options.Cache = true
 assert(launch(options)); assert(downloads == moduleCount)
+options.Cache=false;options.DownloadMemoryBudgetKB=128
+records={};downloads=0;peakBytes=0
+assert(launch(options));assert(downloads==moduleCount and #records==#expected)
+local largest=0;for _,bytes in pairs(sourceSizes)do largest=math.max(largest,bytes)end
+assert(peakBytes<=math.max(128*1024,largest),"A single oversize module may load alone, without overlapping another source")
+local metrics=globals.BGSI_Lite_LoaderMetrics
+compiles=0;env.loadstring=function(text,name)compiles+=1;return base.loadstring(text,name)end
+cancelAt=1;downloads=0;records={}
+assert(launch(options));assert(#records==0 and downloads==1 and compiles==0,"Superseded preflight must stop fetching and never compile or start the stale response")
+assert(globals.BGSI_Lite_LoaderMetrics==metrics,"Canceled launch keeps the active loader metrics")
 '''
-run(fixture, 'Real loader: ordering, shared scope, concurrent fetch, warm/invalid cache, retries, offline failure, no-file fallback')
+run(fixture, 'Real loader: ordering, shared scope, byte/concurrency budget, oversized module, warm/invalid cache, retries, failed preflight, superseded HTTP cancellation, no-file fallback')
 
 # Execute the real settings schema and loadConfig function with fixture files.
 wanted = {'defaultConfig', 'copyLoaderValue', 'applyLoaderSettings', 'loadConfig'}

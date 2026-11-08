@@ -67,6 +67,7 @@ for i=1,300 do now+=0.01;assert(bounded.Resolve({Images={Normal=tostring(i)}},fa
 before=calls;bounded.Resolve({Images={Normal='1'}},false,false);assert(calls==before+1,'Bound the cache to 256 assets')
 now=now+3601;before=calls;bounded.Resolve({Images={Normal='300'}},false,false);assert(calls==before+1,'Refresh expired CDN URLs')
 local activeStates={}
+local currentRunToken={}
 local task={wait=function()end}
 local game={HttpGet=function()error('Game HTTP unavailable')end}
 local HttpService={JSONDecode=function(_,v)return decode(v)end,JSONEncode=function()return 'batch'end,GetAsync=function()error('Native HTTP unavailable')end}
@@ -78,6 +79,9 @@ calls=0
 local icon=sendPetWebhook(info,true,true)
 assert(icon=='https://tr.rbxcdn.com/'..ids[4]..'.png','Real wrapper uses executor http.request')
 before=calls;sendPetWebhook(info,true,true);assert(calls==before,'Wrapper retains the resolver cache')
+local previousResolver=activeStates.BGSI_Lite_WebhookPetIconResolver
+currentRunToken={};sendPetWebhook(info,true,true)
+assert(previousResolver~=activeStates.BGSI_Lite_WebhookPetIconResolver,'Reload must not retain callbacks into a previous module environment')
 local normal=buildDiscordV2WebhookPayload({embeds={{description='Hatched pet',fields={{name='Pet Info',value='Example'}},thumbnail={url=icon}}}})
 assert(normal.components[1].components[1].accessory.media.url==icon,'Normal pet thumbnail survives V2')
 local xl=buildDiscordV2WebhookPayload({embeds={{description='Hatched XL',image={url=icon}}}})

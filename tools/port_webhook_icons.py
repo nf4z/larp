@@ -11,7 +11,7 @@ def generate():
     module=(ROOT/'shared_src/webhook-pet-icon.lua').read_text(encoding='utf-8')
     block='''function sendPetWebhook(info,shiny,mythic)
     local resolver=activeStates.BGSI_Lite_WebhookPetIconResolver
-    if type(resolver)~="table" or resolver.Revision~=1 then
+    if type(resolver)~="table" or resolver.Revision~=1 or resolver.Owner~=currentRunToken then
         resolver=(function()
 __RESOLVER__
         end)()({
@@ -33,6 +33,7 @@ __RESOLVER__
             Encode=function(value) return HttpService:JSONEncode(value) end,
             Now=os.clock,Wait=task.wait,
         })
+        resolver.Owner=currentRunToken
         activeStates.BGSI_Lite_WebhookPetIconResolver=resolver
     end
     return resolver.Resolve(info,shiny,mythic)

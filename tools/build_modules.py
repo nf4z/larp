@@ -12,10 +12,12 @@ from tree_sitter import Language, Parser
 import tree_sitter_luau
 from port_halloween_shrine import generate as port_halloween_shrine
 from port_webhook_icons import generate as port_webhook_icons
+from port_memory_optimizer import generate as port_memory_optimizer
 
 ROOT = Path(__file__).resolve().parents[1]
 port_halloween_shrine()
 port_webhook_icons()
+port_memory_optimizer()
 source_path = ROOT / 'larplite.lua'
 if not source_path.exists():
     source_path = ROOT / 'src/larplite.lua'

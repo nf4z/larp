@@ -44,6 +44,8 @@ if type(getgenv) == "function" then
 		globalEnv._1rzHubLitePetViewerCleanup = nil
 	end
 	globalEnv._1rzHubLite_Loaded = true
+	-- Cached resolver callbacks belong to one module environment, never a previous run.
+	globalEnv.BGSI_Lite_WebhookPetIconResolver = nil
 	globalEnv._1rzHubLite_LoadComplete = false
 	globalEnv.LoadedMobileUI = false
 end
@@ -62,7 +64,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.47"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.48"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +91,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.08.48",
+		releasedAt = "November 8, 2026",
+		notes = {
+			{ title = "Automatic memory optimization", description = "Native low detail, lower mesh fidelity, and safe chunk cleanup reduce unnecessary rendering and retention.", icon = "gauge" },
+			{ title = "Lean module loading", description = "Bounded concurrent source loading and canceled-launch cleanup reduce loader memory peaks.", icon = "boxes" },
+		},
+	},
 	{
 		version = "2026.11.08.47",
 		releasedAt = "November 8, 2026",
@@ -2595,6 +2605,7 @@ local defaultConfig = {
 	autoHalloweenRebirth = false,
 
 	disableRendering = false,
+	autoOptimizeMemory = true,
 	setfps = 60,
 	renderDistance = 250,
 	chunkerRenderDistance = 4,
@@ -2612,6 +2623,7 @@ local defaultConfig = {
 -- Config.safeMode everywhere Auto Setup Team acts, so this only stops the toggle's
 -- own value from being clobbered - it does not let it act during Safe Mode.
 activeStates.BGSI_Lite_SafeModePreservedKeys = {
+	autoOptimizeMemory = true,
 	safeMode = true,
 	safeModeSavedConfig = true,
 	autoSetupTeamEnabled = true,
@@ -2827,19 +2839,14 @@ end
 
 -- Function to refresh chunks around the player
 function refreshChunkerAroundPlayer()
-	local ChunkerModule = getChunkerModule()
-
-	if not ChunkerModule or type(ChunkerModule.Update) ~= "function" then
-		return
-	end
-
 	local character = LocalPlayer.Character
 	local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
 	local playerPosition = humanoidRootPart and humanoidRootPart.Position
-
-	if not playerPosition then
-		return
-	end
+	local optimizer=activeStates.BGSI_Lite_MemoryOptimizer
+	if optimizer then optimizer.RefreshChunks(playerPosition) end
+	if not playerPosition then return end
+	local ChunkerModule = getChunkerModule()
+	if not ChunkerModule or type(ChunkerModule.Update) ~= "function" then return end
 
 	for _, entryName in ipairs({
 		"Instance",
@@ -2889,8 +2896,267 @@ pcall(function()
 			UserSettings():GetService("UserGameSettings").SavedQualityLevel
 	end
 end)
-activeStates.BGSI_Lite_ApplyPerformanceSettings = function()
-	if Config.safeMode == true then
+pcall(function()
+	if activeStates.BGSI_Lite_OriginalFpsCap==nil then
+		local getter=rawget(activeStates,"getfpscap") or rawget(activeStates,"get_fps_cap")
+		local ok,value=false,nil
+		if type(getter)=="function" then ok,value=pcall(getter) end
+		if not ok or type(value)~="number" then
+			ok,value=pcall(function() return UserSettings():GetService("UserGameSettings").FramerateCap end)
+		end
+		if ok and type(value)=="number" and value==value and value>=0 and value<math.huge then
+			activeStates.BGSI_Lite_OriginalFpsCap=value
+		end
+	end
+end)
+-- MEMORY_OPTIMIZER_BEGIN
+do
+    if activeStates.BGSI_Lite_MemoryOptimizer then pcall(activeStates.BGSI_Lite_MemoryOptimizer.Destroy) end
+    local patchChunker=(function()
+-- Preserve native chunk ranges and remove loaded flags for coordinates with no data.
+return function(module,ctx)
+    if type(module)~="table" or type(module.Update)~="function" then return nil end
+    if module._BGSI_MEMORY_PATCH then module._BGSI_MEMORY_PATCH.Destroy() end
+    local update=module._BGSI_CHUNKER_TRUE_UPDATE or module.Update
+    local remove=module._BGSI_CHUNKER_TRUE_REMOVE or module.Remove
+    module._BGSI_CHUNKER_TRUE_UPDATE=update
+    module._BGSI_CHUNKER_TRUE_REMOVE=remove
+    local tracked=setmetatable({}, {__mode="k"})
+    local live=true
+    local patch={}
+    local function enabled() return live and ctx.Active() and ctx.Enabled() end
+    local function sweep(self)
+        if type(self._loaded)~="table" or type(self._chunks)~="table" then return end
+        for coord in pairs(self._loaded) do
+            if self._chunks[coord]==nil then self._loaded[coord]=nil;ctx.Pruned(1) end
+        end
+    end
+    local function wrappedUpdate(self,position,...)
+        if type(self)=="table" and live and ctx.Active() then
+            local record=tracked[self]
+            if not record then
+                record={distance=self._BGSI_LITE_ORIGINAL_RENDER_DISTANCE or self.RenderDistance,swept=-math.huge}
+                tracked[self]=record
+            end
+            local limit=ctx.DistanceCap()
+            local original=tonumber(record.distance)
+            local desired=limit and original and math.min(original,math.max(1,math.floor(limit))) or record.distance
+            self.RenderDistance=desired;record.applied=desired
+            if enabled() and ctx.Now()-record.swept>=30 then record.swept=ctx.Now();sweep(self) end
+        end
+        return update(self,position,...)
+    end
+    local function wrappedRemove(self,position,...)
+        local results=table.pack(remove(self,position,...))
+        if enabled() and type(self)=="table" and type(self._loaded)=="table" and type(self._chunks)=="table" then
+            local coord=self:ToCoord(position)
+            if self._loaded[coord]~=nil and self._chunks[coord]==nil then self._loaded[coord]=nil;ctx.Pruned(1) end
+        end
+        return table.unpack(results,1,results.n)
+    end
+    function patch.Refresh(position)
+        if not live or not ctx.Active() then return end
+        for self,record in pairs(tracked) do
+            if position then pcall(wrappedUpdate,self,position)
+            else self.RenderDistance=record.distance;record.applied=record.distance end
+        end
+    end
+    function patch.Destroy()
+        if not live then return end
+        live=false
+        if module.Update==wrappedUpdate then module.Update=update end
+        if module.Remove==wrappedRemove then module.Remove=remove end
+        local position
+        if ctx.Position then local ok,value=pcall(ctx.Position);if ok then position=value end end
+        for self,record in pairs(tracked) do
+            if self.RenderDistance==record.applied then self.RenderDistance=record.distance end
+            self._BGSI_LITE_ORIGINAL_RENDER_DISTANCE=nil
+            if position then pcall(update,self,position) end
+        end
+        table.clear(tracked)
+        if module._BGSI_MEMORY_PATCH==patch then module._BGSI_MEMORY_PATCH=nil end
+    end
+    module.Update=wrappedUpdate
+    if type(remove)=="function" then module.Remove=wrappedRemove end
+    module._BGSI_MEMORY_PATCH=patch
+    return patch
+end
+
+    end)()
+    local install=(function()
+-- Visual-only changes. Never delete game content, clear native pools, or change physics.
+return function(ctx)
+    local live,enabled=true,false
+    local originals=setmetatable({}, {__mode="k"})
+    local stack,added={},{}
+    local addedHead,addedTail=1,0
+    local rescan=false
+    local pending=setmetatable({}, {__mode="k"})
+    local connection,lowConnection
+    local low,lowOriginal,writingLow
+    local report={meshesChanged=0,chunkKeysFreed=0}
+    local patch,chunkModule
+    local api={Report=report}
+    local function setLow(value)
+        if not low or low.Enabled==value then return end
+        writingLow=true
+        low.Enabled=value
+        if low.Changed then pcall(low.Changed.Fire,low.Changed,value) end
+        writingLow=false
+    end
+    local function inspect(instance)
+        if not enabled or not live or not instance:IsA("MeshPart") or not instance:IsDescendantOf(ctx.Root) then return end
+        local parent=instance.Parent
+        while parent and parent~=ctx.Root do
+            if parent:IsA("GuiBase2d") or parent:IsA("LayerCollector") or parent:IsA("ViewportFrame") then return end
+            if parent:IsA("Model") and parent:FindFirstChildOfClass("Humanoid") then return end
+            parent=parent.Parent
+        end
+        if originals[instance] then return end
+        local ok,before=pcall(function() return instance.RenderFidelity end)
+        if ok and before~=ctx.Fidelity then
+            local success=pcall(function() instance.RenderFidelity=ctx.Fidelity end)
+            if success then originals[instance]=before;report.meshesChanged+=1 end
+        end
+    end
+    local function enqueue(instance)
+        if not enabled or not instance:IsA("MeshPart") or pending[instance] then return end
+        -- Coalesce large streaming bursts into one incremental rescan, never a frame spike.
+        if addedTail-addedHead>=2047 then rescan=true;return end
+        pending[instance]=true;addedTail+=1;added[addedTail]=instance
+    end
+    function api.SetEnabled(value)
+        value=value==true
+        if not live or value==enabled then return end
+        enabled=value
+        if value then
+            local ok,result=pcall(ctx.LowDetail)
+            if ok and type(result)=="table" and type(result.Enabled)=="boolean" then
+                low=result;lowOriginal=low.Enabled
+                if low.Changed and type(low.Changed.Connect)=="function" then
+                    lowConnection=low.Changed:Connect(function()
+                        if not writingLow then lowOriginal=low.Enabled end
+                    end)
+                end
+                setLow(true)
+            end
+            connection=ctx.Root.DescendantAdded:Connect(enqueue)
+            stack={ctx.Root}
+        else
+            if connection then connection:Disconnect();connection=nil end
+            if lowConnection then lowConnection:Disconnect();lowConnection=nil end
+            if low then setLow(lowOriginal);low=nil end
+            for instance,before in pairs(originals) do
+                pcall(function() if instance.RenderFidelity==ctx.Fidelity then instance.RenderFidelity=before end end)
+            end
+            table.clear(originals);table.clear(stack);table.clear(added);table.clear(pending)
+            addedHead=1;addedTail=0;rescan=false;report.meshesChanged=0
+        end
+    end
+    function api.Step()
+        if not live or not enabled or not ctx.Active() then return end
+        local started=ctx.Now()
+        for _=1,128 do
+            local instance
+            if addedHead<=addedTail then
+                instance=added[addedHead];added[addedHead]=nil;addedHead+=1;pending[instance]=nil
+                inspect(instance)
+            else
+                if addedTail>0 then table.clear(added);addedHead=1;addedTail=0 end
+                if #stack==0 and rescan then stack={ctx.Root};rescan=false end
+                instance=table.remove(stack)
+                if not instance then break end
+                if instance==ctx.Root or instance:IsDescendantOf(ctx.Root) then
+                    inspect(instance)
+                    if not instance:IsA("GuiBase2d") and not instance:IsA("LayerCollector") then
+                        for _,child in ipairs(instance:GetChildren()) do stack[#stack+1]=child end
+                    end
+                end
+            end
+            if ctx.Now()-started>=0.002 then break end
+        end
+    end
+    function api.InstallChunker(module)
+        if patch and module==chunkModule then return true end
+        if patch then patch.Destroy() end
+        patch=ctx.PatchChunker(module,{
+            Active=function() return live and ctx.Active() end,
+            Enabled=function() return enabled end,DistanceCap=ctx.DistanceCap,Now=ctx.Now,Position=ctx.Position,
+            Pruned=function(count) report.chunkKeysFreed+=count end,
+        })
+        chunkModule=module
+        return patch~=nil
+    end
+    function api.Sample()
+        if not live then return report end
+        local ok,stats=pcall(ctx.Sample)
+        if ok and type(stats)=="table" then
+            report.totalMB=stats.totalMB;report.luaMB=stats.luaMB
+            report.texturesMB=stats.texturesMB;report.meshesMB=stats.meshesMB
+        end
+        if api.OnReport then pcall(api.OnReport,report) end
+        return report
+    end
+    function api.RefreshChunks(position)
+        if live and patch then patch.Refresh(position) end
+    end
+    function api.Pending() return rescan or #stack>0 or addedHead<=addedTail end
+    function api.Destroy()
+        if not live then return end
+        api.SetEnabled(false);live=false
+        if patch then patch.Destroy();patch=nil end
+        api.OnReport=nil;chunkModule=nil
+    end
+    return api
+end
+
+    end)()
+    local statsService=game:GetService("Stats")
+    local optimizer=install({
+        Root=Workspace,Fidelity=Enum.RenderFidelity.Performance,Active=isCurrentRun,Now=os.clock,
+        PatchChunker=patchChunker,
+        Position=function()
+            local character=LocalPlayer.Character
+            local root=character and character:FindFirstChild("HumanoidRootPart")
+            return root and root.Position
+        end,
+        DistanceCap=function()
+            if Config.safeMode~=true and Config.disableRendering~=true then
+                return math.max(1,math.floor(tonumber(Config.chunkerRenderDistance) or 4))
+            end
+        end,
+        LowDetail=function() return require(ReplicatedStorage.Client.LowDetail) end,
+        Sample=function()
+            local result={}
+            local ok,total=pcall(statsService.GetTotalMemoryUsageMb,statsService)
+            if ok then result.totalMB=total end
+            for key,name in pairs({luaMB="LuaHeap",texturesMB="GraphicsTexture",meshesMB="GraphicsMeshParts"}) do
+                local success,value=pcall(function()
+                    if not statsService.MemoryTrackingEnabled then return nil end
+                    return statsService:GetMemoryUsageMbForTag(Enum.DeveloperMemoryTag[name])
+                end)
+                if success then result[key]=value end
+            end
+            return result
+        end,
+    })
+    activeStates.BGSI_Lite_MemoryOptimizer=optimizer
+    task.spawn(function()
+        local nextSample=0
+        while isCurrentRun() do
+            local ok,reason=pcall(function()
+                optimizer.Step()
+                if os.clock()>=nextSample then nextSample=os.clock()+5;optimizer.Sample() end
+            end)
+            if not ok then warn("[LarpLite] Memory optimizer: "..tostring(reason)) end
+            task.wait(optimizer.Pending() and 0.03 or 1)
+        end
+        optimizer.Destroy()
+    end)
+end
+-- MEMORY_OPTIMIZER_END
+
+activeStates.BGSI_Lite_RestorePerformanceBaseline = function()
 		pcall(function()
 			if activeStates.BGSI_Lite_OriginalQualityLevel ~= nil then
 				settings().Rendering.QualityLevel = activeStates.BGSI_Lite_OriginalQualityLevel
@@ -2904,21 +3170,29 @@ activeStates.BGSI_Lite_ApplyPerformanceSettings = function()
 		end)
 		pcall(function()
 			local fpsCapFunction = rawget(activeStates, "setfpscap") or rawget(activeStates, "set_fps_cap")
-			if type(fpsCapFunction) == "function" then
-				fpsCapFunction(0)
+			if type(fpsCapFunction) == "function" and type(activeStates.BGSI_Lite_OriginalFpsCap)=="number" then
+				fpsCapFunction(activeStates.BGSI_Lite_OriginalFpsCap)
 			end
 		end)
+	pcall(function() RunService:Set3dRenderingEnabled(true) end)
+end
+activeStates.BGSI_Lite_ApplyPerformanceSettings = function()
+	if activeStates.BGSI_Lite_MemoryOptimizer then
+		activeStates.BGSI_Lite_MemoryOptimizer.SetEnabled(Config.autoOptimizeMemory==true and Config.safeMode~=true)
+	end
+	if Config.safeMode == true then
+		activeStates.BGSI_Lite_RestorePerformanceBaseline()
 		return
 	end
 	pcall(function()
-		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+		if activeStates.BGSI_Lite_OriginalQualityLevel~=nil then settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end
 	end)
 	pcall(function()
-		UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1
+		if activeStates.BGSI_Lite_OriginalSavedQualityLevel~=nil then UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1 end
 	end)
 	pcall(function()
 		local fpsCapFunction = rawget(activeStates, "setfpscap") or rawget(activeStates, "set_fps_cap")
-		if type(fpsCapFunction) == "function" then
+		if type(fpsCapFunction) == "function" and type(activeStates.BGSI_Lite_OriginalFpsCap)=="number" then
 			fpsCapFunction(Config.setfps)
 		end
 	end)
@@ -3089,32 +3363,8 @@ end)
 -- controls rendered objects through each Chunker's RenderDistance instead.
 function installChunkerRenderDistanceHook()
 	local ChunkerModule = getChunkerModule()
-	if not ChunkerModule or type(ChunkerModule.Update) ~= "function" then
-		return false
-	end
-
-	if rawget(ChunkerModule, "_BGSI_CHUNKER_TRUE_UPDATE") == nil then
-		ChunkerModule._BGSI_CHUNKER_TRUE_UPDATE = ChunkerModule.Update
-	end
-
-	local originalUpdate = ChunkerModule._BGSI_CHUNKER_TRUE_UPDATE
-	ChunkerModule.Update = function(self, playerPosition, ...)
-		if type(self) == "table" then
-			if rawget(self, "_BGSI_LITE_ORIGINAL_RENDER_DISTANCE") == nil then
-				self._BGSI_LITE_ORIGINAL_RENDER_DISTANCE = self.RenderDistance
-			end
-			if Config.safeMode == true then
-				self.RenderDistance = self._BGSI_LITE_ORIGINAL_RENDER_DISTANCE
-			elseif Config.disableRendering ~= true then
-				self.RenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 4))
-			end
-		end
-		local updateResults = table.pack(pcall(originalUpdate, self, playerPosition, ...))
-		if updateResults[1] then
-			return table.unpack(updateResults, 2, updateResults.n)
-		end
-	end
-	return true
+	local optimizer=activeStates.BGSI_Lite_MemoryOptimizer
+	return optimizer and optimizer.InstallChunker(ChunkerModule) or false
 end
 
 task.defer(function()
@@ -5119,7 +5369,11 @@ sharedEnv._1rzHubLiteEggChunkerTracker = sharedEnv._1rzHubLiteEggChunkerTracker
 	}
 sharedEnv.EggChunkerTracker = sharedEnv._1rzHubLiteEggChunkerTracker
 local eggChunkerTracker = sharedEnv._1rzHubLiteEggChunkerTracker
-eggChunkerTracker.Chunkers = eggChunkerTracker.Chunkers or {}
+eggChunkerTracker.Chunkers = setmetatable(eggChunkerTracker.Chunkers or {}, {__mode="v"})
+eggChunkerTracker.NextId=tonumber(eggChunkerTracker.NextId) or 0
+for index in pairs(eggChunkerTracker.Chunkers) do
+	if type(index)=="number" then eggChunkerTracker.NextId=math.max(eggChunkerTracker.NextId,index) end
+end
 eggChunkerTracker.Positions = eggChunkerTracker.Positions or setmetatable({}, {
 	__mode = "k",
 })
@@ -5154,12 +5408,13 @@ function registerEggChunker(scriptStateFJ)
 	if type(scriptStateFJ) ~= "table" then
 		return
 	end
-	for loopSlotS, scriptStateZH in ipairs(eggChunkerTracker.Chunkers) do
+	for loopSlotS, scriptStateZH in pairs(eggChunkerTracker.Chunkers) do
 		if scriptStateZH == scriptStateFJ then
 			return
 		end
 	end
-	table.insert(eggChunkerTracker.Chunkers, scriptStateFJ)
+	eggChunkerTracker.NextId+=1
+	eggChunkerTracker.Chunkers[eggChunkerTracker.NextId]=scriptStateFJ
 	clearEggScanCache()
 end
 function isEggChunkerObject(scriptStateFO)
@@ -5197,17 +5452,19 @@ function patchEggChunkerModule()
 			end
 		end
 	end
-	if getgc and tick() - (eggChunkerTracker.LastGcScan or 0) >= 5 then
+	-- One discovery pass finds existing instances; native new/Add hooks track later ones.
+	if getgc and not eggChunkerTracker.GcScanComplete and tick() - (eggChunkerTracker.LastGcScan or -math.huge) >= 5 then
 		eggChunkerTracker.LastGcScan = tick()
-		pcall(function()
+		local scanned=pcall(function()
 			for loopSlotDX, scriptStateWJ in ipairs(getgc(true)) do
 				if isEggChunkerObject(scriptStateWJ) then
 					registerEggChunker(scriptStateWJ)
 				end
 			end
 		end)
+		if scanned then eggChunkerTracker.GcScanComplete=true end
 	end
-	return #eggChunkerTracker.Chunkers > 0 or (scriptStateLO and type(chunkerInstance) == "table")
+	return next(eggChunkerTracker.Chunkers)~=nil or (scriptStateLO and type(chunkerInstance) == "table")
 end
 local scriptStateTU
 function getEggDataLookup()
@@ -5358,7 +5615,7 @@ function scanRenderedEggs(scriptStateMJ)
 	end
 	patchEggChunkerModule()
 	local scanResults, bestResults = {}, {}
-	for loopSlotG, chunker in ipairs(eggChunkerTracker.Chunkers) do
+	for loopSlotG, chunker in pairs(eggChunkerTracker.Chunkers) do
 		local chunks = rawget(chunker, "_chunks")
 		local loadedChunks = rawget(chunker, "_loaded")
 		if type(chunks) == "table" then
@@ -8815,6 +9072,30 @@ local scriptStateAFW = scriptStateOG:AddTab({
 	Icon = "workflow",
 })
 scriptStateAFW:AddSection("Performance")
+scriptStateAFW:AddToggle("AutoOptimizeMemory", {
+	Title="Automatic Memory Optimization",
+	Description="Native low detail, lower mesh detail and stale chunk cleanup. Restores visuals when disabled.",
+	Default=Config.autoOptimizeMemory,
+	Callback=function(enabled)
+		Config.autoOptimizeMemory=enabled==true
+		saveConfig()
+		activeStates.BGSI_Lite_ApplyPerformanceSettings()
+		pcall(refreshChunkerAroundPlayer)
+	end,
+})
+do
+	local memoryCard=scriptStateAFW:AddParagraph({Title="Client Memory",Content="Sampling..."})
+	local optimizer=activeStates.BGSI_Lite_MemoryOptimizer
+	if optimizer then
+		optimizer.OnReport=function(report)
+			local function mb(value) return type(value)=="number" and string.format("%.1f MB",value) or "Unavailable" end
+			memoryCard:SetDesc("Client "..mb(report.totalMB).." | Lua "..mb(report.luaMB)
+				.."\nTextures "..mb(report.texturesMB).." | Meshes "..mb(report.meshesMB)
+				.."\n"..report.meshesChanged.." mesh changes | "..report.chunkKeysFreed.." stale chunk entries released")
+		end
+		optimizer.Sample()
+	end
+end
 scriptStateAFW:AddToggle("DisableRendering", {
 	Title = "Disable 3D Rendering (AFK / save GPU)",
 	Default = Config.disableRendering,
@@ -8828,7 +9109,7 @@ scriptStateAFW:AddToggle("DisableRendering", {
 })
 scriptStateAFW:AddInput("SetFps", {
 	Title = "FPS Cap",
-	Description = "Caps the client frame rate while the script is running.",
+	Description = "Caps FPS when the original limit can be read and restored for Safe Mode.",
 	Default = tostring(Config.setfps),
 	Placeholder = "60",
 	Numeric = true,
@@ -8846,7 +9127,7 @@ scriptStateAFW:AddInput("SetFps", {
 })
 scriptStateAFW:AddInput("ChunkerRenderDistance", {
 	Title = "Chunk Render Distance",
-	Description = "Controls how far the game's Chunker keeps objects rendered.",
+	Description = "Caps chunk distance without increasing the game's smaller native ranges.",
 	Default = tostring(Config.chunkerRenderDistance),
 	Placeholder = "4",
 	Numeric = true,
@@ -9165,6 +9446,15 @@ do
 end
 if type(getgenv) == "function" then
 	getgenv()._1rzHubLiteCleanup = function()
+		if activeStates._1rzHubLiteRunToken==currentRunToken then
+			pcall(function()
+				if activeStates.BGSI_Lite_MemoryOptimizer then activeStates.BGSI_Lite_MemoryOptimizer.Destroy() end
+				activeStates.BGSI_Lite_RestorePerformanceBaseline()
+				activeStates.BGSI_Lite_MemoryOptimizer=nil
+				activeStates.BGSI_Lite_WebhookPetIconResolver=nil
+				pcall(clearEggScanCache)
+			end)
+		end
 		pcall(function()
 			if activeStates and activeStates.RayfieldGen2 and type(activeStates.RayfieldGen2.Destroy) == "function" then
 				activeStates.RayfieldGen2:Destroy()
@@ -21617,7 +21907,7 @@ function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH, scrip
 end
 function sendPetWebhook(info,shiny,mythic)
     local resolver=activeStates.BGSI_Lite_WebhookPetIconResolver
-    if type(resolver)~="table" or resolver.Revision~=1 then
+    if type(resolver)~="table" or resolver.Revision~=1 or resolver.Owner~=currentRunToken then
         resolver=(function()
 -- Resolve native pet image content into an HTTP image Discord can fetch.
 return function(ctx)
@@ -21731,6 +22021,7 @@ end
             Encode=function(value) return HttpService:JSONEncode(value) end,
             Now=os.clock,Wait=task.wait,
         })
+        resolver.Owner=currentRunToken
         activeStates.BGSI_Lite_WebhookPetIconResolver=resolver
     end
     return resolver.Resolve(info,shiny,mythic)
