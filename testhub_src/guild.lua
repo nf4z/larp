@@ -21,7 +21,7 @@ return function(context)
         end})
     end
     toggle("Auto Guild Quests","autoQuests","Works bubble, hatch and sell quests tier by tier.")
-    toggle("Auto Claim Guild Rewards","autoClaimRewards","Claims earned Guild and Global rewards.")
+    tab:Paragraph({Title="Automatic Guild Rewards",Desc="Earned Guild and Global rewards are claimed automatically."})
     toggle("Auto Accept Guild Invites","autoAcceptInvites","Joins the first valid invite while not in a guild.")
     local workText=tab:Paragraph({Title="Guild Activity",Desc="Automatic quest work is off."})
     local workDescription="Automatic quest work is off."
@@ -118,7 +118,7 @@ return function(context)
     end
     local function refresh(force)
         if not context.Active() or refreshing then return snapshot end
-        local age=(config.autoQuests or config.autoClaimRewards or config.autoAcceptInvites) and 4 or 15
+        local age=(inGuild(snapshot) or config.autoQuests or config.autoAcceptInvites) and 4 or 15
         if not force and context.Now()-requestAt<age then return snapshot end
         requestAt=context.Now();refreshing=true
         local before=serial
@@ -137,7 +137,7 @@ return function(context)
         if not data then return end
         local unlocked=data.Unlocked==true or context.Unlocked()
         if unlocked and context.Now()-lastAction>=0.8 then
-            if config.autoClaimRewards and inGuild(data) then
+            if inGuild(data) then
                 for _,reward in ipairs(claimable(data))do
                     if not pending[reward.key] or context.Now()-pending[reward.key]>=15 then
                         pending[reward.key]=context.Now();lastAction=context.Now()

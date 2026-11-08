@@ -13,10 +13,10 @@ local install=(function()
 end)()
 local function fixture(available)
  local controls,tabs,restore={}, {}, {}
- local state={now=0,active=true,fire={},saves=0,nativeOpen=false,opened=0}
+ local state={now=0,wallTime=1500,active=true,fire={},saves=0,nativeOpen=false,opened=0}
  local own={Team="Blue",Hatches=60541,Bubbles=1563242848,Claims={}}
  local settings={auto={keep=true},comp={autoClaimHatches=true,autoClaimBubbles=true}}
- local season={Id="1",PersonalRewards={Hatches={{Requirement=500},{Requirement=5000},{Requirement=100000}},Bubbles={{Requirement=1000000},{Requirement=5000000000}}}}
+ local season={Id="1",StartsAt=1000,EndsAt=2000,PersonalRewards={Hatches={{Requirement=500},{Requirement=5000},{Requirement=100000}},Bubbles={{Requirement=1000000},{Requirement=5000000000}}}}
  local definition={Name="Seals vs Frog Dogs",Enabled=true,GetSeason=function()return season end,
   Teams={Pink={Name="Seals",Shield="rbxassetid://105235648283544"},Blue={Name="Frog Dogs",Shield="rbxassetid://81317703874820"}},
   Icons={Rewards="rbxassetid://102958595859917",Hatches="rbxassetid://99740547547936",Bubbles="rbxassetid://139415836850114"}}
@@ -35,8 +35,8 @@ local function fixture(available)
  end}
  local context={Window=window,Settings=settings,Save=function()state.saves+=1 end,UserId=42,
   Competition=available and definition or nil,
-  Profile={Get=function()if state.notReady then error("not ready") end;return {PinkVsBlue={["1"]=state.unjoined and nil or own}}end},
-  Active=function()return state.active end,Now=function()return state.now end,
+  Profile={IsReady=function()return not state.notReady end,Get=function()if state.notReady then error("not ready") end;return {PinkVsBlue=state.unjoined and {} or {["1"]=own}}end},
+  Active=function()return state.active end,Now=function()return state.now end,WallTime=function()return state.wallTime end,
   Fire=function(...)table.insert(state.fire,table.pack(...))end,
   Connect=function(_,fn)state.receive=fn end,Signal={},Restore=function(fn)table.insert(restore,fn)end,
   NativeOpen=function()return state.nativeOpen end,
@@ -87,6 +87,21 @@ f.controls["Live Leaderboards"].Props.Callback();assert(f.state.opened==1,"No le
 f.restore[1]();assert(f.state.fire[#f.state.fire][1]=="PinkVsBlueView" and f.state.fire[#f.state.fire][2]==false)
 local g=fixture(true);g.state.nativeOpen=true;g.restore[1]();assert(#g.state.fire==0,"Leave an open native competition screen subscribed")
 g=fixture(false);g.api.Step();assert(#g.state.fire==0 and #g.restore==0 and g.controls["Your Team"].Title=="Competition Unavailable")
+local join=fixture(true);join.state.unjoined=true
+local function joins()
+ local count=0;for _,request in ipairs(join.state.fire) do if request[1]=="PinkVsBlueJoin" then assert(request.n==1);count+=1 end end
+ return count
+end
+join.state.notReady=true;join.api.Step();assert(joins()==0,"Wait for profile readiness")
+join.state.notReady=false;join.state.wallTime=999;join.api.Step();assert(joins()==0,"No pre-season joining")
+join.state.wallTime=1000;join.api.Step();assert(joins()==1,"Join automatically at season start without setting")
+for i=1,29 do join.state.now=i*0.5;join.api.Step() end
+assert(joins()==1,"No repeated request during confirmation window")
+join.state.now=15;join.api.Step();assert(joins()==2,"Retry an unconfirmed join after backoff")
+join.state.unjoined=false;join.state.now=30;join.api.Step();assert(joins()==2,"Keep the assigned team")
+join.state.unjoined=true;join.state.wallTime=2000;join.state.now=45;join.api.Step();assert(joins()==2,"No joining ended season")
+join.state.wallTime=1500;join.state.active=false;join.api.Step();assert(joins()==2,"No join after unload")
+assert(join.settings.comp.autoJoin==nil and not join.controls["Auto Join"],"No join config or toggle")
 print("Comp: native art, separate statistics, live team place, earned claims/dedupe, private toggles, refresh, top-100 bounds, profile readiness, unload: PASS")
 '''
 with tempfile.TemporaryDirectory() as d:

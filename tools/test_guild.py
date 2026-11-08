@@ -22,7 +22,7 @@ for _,kind in ipairs({"Section","Paragraph","Toggle","Button"})do
  end
 end
 local state={now=0,time=100000,active=true,busy=false,calls=0,saves=0,working=false,work={},fire={},restore={}}
-local settings={eggs={selectedEgg="Test Egg"},guild={}}
+local settings={eggs={selectedEgg="Test Egg"},guild={autoClaimRewards=false}}
 local weekly={
  {Id="b",Task={Type="Bubbles"},Tiers={10,20}},
  {Id="h",Task={Type="Hatch"},Tiers={5,10}},
@@ -45,11 +45,11 @@ local install=(function()
 ''' +feature+r'''
 end)()
 local api=install(context)
-api.Step();assert(state.calls==1 and #state.fire==0 and #state.work==0)
+api.Step();assert(state.calls==1 and #state.fire==1 and #state.work==0)
+assert(not controls["Auto Claim Guild Rewards"] and controls["Automatic Guild Rewards"],"Reward claiming is always automatic even with an old disabled preference")
 assert(controls["Guild Status"].Title=="Test Guild" and controls["Guild Status"].Desc=="Level 3 | 2/10 members")
 assert(controls.Rewards.Desc=="2 earned reward(s) ready")
 assert(controls["Quest 3"].Desc:find("Manual",1,true))
-controls["Auto Claim Guild Rewards"].Props.Callback(true)
 controls["Auto Guild Quests"].Props.Callback(true)
 api.Step();assert(state.fire[1][1]=="GuildClaimReward" and state.fire[1][2]=="Guild" and state.fire[1][3]==2)
 assert(state.work[1].id=="b" and state.work[1].target==10 and state.working)
@@ -82,7 +82,7 @@ api.Refresh(true);assert(controls["Guild Status"].Title=="Newer Push")
 state.hook=nil;state.fail=true;state.now=100;api.Refresh(true);local calls=state.calls
 state.now=100.1;api.Step();assert(state.calls==calls,"Network failure is rate limited")
 state.active=false;local count=#state.fire;api.Step();controls["Refresh Guild"].Props.Callback();assert(#state.fire==count and not state.working)
-state.restore[1]();assert(not state.working and settings.eggs.selectedEgg=="Test Egg" and state.saves==4)
+state.restore[1]();assert(not state.working and settings.eggs.selectedEgg=="Test Egg" and state.saves==3)
 ''','Guild status, weekly tiers, both reward tracks, action/claim dedupe, valid invites, priority, stalls, cached/pushed snapshots and lifecycle')
 
 bridge=(ROOT/'testhub_src/guild-bridge.lua').read_text(encoding='utf-8')

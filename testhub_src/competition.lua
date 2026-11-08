@@ -22,6 +22,7 @@ return function(context)
     local status = tab:Paragraph({Title="Reward Status", Desc="Automatic claiming is off."})
     local season = competition and competition.GetSeason()
     local standings, snapshotAt, pending = nil, -math.huge, {}
+    local lastJoinAt=-math.huge
     local leaderboardPopup
     tab:Button({Title="Live Leaderboards", Desc="Both teams' top 100 in a live popout.", Callback=function()
         if not context.Active() then return end
@@ -34,9 +35,14 @@ return function(context)
         snapshotAt=context.Now();context.Fire("PinkVsBlueView",true)
     end})
     local function contribution()
+        if type(context.Profile.IsReady)=="function" then
+            local ready,value=pcall(context.Profile.IsReady,context.Profile)
+            if not ready or not value then return nil,false end
+        end
         local ok, current = pcall(context.Profile.Get,context.Profile)
-        if not ok or type(current)~="table" then return nil end
-        return season and current and type(current.PinkVsBlue)=="table" and current.PinkVsBlue[tostring(season.Id)] or nil
+        if not ok or type(current)~="table" then return nil,false end
+        local entries=type(current.PinkVsBlue)=="table" and current.PinkVsBlue or {}
+        return season and (entries[tostring(season.Id)] or entries[season.Id]) or nil,true
     end
     local function commas(value)
         local text = string.format("%.0f", math.max(0, tonumber(value) or 0))
@@ -64,10 +70,10 @@ return function(context)
             status:SetDesc("No rewards to claim in this server.")
             return nil
         end
-        local own = contribution()
+        local own,ready = contribution()
         local team = own and competition.Teams[own.Team]
         teamCard:SetTitle(team and team.Name or "Join a Team")
-        teamCard:SetDesc(team and competition.Name or "Join Seals or Frog Dogs at the event pad.")
+        teamCard:SetDesc(team and competition.Name or "A team will be assigned automatically while the event is active.")
         teamCard:SetIcon(team and team.Shield or nil)
         for metric, card in pairs(cards) do
             card:SetTitle(own and (commas(own[metric]) .. " " .. metric) or metric)
@@ -88,26 +94,35 @@ return function(context)
         local enabled = config.autoClaimHatches==true or config.autoClaimBubbles==true
         status:SetDesc(claimed .. " claimed | " .. earned .. " ready" .. (waiting>0 and (" | " .. waiting .. " pending") or "")
             .. (enabled and "" or " | Auto claim off"))
-        return own
+        return own,ready
     end
     local function receive(action, snapshot)
         if not context.Active() or action~="PinkVsBlueSnapshot" or type(snapshot)~="table" then return end
         if type(snapshot.Season)~="table" or type(snapshot.Season.PersonalRewards)~="table" or type(snapshot.Standings)~="table" then return end
-        if season and tostring(season.Id)~=tostring(snapshot.Season.Id) then pending={} end
+        if season and tostring(season.Id)~=tostring(snapshot.Season.Id) then pending={};lastJoinAt=-math.huge end
         season, standings, snapshotAt = snapshot.Season, snapshot.Standings, context.Now()
         if leaderboardPopup and leaderboardPopup:IsOpen() then leaderboardPopup:Update(standings,competition) end
         refresh()
     end
     local function step()
         if not context.Active() then return end
-        local own = refresh()
+        local own,ready = refresh()
         if not season or not competition or competition.Enabled~=true then return end
         local refreshEvery=leaderboardPopup and leaderboardPopup:IsOpen() and 5 or 30
         if context.Now()-snapshotAt>=refreshEvery then
             snapshotAt=context.Now()
             context.Fire("PinkVsBlueView",true)
         end
-        if not own then return end
+        -- Use the native server-assigned random team, without a preference/toggle.
+        -- Wait for replicated profile confirmation and back off rejected/slow joins.
+        local wallTime=(context.WallTime or os.time)()
+        local startsAt,endsAt=tonumber(season.StartsAt),tonumber(season.EndsAt)
+        if ready and (not own or own.Team==nil or own.Team=="") and startsAt and endsAt
+            and wallTime>=startsAt and wallTime<endsAt and context.Now()-lastJoinAt>=15 then
+            lastJoinAt=context.Now()
+            context.Fire("PinkVsBlueJoin")
+        end
+        if not own or not competition.Teams[own.Team] then return end
         local claims = type(own.Claims)=="table" and own.Claims or {}
         -- One claim per update avoids a burst when several milestones become available together.
         for _, metric in ipairs({"Hatches", "Bubbles"}) do
