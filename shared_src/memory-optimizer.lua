@@ -1,6 +1,6 @@
 -- Visual-only changes. Never delete game content, clear native pools, or change physics.
 return function(ctx)
-    local live,enabled=true,false
+    local live,enabled,meshEnabled=true,false,false
     local originals=setmetatable({}, {__mode="k"})
     local stack,added={},{}
     local addedHead,addedTail=1,0
@@ -8,14 +8,19 @@ return function(ctx)
     local pending=setmetatable({}, {__mode="k"})
     local connection,lowConnection
     local low,lowOriginal,writingLow
+    local lowPending,lowEpoch={},0
     local report={meshesChanged=0,chunkKeysFreed=0}
     local patch,chunkModule
     local api={Report=report}
     local function setLow(value)
         if not low or low.Enabled==value then return end
         writingLow=true
+        if lowConnection then lowPending[#lowPending+1]=value end
         low.Enabled=value
-        if low.Changed then pcall(low.Changed.Fire,low.Changed,value) end
+        if low.Changed then
+            local ok=pcall(low.Changed.Fire,low.Changed,value)
+            if not ok then table.clear(lowPending) end
+        end
         writingLow=false
     end
     local function inspect(instance)
@@ -34,29 +39,39 @@ return function(ctx)
         end
     end
     local function enqueue(instance)
-        if not enabled or not instance:IsA("MeshPart") or pending[instance] then return end
+        if not enabled or not meshEnabled or not instance:IsA("MeshPart") or pending[instance] then return end
         -- Coalesce large streaming bursts into one incremental rescan, never a frame spike.
         if addedTail-addedHead>=2047 then rescan=true;return end
         pending[instance]=true;addedTail+=1;added[addedTail]=instance
     end
     function api.SetEnabled(value)
         value=value==true
-        if not live or value==enabled then return end
+        local meshes=value and (not ctx.MeshDetail or ctx.MeshDetail()==true)
+        if not live or (value==enabled and meshes==meshEnabled) then return end
+        if enabled and value then api.SetEnabled(false) end
         enabled=value
+        meshEnabled=meshes
         if value then
             local ok,result=pcall(ctx.LowDetail)
             if ok and type(result)=="table" and type(result.Enabled)=="boolean" then
                 low=result;lowOriginal=low.Enabled
+                lowEpoch+=1;local epoch=lowEpoch
+                table.clear(lowPending)
                 if low.Changed and type(low.Changed.Connect)=="function" then
-                    lowConnection=low.Changed:Connect(function()
+                    lowConnection=low.Changed:Connect(function(value)
+                        if epoch~=lowEpoch or not enabled then return end
+                        if #lowPending>0 and lowPending[1]==value then table.remove(lowPending,1);return end
                         if not writingLow then lowOriginal=low.Enabled end
                     end)
                 end
                 setLow(true)
             end
-            connection=ctx.Root.DescendantAdded:Connect(enqueue)
-            stack={ctx.Root}
+            if meshEnabled then
+                connection=ctx.Root.DescendantAdded:Connect(enqueue)
+                stack={ctx.Root}
+            end
         else
+            lowEpoch+=1;table.clear(lowPending)
             if connection then connection:Disconnect();connection=nil end
             if lowConnection then lowConnection:Disconnect();lowConnection=nil end
             if low then setLow(lowOriginal);low=nil end
@@ -68,7 +83,7 @@ return function(ctx)
         end
     end
     function api.Step()
-        if not live or not enabled or not ctx.Active() then return end
+        if not live or not enabled or not meshEnabled or not ctx.Active() then return end
         local started=ctx.Now()
         for _=1,128 do
             local instance
@@ -107,12 +122,16 @@ return function(ctx)
         if ok and type(stats)=="table" then
             report.totalMB=stats.totalMB;report.luaMB=stats.luaMB
             report.texturesMB=stats.texturesMB;report.meshesMB=stats.meshesMB
+            report.vmMB=stats.vmMB
         end
         if api.OnReport then pcall(api.OnReport,report) end
         return report
     end
     function api.RefreshChunks(position)
         if live and patch then patch.Refresh(position) end
+    end
+    function api.VisitChunkers(visitor)
+        if live and patch then patch.Visit(visitor) end
     end
     function api.Pending() return rescan or #stack>0 or addedHead<=addedTail end
     function api.Destroy()

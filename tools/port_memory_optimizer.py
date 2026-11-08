@@ -9,6 +9,7 @@ def generate():
     block=(ROOT/'tools/templates/larplite-memory-optimizer.lua').read_text(encoding='utf-8')
     block=block.replace('__CHUNKER_MEMORY__',(ROOT/'shared_src/chunker-memory.lua').read_text(encoding='utf-8'))
     block=block.replace('__MEMORY_OPTIMIZER__',(ROOT/'shared_src/memory-optimizer.lua').read_text(encoding='utf-8'))
+    block=block.replace('__MEMORY_HISTORY__',(ROOT/'shared_src/memory-history.lua').read_text(encoding='utf-8'))
     begin,end='-- MEMORY_OPTIMIZER_BEGIN','-- MEMORY_OPTIMIZER_END'
     if begin in source:
         a=source.index(begin);b=source.index(end,a)+len(end)

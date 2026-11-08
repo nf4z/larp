@@ -46,6 +46,9 @@ return function(module,ctx)
             else self.RenderDistance=record.distance;record.applied=record.distance end
         end
     end
+    function patch.Visit(visitor)
+        if live then for self in pairs(tracked) do visitor(self) end end
+    end
     function patch.Destroy()
         if not live then return end
         live=false

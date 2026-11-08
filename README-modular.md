@@ -1,5 +1,17 @@
 # LarpLite modular loader
 
+## Reload lifecycle repair and measurement (2026.11.08.49)
+
+Reviewing the supplied optimization plan identified a real issue missed by v48: the pickup-hook maintenance task used `while task.wait(2)` with no run-token check. Modular runs each have their own environment, so that task could retain an obsolete environment and install a hook using an old Config after reload. The task now checks its run token before and after waiting. Installation is idempotent within a run, the hook falls back to native behavior in Safe Mode or after replacement, and unload restores the native method. A fresh rejoin is required once to clear tasks already leaked by pre-v49 code, since those tasks were started without stored handles. An update notice explains this when migrating from an older running version.
+
+No reduction in live process RAM has been demonstrated. `autoOptimizeMemory` now uses native low-detail mode and chunk retention repair without scanning the world or holding per-mesh restoration snapshots. The mesh sweep is separately available as `optimizeMeshDetail` / Other → Performance → Lower Mesh Detail, default **off**. Lower render fidelity can help drawing cost, but has not been shown to lower this client's RAM. The default chunk cap is now 2; existing saved values remain intact and are still capped against each chunker's smaller native range. Safe Mode and unload retain the v48 restoration behavior.
+
+The egg scanner now discovers live instances through the owned native Chunker.Update hook's weak registry and native creation hooks. It no longer calls `getgc(true)` at all. The unused carnival heap-scanning function was removed. Cached Rayfield Gen2 source is validated/compiled first; the network is used only for missing, invalid or malformed cached source, and the initialization chunk reference is released after creating the library.
+
+The memory card now includes `gcinfo()` VM heap MB alongside engine total, LuaHeap, textures and meshes. Once per minute, and on mode transitions, numeric diagnostics are saved to `LarpLiteMemory_<account ID>.json` in the executor workspace when file APIs are available. The ring contains at most 120 samples across reloads, with timestamps, version, run age and loading/safe/off/native-low-detail/mesh mode. No webhook URLs, config contents or account credentials are recorded. Samples allow comparisons over an hour and across updates, rather than treating a single working-set reading as proof of a leak or success. Windows process working set and committed/private bytes must be measured separately; the engine counters are not equivalent to Task Manager's columns.
+
+`python tools/test_memory_lifecycle.py` executes the actual pickup hook and maintenance task, including replacement during its wait, and checks Safe Mode, restoration, repeated installs, cache-first UI loading, scan-free defaults and bounded minute diagnostics. The native chunk, complete Safe Mode, modular loader, inventory, enchant, competition and webhook icon checks also pass offline. Destructive map stripping and runtime feature deferral from the proposed plan have not been applied; their benefit and compatibility require the measurements first.
+
 ## Automatic optimization and Safe Mode (2026.11.08.48)
 
 `autoOptimizeMemory` defaults to true. Other / Performance has a switch and a Client Memory card that samples engine total, Lua heap, graphics textures and mesh memory every five seconds. Unavailable engine counters are labeled rather than reported as zero. These are engine categories, not the same measurement as Windows Task Manager's process working set. The observed client working set before this patch was approximately 941 MB; no live post-patch savings have been measured.
@@ -22,7 +34,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/larp")
     DownloadConcurrency = 4,
     Defaults = {
         setfps = 60,
-        chunkerRenderDistance = 4,
+        chunkerRenderDistance = 2,
         disableRendering = false,
         autoUpdateScript = true,
         autoUpdateIntervalSeconds = 300,

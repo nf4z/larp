@@ -176,10 +176,11 @@ local gcCalls=0
 local function getgc()gcCalls+=1;return {x,y}end
 local time=10;local function tick()return time end
 local function findChunkerModule()return nil end
+activeStates.BGSI_Lite_MemoryOptimizer={VisitChunkers=function(visitor)visitor(x);visitor(y)end}
 '''+statement('function patchEggChunkerModule(')+r'''
 assert(patchEggChunkerModule());time=40;assert(patchEggChunkerModule())
-assert(gcCalls==1,'Native hooks track new instances after one initial heap discovery')
-print('Egg scanner: weak registry, stable IDs across holes, deduplication and one-time heap discovery: PASS (offline)')
+assert(gcCalls==0,'Tracked native Update instances replace heap discovery completely')
+print('Egg scanner: weak registry, stable IDs across holes, deduplication and no heap discovery: PASS (offline)')
 '''
 with tempfile.TemporaryDirectory() as directory:
     p=Path(directory)/'memory.lua';p.write_text(code,encoding='utf-8')

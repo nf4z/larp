@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.08.48"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.08.49"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/f0bc4865e6a05df83164.lua", bytes = 469192, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/9b89c6dc5a3b69e46420.lua", bytes = 65620, blocks = 1 },
+	["core"] = { path = "modules/core/c1226586667f1d65c4b1.lua", bytes = 472473, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/244e5bec286fedff8839.lua", bytes = 66054, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -39,7 +39,7 @@ local modules = {
 	["rebirth"] = { path = "modules/rebirth/f83bff1eb4d94773a35b.lua", bytes = 2265, blocks = 1 },
 	["fishing"] = { path = "modules/fishing/c039ea74eb14395ff187.lua", bytes = 15769, blocks = 1 },
 	["webhooks"] = { path = "modules/webhooks/0538a8ad0246f4beaac5.lua", bytes = 10119, blocks = 2 },
-	["other"] = { path = "modules/other/0659c0e790098e67d25b.lua", bytes = 6552, blocks = 2 },
+	["other"] = { path = "modules/other/a7a13c5ffe30832c0e6f.lua", bytes = 6971, blocks = 2 },
 	["leader"] = { path = "modules/leader/9e39c6e40752383c0be5.lua", bytes = 33717, blocks = 1 }
 }
 local steps = {
@@ -223,4 +223,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.08.48" }
+return { Version = "2026.11.08.49" }

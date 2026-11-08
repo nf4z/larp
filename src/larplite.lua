@@ -64,7 +64,10 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.48"
+activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
+	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
+activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.49"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -91,6 +94,14 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.08.49",
+		releasedAt = "November 8, 2026",
+		notes = {
+			{ title = "Reload leak fixed", description = "The pickup-hook loop stops with its run and reuses one owned hook instead of allocating it repeatedly.", icon = "repeat" },
+			{ title = "Measure memory growth", description = "Bounded minute samples track engine and VM memory; mesh sweeps are now optional and off by default.", icon = "gauge" },
+		},
+	},
 	{
 		version = "2026.11.08.48",
 		releasedAt = "November 8, 2026",
@@ -2606,9 +2617,10 @@ local defaultConfig = {
 
 	disableRendering = false,
 	autoOptimizeMemory = true,
+	optimizeMeshDetail = false,
 	setfps = 60,
 	renderDistance = 250,
-	chunkerRenderDistance = 4,
+	chunkerRenderDistance = 2,
 	lastSeenScriptVersion = "",
 
 	autoUpdateScript = true,
@@ -2624,6 +2636,7 @@ local defaultConfig = {
 -- own value from being clobbered - it does not let it act during Safe Mode.
 activeStates.BGSI_Lite_SafeModePreservedKeys = {
 	autoOptimizeMemory = true,
+	optimizeMeshDetail = true,
 	safeMode = true,
 	safeModeSavedConfig = true,
 	autoSetupTeamEnabled = true,
@@ -2881,7 +2894,7 @@ pcall(function()
 end)
 
 Config.SkyAltarEnabled = Config.SkyAltarEnabled == true
-Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 4))
+Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 2))
 Config.setfps = math.max(1, math.floor(tonumber(Config.setfps) or 60))
 _G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
 
@@ -2961,6 +2974,9 @@ return function(module,ctx)
             else self.RenderDistance=record.distance;record.applied=record.distance end
         end
     end
+    function patch.Visit(visitor)
+        if live then for self in pairs(tracked) do visitor(self) end end
+    end
     function patch.Destroy()
         if not live then return end
         live=false
@@ -2986,7 +3002,7 @@ end
     local install=(function()
 -- Visual-only changes. Never delete game content, clear native pools, or change physics.
 return function(ctx)
-    local live,enabled=true,false
+    local live,enabled,meshEnabled=true,false,false
     local originals=setmetatable({}, {__mode="k"})
     local stack,added={},{}
     local addedHead,addedTail=1,0
@@ -2994,14 +3010,19 @@ return function(ctx)
     local pending=setmetatable({}, {__mode="k"})
     local connection,lowConnection
     local low,lowOriginal,writingLow
+    local lowPending,lowEpoch={},0
     local report={meshesChanged=0,chunkKeysFreed=0}
     local patch,chunkModule
     local api={Report=report}
     local function setLow(value)
         if not low or low.Enabled==value then return end
         writingLow=true
+        if lowConnection then lowPending[#lowPending+1]=value end
         low.Enabled=value
-        if low.Changed then pcall(low.Changed.Fire,low.Changed,value) end
+        if low.Changed then
+            local ok=pcall(low.Changed.Fire,low.Changed,value)
+            if not ok then table.clear(lowPending) end
+        end
         writingLow=false
     end
     local function inspect(instance)
@@ -3020,29 +3041,39 @@ return function(ctx)
         end
     end
     local function enqueue(instance)
-        if not enabled or not instance:IsA("MeshPart") or pending[instance] then return end
+        if not enabled or not meshEnabled or not instance:IsA("MeshPart") or pending[instance] then return end
         -- Coalesce large streaming bursts into one incremental rescan, never a frame spike.
         if addedTail-addedHead>=2047 then rescan=true;return end
         pending[instance]=true;addedTail+=1;added[addedTail]=instance
     end
     function api.SetEnabled(value)
         value=value==true
-        if not live or value==enabled then return end
+        local meshes=value and (not ctx.MeshDetail or ctx.MeshDetail()==true)
+        if not live or (value==enabled and meshes==meshEnabled) then return end
+        if enabled and value then api.SetEnabled(false) end
         enabled=value
+        meshEnabled=meshes
         if value then
             local ok,result=pcall(ctx.LowDetail)
             if ok and type(result)=="table" and type(result.Enabled)=="boolean" then
                 low=result;lowOriginal=low.Enabled
+                lowEpoch+=1;local epoch=lowEpoch
+                table.clear(lowPending)
                 if low.Changed and type(low.Changed.Connect)=="function" then
-                    lowConnection=low.Changed:Connect(function()
+                    lowConnection=low.Changed:Connect(function(value)
+                        if epoch~=lowEpoch or not enabled then return end
+                        if #lowPending>0 and lowPending[1]==value then table.remove(lowPending,1);return end
                         if not writingLow then lowOriginal=low.Enabled end
                     end)
                 end
                 setLow(true)
             end
-            connection=ctx.Root.DescendantAdded:Connect(enqueue)
-            stack={ctx.Root}
+            if meshEnabled then
+                connection=ctx.Root.DescendantAdded:Connect(enqueue)
+                stack={ctx.Root}
+            end
         else
+            lowEpoch+=1;table.clear(lowPending)
             if connection then connection:Disconnect();connection=nil end
             if lowConnection then lowConnection:Disconnect();lowConnection=nil end
             if low then setLow(lowOriginal);low=nil end
@@ -3054,7 +3085,7 @@ return function(ctx)
         end
     end
     function api.Step()
-        if not live or not enabled or not ctx.Active() then return end
+        if not live or not enabled or not meshEnabled or not ctx.Active() then return end
         local started=ctx.Now()
         for _=1,128 do
             local instance
@@ -3093,12 +3124,16 @@ return function(ctx)
         if ok and type(stats)=="table" then
             report.totalMB=stats.totalMB;report.luaMB=stats.luaMB
             report.texturesMB=stats.texturesMB;report.meshesMB=stats.meshesMB
+            report.vmMB=stats.vmMB
         end
         if api.OnReport then pcall(api.OnReport,report) end
         return report
     end
     function api.RefreshChunks(position)
         if live and patch then patch.Refresh(position) end
+    end
+    function api.VisitChunkers(visitor)
+        if live and patch then patch.Visit(visitor) end
     end
     function api.Pending() return rescan or #stack>0 or addedHead<=addedTail end
     function api.Destroy()
@@ -3112,9 +3147,68 @@ end
 
     end)()
     local statsService=game:GetService("Stats")
+    local historyFile="LarpLiteMemory_"..configAccountId..".json"
+    local samples=activeStates.BGSI_Lite_MemorySamples
+    if type(samples)~="table" then
+        samples={}
+        if type(readfile)=="function" and type(isfile)=="function" then
+            local ok,data=pcall(function()
+                if not isfile(historyFile) then return nil end
+                local text=readfile(historyFile)
+                if type(text)~="string" or #text>131072 then return nil end
+                return HttpService:JSONDecode(text)
+            end)
+            if ok and type(data)=="table" and data.schema==1 and type(data.samples)=="table" then samples=data.samples end
+        end
+    end
+    local history=(function()
+-- Bounded numeric diagnostics, sampled once per minute or on a mode transition.
+return function(ctx)
+    local history=ctx.History
+    if type(history)~="table" then history={} end
+    local clean={}
+    local function valid(value) return type(value)=="number" and value==value and math.abs(value)<math.huge end
+    for _,row in ipairs(history) do
+        if type(row)=="table" and valid(row.time) and type(row.version)=="string" and type(row.mode)=="string" then
+            local entry={time=row.time,version=row.version:sub(1,80),mode=row.mode:sub(1,40)}
+            for _,key in ipairs({"runSeconds","totalMB","luaMB","vmMB","texturesMB","meshesMB"}) do
+                if valid(row[key]) then entry[key]=row[key] end
+            end
+            clean[#clean+1]=entry
+        end
+    end
+    while #clean>120 do table.remove(clean,1) end
+    table.clear(history);for i,row in ipairs(clean) do history[i]=row end
+    local started,nextAt,lastMode=ctx.Now(),-math.huge,nil
+    local api={Samples=history}
+    function api.Record(report)
+        local now,mode=ctx.Now(),ctx.Mode()
+        if now<nextAt and mode==lastMode then return false end
+        nextAt=now+60;lastMode=mode
+        local row={time=ctx.Time(),version=ctx.Version,mode=mode,runSeconds=math.max(0,now-started)}
+        for _,key in ipairs({"totalMB","luaMB","vmMB","texturesMB","meshesMB"}) do if valid(report[key]) then row[key]=report[key] end end
+        history[#history+1]=row
+        if #history>120 then table.remove(history,1) end
+        if ctx.Save then pcall(ctx.Save,{schema=1,samples=history}) end
+        return true
+    end
+    return api
+end
+
+    end)()({History=samples,Version=activeStates.BGSI_Lite_ScriptVersion,Now=os.clock,Time=os.time,
+        Mode=function()
+            if activeStates._1rzHubLite_LoadComplete~=true then return "loading" end
+            if Config.safeMode then return "safe" end
+            if not Config.autoOptimizeMemory then return "off" end
+            return Config.optimizeMeshDetail and "low-detail+mesh" or "native-low-detail"
+        end,
+        Save=type(writefile)=="function" and function(data) writefile(historyFile,HttpService:JSONEncode(data)) end or nil,
+    })
+    activeStates.BGSI_Lite_MemorySamples=history.Samples
     local optimizer=install({
         Root=Workspace,Fidelity=Enum.RenderFidelity.Performance,Active=isCurrentRun,Now=os.clock,
         PatchChunker=patchChunker,
+        MeshDetail=function() return Config.optimizeMeshDetail==true end,
         Position=function()
             local character=LocalPlayer.Character
             local root=character and character:FindFirstChild("HumanoidRootPart")
@@ -3122,7 +3216,7 @@ end
         end,
         DistanceCap=function()
             if Config.safeMode~=true and Config.disableRendering~=true then
-                return math.max(1,math.floor(tonumber(Config.chunkerRenderDistance) or 4))
+                return math.max(1,math.floor(tonumber(Config.chunkerRenderDistance) or 2))
             end
         end,
         LowDetail=function() return require(ReplicatedStorage.Client.LowDetail) end,
@@ -3130,6 +3224,10 @@ end
             local result={}
             local ok,total=pcall(statsService.GetTotalMemoryUsageMb,statsService)
             if ok then result.totalMB=total end
+            if type(gcinfo)=="function" then
+                local success,value=pcall(gcinfo)
+                if success and type(value)=="number" then result.vmMB=value/1024 end
+            end
             for key,name in pairs({luaMB="LuaHeap",texturesMB="GraphicsTexture",meshesMB="GraphicsMeshParts"}) do
                 local success,value=pcall(function()
                     if not statsService.MemoryTrackingEnabled then return nil end
@@ -3146,7 +3244,7 @@ end
         while isCurrentRun() do
             local ok,reason=pcall(function()
                 optimizer.Step()
-                if os.clock()>=nextSample then nextSample=os.clock()+5;optimizer.Sample() end
+                if os.clock()>=nextSample then nextSample=os.clock()+5;history.Record(optimizer.Sample()) end
             end)
             if not ok then warn("[LarpLite] Memory optimizer: "..tostring(reason)) end
             task.wait(optimizer.Pending() and 0.03 or 1)
@@ -3472,39 +3570,24 @@ end
 local Interface
 do
 	local rayfieldFile = "RayfieldGen2.lua"
-	local rayfieldSource
-	local cachedRayfieldSource
-	if isfile and isfile(rayfieldFile) then
-		cachedRayfieldSource = readfile(rayfieldFile)
+	local function compileRayfield(text)
+		if type(text)~="string" or #text<=10000 or not text:find("CreateDropdown",1,true) or not text:find("CreateStat",1,true) then return nil end
+		local chunk=loadstring(text)
+		return type(chunk)=="function" and chunk or nil
 	end
-	pcall(function()
-		local latestRayfieldSource = game:HttpGet("https://sirius.menu/gen2")
-		if
-			type(latestRayfieldSource) == "string"
-			and #latestRayfieldSource > 10000
-			and string.find(latestRayfieldSource, "CreateDropdown", 1, true)
-			and string.find(latestRayfieldSource, "CreateStat", 1, true)
-		then
-			rayfieldSource = latestRayfieldSource
-		end
-	end)
-	if rayfieldSource and writefile then
-		pcall(writefile, rayfieldFile, rayfieldSource)
-	elseif
-		type(cachedRayfieldSource) == "string"
-		and #cachedRayfieldSource > 10000
-		and string.find(cachedRayfieldSource, "CreateDropdown", 1, true)
-		and string.find(cachedRayfieldSource, "CreateStat", 1, true)
-	then
-		rayfieldSource = cachedRayfieldSource
+	local rayfieldChunk
+	if type(isfile)=="function" and type(readfile)=="function" then
+		local ok,cached=pcall(function() if isfile(rayfieldFile) then return readfile(rayfieldFile) end end)
+		if ok then rayfieldChunk=compileRayfield(cached) end
 	end
-	if not rayfieldSource then
-		rayfieldSource = game:HttpGet("https://sirius.menu/gen2")
-		if writefile then
-			pcall(writefile, rayfieldFile, rayfieldSource)
-		end
+	if not rayfieldChunk then
+		local text=game:HttpGet("https://sirius.menu/gen2")
+		rayfieldChunk=assert(compileRayfield(text),"[LarpLite] Invalid Rayfield Gen2 source")
+		if type(writefile)=="function" then pcall(writefile,rayfieldFile,text) end
 	end
-	local Rayfield = loadstring(rayfieldSource)()
+	local Rayfield=rayfieldChunk()
+	rayfieldChunk=nil
+
 	local rayfieldWindow
 
 	local function getDefaultValue(properties)
@@ -5453,17 +5536,8 @@ function patchEggChunkerModule()
 		end
 	end
 	-- One discovery pass finds existing instances; native new/Add hooks track later ones.
-	if getgc and not eggChunkerTracker.GcScanComplete and tick() - (eggChunkerTracker.LastGcScan or -math.huge) >= 5 then
-		eggChunkerTracker.LastGcScan = tick()
-		local scanned=pcall(function()
-			for loopSlotDX, scriptStateWJ in ipairs(getgc(true)) do
-				if isEggChunkerObject(scriptStateWJ) then
-					registerEggChunker(scriptStateWJ)
-				end
-			end
-		end)
-		if scanned then eggChunkerTracker.GcScanComplete=true end
-	end
+	local optimizer=activeStates.BGSI_Lite_MemoryOptimizer
+	if optimizer then optimizer.VisitChunkers(registerEggChunker) end
 	return next(eggChunkerTracker.Chunkers)~=nil or (scriptStateLO and type(chunkerInstance) == "table")
 end
 local scriptStateTU
@@ -6591,6 +6665,7 @@ end
 local scriptStateHD = 200
 local scriptStateCE
 function installPickupRangeHook()
+	if not isCurrentRun() then return false end
 	if not scriptStateCE then
 		pcall(function()
 			scriptStateCE = require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil)
@@ -6603,12 +6678,16 @@ function installPickupRangeHook()
 	if rawget(statsModule, "_BGSI_LITE_GetPickupRangeOrig") == nil then
 		statsModule._BGSI_LITE_GetPickupRangeOrig = statsModule.GetPickupRange
 	end
-	statsModule.GetPickupRange = function(self, scriptStateEA)
+	local prior=rawget(statsModule,"_BGSI_LITE_PickupRangeHook")
+	if prior and prior.Owner==currentRunToken and statsModule.GetPickupRange==prior.Fn then return true end
+	local hook={Owner=currentRunToken}
+	hook.Fn = function(self, scriptStateEA)
 		local scriptStateAFF = statsModule._BGSI_LITE_GetPickupRangeOrig
 		local scriptStateOA = scriptStateAFF(self, scriptStateEA)
 		if type(scriptStateOA) ~= "number" or scriptStateOA ~= scriptStateOA then
 			return scriptStateOA
 		end
+		if not isCurrentRun() or Config.safeMode==true then return scriptStateOA end
 		local runtimeStates = (getgenv and getgenv()) or activeStates
 		local featureActive = runtimeStates.BGSI_Lite_GemGenieActive
 			or runtimeStates.BGSI_Lite_SeasonActive
@@ -6621,10 +6700,18 @@ function installPickupRangeHook()
 		end
 		return scriptStateOA
 	end
+	function hook.Destroy()
+		if statsModule.GetPickupRange==hook.Fn then statsModule.GetPickupRange=statsModule._BGSI_LITE_GetPickupRangeOrig end
+		if statsModule._BGSI_LITE_PickupRangeHook==hook then statsModule._BGSI_LITE_PickupRangeHook=nil end
+	end
+	statsModule.GetPickupRange=hook.Fn
+	statsModule._BGSI_LITE_PickupRangeHook=hook
+	activeStates.BGSI_Lite_PickupRangeHook=hook
 	return true
 end
 task.defer(function()
 	for loopSlotCP = 1, 40 do
+		if not isCurrentRun() then return end
 		if installPickupRangeHook() then
 			return
 		end
@@ -6633,8 +6720,9 @@ task.defer(function()
 	warn("[1rzHub Lite] Pickup range hook failed — StatsUtil not found.")
 end)
 task.spawn(function()
-	while task.wait(2) do
-		pcall(installPickupRangeHook)
+	while isCurrentRun() do
+		task.wait(2)
+		if isCurrentRun() then pcall(installPickupRangeHook) end
 	end
 end)
 function useGoldenOrbs(scriptStateKH, scriptStateAAT)
@@ -7649,66 +7737,7 @@ do
 		return collectedCount
 	end
 
-	local lastCarnivalPickupGcScan = 0
-	local function collectCarnivalZonePickups()
-		local firedPickupIds = {}
 
-		local function firePickup(pickupId)
-			if pickupId == nil or firedPickupIds[tostring(pickupId)] then
-				return
-			end
-			firedPickupIds[tostring(pickupId)] = true
-			fireCollectPickupRemote(pickupId)
-		end
-
-		if type(getgc) == "function" and tick() - lastCarnivalPickupGcScan >= 2 then
-			lastCarnivalPickupGcScan = tick()
-			pcall(function()
-				for _, gcObject in ipairs(getgc(true)) do
-					local activePickups = type(gcObject) == "table" and rawget(gcObject, "_activePickups") or nil
-					if type(activePickups) == "table" then
-						for pickupId, pickup in pairs(activePickups) do
-							local pickupPosition = getPickupPosition(pickup)
-							if not pickupPosition then
-								pickupPosition = getPickupPosition(findPickupInstanceById(pickupId))
-							end
-							if isPositionInsideCarnivalPickupZone(pickupPosition) then
-								firePickup(pickupId)
-							end
-						end
-					end
-				end
-			end)
-		end
-
-		local _, _, zoneFolder = getCarnivalPickupFolders()
-		for _, pickupsFolder in ipairs(getPickupSearchFolders()) do
-			for _, descendant in ipairs(pickupsFolder:GetDescendants()) do
-				if descendant ~= zoneFolder and not (zoneFolder and descendant:IsDescendantOf(zoneFolder)) then
-					if
-						(descendant:IsA("BasePart") or descendant:IsA("Model") or descendant:IsA("Attachment"))
-						and isPickupInCarnivalZone(descendant)
-					then
-						for _, pickupId in ipairs(getPickupIdsFromInstance(descendant)) do
-							firePickup(pickupId)
-						end
-					end
-				end
-			end
-		end
-
-		for _, chunkerFolder in ipairs(getRenderedChunkerFolders()) do
-			for _, pickupObject in ipairs(chunkerFolder:GetChildren()) do
-				local pickupPosition = getPickupPosition(pickupObject)
-				if
-					looksLikePickupId(pickupObject.Name)
-					and (not pickupPosition or isPositionInsideCarnivalPickupZone(pickupPosition))
-				then
-					firePickup(pickupObject.Name)
-				end
-			end
-		end
-	end
 	activeStates.BGSI_Lite_CollectCarnivalZonePickups = nil
 	activeStates.BGSI_Lite_CollectVisibleRenderedPickups = collectVisibleRenderedPickups
 
@@ -9074,13 +9103,22 @@ local scriptStateAFW = scriptStateOG:AddTab({
 scriptStateAFW:AddSection("Performance")
 scriptStateAFW:AddToggle("AutoOptimizeMemory", {
 	Title="Automatic Memory Optimization",
-	Description="Native low detail, lower mesh detail and stale chunk cleanup. Restores visuals when disabled.",
+	Description="Native low detail and stale chunk cleanup. Mesh changes are a separate optional setting.",
 	Default=Config.autoOptimizeMemory,
 	Callback=function(enabled)
 		Config.autoOptimizeMemory=enabled==true
 		saveConfig()
 		activeStates.BGSI_Lite_ApplyPerformanceSettings()
 		pcall(refreshChunkerAroundPlayer)
+	end,
+})
+scriptStateAFW:AddToggle("OptimizeMeshDetail", {
+	Title="Lower Mesh Detail (Optional)",
+	Description="Reduces drawing detail; RAM savings are unverified. Disabled by default to avoid world scans and snapshots.",
+	Default=Config.optimizeMeshDetail,
+	Callback=function(enabled)
+		Config.optimizeMeshDetail=enabled==true;saveConfig()
+		activeStates.BGSI_Lite_ApplyPerformanceSettings()
 	end,
 })
 do
@@ -9090,6 +9128,7 @@ do
 		optimizer.OnReport=function(report)
 			local function mb(value) return type(value)=="number" and string.format("%.1f MB",value) or "Unavailable" end
 			memoryCard:SetDesc("Client "..mb(report.totalMB).." | Lua "..mb(report.luaMB)
+				.." | VM "..mb(report.vmMB)
 				.."\nTextures "..mb(report.texturesMB).." | Meshes "..mb(report.meshesMB)
 				.."\n"..report.meshesChanged.." mesh changes | "..report.chunkKeysFreed.." stale chunk entries released")
 		end
@@ -9129,7 +9168,7 @@ scriptStateAFW:AddInput("ChunkerRenderDistance", {
 	Title = "Chunk Render Distance",
 	Description = "Caps chunk distance without increasing the game's smaller native ranges.",
 	Default = tostring(Config.chunkerRenderDistance),
-	Placeholder = "4",
+	Placeholder = "2",
 	Numeric = true,
 	Callback = function(value)
 		local renderDistance = tonumber(value)
@@ -9452,6 +9491,7 @@ if type(getgenv) == "function" then
 				activeStates.BGSI_Lite_RestorePerformanceBaseline()
 				activeStates.BGSI_Lite_MemoryOptimizer=nil
 				activeStates.BGSI_Lite_WebhookPetIconResolver=nil
+				if activeStates.BGSI_Lite_PickupRangeHook then activeStates.BGSI_Lite_PickupRangeHook.Destroy();activeStates.BGSI_Lite_PickupRangeHook=nil end
 				pcall(clearEggScanCache)
 			end)
 		end
@@ -25004,6 +25044,11 @@ Interface:Notify({
 	Content = "Loaded.",
 	Duration = 3,
 })
+if activeStates.BGSI_Lite_LegacyPickupLoopWarning then
+	activeStates.BGSI_Lite_LegacyPickupLoopWarning=false
+	Interface:Notify({Title="Rejoin once for a clean memory baseline",
+		Content="Older versions left untracked pickup loops running. Rejoin once to clear those old tasks; this version stops its own loops on reload.",Duration=12})
+end
 if type(getgenv) == "function" then
 	getgenv()._1rzHubLite_LoadComplete = true
 end
