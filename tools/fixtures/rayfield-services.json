@@ -1,0 +1,6 @@
+{
+  "url": "https://sirius.menu/gen2",
+  "sha256": "4738a4f6663c5f9117bfc5d86ee4fa88f2b5ee6cf7db6636e5d47f32b7c8e66e",
+  "services": "function ae.getService(af)local ag=game:GetService(af)return if cloneref then cloneref(ag)else\nag end",
+  "analytics": "local function ah(ai)local aj=game:GetService(ai)return if cloneref then cloneref(aj)else\naj end"
+}

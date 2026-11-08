@@ -1,5 +1,11 @@
 # LarpLite modular loader
 
+## Rayfield service startup repair (2026.11.08.50)
+
+The reported `cloneref(nil)` startup path was reproduced with the exact `utility.services` helper in the currently served Rayfield Gen2 bundle. The cached copy matched upstream; deleting it would not fix that path. Rayfield now receives a separate compatibility environment based on the original executor environment, rather than inheriting Larplite's mutable module scope. Existing native Players/CoreGui/Workspace/etc. references are supplied to its two service helpers; missing references fall back through native GetService, FindService and FindFirstChild. A genuinely unavailable service produces a named diagnostic. Its library-local clone wrapper returns the original instance when cloning throws, returns nil or is unavailable. Executor globals and the game's service methods are not patched.
+
+The adapter is applied before compiling either cached or freshly downloaded Rayfield source. The on-disk cache retains the original upstream source, so normal cached startup still avoids a network download. The runtime adapter is embedded by `tools/port_rayfield_runtime.py`; `python tools/test_rayfield_runtime.py` checks the real upstream service helpers, clone failure/nil behavior, native service fallback, clean library scope and the actual cached/fresh bootstrap. Modular loader, memory lifecycle and Safe Mode checks also pass offline. Live executor/UI startup still needs verification in the user's client.
+
 ## Reload lifecycle repair and measurement (2026.11.08.49)
 
 Reviewing the supplied optimization plan identified a real issue missed by v48: the pickup-hook maintenance task used `while task.wait(2)` with no run-token check. Modular runs each have their own environment, so that task could retain an obsolete environment and install a hook using an old Config after reload. The task now checks its run token before and after waiting. Installation is idempotent within a run, the hook falls back to native behavior in Safe Mode or after replacement, and unload restores the native method. A fresh rejoin is required once to clear tasks already leaked by pre-v49 code, since those tasks were started without stored handles. An update notice explains this when migrating from an older running version.

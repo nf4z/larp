@@ -26,7 +26,8 @@ local steps = {
 }
 local declared = { @LOCALS@ }
 -- Each run owns its helpers, so replaced functions do not accumulate in globals.
-local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTicket = loaderTicket }, {
+local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTicket = loaderTicket,
+	_LarpLiteExternalEnvironment = originalEnv }, {
 	__index = function(_, key)
 		if declared[key] then return nil end
 		return originalEnv[key]

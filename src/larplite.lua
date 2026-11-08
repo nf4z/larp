@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.49"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.50"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -94,6 +94,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.08.50",
+		releasedAt = "November 8, 2026",
+		notes = {
+			{ title = "Rayfield startup repair", description = "UI services resolve from native references; failed or missing clone support uses the original instance.", icon = "panels-top-left" },
+		},
+	},
 	{
 		version = "2026.11.08.49",
 		releasedAt = "November 8, 2026",
@@ -3570,10 +3577,51 @@ end
 local Interface
 do
 	local rayfieldFile = "RayfieldGen2.lua"
+	local libraryEnvironment=_LarpLiteExternalEnvironment or getfenv()
+	local installRayfieldRuntime=(function()
+-- Rayfield alone gets this compatibility environment; executor globals are untouched.
+return function(ctx)
+    local original=ctx.Environment
+    local dataModel=ctx.Game
+    local known=ctx.Services or {}
+    local typeOf=original.typeof or typeof
+    local clone=original.cloneref
+    local function instance(value) return value~=nil and typeOf(value)=="Instance" end
+    local function resolve(name)
+        if instance(known[name]) then return known[name] end
+        for _,method in ipairs({"GetService","FindService","FindFirstChild"}) do
+            local ok,value=pcall(function() return dataModel[method](dataModel,name) end)
+            if ok and instance(value) then known[name]=value;return value end
+        end
+        error("[LarpLite] Rayfield service unavailable: "..tostring(name),2)
+    end
+    local function safeClone(value)
+        if value==nil or not instance(value) or type(clone)~="function" then return value end
+        local ok,result=pcall(clone,value)
+        if ok and instance(result) then return result end
+        return value
+    end
+    local environment=setmetatable({_LarpLiteUiService=resolve,cloneref=safeClone},{__index=original})
+    return {
+        Environment=environment,
+        Prepare=function(text)
+            -- Covers both parenthesized and string-literal calls in Rayfield's two service helpers.
+            return (text:gsub("game%s*:%s*GetService", "_LarpLiteUiService"))
+        end,
+    }
+end
+
+	end)()
+	setfenv(installRayfieldRuntime,libraryEnvironment)
+	local rayfieldRuntime=installRayfieldRuntime({Environment=libraryEnvironment,Game=game,
+		Services={Players=Players,ReplicatedStorage=ReplicatedStorage,Workspace=Workspace,
+			HttpService=HttpService,RunService=RunService,CoreGui=CoreGui,UserInputService=UserInputService}})
 	local function compileRayfield(text)
 		if type(text)~="string" or #text<=10000 or not text:find("CreateDropdown",1,true) or not text:find("CreateStat",1,true) then return nil end
-		local chunk=loadstring(text)
-		return type(chunk)=="function" and chunk or nil
+		local chunk=loadstring(rayfieldRuntime.Prepare(text),"@LarpLite/Rayfield")
+		if type(chunk)~="function" then return nil end
+		setfenv(chunk,rayfieldRuntime.Environment)
+		return chunk
 	end
 	local rayfieldChunk
 	if type(isfile)=="function" and type(readfile)=="function" then

@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.08.49"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.08.50"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/c1226586667f1d65c4b1.lua", bytes = 472473, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/244e5bec286fedff8839.lua", bytes = 66054, blocks = 1 },
+	["core"] = { path = "modules/core/040ecae542e553ab1552.lua", bytes = 474478, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/9613aa6285a908909db4.lua", bytes = 66331, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -107,7 +107,8 @@ local steps = {
 }
 local declared = { ["loaderOptions"] = true, ["Players"] = true, ["ReplicatedStorage"] = true, ["Workspace"] = true, ["HttpService"] = true, ["RunService"] = true, ["VirtualInputManager"] = true, ["CollectionService"] = true, ["CoreGui"] = true, ["TeleportService"] = true, ["UserInputService"] = true, ["LocalPlayer"] = true, ["activeStates"] = true, ["currentRunToken"] = true, ["configAccountId"] = true, ["configFile"] = true, ["sharedConfigFile"] = true, ["defaultConfig"] = true, ["copyLoaderValue"] = true, ["applyLoaderSettings"] = true, ["legacyConfigFile"] = true, ["Config"] = true, ["webhookHatchTrackerFile"] = true, ["Interface"] = true, ["profileStore"] = true, ["timeModule"] = true, ["questModule"] = true, ["enchantModule"] = true, ["enchantData"] = true, ["petRarityData"] = true, ["eggDataModule"] = true, ["riftData"] = true, ["bountyUtil"] = true, ["potionData"] = true, ["giftData"] = true, ["itemUtil"] = true, ["carnivalRebirthUtil"] = true, ["carnivalRemoteModule"] = true, ["sharedConstants"] = true, ["networkRemote"] = true, ["remoteEvent"] = true, ["remoteFunction"] = true, ["hatchEffectModule"] = true, ["scriptStateID"] = true, ["fallbackUtilityE"] = true, ["sharedEnv"] = true, ["eggChunkerTracker"] = true, ["autoPatchEnabled"] = true, ["defaultTeleportHeight"] = true, ["infinityEggHeight"] = true, ["cachedEggLookup"] = true, ["cachedEggList"] = true, ["cacheTime"] = true, ["scriptStateTU"] = true, ["scanNotificationInProgress"] = true, ["teleportOffsetY"] = true, ["lastFiredForNextEggOpenAt"] = true, ["gemShopSlots"] = true, ["gemReserveThreshold"] = true, ["scriptStateAAN"] = true, ["scriptStateZG"] = true, ["scriptStateHD"] = true, ["scriptStateCE"] = true, ["pauseInProgress"] = true, ["scriptStateOG"] = true, ["scriptStateDB"] = true, ["eggTab"] = true, ["halloweenTab"] = true, ["compTab"] = true, ["scriptStateCZ"] = true, ["potionTab"] = true, ["scriptStateYT"] = true, ["riftsTabStub"] = true, ["riftsTab"] = true, ["gameTab"] = true, ["scriptStateTJ"] = true, ["scriptStateUC"] = true, ["scriptStateOB"] = true, ["scriptStateGB"] = true, ["scriptStateKM"] = true, ["scriptStateAFW"] = true, ["setLuckEggActive"] = true, ["scriptStateAAR"] = true, ["SUPER_LEGENDARY_ENCHANT_KEY_BY_ID"] = true, ["autoSetupTeamConfigGeneration"] = true, ["autoSetupTeamApplyQueued"] = true, ["CURRENCY_TEAM_KEYWORDS"] = true, ["CURRENCY_STAT_KEY_BY_CATEGORY"] = true, ["specialWebhookEnchantNames"] = true, ["superWebhookEnchantNames"] = true, ["superEnchantBadgeFiles"] = true, ["getEnchantedSuperWebhookIcon"] = true, ["dualEnchantWhitelist"] = true, ["normalizedDualEnchantWhitelist"] = true, ["isDualEnchantWhitelisted"] = true, ["autoEnchantThreadRunning"] = true, ["ENCHANT_REROLL_COOLDOWN"] = true, ["getMaxEnchantSlotsForPet"] = true, ["formatWebhookNumber"] = true, ["scriptStateDX"] = true, ["statsUtil"] = true, ["worldUtil"] = true, ["buildWebhookUserInfoField"] = true, ["isWebhookRebirthMachineReward"] = true, ["LIVE_WEBHOOK_UPDATE_INTERVAL"] = true, ["getLiveWebhookRequestFunction"] = true, ["normalizeLiveWebhookUrl"] = true, ["getLiveWebhookMessageUrl"] = true, ["formatLiveWebhookNumber"] = true, ["formatLiveWebhookUptime"] = true, ["liveWebhookHeadshotUrl"] = true, ["liveWebhookHeadshotFetchedAt"] = true, ["getLiveWebhookHeadshotUrl"] = true, ["getLiveWebhookStats"] = true, ["buildLiveWebhookPayload"] = true, ["postLiveWebhook"] = true, ["editLiveWebhook"] = true, ["stopLiveWebhook"] = true, ["startLiveWebhook"] = true, ["makeSimulatedHatchPet"] = true, ["simulatedSuperEnchantWeights"] = true, ["rollSimulatedSuperEnchants"] = true, ["buildSimulatedHatchPayload"] = true, ["autoUpdateReloadQueued"] = true }
 -- Each run owns its helpers, so replaced functions do not accumulate in globals.
-local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTicket = loaderTicket }, {
+local environment = setmetatable({ _LarpLiteLoaderOptions = options, _loaderTicket = loaderTicket,
+	_LarpLiteExternalEnvironment = originalEnv }, {
 	__index = function(_, key)
 		if declared[key] then return nil end
 		return originalEnv[key]
@@ -223,4 +224,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.08.49" }
+return { Version = "2026.11.08.50" }

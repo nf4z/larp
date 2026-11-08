@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.08.49",
+  "version": "2026.11.08.50",
   "modules": {
     "core": {
-      "path": "modules/core/c1226586667f1d65c4b1.lua",
-      "bytes": 472473,
+      "path": "modules/core/040ecae542e553ab1552.lua",
+      "bytes": 474478,
       "blocks": 20
     },
     "changelog": {
-      "path": "modules/changelog/244e5bec286fedff8839.lua",
-      "bytes": 66054,
+      "path": "modules/changelog/9613aa6285a908909db4.lua",
+      "bytes": 66331,
       "blocks": 1
     },
     "main": {
