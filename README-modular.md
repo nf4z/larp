@@ -48,3 +48,11 @@ The marked Halloween shrine region is generated from `shared_src/halloween-shrin
 Run `python tools/test_modules.py` for compiler, statement-order, loader/cache/failure/concurrency, and real config regression checks. It uses `.tools/luau/luau-compile.exe` and `.tools/luau/luau.exe` locally, or the `LUAU_COMPILE` and `LUAU` environment variables.
 
 Run `python tools/test_larplite_comp_enchants.py` for executable mock checks of Comp claims and placement, changing enchant targets mid-roll, protected slots, and inventory hatch pacing. These checks do not replace a live Roblox session.
+# Webhook pet image repair (2026.11.08.47)
+
+Larplite's webhook image resolver follows the supplied game's `PetBuilder.Image` and `ItemUtil` mapping: `Images.Normal`, `Shiny`, `Mythic`, and `MythicShiny`. XL retains the selected variant image and uses the larger Discord gallery. The game data is read at runtime, so newly added pets do not depend on the repository's icon catalog.
+
+`shared_src/webhook-pet-icon.lua` resolves asset IDs through Roblox's thumbnail API, preferring executor HTTP with game/native HTTP fallbacks. Pending/failed lookups retry three times with short delays, then try the thumbnail batch endpoint. Only completed HTTP image URLs are accepted; malformed responses and blocked thumbnails are not embedded as images. Successful CDN URLs are cached for an hour, failures for 15 seconds, with at most 256 entries. Direct image URLs, numeric asset IDs, `rbxassetid`, `rbxthumb` and legacy Roblox asset URLs are supported. Existing webhook settings and Super enchant overlays remain in place.
+
+`tools/port_webhook_icons.py` embeds the resolver when modules are rebuilt. Run `python tools/test_webhook_pet_icons.py` for the real native PetBuilder fixture, variant selection, request fallbacks, pending/batch recovery, bounded cache/expiry and the actual normal/XL Discord V2 renderer. `python tools/test_modules.py` verifies generated compilation, statement order, loader and config behavior. Tests are offline and send no Discord messages; live Roblox API and Discord delivery were not available for verification.
+

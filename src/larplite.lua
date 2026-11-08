@@ -62,7 +62,7 @@ local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local activeStates = (getgenv and getgenv()) or {}
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.07.46"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.47"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -89,6 +89,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.08.47",
+		releasedAt = "November 8, 2026",
+		notes = {
+			{ title = "Webhook pet icons", description = "Pet images retry pending thumbnails and use executor HTTP fallback with cached variant icons.", icon = "image" },
+		},
+	},
 	{
 		version = "2026.11.07.46",
 		releasedAt = "November 7, 2026",
@@ -21608,72 +21615,125 @@ function buildPetWebhookEmbed(scriptStateHC, scriptStateRV, scriptStateHH, scrip
 	end
 	return table.concat(scriptStateBT, " ") .. " " .. scriptStateHC
 end
-function sendPetWebhook(scriptStateUL, scriptStateADL, scriptStateXY)
-	local scriptStateYI = scriptStateUL and scriptStateUL.Images
-	if type(scriptStateYI) ~= "table" then
-		return nil
-	end
-	local scriptStateOI
-	if scriptStateADL and scriptStateXY then
-		scriptStateOI = scriptStateYI[4]
-			or scriptStateYI.MythicShiny
-			or scriptStateYI["Shiny Mythic"]
-			or scriptStateYI.ShinyMythic
-	elseif scriptStateADL then
-		scriptStateOI = scriptStateYI[2] or scriptStateYI.Shiny
-	elseif scriptStateXY then
-		scriptStateOI = scriptStateYI[3] or scriptStateYI.Mythic
-	else
-		scriptStateOI = scriptStateYI[1] or scriptStateYI.Normal
-	end
-	if not scriptStateOI then
-		for loopSlotCS = 1, 4 do
-			if scriptStateYI[loopSlotCS] then
-				scriptStateOI = scriptStateYI[loopSlotCS]
-				break
-			end
-		end
-		if not scriptStateOI then
-			scriptStateOI = scriptStateYI.Normal or scriptStateYI.Shiny or scriptStateYI.Mythic
-		end
-	end
-	if not scriptStateOI then
-		return nil
-	end
-	local scriptStateWR = string.match(tostring(scriptStateOI), "rbxassetid://(%d+)")
-		or tostring(tonumber(scriptStateOI) or "")
-	if scriptStateWR ~= "" then
-		local scriptStateACO = ("https://thumbnails.roblox.com/v1/assets?assetIds=%s&size=420x420&format=Png"):format(
-			scriptStateWR
-		)
-		local scriptStateFI
-		local thumbnailRequestOk = pcall(function()
-			scriptStateFI = game:HttpGet(scriptStateACO)
-		end)
-		if not thumbnailRequestOk or not scriptStateFI or scriptStateFI == "" then
-			thumbnailRequestOk = pcall(function()
-				scriptStateFI = HttpService:GetAsync(scriptStateACO)
-			end)
-		end
-		if thumbnailRequestOk and scriptStateFI and scriptStateFI ~= "" then
-			local scriptStateABU, scriptStateNH = pcall(function()
-				return HttpService:JSONDecode(scriptStateFI)
-			end)
-			if
-				scriptStateABU
-				and scriptStateNH
-				and scriptStateNH.data
-				and scriptStateNH.data[1]
-				and scriptStateNH.data[1].imageUrl
-			then
-				return scriptStateNH.data[1].imageUrl
-			end
-		end
-	end
-	if type(scriptStateOI) == "string" and scriptStateOI:find("http") then
-		return scriptStateOI
-	end
-	return nil
+function sendPetWebhook(info,shiny,mythic)
+    local resolver=activeStates.BGSI_Lite_WebhookPetIconResolver
+    if type(resolver)~="table" or resolver.Revision~=1 then
+        resolver=(function()
+-- Resolve native pet image content into an HTTP image Discord can fetch.
+return function(ctx)
+    local cache,count={},0
+    local function publicURL(value)
+        return type(value)=="string" and value:match("^https?://") and value or nil
+    end
+    local function decode(body)
+        if type(body)~="string" or body=="" then return nil end
+        local ok,data=pcall(ctx.Decode,body)
+        return ok and type(data)=="table" and data or nil
+    end
+    local function fetch(url,method,body)
+        local ok,response=pcall(ctx.Request,{Url=url,Method=method or "GET",Body=body,
+            Headers={Accept="application/json",["Content-Type"]="application/json"},Timeout=8})
+        if ok and type(response)=="table" then
+            local status=tonumber(response.StatusCode or response.Status or response.status_code)
+            if (not status or (status>=200 and status<300)) and response.Success~=false then
+                local data=decode(response.Body or response.body)
+                if data then return data end
+            end
+        end
+        if method=="POST" then return nil end
+        for _,get in ipairs({ctx.HttpGet,ctx.GetAsync}) do
+            local success,result=pcall(get,url)
+            if success then local data=decode(result);if data then return data end end
+        end
+    end
+    local function image(data,id)
+        if type(data)~="table" then return nil end
+        for _,entry in ipairs(type(data.data)=="table" and data.data or data) do
+            if type(entry)=="table" and (entry.targetId==nil or tostring(entry.targetId)==id)
+                and (entry.state==nil or entry.state=="Completed") then
+                local url=publicURL(entry.imageUrl)
+                if url then return url end
+            end
+        end
+    end
+    local function remember(id,url)
+        if not cache[id] then
+            if count>=256 then
+                local oldest,age
+                for key,entry in pairs(cache) do if not age or entry.used<age then oldest,age=key,entry.used end end
+                if oldest then cache[oldest]=nil;count-=1 end
+            end
+            count+=1
+        end
+        cache[id]={url=url,expires=ctx.Now()+(url and 3600 or 15),used=ctx.Now()}
+        return url
+    end
+    local function resolve(info,shiny,mythic)
+        if type(info)~="table" then return nil end
+        local images=info.Images
+        local content
+        if type(images)=="table" then
+            if shiny and mythic then content=images.MythicShiny or images.ShinyMythic or images["Shiny Mythic"] or images[4]
+            elseif shiny then content=images.Shiny or images[2]
+            elseif mythic then content=images.Mythic or images[3]
+            else content=images.Normal or images[1] end
+            content=content or images.Normal or images[1]
+            if not content then for i=2,4 do if images[i] then content=images[i];break end end end
+            content=content or images.Shiny or images.Mythic or images.MythicShiny
+        else content=images or info.Image or info.Icon end
+        content=content or info.Image or info.Icon
+        if content==nil then return nil end
+        local text=(type(content)=="number" and content>0 and content<math.huge and string.format("%.0f",content)
+            or tostring(content)):match("^%s*(.-)%s*$")
+        local lower=text:lower()
+        local id=lower:match("^rbxassetid://(%d+)$") or lower:match("^(%d+)$")
+        if not id and lower:match("^rbxthumb://") then id=lower:match("[?&]id=(%d+)") end
+        if not id and (lower:match("^https?://www%.roblox%.com/asset[/?]") or lower:match("^https?://roblox%.com/asset[/?]")) then
+            id=lower:match("[?&]id=(%d+)")
+        end
+        if not id then return publicURL(text) end
+        if not id:match("[1-9]") then return nil end
+        local existing=cache[id]
+        if existing and ctx.Now()<existing.expires then existing.used=ctx.Now();return existing.url end
+        local url="https://thumbnails.roblox.com/v1/assets?assetIds="..id.."&size=420x420&format=Png&isCircular=false"
+        for attempt=1,3 do
+            local result=image(fetch(url),id)
+            if result then return remember(id,result) end
+            if attempt<3 then ctx.Wait(attempt*0.35) end
+        end
+        -- The batch endpoint can generate a missing asset thumbnail independently.
+        local ok,body=pcall(ctx.Encode,{{requestId="pet-"..id,targetId=tonumber(id),type="Asset",size="420x420",format="Png",isCircular=false}})
+        if ok then
+            local result=image(fetch("https://thumbnails.roblox.com/v1/batch","POST",body),id)
+            if result then return remember(id,result) end
+        end
+        return remember(id,nil)
+    end
+    return {Revision=1,Resolve=resolve}
+end
+
+        end)()({
+            Request=function(options)
+                local env=(getgenv and getgenv()) or _G
+                local fn=type(request)=="function" and request or type(http_request)=="function" and http_request
+                    or (type(syn)=="table" and type(rawget(syn,"request"))=="function" and rawget(syn,"request"))
+                    or (type(rawget(env,"request"))=="function" and rawget(env,"request"))
+                    or (type(rawget(env,"http_request"))=="function" and rawget(env,"http_request"))
+                if type(fn)~="function" then
+                    local http=rawget(env,"http")
+                    fn=type(http)=="table" and rawget(http,"request") or nil
+                end
+                if type(fn)=="function" then return fn(options) end
+            end,
+            HttpGet=function(url) return game:HttpGet(url,true) end,
+            GetAsync=function(url) return HttpService:GetAsync(url,true) end,
+            Decode=function(body) return HttpService:JSONDecode(body) end,
+            Encode=function(value) return HttpService:JSONEncode(value) end,
+            Now=os.clock,Wait=task.wait,
+        })
+        activeStates.BGSI_Lite_WebhookPetIconResolver=resolver
+    end
+    return resolver.Resolve(info,shiny,mythic)
 end
 function getRebirthMachineCost(scriptStateKB)
 	scriptStateKB = tostring(scriptStateKB or "")

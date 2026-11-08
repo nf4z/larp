@@ -1,0 +1,13 @@
+{
+  "gameFile": "place 85896571713843 Bubble Gum Simulator INFINITY(2).rbxl",
+  "module": "ReplicatedStorage.Shared.Data.Builders.PetBuilder",
+  "builderImageFunction": "function t1.Image(p3, p4, p5, p6, p7) -- line: 100\n\t-- upvalues: T (copy)\n\tassert(T.string(p4))\n\tassert(T.string(p5))\n\tassert(T.string(p6) or T.none(p6))\n\tassert(T.string(p7) or T.none(p7))\n\tp3._images = {\n\t\tNormal = p4,\n\t\tShiny = p5,\n\t\tMythic = p6,\n\t\tMythicShiny = p7\n\t}\n\n\treturn p3\nend\n",
+  "pet": "King Doggy",
+  "images": [
+    "90180258328030",
+    "122886742812315",
+    "129866994329896",
+    "137302375759932"
+  ],
+  "itemUtilSelection": "Pets[item.Name].Images[(item.Mythic and \"Mythic\" or \"\") .. (item.Shiny and \"Shiny\" or \"\")] (or Normal when neither)"
+}

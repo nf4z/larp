@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.07.46"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.08.47"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/3ca71121f672efe59682.lua", bytes = 452226, blocks = 20 },
-	["changelog"] = { path = "modules/changelog/be81bee7e5422a3f984b.lua", bytes = 64932, blocks = 1 },
+	["core"] = { path = "modules/core/61638dd5baecde169655.lua", bytes = 456386, blocks = 20 },
+	["changelog"] = { path = "modules/changelog/e3644fecaa9c691c9841.lua", bytes = 65183, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -195,4 +195,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 table.clear(compiledModules)
-return { Version = "2026.11.07.46" }
+return { Version = "2026.11.08.47" }
