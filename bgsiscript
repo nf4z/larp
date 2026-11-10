@@ -14876,6 +14876,401 @@ end
         end)
         if not ok then WindUI:ModuleFailed("Halloween Shrine: "..tostring(err))end
     end
+
+    -- Qtrzip Leader fleet (LarpLite-style). Separate transport namespace prevents cross-hub collisions.
+    do
+        local ok, reason = pcall(function()
+            if type(readfile) ~= "function" or type(writefile) ~= "function" or type(isfile) ~= "function" then
+                warn("[Qtrzip Fleet] Shared executor file access is required.")
+                return
+            end
+            local player = game:GetService("Players").LocalPlayer
+            local teleportService = game:GetService("TeleportService")
+            local fsPrefix = "QtrzipFleet_"
+            local myId = tostring(player.UserId)
+            local accountFile = fsPrefix .. "acct_" .. myId .. ".json"
+            local registryFile = fsPrefix .. "registry.json"
+            local pinFile = fsPrefix .. "pin.json"
+            local settingsFile = fsPrefix .. "settings.json"
+            local revisionFile = fsPrefix .. "rev.txt"
+            local teleportFile = fsPrefix .. "teleport.json"
+            local acknowledgeFile = fsPrefix .. "teleport_ack_" .. myId .. ".json"
+            local myOptionsFile = fsPrefix .. "options_" .. myId .. ".json"
+            local lifespan = 20
+            local options = {follow = true, autoPush = true}
+            local role, leaderId, appliedRevision = "solo", nil, 0
+            local roster, lastSettings, lastTeleport, selected = {}, nil, nil, nil
+            local stopped, applying, lastSignature, firstLeaderPush = false, false, nil, true
+            local startedAt = tick()
+            local statusRow, followToggle, pushToggle, handoverDropdown
+            local function fileJson(path)
+                local ok, value = pcall(function()
+                    if not isfile(path) then return nil end
+                    return HttpService:JSONDecode(readfile(path))
+                end)
+                return ok and type(value) == "table" and value or nil
+            end
+            local function saveJson(path, value)
+                return pcall(function() writefile(path, HttpService:JSONEncode(value)) end)
+            end
+            local existing = fileJson(myOptionsFile)
+            if existing then
+                options.follow = existing.follow ~= false
+                options.autoPush = existing.autoPush ~= false
+            end
+            local function saveOptions() saveJson(myOptionsFile, options) end
+            local function notify(message)
+                pcall(function() WindUI:Notify({Title = "Leader", Content = message}) end)
+                print("[Qtrzip Fleet] " .. message)
+            end
+            local function accountIds()
+                local ids, found = {}, {}
+                local function add(id)
+                    id = tostring(id)
+                    if id:match("^%d+$") and not found[id] then
+                        found[id] = true
+                        table.insert(ids, id)
+                    end
+                end
+                add(myId)
+                local registry = fileJson(registryFile)
+                for _, id in ipairs(registry and registry.ids or {}) do add(id) end
+                if type(listfiles) == "function" then
+                    for _, folder in ipairs({"", "."}) do
+                        local ok, files = pcall(listfiles, folder)
+                        if ok and type(files) == "table" then
+                            for _, path in ipairs(files) do
+                                local id = tostring(path):match("QtrzipFleet_acct_(%d+)%.json$")
+                                if id then add(id) end
+                            end
+                        end
+                    end
+                end
+                return ids
+            end
+            local function register()
+                local ids = accountIds()
+                saveJson(registryFile, {ids = ids})
+            end
+            local function heartbeat()
+                saveJson(accountFile, {
+                    id = myId, name = player.Name, startedAt = startedAt,
+                    lastSeen = tick(), role = role, follow = options.follow,
+                    appliedRev = appliedRevision, version = runtime.ScriptVersion,
+                })
+            end
+            local function refreshRoster()
+                local now, live = tick(), {}
+                for _, id in ipairs(accountIds()) do
+                    local entry = id == myId and {
+                        id = myId, name = player.Name, startedAt = startedAt,
+                        lastSeen = now, appliedRev = appliedRevision, follow = options.follow
+                    } or fileJson(fsPrefix .. "acct_" .. id .. ".json")
+                    local age = entry and now - (tonumber(entry.lastSeen) or 0) or math.huge
+                    if entry and entry.stopped ~= true and age >= 0 and age <= lifespan then
+                        table.insert(live, {
+                            id = id, name = tostring(entry.name or id),
+                            startedAt = tonumber(entry.startedAt) or now,
+                            appliedRev = tonumber(entry.appliedRev) or 0,
+                            follow = entry.follow ~= false
+                        })
+                    end
+                end
+                table.sort(live, function(a,b)
+                    if a.startedAt ~= b.startedAt then return a.startedAt < b.startedAt end
+                    return tonumber(a.id) < tonumber(b.id)
+                end)
+                roster = live
+                local pin = fileJson(pinFile)
+                leaderId = nil
+                if #live >= 2 then
+                    for _, entry in ipairs(live) do
+                        if pin and tostring(pin.id) == entry.id then leaderId = entry.id; break end
+                    end
+                    leaderId = leaderId or live[1].id
+                end
+                local nextRole = not leaderId and "solo" or (leaderId == myId and "master" or "alt")
+                if nextRole ~= role then
+                    role = nextRole
+                    firstLeaderPush = true
+                    lastSignature = nil
+                    heartbeat()
+                    notify(role == "master" and "This account is now Leader." or
+                        role == "solo" and "Waiting for another account." or "Following the Leader.")
+                end
+            end
+            local function rosterText()
+                local lines = {}
+                for _, entry in ipairs(roster) do
+                    local label = entry.id == leaderId and " [Leader]" or " [Alt]"
+                    if entry.id == myId then label = label .. " (you)" end
+                    table.insert(lines, entry.name .. label ..
+                        (entry.id ~= leaderId and (entry.follow and " | following" or " | independent") or ""))
+                end
+                return #lines == 0 and "No accounts online" or table.concat(lines, "\n")
+            end
+            local function updateStatus()
+                if statusRow and statusRow.SetDesc then
+                    local leader = "None"
+                    for _, entry in ipairs(roster) do
+                        if entry.id == leaderId then leader = entry.name; break end
+                    end
+                    statusRow:SetDesc("Role: " .. (role == "master" and "Leader" or role == "alt" and "Alt" or "Solo") ..
+                        " | Leader: " .. leader .. "\n" .. rosterText())
+                end
+                if handoverDropdown then
+                    local names = {"Select account"}
+                    for _, entry in ipairs(roster) do
+                        if entry.id ~= myId then table.insert(names, entry.name) end
+                    end
+                    handoverDropdown:Refresh(names)
+                end
+            end
+            local function serializeSettings()
+                local copy = {}
+                for key, value in pairs(private.HubSettings or {}) do
+                    if key ~= "fleet" and key ~= "updates" then copy[key] = value end
+                end
+                return HttpService:JSONEncode(copy), copy
+            end
+            local function push(force)
+                if role ~= "master" then return false end
+                local ok, signature, copy = pcall(serializeSettings)
+                if not ok or (not force and signature == lastSignature) then return false end
+                local revision = math.floor(tick() * 1000)
+                local previous = fileJson(settingsFile)
+                if previous then revision = math.max(revision, (tonumber(previous.rev) or 0) + 1) end
+                if not saveJson(settingsFile, {rev = revision, from = myId, at = tick(), config = copy}) then return false end
+                local wrote = pcall(writefile, revisionFile, tostring(revision) .. ":" .. myId)
+                if wrote then
+                    appliedRevision = revision
+                    lastSignature = signature
+                    heartbeat()
+                end
+                return wrote
+            end
+            local function pull()
+                if role ~= "alt" or not options.follow or not isfile(revisionFile) then return end
+                local ok, text = pcall(readfile, revisionFile)
+                if not ok or type(text) ~= "string" then return end
+                local revision, from = text:match("^(%d+):(%d+)$")
+                if from ~= leaderId or not revision or tonumber(revision) == appliedRevision then return end
+                local leader = fileJson(fsPrefix .. "acct_" .. leaderId .. ".json")
+                if not leader or leader.stopped or tick() - (tonumber(leader.lastSeen) or 0) > lifespan then return end
+                local payload = fileJson(settingsFile)
+                if not payload or tonumber(payload.rev) ~= tonumber(revision) or
+                    tostring(payload.from) ~= leaderId or type(payload.config) ~= "table" or
+                    tonumber(payload.at or 0) < tonumber(leader.startedAt or 0) then return end
+                applying = true
+                local nextSettings = {}
+                for key, value in pairs(payload.config) do nextSettings[key] = value end
+                nextSettings.updates = private.HubSettings and private.HubSettings.updates
+                if not saveJson("qtrzip_settings.json", nextSettings) then applying = false; return end
+                appliedRevision = tonumber(revision)
+                heartbeat()
+                -- UI callbacks close over their original settings tables. Reinitializing
+                -- is necessary to apply every setting, not just change the saved JSON.
+                local sourceOk, source = pcall(function()
+                    return game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/bgsiscript", true)
+                end)
+                if not sourceOk or type(source) ~= "string" or #source < 10000 then
+                    warn("[Qtrzip Fleet] Settings saved; re-execute bgsiscript to apply them.")
+                    applying = false
+                    return
+                end
+                local chunk, compileError = originalLoadstring(source, "@qtrzip/fleet-reload")
+                if not chunk then
+                    warn("[Qtrzip Fleet] Reload could not compile: " .. tostring(compileError))
+                    applying = false
+                    return
+                end
+                task.defer(function()
+                    if not runtime.Active then return end
+                    runtime.Unload()
+                    local okReload, errReload = pcall(chunk)
+                    if not okReload then warn("[Qtrzip Fleet] Reload failed: " .. tostring(errReload)) end
+                end)
+            end
+            local function teleportToLeader()
+                if role ~= "master" then return end
+                local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if not root then notify("Character is not ready."); return end
+                local targets = {}
+                for _, entry in ipairs(roster) do
+                    if entry.id ~= myId then table.insert(targets, entry.id) end
+                end
+                if #targets == 0 then notify("No other online accounts."); return end
+                local values = {root.CFrame:GetComponents()}
+                local command = {
+                    id = myId .. "-" .. tostring(os.time()) .. "-" .. tostring(math.random(1000,9999)),
+                    from = myId, issuedAt = os.time(), placeId = game.PlaceId,
+                    jobId = game.JobId, cframe = values, targets = targets
+                }
+                if saveJson(teleportFile, command) then
+                    notify("Teleport sent to " .. tostring(#targets) .. " account(s).")
+                end
+            end
+            local function pullTeleport()
+                if role ~= "alt" then return end
+                local command = fileJson(teleportFile)
+                if not command or tostring(command.from or "") ~= leaderId or
+                    math.abs(os.time() - (tonumber(command.issuedAt) or 0)) > 180 then return end
+                local id = tostring(command.id or "")
+                if id == "" or id == lastTeleport then return end
+                for _, target in ipairs(command.targets or {}) do
+                    if tostring(target) == myId then
+                        local ack = fileJson(acknowledgeFile)
+                        if ack and tostring(ack.id) == id then lastTeleport = id; return end
+                        local values = command.cframe
+                        if type(values) ~= "table" or #values ~= 12 then return end
+                        for i = 1, 12 do
+                            local n = tonumber(values[i])
+                            if not n or n ~= n or math.abs(n) > 1e8 then return end
+                            values[i] = n
+                        end
+                        local placeId = tonumber(command.placeId)
+                        local jobId = tostring(command.jobId or "")
+                        if not placeId or jobId == "" then return end
+                        if game.PlaceId ~= placeId or game.JobId ~= jobId then
+                            local queue = queue_on_teleport or queueonteleport or
+                                (type(syn) == "table" and syn.queue_on_teleport)
+                            if type(queue) == "function" then
+                                local numbers = {}
+                                for _, n in ipairs(values) do
+                                    table.insert(numbers, string.format("%.17g", n))
+                                end
+                                pcall(queue, string.format([[
+task.spawn(function()
+    if not game:IsLoaded() then game.Loaded:Wait() end
+    local p = game:GetService("Players").LocalPlayer
+    local root = (p.Character or p.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart", 30)
+    if root then root.CFrame = CFrame.new(%s) end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/bgsiscript"))()
+end)
+]], table.concat(numbers, ",")))
+                            end
+                            lastTeleport = id
+                            local okTeleport, errorMessage = pcall(function()
+                                teleportService:TeleportToPlaceInstance(placeId, jobId, player)
+                            end)
+                            if not okTeleport then
+                                lastTeleport = nil
+                                warn("[Qtrzip Fleet] Teleport failed: " .. tostring(errorMessage))
+                            end
+                        else
+                            local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                            if not root then return end
+                            root.CFrame = CFrame.new(table.unpack(values))
+                            lastTeleport = id
+                            saveJson(acknowledgeFile, {id = id, at = os.time()})
+                        end
+                        return
+                    end
+                end
+            end
+            local tab
+            local function buildTab()
+                if tab or role ~= "master" then return end
+                tab = Window:Tab({Title = "Leader", Icon = "crown"})
+                tab:Section({Title = "Accounts"})
+                statusRow = tab:Paragraph({Title = "Accounts online", Desc = ""})
+                tab:Section({Title = "Settings"})
+                pushToggle = tab:Toggle({
+                    Title = "Live sync", Desc = "Automatically sync settings to online alts.",
+                    Value = options.autoPush,
+                    Callback = function(value)
+                        options.autoPush = value == true; saveOptions()
+                        if options.autoPush then push(true) end
+                    end
+                })
+                tab:Button({
+                    Title = "Sync now", Desc = "Send all current settings to other accounts.",
+                    Callback = function()
+                        if role == "master" and push(true) then notify("Settings sent.") end
+                    end
+                })
+                tab:Section({Title = "Movement"})
+                tab:Button({Title = "Teleport Accounts to Me",
+                    Desc = "Move online accounts to your server and position.",
+                    Callback = teleportToLeader})
+                tab:Section({Title = "Handover"})
+                handoverDropdown = tab:Dropdown({
+                    Title = "Account", Values = {"Select account"}, Value = "Select account",
+                    Callback = function(value) selected = value end
+                })
+                tab:Button({Title = "Hand over", Callback = function()
+                    if role ~= "master" then return end
+                    for _, entry in ipairs(roster) do
+                        if entry.name == selected and entry.id ~= myId then
+                            if saveJson(pinFile, {id = entry.id}) then
+                                notify("Leadership handed to " .. entry.name)
+                            end
+                            return
+                        end
+                    end
+                    notify("Select an online account.")
+                end})
+                updateStatus()
+            end
+            -- Allow alts to opt out without making the Leader tab visible to them.
+            local followerTab = Window:Tab({Title = "Fleet", Icon = "users"})
+            followerTab:Section({Title = "Account synchronization"})
+            followerTab:Toggle({
+                Title = "Follow Leader", Desc = "Apply Leader settings automatically (reloads the hub).",
+                Value = options.follow,
+                Callback = function(value)
+                    options.follow = value == true
+                    saveOptions(); heartbeat()
+                end
+            })
+            followerTab:Paragraph({Title = "Leadership",
+                Desc = "The oldest active account becomes Leader when two or more accounts are online. The Leader tab appears on that account."})
+            local function cleanup()
+                if stopped then return end
+                stopped = true
+                local record = fileJson(accountFile) or {}
+                record.stopped = true
+                record.lastSeen = 0
+                saveJson(accountFile, record)
+            end
+            table.insert(runtime.Restore, cleanup)
+            heartbeat()
+            register()
+            task.spawn(function()
+                local lastBeat, lastRoster, lastRegister, lastSync = 0, 0, 0, 0
+                while runtime.Active and not stopped and actualGlobals._BGSI_TestHub == runtime do
+                    local now = tick()
+                    if now - lastBeat >= 1 then
+                        lastBeat = now
+                        pcall(heartbeat)
+                    end
+                    if now - lastRoster >= 0.5 then
+                        lastRoster = now
+                        pcall(refreshRoster)
+                        pcall(buildTab)
+                        pcall(updateStatus)
+                    end
+                    if now - lastRegister >= 15 then
+                        lastRegister = now; pcall(register)
+                    end
+                    if now - lastSync >= 0.5 then
+                        lastSync = now
+                        if role == "master" and (options.autoPush or firstLeaderPush) then
+                            pcall(push, firstLeaderPush)
+                            firstLeaderPush = false
+                        elseif role == "alt" then
+                            pcall(pull)
+                            pcall(pullTeleport)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+                cleanup()
+            end)
+        end)
+        if not ok then WindUI:ModuleFailed("Leader: " .. tostring(reason)) end
+    end
+
     print("[Hub] All repository modules initialized.")
 end)
 
