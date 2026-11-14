@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.53"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.54"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.14.54",
+		releasedAt = "November 14, 2026",
+		notes = {
+			{ title = "Coloured potion icons", description = "Potions on the dashboard now show their real liquid colours.", icon = "image" },
+		},
+	},
 	{
 		version = "2026.11.14.53",
 		releasedAt = "November 14, 2026",
@@ -16700,11 +16707,73 @@ do
 			activeStates.BGSI_Lite_DashboardConfigOptionsUpdatedAt = 0
 			activeStates.BGSI_Lite_DashboardConfigOptionsVersion = 2
 		end
+		-- A potion's liquid is a white image the game colours at runtime: one tint for
+		-- low levels, a moving gradient for high levels and the Infinity/Secret/Egg
+		-- elixirs. The dashboard only saw the white image, so every bottle came out
+		-- blank; send the colours along with the layer.
+		activeStates.BGSI_Lite_ColorHex = function(color)
+			if typeof(color) ~= "Color3" then
+				return nil
+			end
+			return string.format(
+				"%02x%02x%02x",
+				math.clamp(math.floor(color.R * 255 + 0.5), 0, 255),
+				math.clamp(math.floor(color.G * 255 + 0.5), 0, 255),
+				math.clamp(math.floor(color.B * 255 + 0.5), 0, 255)
+			)
+		end
+		activeStates.BGSI_Lite_GetPotionLiquidTint = function(item)
+			if type(item) ~= "table" or item.Type ~= "Potion" then
+				return nil
+			end
+			local function gradientStops(gradient)
+				if type(gradient) == "string" then
+					local assets = ReplicatedStorage:FindFirstChild("Assets")
+					local folder = assets and assets:FindFirstChild("Gradients")
+					gradient = folder and folder:FindFirstChild(gradient)
+				end
+				if typeof(gradient) ~= "Instance" or not gradient:IsA("UIGradient") then
+					return nil
+				end
+				local stops = {}
+				for _, keypoint in ipairs(gradient.Color.Keypoints) do
+					table.insert(stops, activeStates.BGSI_Lite_ColorHex(keypoint.Value))
+					if #stops >= 8 then
+						break
+					end
+				end
+				return #stops > 0 and stops or nil
+			end
+			local name = tostring(item.Name or "")
+			local animated = name == "Infinity Elixir" and "Rainbow"
+				or name == "Secret Elixir" and "PotionSecret"
+				or name == "Egg Elixir" and "PotionEgg"
+				or nil
+			if animated then
+				local stops = gradientStops(animated)
+				if not stops and animated == "Rainbow" then
+					stops = { "ff3b3b", "ffa53b", "fff23b", "4dff5e", "3bc8ff", "8f5bff", "ff3bd7" }
+				end
+				return stops and { gradient = stops } or nil
+			end
+			local entry = type(potionData) == "table" and potionData[name]
+			local gradient = type(entry) == "table" and entry.Gradient
+			if typeof(gradient) ~= "Instance" or not gradient:IsA("UIGradient") then
+				return nil
+			end
+			if not entry.OneLevel and (tonumber(item.Level) or 1) <= 3 then
+				local keypoints = gradient.Color.Keypoints
+				local keypoint = keypoints[2] or keypoints[1]
+				return keypoint and { color = activeStates.BGSI_Lite_ColorHex(keypoint.Value) } or nil
+			end
+			local stops = gradientStops(gradient)
+			return stops and { gradient = stops } or nil
+		end
 		activeStates.BGSI_Lite_GetDashboardItemIcon = function(item)
 			if type(item) ~= "table" or not item.Type then
 				return nil
 			end
-			local cacheKey = table.concat({ tostring(item.Type), tostring(item.Name or item.Currency or ""), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
+			local cacheKey = table.concat({ "v2", tostring(item.Type), tostring(item.Name or item.Currency or ""), tostring(item.Level or ""), tostring(item.Tier or "") }, "|")
 			local cachedIcon = activeStates.BGSI_Lite_DashboardItemIconCache[cacheKey]
 			if type(cachedIcon) == "table" then
 				return cachedIcon
@@ -16720,6 +16789,7 @@ do
 				iconLabel.BackgroundTransparency = 1
 				iconLabel.Parent = iconContainer
 				pcall(itemUtil.UpdateIcon, itemUtil, iconContainer, item)
+				local liquidTint = activeStates.BGSI_Lite_GetPotionLiquidTint(item)
 				local imageLayers = {}
 				for _, descendant in ipairs(iconContainer:GetDescendants()) do
 					if (descendant:IsA("ImageLabel") or descendant:IsA("ImageButton")) and descendant.Visible then
@@ -16735,11 +16805,18 @@ do
 								end
 								ancestor = ancestor.Parent
 							end
+							local tint = descendant.Name == "Liquid" and liquidTint or nil
+							local color = tint and tint.color
+							if not tint and descendant.ImageColor3 ~= Color3.new(1, 1, 1) then
+								color = activeStates.BGSI_Lite_ColorHex(descendant.ImageColor3)
+							end
 							table.insert(imageLayers, {
 								imageAssetId = imageAssetId,
 								name = descendant.Name,
 								zIndex = descendant.ZIndex,
 								scale = scale > 0 and scale or 1,
+								color = color,
+								gradient = tint and tint.gradient or nil,
 							})
 						end
 					end
