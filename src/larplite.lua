@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.52"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.53"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.14.53",
+		releasedAt = "November 14, 2026",
+		notes = {
+			{ title = "Automatic dashboard key", description = "Your fleet connects with one shared key; copy it from the Leader tab to sign in on larplite.xyz.", icon = "key" },
+		},
+	},
 	{
 		version = "2026.11.14.52",
 		releasedAt = "November 14, 2026",
@@ -2943,6 +2950,119 @@ do
 	end
 end
 
+-- Fleet connection key: every account on this machine shares one dashboard key through
+-- a workspace file. The first account to need one asks the dashboard for it; the rest
+-- pick it up from the file, and the Leader tab shows it for signing in on the site.
+do
+	local SHARED_KEY_FILE = "LarpLiteFleet_dashboard_key.txt"
+	local LOCK_FILE = "LarpLiteFleet_dashboard_key.lock"
+	local function validKey(value)
+		local key = string.lower(tostring(value or ""):match("^%s*(.-)%s*$") or "")
+		return (#key == 64 and key:match("^%x+$")) and key or nil
+	end
+	local function canUseFiles()
+		return type(readfile) == "function" and type(writefile) == "function" and type(isfile) == "function"
+	end
+	local function readShared()
+		if not canUseFiles() then
+			return nil
+		end
+		local ok, content = pcall(function()
+			return isfile(SHARED_KEY_FILE) and readfile(SHARED_KEY_FILE) or ""
+		end)
+		return ok and validKey(content) or nil
+	end
+	local function dashboardBaseUrl()
+		local endpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
+		endpoint = endpoint:gsub("/api/.*$", ""):gsub("/+$", "")
+		if endpoint == "" then
+			endpoint = "https://larplite.xyz"
+		end
+		if not endpoint:match("^https?://") then
+			endpoint = "https://" .. endpoint
+		end
+		return endpoint
+	end
+	activeStates.BGSI_Lite_ValidDashboardKey = validKey
+	activeStates.BGSI_Lite_ShareDashboardKey = function(key)
+		key = validKey(key)
+		if key and canUseFiles() then
+			pcall(writefile, SHARED_KEY_FILE, key)
+		end
+	end
+	local requestInFlight = false
+	local lastRequestAt = -math.huge
+	activeStates.BGSI_Lite_EnsureFleetDashboardKey = function(requestFunction)
+		local sharedKey = readShared()
+		if sharedKey then
+			if Config.dashboardIngestToken ~= sharedKey then
+				Config.dashboardIngestToken = sharedKey
+				saveConfig()
+			end
+			return sharedKey
+		end
+		local ownKey = validKey(Config.dashboardIngestToken)
+		if ownKey then
+			activeStates.BGSI_Lite_ShareDashboardKey(ownKey)
+			return ownKey
+		end
+		if requestInFlight or type(requestFunction) ~= "function" or tick() - lastRequestAt < 60 then
+			return nil
+		end
+		requestInFlight = true
+		lastRequestAt = tick()
+		-- One account asks; the others see the lock and wait for the shared file instead
+		-- of each minting a key of their own.
+		if canUseFiles() then
+			local lockOk, lockAge = pcall(function()
+				return isfile(LOCK_FILE) and (os.time() - (tonumber(readfile(LOCK_FILE)) or 0)) or math.huge
+			end)
+			if lockOk and lockAge < 30 then
+				requestInFlight = false
+				lastRequestAt = tick() - 55
+				return nil
+			end
+			pcall(writefile, LOCK_FILE, tostring(os.time()))
+			task.wait(0.3 + math.random() * 0.7)
+			if readShared() then
+				requestInFlight = false
+				return activeStates.BGSI_Lite_EnsureFleetDashboardKey(requestFunction)
+			end
+		end
+		local issuedKey
+		pcall(function()
+			local response = requestFunction({
+				Url = dashboardBaseUrl() .. "/api/v1/ingest-key",
+				Method = "POST",
+				Headers = { ["Content-Type"] = "application/json" },
+				Body = "{}",
+				Timeout = 10,
+			})
+			local body = type(response) == "table" and tostring(response.Body or response.body or "") or ""
+			local decoded = HttpService:JSONDecode(body)
+			issuedKey = type(decoded) == "table" and validKey(decoded.ingestToken) or nil
+		end)
+		requestInFlight = false
+		if canUseFiles() and type(delfile) == "function" then
+			pcall(delfile, LOCK_FILE)
+		end
+		if not issuedKey then
+			return nil
+		end
+		-- If another account won a race, its key wins so the fleet stays on one key.
+		sharedKey = readShared()
+		if sharedKey then
+			issuedKey = sharedKey
+		else
+			activeStates.BGSI_Lite_ShareDashboardKey(issuedKey)
+		end
+		Config.dashboardIngestToken = issuedKey
+		saveConfig()
+		print("[" .. LocalPlayer.Name .. "] Account Dashboard key ready. Copy it from the Leader tab.")
+		return issuedKey
+	end
+end
+
 -- A key set before the loader runs (getgenv().LarpliteKey = "...") wins over the saved
 -- one, so an account can be connected without opening the menu.
 do
@@ -2950,6 +3070,7 @@ do
 	if #presetKey == 64 and presetKey:match("^%x+$") and Config.dashboardIngestToken ~= presetKey then
 		Config.dashboardIngestToken = presetKey
 		saveConfig()
+		activeStates.BGSI_Lite_ShareDashboardKey(presetKey)
 	end
 end
 
@@ -15140,6 +15261,8 @@ do
 			Config.dashboardIngestToken = key
 			Config.dashboardSyncEnabled = true
 			saveConfig()
+			-- The whole fleet follows a pasted key.
+			activeStates.BGSI_Lite_ShareDashboardKey(key)
 			Interface:Notify({ Title = "Account Dashboard", Content = "Connection key saved.", Duration = 4 })
 		end,
 	})
@@ -16353,6 +16476,7 @@ do
 		local dashboardConnected
 		local dashboardFailureLogAt = 0
 		local dashboardFailureStreak = 0
+		local lastFleetKeyCheck = -math.huge
 		local dashboardSyncDelay = 1 + ((LocalPlayer.UserId % 100) / 100)
 		local pendingDashboardCommandResults = {}
 		local carriedReloadConfirmation = activeStates.BGSI_Lite_PendingReloadConfirmation
@@ -17397,6 +17521,19 @@ do
 						end
 						if dashboardEndpoint ~= "" and not string.find(dashboardEndpoint, "/api/", 1, true) then
 							dashboardEndpoint = dashboardEndpoint .. "/api/proxy/heartbeat"
+						end
+						-- Pick up (or request) the fleet's shared key: quickly while there is none,
+						-- then every 10s so a key pasted on any account reaches all of them.
+						if Config.dashboardSyncEnabled
+							and tick() - lastFleetKeyCheck >= (dashboardIngestToken == "" and 2 or 10)
+						then
+							lastFleetKeyCheck = tick()
+							local fleetKey = activeStates.BGSI_Lite_EnsureFleetDashboardKey(
+								type(dashboardRequest) == "function" and dashboardRequest or request or http_request
+							)
+							if fleetKey then
+								dashboardIngestToken = fleetKey
+							end
 						end
 						if Config.dashboardSyncEnabled and dashboardEndpoint ~= "" and dashboardIngestToken ~= "" then
 							if type(dashboardRequest) ~= "function" then
@@ -27378,6 +27515,49 @@ end)
 			local controls = fleet.masterControls
 
 			fleet.ui.masterStatus = tab:AddText({ Title = "Accounts online", Content = "" })
+
+			tab:AddSection("Account Dashboard")
+			local keyParagraph = tab:AddParagraph({ Title = "Connection key", Content = "Getting a key..." })
+			tab:AddButton({
+				Title = "Copy Connection Key",
+				Description = "Sign in on larplite.xyz with this key to see every account in this fleet.",
+				Callback = function()
+					local key = activeStates.BGSI_Lite_ValidDashboardKey(Config.dashboardIngestToken)
+					if not key then
+						notify("No key yet. Make sure Connect to Account Dashboard is on, then try again.", 4)
+						return
+					end
+					local copyFunction = setclipboard or toclipboard or (type(Clipboard) == "table" and Clipboard.set)
+					if type(copyFunction) == "function" and pcall(copyFunction, key) then
+						notify("Key copied. On larplite.xyz choose 'Open with a connection key' and paste it.", 6)
+					else
+						notify("This executor cannot copy. Key: " .. key, 15)
+					end
+				end,
+			})
+			task.spawn(function()
+				local lastText
+				while isCurrentRun() do
+					local key = activeStates.BGSI_Lite_ValidDashboardKey(Config.dashboardIngestToken)
+					local text
+					if Config.dashboardSyncEnabled ~= true then
+						text = "Turn on Connect to Account Dashboard (Game tab) to get a key."
+					elseif key then
+						text = "Key ending " .. string.sub(key, -6) .. ", shared by all "
+							.. tostring(math.max(1, #fleet.roster))
+							.. " account(s). Copy it and sign in on larplite.xyz to see them all."
+					else
+						text = "Getting a key..."
+					end
+					if text ~= lastText then
+						lastText = text
+						pcall(function()
+							keyParagraph:SetDesc(text)
+						end)
+					end
+					task.wait(2)
+				end
+			end)
 
 			tab:AddSection("Settings")
 			table.insert(
