@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.08.50"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.13.51"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -94,6 +94,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.13.51",
+		releasedAt = "November 13, 2026",
+		notes = {
+			{ title = "Winter Altar", description = "Convert three Winter Altar pets automatically, choosing from the supported pets you own.", icon = "snowflake" },
+		},
+	},
 	{
 		version = "2026.11.08.50",
 		releasedAt = "November 8, 2026",
@@ -2618,6 +2625,8 @@ local defaultConfig = {
 	fishingAutoSellWhenFull = false,
 	CrystalAltarEnabled = false,
 	SkyAltarEnabled = false,
+	WinterAltarEnabled = false,
+	WinterAltarPets = {},
 	AdminRebirthMachineEnabled = false,
 	AutoCarnivalRebirth = false,
 	autoHalloweenRebirth = false,
@@ -2901,6 +2910,10 @@ pcall(function()
 end)
 
 Config.SkyAltarEnabled = Config.SkyAltarEnabled == true
+Config.WinterAltarEnabled = Config.WinterAltarEnabled == true
+if type(Config.WinterAltarPets) ~= "table" then
+	Config.WinterAltarPets = {}
+end
 Config.chunkerRenderDistance = math.max(1, math.floor(tonumber(Config.chunkerRenderDistance) or 2))
 Config.setfps = math.max(1, math.floor(tonumber(Config.setfps) or 60))
 _G.BGSI_CHUNK_RENDER_DISTANCE = Config.chunkerRenderDistance
@@ -3510,6 +3523,7 @@ activeStates.BGSI_Lite_RefreshFleetUiControls = function(source)
 		AutoDailyHourly = "autoDailyHourlyChallenge",
 		AutoRebirthMachine = "RebirthMachineEnabled",
 		AutoSellBubble = "autoSell",
+		AutoWinterAltar = "WinterAltarEnabled",
 		AutoSetupTeamKeepUpdated = "autoSetupTeamEnabled",
 		AutoShrine = "shrineAuto",
 		HalloweenShrinePotion = "halloweenShrinePotion",
@@ -4522,6 +4536,7 @@ do
 		activeStates.BGSI_Lite_GamePopupFrameConnection = gameGuiFrame.Changed:Connect(function(frameName)
 			local closeRebirthMachine = frameName == "RebirthMachine" and Config.RebirthMachineEnabled == true
 				or frameName == "AdminRebirthMachine" and Config.AdminRebirthMachineEnabled == true
+				or frameName == "WinterAltar" and Config.WinterAltarEnabled == true
 			if
 				(Config.autoClosePopups == true or closeRebirthMachine)
 				and type(frameName) == "string"
@@ -8688,6 +8703,161 @@ scriptStateGB:AddToggle("AutoAdminRebirthMachine", {
 		saveConfig()
 	end,
 })
+-- Winter Altar
+--
+-- The altar only accepts its own four event Secrets (RebirthMachineUtil's ManualPets
+-- for "WinterAltar"), so the dropdown is built from the intersection of that list and
+-- the pets actually in this account's inventory - no option a conversion would reject.
+-- Option labels are the exact pet names, which is what the shared dropdown icon lookup
+-- keys on, so each row shows that pet's own image.
+local winterAltarMachineName = "WinterAltar"
+local winterAltarNoPetsOption = "(None owned)"
+local winterAltarUtil
+pcall(function()
+	winterAltarUtil = require(ReplicatedStorage.Shared.Utils.RebirthMachineUtil)
+end)
+local winterAltarPetDropdown
+local winterAltarStatusText
+-- Supported names up front: one table read rejects the thousands of inventory pets
+-- that are not altar pets at all, so IsPetEligible only runs on real candidates.
+local winterAltarSupportedNames = {}
+if type(winterAltarUtil) == "table" then
+	local machineOk, machine = pcall(winterAltarUtil.GetMachine, winterAltarUtil, winterAltarMachineName)
+	if machineOk and type(machine) == "table" and type(machine.ManualPets) == "table" then
+		for _, petName in ipairs(machine.ManualPets) do
+			if type(petName) == "string" then
+				winterAltarSupportedNames[petName] = true
+			end
+		end
+	end
+end
+local function isWinterAltarPetUsable(pet)
+	if type(pet) ~= "table" or type(pet.Name) ~= "string" or pet.Id == nil then
+		return false
+	end
+	if next(winterAltarSupportedNames) ~= nil and not winterAltarSupportedNames[pet.Name] then
+		return false
+	end
+	if pet.Locked == true or pet.XL == true then
+		return false
+	end
+	if type(winterAltarUtil) ~= "table" then
+		return false
+	end
+	local eligibilityOk, eligible = pcall(
+		winterAltarUtil.IsPetEligible, winterAltarUtil, winterAltarMachineName, pet
+	)
+	return eligibilityOk and eligible == true
+end
+local function getWinterAltarOwnedPetNames()
+	local ownedNames = {}
+	if not profileStore or not profileStore:IsReady() then
+		return ownedNames
+	end
+	local playerData = profileStore:Get()
+	if type(playerData) ~= "table" or type(playerData.Pets) ~= "table" then
+		return ownedNames
+	end
+	local seenNames = {}
+	for _, pet in pairs(playerData.Pets) do
+		if isWinterAltarPetUsable(pet) and not seenNames[pet.Name] then
+			seenNames[pet.Name] = true
+			table.insert(ownedNames, pet.Name)
+		end
+	end
+	table.sort(ownedNames)
+	return ownedNames
+end
+local function getSelectedWinterAltarNames()
+	local selectedNames = {}
+	local configured = Config.WinterAltarPets
+	if type(configured) ~= "table" then
+		return selectedNames
+	end
+	for key, value in pairs(configured) do
+		if type(key) == "number" and type(value) == "string" and value ~= winterAltarNoPetsOption then
+			selectedNames[value] = true
+		elseif type(key) == "string" and value == true and key ~= winterAltarNoPetsOption then
+			selectedNames[key] = true
+		end
+	end
+	return selectedNames
+end
+local winterAltarListedNames = ""
+local winterAltarIdleStatusShown = false
+-- Rayfield's Refresh rebuilds the option rows, so only call it when the owned set
+-- really changed - otherwise a background refresh would churn the open list.
+local function refreshWinterAltarPetList(force)
+	local ownedNames = getWinterAltarOwnedPetNames()
+	local listSignature = table.concat(ownedNames, "\0")
+	if force ~= true and listSignature == winterAltarListedNames then
+		return ownedNames
+	end
+	winterAltarListedNames = listSignature
+	fireRemoteEventRepeatedly(
+		winterAltarPetDropdown,
+		#ownedNames > 0 and ownedNames or { winterAltarNoPetsOption }
+	)
+	return ownedNames
+end
+do
+	local initialOwnedNames = getWinterAltarOwnedPetNames()
+	winterAltarListedNames = table.concat(initialOwnedNames, "\0")
+	local machineDisplayName = "Winter Altar"
+	local requiredPetCount = 3
+	if type(winterAltarUtil) == "table" then
+		local machineOk, machine = pcall(winterAltarUtil.GetMachine, winterAltarUtil, winterAltarMachineName)
+		if machineOk and type(machine) == "table" then
+			machineDisplayName = tostring(machine.DisplayName or machineDisplayName)
+			requiredPetCount = tonumber(machine.NumPetsRequired) or requiredPetCount
+		end
+	end
+	scriptStateGB:AddSection(machineDisplayName)
+	winterAltarPetDropdown = scriptStateGB:AddDropdown("WinterAltarPets", {
+		Title = "Altar Pets",
+		Description = "Only " .. machineDisplayName .. " pets this account owns. "
+			.. requiredPetCount .. " of the Variant selected above are converted per use; "
+			.. requiredPetCount .. " Ice Queen Seals give Danger of the Blizzard.",
+		Values = #initialOwnedNames > 0 and initialOwnedNames or { winterAltarNoPetsOption },
+		Default = Config.WinterAltarPets,
+		Multi = true,
+		Search = true,
+		Callback = function(selected)
+			local chosenNames = {}
+			if type(selected) == "table" then
+				for key, value in pairs(selected) do
+					if type(key) == "number" and type(value) == "string" and value ~= winterAltarNoPetsOption then
+						table.insert(chosenNames, value)
+					elseif type(key) == "string" and value == true and key ~= winterAltarNoPetsOption then
+						table.insert(chosenNames, key)
+					end
+				end
+			end
+			table.sort(chosenNames)
+			Config.WinterAltarPets = chosenNames
+			saveConfig()
+		end,
+	})
+	scriptStateGB:AddButton({
+		Title = "Refresh owned altar pets",
+		Callback = function()
+			refreshWinterAltarPetList(true)
+		end,
+	})
+	scriptStateGB:AddToggle("AutoWinterAltar", {
+		Title = "Auto " .. machineDisplayName,
+		Description = "Converts the selected pets as soon as the altar cooldown allows it.",
+		Default = Config.WinterAltarEnabled,
+		Callback = function(enabled)
+			Config.WinterAltarEnabled = enabled == true
+			saveConfig()
+		end,
+	})
+	winterAltarStatusText = scriptStateGB:AddParagraph({
+		Title = machineDisplayName .. " Status",
+		Content = "Select altar pets to begin.",
+	})
+end
 task.spawn(function()
 	local halloweenRebirthUtil
 	local rebirthMachineUtil
@@ -8705,6 +8875,8 @@ task.spawn(function()
 	end)
 	local lastMachineAttempt = 0
 	local lastAdminAttempt = 0
+	local lastWinterAttempt = 0
+	local lastWinterRefresh = 0
 	local function invokeMachine(actionName, ...)
 		local ok, result = pcall(remoteFunction.InvokeServer, remoteFunction, actionName, ...)
 		return ok and result ~= nil and result ~= false
@@ -8812,6 +8984,108 @@ task.spawn(function()
 					end
 					fuseAtMachine(activation, "UseAdminRebirthMachine", ids)
 				end
+			end
+			-- Winter Altar: three pets of one variant per use. A special combination (three
+			-- Ice Queen Seals) returns a guaranteed pet instead of a weighted roll, so it is
+			-- preferred whenever the selection and inventory can cover one.
+			if tick() - lastWinterRefresh >= 20 then
+				lastWinterRefresh = tick()
+				pcall(refreshWinterAltarPetList)
+			end
+			local winterMachine = type(rebirthMachineUtil) == "table"
+				and rebirthMachineUtil:GetMachine("WinterAltar")
+			local winterSelection = getSelectedWinterAltarNames()
+			if next(winterSelection) == nil then
+				-- Nothing selected: no reason to walk the inventory on every pass.
+				if winterAltarStatusText and winterAltarIdleStatusShown ~= true then
+					winterAltarIdleStatusShown = true
+					pcall(winterAltarStatusText.SetDesc, winterAltarStatusText, "Select altar pets to begin.")
+				end
+			elseif type(winterMachine) == "table" and winterMachine.Enabled == true
+				and type(playerData.Pets) == "table" then
+				winterAltarIdleStatusShown = false
+				local requiredCount = tonumber(winterMachine.NumPetsRequired) or 3
+				local selectedNames = winterSelection
+				local variant = type(Config.RebirthVariants) == "table" and Config.RebirthVariants[1] or "Normal"
+				local shiny = variant == "Shiny" or variant == "Shiny Mythic"
+				local mythic = variant == "Mythic" or variant == "Shiny Mythic"
+				local candidatesByName = {}
+				local candidateTotal = 0
+				for _, pet in pairs(playerData.Pets) do
+					if type(pet) == "table" and selectedNames[pet.Name]
+						and (pet.Shiny == true) == shiny and (pet.Mythic == true) == mythic
+						and isWinterAltarPetUsable(pet) then
+						local byName = candidatesByName[pet.Name]
+						if not byName then
+							byName = {}
+							candidatesByName[pet.Name] = byName
+						end
+						table.insert(byName, pet)
+						candidateTotal += 1
+					end
+				end
+				local cooldownAt = tonumber(playerData[winterMachine.CooldownKey]) or 0
+				local secondsLeft = math.max(cooldownAt - getCurrentTimestamp(), 0)
+				if winterAltarStatusText then
+					local statusLines
+					if secondsLeft > 0 then
+						statusLines = string.format(
+							"Cooldown %d:%02d  ·  %d ready (%s)",
+							secondsLeft // 60, secondsLeft % 60, candidateTotal, variant
+						)
+					else
+						statusLines = string.format("Ready  ·  %d available (%s)", candidateTotal, variant)
+					end
+					pcall(winterAltarStatusText.SetDesc, winterAltarStatusText, statusLines)
+				end
+				if Config.WinterAltarEnabled == true and secondsLeft <= 0
+					and tick() - lastWinterAttempt >= 5 then
+					local ids = {}
+					local selectedPets = {}
+					local function takeFromName(petName)
+						local available = candidatesByName[petName]
+						local pet = available and table.remove(available)
+						if not pet then return false end
+						table.insert(ids, pet.Id)
+						table.insert(selectedPets, pet)
+						return true
+					end
+					for _, combination in ipairs(type(winterMachine.SpecialCombinations) == "table"
+						and winterMachine.SpecialCombinations or {}) do
+						if #ids == 0 and type(combination.Pets) == "table" then
+							local takenBack = {}
+							local complete = true
+							for _, petName in ipairs(combination.Pets) do
+								if selectedNames[petName] and takeFromName(petName) then
+									table.insert(takenBack, selectedPets[#selectedPets])
+								else
+									complete = false
+									break
+								end
+							end
+							if not complete then
+								for _, pet in ipairs(takenBack) do
+									table.insert(candidatesByName[pet.Name], pet)
+								end
+								table.clear(ids)
+								table.clear(selectedPets)
+							end
+						end
+					end
+					if #ids == 0 then
+						for petName in pairs(selectedNames) do
+							while #ids < requiredCount and takeFromName(petName) do end
+							if #ids >= requiredCount then break end
+						end
+					end
+					if #ids > 0 and rebirthMachineUtil:CanFuse("WinterAltar", selectedPets) then
+						lastWinterAttempt = tick()
+						fuseAtMachine(Workspace:FindFirstChild("WinterAltar"), "UseRebirthMachine", "WinterAltar", ids)
+					end
+				end
+			elseif winterAltarStatusText and winterAltarIdleStatusShown ~= true then
+				winterAltarIdleStatusShown = true
+				pcall(winterAltarStatusText.SetDesc, winterAltarStatusText, "Altar unavailable in this game version.")
 			end
 			if Config.autoHalloweenRebirth == true and type(halloweenRebirthUtil) == "table"
 				and type(halloweenRebirthUtil.GetRebirthCost) == "function"

@@ -82,6 +82,8 @@ The marked Halloween shrine region is generated from `shared_src/halloween-shrin
 Run `python tools/test_modules.py` for compiler, statement-order, loader/cache/failure/concurrency, and real config regression checks. It uses `.tools/luau/luau-compile.exe` and `.tools/luau/luau.exe` locally, or the `LUAU_COMPILE` and `LUAU` environment variables.
 
 Run `python tools/test_larplite_comp_enchants.py` for executable mock checks of Comp claims and placement, changing enchant targets mid-roll, protected slots, and inventory hatch pacing. These checks do not replace a live Roblox session.
+
+Run `python tools/test_winter_altar.py` for executable mock checks of the Winter Altar tab: which owned pets the dropdown offers, eligibility coming from the game's own rule, the guaranteed recipe winning over a mixed fuse, the altar cooldown, and one variant per conversion.
 # Webhook pet image repair (2026.11.08.47)
 
 Larplite's webhook image resolver follows the supplied game's `PetBuilder.Image` and `ItemUtil` mapping: `Images.Normal`, `Shiny`, `Mythic`, and `MythicShiny`. XL retains the selected variant image and uses the larger Discord gallery. The game data is read at runtime, so newly added pets do not depend on the repository's icon catalog.

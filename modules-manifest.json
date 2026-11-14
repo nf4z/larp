@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.08.50",
+  "version": "2026.11.13.51",
   "modules": {
     "core": {
-      "path": "modules/core/040ecae542e553ab1552.lua",
-      "bytes": 474478,
-      "blocks": 20
+      "path": "modules/core/4f6bafca61918f05195a.lua",
+      "bytes": 481895,
+      "blocks": 21
     },
     "changelog": {
-      "path": "modules/changelog/9613aa6285a908909db4.lua",
-      "bytes": 66331,
+      "path": "modules/changelog/58111314c7be317279c6.lua",
+      "bytes": 66577,
       "blocks": 1
     },
     "main": {
@@ -87,9 +87,9 @@
       "blocks": 2
     },
     "rebirth": {
-      "path": "modules/rebirth/f83bff1eb4d94773a35b.lua",
-      "bytes": 2265,
-      "blocks": 1
+      "path": "modules/rebirth/376309593c9121acbf88.lua",
+      "bytes": 4495,
+      "blocks": 2
     },
     "fishing": {
       "path": "modules/fishing/c039ea74eb14395ff187.lua",
@@ -206,12 +206,20 @@
       6
     ],
     [
+      "rebirth",
+      2
+    ],
+    [
+      "core",
+      7
+    ],
+    [
       "fishing",
       1
     ],
     [
       "core",
-      7
+      8
     ],
     [
       "webhooks",
@@ -223,7 +231,7 @@
     ],
     [
       "core",
-      8
+      9
     ],
     [
       "other",
@@ -235,7 +243,7 @@
     ],
     [
       "core",
-      9
+      10
     ],
     [
       "main",
@@ -251,7 +259,7 @@
     ],
     [
       "core",
-      10
+      11
     ],
     [
       "eggs",
@@ -259,7 +267,7 @@
     ],
     [
       "core",
-      11
+      12
     ],
     [
       "comp",
@@ -275,7 +283,7 @@
     ],
     [
       "core",
-      12
+      13
     ],
     [
       "chests",
@@ -299,7 +307,7 @@
     ],
     [
       "core",
-      13
+      14
     ],
     [
       "enchant",
@@ -307,7 +315,7 @@
     ],
     [
       "core",
-      14
+      15
     ],
     [
       "quests",
@@ -315,7 +323,7 @@
     ],
     [
       "core",
-      15
+      16
     ],
     [
       "guilds",
@@ -323,7 +331,7 @@
     ],
     [
       "core",
-      16
+      17
     ],
     [
       "server",
@@ -331,7 +339,7 @@
     ],
     [
       "core",
-      17
+      18
     ],
     [
       "shrines",
@@ -339,7 +347,7 @@
     ],
     [
       "core",
-      18
+      19
     ],
     [
       "webhooks",
@@ -347,7 +355,7 @@
     ],
     [
       "core",
-      19
+      20
     ],
     [
       "leader",
@@ -355,7 +363,7 @@
     ],
     [
       "core",
-      20
+      21
     ]
   ],
   "locals": [
@@ -438,6 +446,18 @@
     "scriptStateUC",
     "scriptStateOB",
     "scriptStateGB",
+    "winterAltarMachineName",
+    "winterAltarNoPetsOption",
+    "winterAltarUtil",
+    "winterAltarPetDropdown",
+    "winterAltarStatusText",
+    "winterAltarSupportedNames",
+    "isWinterAltarPetUsable",
+    "getWinterAltarOwnedPetNames",
+    "getSelectedWinterAltarNames",
+    "winterAltarListedNames",
+    "winterAltarIdleStatusShown",
+    "refreshWinterAltarPetList",
     "scriptStateKM",
     "scriptStateAFW",
     "setLuckEggActive",
@@ -484,5 +504,5 @@
     "buildSimulatedHatchPayload",
     "autoUpdateReloadQueued"
   ],
-  "statements": 565
+  "statements": 582
 }
