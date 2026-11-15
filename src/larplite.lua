@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.60"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.61"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.61",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Admin egg detection", description = "Admin eggs show their real name, and the luck banner reads the multiplier and timer from the in-game sign.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.60",
 		releasedAt = "November 15, 2026",
@@ -10354,17 +10361,127 @@ do
 		return activeEvents
 	end
 
+	-- The summoned-egg area keeps a dormant "4x Luck" egg's data next to whatever admin
+	-- egg is really up, so the first egg name found there is often the wrong one. An
+	-- admin egg named anywhere in it wins.
+	activeStates.BGSI_Lite_FindAdminEggName = function()
+		local root = Workspace:FindFirstChild("SummonedEgg")
+		if not root or type(eggDataModule) ~= "table" then
+			return nil
+		end
+		local adminNames = {}
+		for name, info in pairs(eggDataModule) do
+			if type(name) == "string" and type(info) == "table" and info.IsAdminEgg == true then
+				table.insert(adminNames, name)
+			end
+		end
+		table.sort(adminNames, function(left, right)
+			return #left > #right
+		end)
+		local function match(value)
+			if type(value) ~= "string" or value == "" then
+				return nil
+			end
+			local text = value:gsub("<[^>]->", "")
+			local info = eggDataModule[text]
+			if type(info) == "table" and info.IsAdminEgg == true then
+				return text
+			end
+			local lower = text:lower()
+			for _, name in ipairs(adminNames) do
+				if lower:find(name:lower(), 1, true) then
+					return name
+				end
+			end
+			return nil
+		end
+		local objects = root:GetDescendants()
+		table.insert(objects, 1, root)
+		for _, object in ipairs(objects) do
+			local found = match(object.Name)
+			if not found and object:IsA("StringValue") then
+				found = match(object.Value)
+			end
+			if not found and (object:IsA("TextLabel") or object:IsA("TextButton")) then
+				found = match(object.Text)
+			end
+			if not found then
+				for _, value in pairs(object:GetAttributes()) do
+					found = match(value)
+					if found then
+						break
+					end
+				end
+			end
+			if found then
+				return found
+			end
+		end
+		return nil
+	end
+
+	-- The luck sign (a clover with "x200000" and a countdown) is a world GUI the game
+	-- places by the summoned egg. Every billboard and surface GUI in the world is kept in
+	-- a list as it appears, so finding the sign is a walk over a few dozen GUIs rather
+	-- than the whole map.
+	if not activeStates.BGSI_Lite_WorldGuis then
+		activeStates.BGSI_Lite_WorldGuis = setmetatable({}, { __mode = "k" })
+		local function track(object)
+			if object:IsA("BillboardGui") or object:IsA("SurfaceGui") then
+				activeStates.BGSI_Lite_WorldGuis[object] = true
+			end
+		end
+		task.spawn(function()
+			for _, object in ipairs(Workspace:GetDescendants()) do
+				track(object)
+			end
+		end)
+		Workspace.DescendantAdded:Connect(track)
+	end
+	activeStates.BGSI_Lite_FindLuckSign = function()
+		local best
+		for gui in pairs(activeStates.BGSI_Lite_WorldGuis) do
+			if gui.Parent and gui.Enabled ~= false then
+				local multiplier, seconds
+				for _, label in ipairs(gui:GetDescendants()) do
+					if (label:IsA("TextLabel") or label:IsA("TextButton")) and label.Visible then
+						local text = tostring(label.Text or ""):gsub("<[^>]->", ""):match("^%s*(.-)%s*$")
+						local multi = text:match("^[xX×]%s*([%d,%.]+)$") or text:match("^([%d,%.]+)%s*[xX×]$")
+						if multi then
+							multiplier = tonumber((multi:gsub(",", ""))) or multiplier
+						end
+						local h, m, sec = text:match("^(%d+):(%d%d):(%d%d)$")
+						if h then
+							seconds = tonumber(h) * 3600 + tonumber(m) * 60 + tonumber(sec)
+						else
+							m, sec = text:match("^(%d+):(%d%d)$")
+							if m then
+								seconds = tonumber(m) * 60 + tonumber(sec)
+							end
+						end
+					end
+				end
+				if multiplier and multiplier > 1 and seconds and (not best or multiplier > best.multiplier) then
+					best = { multiplier = multiplier, seconds = seconds }
+				end
+			end
+		end
+		return best
+	end
+
 	-- A summoned luck egg (4x Luck, or an admin egg with its own multiplier such as
 	-- "x250,000 Admin DIY Egg"). Reads the real egg name from the game's egg list, the
 	-- multiplier and timing from the summoned egg's attributes or its billboard text,
 	-- and sends a short sample of what it saw so the dashboard can be tuned against it.
 	activeStates.BGSI_Lite_BuildLuckEventSnapshot = function()
 		local root = Workspace:FindFirstChild("SummonedEgg")
-		if not root then
+		if not root and not activeStates.BGSI_Lite_FindLuckSign() then
 			return nil
 		end
-		local objects = root:GetDescendants()
-		table.insert(objects, 1, root)
+		local objects = root and root:GetDescendants() or {}
+		if root then
+			table.insert(objects, 1, root)
+		end
 		local eggs = type(eggDataModule) == "table" and eggDataModule or {}
 		local function parseNumber(text)
 			local digits = tostring(text or ""):gsub(",", "")
@@ -10462,9 +10579,16 @@ do
 				consider(attributeName, attributeValue)
 			end
 		end
+		eggName = activeStates.BGSI_Lite_FindAdminEggName() or eggName
 		if not eggName then
 			local luckName = activeStates.BGSI_Lite_FindLuckEggName and activeStates.BGSI_Lite_FindLuckEggName()
 			eggName = luckName
+		end
+		local sign = activeStates.BGSI_Lite_FindLuckSign()
+		if sign then
+			multiplier = sign.multiplier
+			timeLeft = timeLeft or sign.seconds
+			table.insert(sample, 1, { key = "sign", value = "x" .. tostring(sign.multiplier) .. " " .. tostring(sign.seconds) .. "s" })
 		end
 		if not eggName then
 			return nil
@@ -16632,8 +16756,12 @@ do
 				local currentEggName = recentHatchActivity
 					and tostring(activeStates.BGSI_Lite_LastHatchRequestedEgg or "")
 					or nil
+				if currentEggName and currentEggName:lower():match("^%d+x%s+luck") and type(activeStates.BGSI_Lite_FindAdminEggName) == "function" then
+					currentEggName = activeStates.BGSI_Lite_FindAdminEggName() or currentEggName
+				end
 				if (not currentEggName or currentEggName == "") and activeStates.BGSI_Lite_LuckEggActive == true then
-					currentEggName = activeStates.BGSI_Lite_LuckEggName
+					currentEggName = (type(activeStates.BGSI_Lite_FindAdminEggName) == "function" and activeStates.BGSI_Lite_FindAdminEggName())
+						or activeStates.BGSI_Lite_LuckEggName
 						or activeStates.BGSI_Lite_FindLuckEggName()
 						or "4x Luck Ultra Carnival Egg"
 				elseif (not currentEggName or currentEggName == "") and activeStates.BGSI_Lite_RiftEggActive == true then

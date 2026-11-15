@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.15.60",
+  "version": "2026.11.15.61",
   "modules": {
     "core": {
-      "path": "modules/core/a66cf7800371b48f01a1.lua",
+      "path": "modules/core/258664289a49958ffb8f.lua",
       "bytes": 491592,
       "blocks": 21
     },
     "changelog": {
-      "path": "modules/changelog/e49f818c2f72be6e869d.lua",
-      "bytes": 68885,
+      "path": "modules/changelog/fe20cbfab57817cbe18a.lua",
+      "bytes": 69150,
       "blocks": 1
     },
     "main": {
@@ -57,13 +57,13 @@
       "blocks": 2
     },
     "rifts": {
-      "path": "modules/rifts/8fdb86550541ae4847c5.lua",
-      "bytes": 16950,
+      "path": "modules/rifts/c44370a2d44b01f42c30.lua",
+      "bytes": 20895,
       "blocks": 2
     },
     "game": {
-      "path": "modules/game/d04d15d6ce4b998726d7.lua",
-      "bytes": 200294,
+      "path": "modules/game/47442d4dd9d0a3dfb8a8.lua",
+      "bytes": 200641,
       "blocks": 2
     },
     "enchant": {
