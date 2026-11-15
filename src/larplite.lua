@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.65"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.66"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.66",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Admin egg banner", description = "The site shows the luck boost even when the egg's name can't be read.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.65",
 		releasedAt = "November 15, 2026",
@@ -10663,7 +10670,13 @@ do
 			table.insert(sample, 1, { key = "sign", value = "x" .. tostring(sign.multiplier) .. " " .. tostring(sign.seconds) .. "s" })
 		end
 		if not eggName then
-			return nil
+			-- The sign is up but no egg name was found: still show the boost, and send
+			-- what was read either way so a miss can be traced.
+			if multiplier and multiplier > 1 then
+				eggName = "Admin Egg"
+			else
+				return { id = "probe", name = "", multiplier = 0, sample = sample }
+			end
 		end
 		if not multiplier then
 			multiplier = tonumber(eggName:lower():match("^(%d+)x%s+luck"))
