@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.64"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.65"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.65",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Several webhooks", description = "List more than one webhook and alerts take turns between them, so a busy fleet never waits on one.", icon = "zap" },
+		},
+	},
 	{
 		version = "2026.11.15.64",
 		releasedAt = "November 15, 2026",
@@ -17359,26 +17366,42 @@ do
 		-- and tries again, so a burst of hatches arrives late rather than not at all. Only a
 		-- webhook Discord says no longer exists (404) or will never accept (400/401/403) is
 		-- given up on.
-		activeStates.BGSI_Lite_WebhookQueue = type(activeStates.BGSI_Lite_WebhookQueue) == "table"
-				and activeStates.BGSI_Lite_WebhookQueue
+		activeStates.BGSI_Lite_WebhookQueues = type(activeStates.BGSI_Lite_WebhookQueues) == "table"
+				and activeStates.BGSI_Lite_WebhookQueues
 			or {}
 		activeStates.BGSI_Lite_QueueWebhook = function(url, payload)
-			local queue = activeStates.BGSI_Lite_WebhookQueue
-			table.insert(queue, { url = url, payload = payload, attempts = 0 })
-			while #queue > 2000 do
-				table.remove(queue, 1)
+			local queues = activeStates.BGSI_Lite_WebhookQueues
+			local queue = queues[url]
+			if not queue then
+				queue = { items = {}, running = false }
+				queues[url] = queue
 			end
-			if activeStates.BGSI_Lite_WebhookWorkerRunning then
+			table.insert(queue.items, { payload = payload, attempts = 0 })
+			while #queue.items > 2000 do
+				table.remove(queue.items, 1)
+			end
+			if queue.running then
 				return
 			end
-			activeStates.BGSI_Lite_WebhookWorkerRunning = true
+			queue.running = true
 			task.spawn(function()
-				while #queue > 0 do
-					local item = queue[1]
-					local ok, status, retryAfter = runRebirthFuse(item.url, item.payload)
-					if ok or status == 400 or status == 401 or status == 403 or status == 404 then
-						table.remove(queue, 1)
+				while #queue.items > 0 do
+					local item = queue.items[1]
+					local ok, status, retryAfter = runRebirthFuse(url, item.payload)
+					if ok then
+						table.remove(queue.items, 1)
 						task.wait(0.45)
+					elseif status == 400 then
+						table.remove(queue.items, 1)
+					elseif status == 401 or status == 403 or status == 404 then
+						-- This webhook is gone: hand its alerts to another one that still works.
+						table.remove(queue.items, 1)
+						for otherUrl in string.gmatch(tostring(Config.webhookURL or ""), "([^,%s]+)") do
+							if otherUrl ~= url then
+								activeStates.BGSI_Lite_QueueWebhook(otherUrl, item.payload)
+								break
+							end
+						end
 					else
 						item.attempts += 1
 						local delay = tonumber(retryAfter)
@@ -17388,7 +17411,7 @@ do
 						task.wait(math.clamp(delay or math.min(30, 2 ^ math.min(item.attempts, 5)), 0.5, 60))
 					end
 				end
-				activeStates.BGSI_Lite_WebhookWorkerRunning = false
+				queue.running = false
 			end)
 		end
 
@@ -24889,7 +24912,7 @@ function getShrineLevelValue(loopSlotO)
 	if not loopSlotO or loopSlotO == "" then
 		return scriptStateACS
 	end
-	for scriptStateFZ in string.gmatch(loopSlotO, "([^,]+)") do
+	for scriptStateFZ in string.gmatch(loopSlotO, "([^,%s]+)") do
 		scriptStateFZ = scriptStateFZ:match("^%s*(.-)%s*$")
 		if scriptStateFZ and scriptStateFZ ~= "" then
 			table.insert(scriptStateACS, scriptStateFZ)
@@ -26238,6 +26261,14 @@ function runRebirthMachineLoop(
 		sendCache[dedupeId] = now
 	end
 	local scriptStateABR = getShrineLevelValue(Config.webhookURL)
+	-- With several webhooks, each alert goes to the next one in turn instead of to all
+	-- of them, so they share Discord's rate limit. Accounts start at different points
+	-- so a fleet spreads out too.
+	if #scriptStateABR > 1 then
+		local turn = (tonumber(activeStates.BGSI_Lite_WebhookTurn) or (LocalPlayer.UserId % #scriptStateABR)) + 1
+		activeStates.BGSI_Lite_WebhookTurn = turn
+		scriptStateABR = { scriptStateABR[(turn % #scriptStateABR) + 1] }
+	end
 	for loopSlotBY, webhookURLEntry in ipairs(scriptStateABR) do
 		local scriptStateAAK = Config.webhookHidePlayerName == true
 		local scriptStateGN = (scriptStateAAK and scriptStateYR) or scriptStateEI
