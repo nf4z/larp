@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.56"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.57"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.57",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Connection key for single accounts", description = "The Game tab shows and copies your dashboard key, so you no longer need a fleet to get it.", icon = "key" },
+		},
+	},
 	{
 		version = "2026.11.15.56",
 		releasedAt = "November 15, 2026",
@@ -15396,6 +15403,57 @@ do
 			saveConfig()
 		end,
 	})
+	-- The key used to live only on the Leader tab, which an account running on its own
+	-- never gets. Every account can see and copy it here.
+	local soloKeyParagraph = gameTab:AddParagraph({ Title = "Your connection key", Content = "Getting a key..." })
+	gameTab:AddButton({
+		Title = "Copy Connection Key",
+		Description = "On larplite.xyz choose 'Open with a connection key' and paste it to see this account.",
+		Callback = function()
+			local key = activeStates.BGSI_Lite_ValidDashboardKey
+				and activeStates.BGSI_Lite_ValidDashboardKey(Config.dashboardIngestToken)
+			if not key then
+				Interface:Notify({
+					Title = "Account Dashboard",
+					Content = "No key yet. Turn on Connect to Account Dashboard and wait a few seconds.",
+					Duration = 5,
+				})
+				return
+			end
+			local copyFunction = setclipboard or toclipboard or (type(Clipboard) == "table" and Clipboard.set)
+			if type(copyFunction) == "function" and pcall(copyFunction, key) then
+				Interface:Notify({
+					Title = "Account Dashboard",
+					Content = "Key copied. On larplite.xyz choose 'Open with a connection key' and paste it.",
+					Duration = 6,
+				})
+			else
+				Interface:Notify({ Title = "Account Dashboard", Content = "This executor cannot copy. Key: " .. key, Duration = 20 })
+			end
+		end,
+	})
+	task.spawn(function()
+		local lastText
+		while isCurrentRun() do
+			local key = activeStates.BGSI_Lite_ValidDashboardKey
+				and activeStates.BGSI_Lite_ValidDashboardKey(Config.dashboardIngestToken)
+			local text
+			if Config.dashboardSyncEnabled ~= true then
+				text = "Turn on Connect to Account Dashboard above to get a key."
+			elseif key then
+				text = "Key ending " .. string.sub(key, -6) .. ". Copy it and open larplite.xyz with it."
+			else
+				text = "Getting a key..."
+			end
+			if text ~= lastText then
+				lastText = text
+				pcall(function()
+					soloKeyParagraph:SetDesc(text)
+				end)
+			end
+			task.wait(2)
+		end
+	end)
 	gameTab:AddInput("DashboardConnectionKey", {
 		Title = "Connection Key",
 		Description = "Paste the 64-character key from larplite.xyz. Saved for this account only.",
