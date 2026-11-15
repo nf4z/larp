@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.66"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.67"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.67",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Admin egg name", description = "The site's luck banner uses the egg's in-game title.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.66",
 		releasedAt = "November 15, 2026",
@@ -10673,7 +10680,17 @@ do
 			-- The sign is up but no egg name was found: still show the boost, and send
 			-- what was read either way so a miss can be traced.
 			if multiplier and multiplier > 1 then
-				eggName = "Admin Egg"
+				-- Use the egg's own billboard title ("Admin Abuse Egg!") when there is one.
+				local title
+				for _, object in ipairs(objects) do
+					if object.Name == "Title" and (object:IsA("TextLabel") or object:IsA("TextButton")) then
+						title = tostring(object.Text or ""):gsub("<[^>]->", ""):gsub("!+%s*$", ""):match("^%s*(.-)%s*$")
+						if title ~= "" then
+							break
+						end
+					end
+				end
+				eggName = (title and title ~= "") and title:sub(1, 60) or "Admin Egg"
 			else
 				return { id = "probe", name = "", multiplier = 0, sample = sample }
 			end
