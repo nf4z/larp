@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.68"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.69"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.69",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Admin egg on the site", description = "Accounts hatching an admin egg show its real name instead of the 4x Luck egg.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.68",
 		releasedAt = "November 15, 2026",
@@ -10749,6 +10756,12 @@ do
 			secondsLeft = secondsUntilSpawn + duration
 		end
 		local info = eggs[eggName]
+		-- Remembered so the account's current egg shows the admin egg, not the dormant
+		-- "4x Luck" egg whose name the summoned egg keeps in game.
+		if not eggName:lower():match("^%d+x%s+luck") then
+			activeStates.BGSI_Lite_LuckEventName = eggName
+			activeStates.BGSI_Lite_LuckEventSeenAt = os.clock()
+		end
 		return {
 			id = string.lower(eggName),
 			name = eggName,
@@ -16904,7 +16917,9 @@ do
 					and tostring(activeStates.BGSI_Lite_LastHatchRequestedEgg or "")
 					or nil
 				if currentEggName and currentEggName:lower():match("^%d+x%s+luck") and type(activeStates.BGSI_Lite_FindAdminEggName) == "function" then
-					currentEggName = activeStates.BGSI_Lite_FindAdminEggName() or currentEggName
+					currentEggName = activeStates.BGSI_Lite_FindAdminEggName()
+						or (Workspace:FindFirstChild("SummonedEgg") and os.clock() - (activeStates.BGSI_Lite_LuckEventSeenAt or -1e9) < 60 and activeStates.BGSI_Lite_LuckEventName)
+						or currentEggName
 				end
 				if (not currentEggName or currentEggName == "") and activeStates.BGSI_Lite_LuckEggActive == true then
 					currentEggName = (type(activeStates.BGSI_Lite_FindAdminEggName) == "function" and activeStates.BGSI_Lite_FindAdminEggName())
