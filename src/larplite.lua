@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.57"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.58"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.58",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Backup dashboard address", description = "If your network blocks larplite.xyz, accounts switch to the backup address and stay connected.", icon = "shield-check" },
+		},
+	},
 	{
 		version = "2026.11.15.57",
 		releasedAt = "November 15, 2026",
@@ -2978,6 +2985,63 @@ do
 	end
 end
 
+-- Dashboard hosts. Some internet providers' security filters block larplite.xyz outright
+-- (the connection is cut during the TLS handshake), which silently disconnected every
+-- account at once. The same dashboard also answers on its workers.dev address, so a
+-- request that cannot reach one host is retried on the other, the working one is kept,
+-- and the main host is tried again every few minutes.
+do
+	local PRIMARY = "https://larplite.xyz"
+	local BACKUP = "https://phantom.lathanscommunity.workers.dev"
+	activeStates.BGSI_Lite_DashboardHostPreferred = activeStates.BGSI_Lite_DashboardHostPreferred or nil
+	activeStates.BGSI_Lite_DashboardHostCheckedAt = activeStates.BGSI_Lite_DashboardHostCheckedAt or 0
+	activeStates.BGSI_Lite_DashboardHosts = function()
+		local configured = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
+		configured = configured:gsub("/api/.*$", ""):gsub("/+$", "")
+		if configured == "" then
+			configured = PRIMARY
+		end
+		if not configured:match("^https?://") then
+			configured = "https://" .. configured
+		end
+		-- A self-hosted dashboard has no backup address.
+		if configured:lower() ~= PRIMARY then
+			return { configured }
+		end
+		local preferred = activeStates.BGSI_Lite_DashboardHostPreferred
+		if preferred == BACKUP and tick() - activeStates.BGSI_Lite_DashboardHostCheckedAt < 300 then
+			return { BACKUP, PRIMARY }
+		end
+		return { PRIMARY, BACKUP }
+	end
+	activeStates.BGSI_Lite_UseDashboardHost = function(host)
+		if activeStates.BGSI_Lite_DashboardHostPreferred ~= host then
+			activeStates.BGSI_Lite_DashboardHostPreferred = host
+			if host == BACKUP then
+				print("[" .. LocalPlayer.Name .. "] larplite.xyz is unreachable from this network; using the backup dashboard address.")
+			end
+		end
+		if host == BACKUP then
+			activeStates.BGSI_Lite_DashboardHostCheckedAt = tick()
+		end
+	end
+	-- A response that never came, came back as a web page, or came from a filter's block
+	-- page means the host was not reached; an answer from the dashboard (even an error)
+	-- means it was.
+	activeStates.BGSI_Lite_DashboardHostUnreachable = function(requestOk, response)
+		if not requestOk or type(response) ~= "table" then
+			return true
+		end
+		local statusCode = tonumber(response.StatusCode or response.Status or response.status_code) or 0
+		local body = tostring(response.Body or response.body or "")
+		if statusCode == 0 or statusCode >= 520 or (statusCode >= 300 and statusCode < 400) then
+			return true
+		end
+		local trimmed = body:match("^%s*(.)") or ""
+		return trimmed ~= "{" and trimmed ~= "["
+	end
+end
+
 -- Fleet connection key: every account on this machine shares one dashboard key through
 -- a workspace file. The first account to need one asks the dashboard for it; the rest
 -- pick it up from the file, and the Leader tab shows it for signing in on the site.
@@ -3001,15 +3065,7 @@ do
 		return ok and validKey(content) or nil
 	end
 	local function dashboardBaseUrl()
-		local endpoint = tostring(Config.dashboardEndpoint or ""):match("^%s*(.-)%s*$") or ""
-		endpoint = endpoint:gsub("/api/.*$", ""):gsub("/+$", "")
-		if endpoint == "" then
-			endpoint = "https://larplite.xyz"
-		end
-		if not endpoint:match("^https?://") then
-			endpoint = "https://" .. endpoint
-		end
-		return endpoint
+		return activeStates.BGSI_Lite_DashboardHosts()[1]
 	end
 	activeStates.BGSI_Lite_ValidDashboardKey = validKey
 	activeStates.BGSI_Lite_ShareDashboardKey = function(key)
@@ -3058,18 +3114,23 @@ do
 			end
 		end
 		local issuedKey
-		pcall(function()
-			local response = requestFunction({
-				Url = dashboardBaseUrl() .. "/api/v1/ingest-key",
+		for _, host in ipairs(activeStates.BGSI_Lite_DashboardHosts()) do
+			local requestOk, response = pcall(requestFunction, {
+				Url = host .. "/api/v1/ingest-key",
 				Method = "POST",
 				Headers = { ["Content-Type"] = "application/json" },
 				Body = "{}",
 				Timeout = 10,
 			})
-			local body = type(response) == "table" and tostring(response.Body or response.body or "") or ""
-			local decoded = HttpService:JSONDecode(body)
-			issuedKey = type(decoded) == "table" and validKey(decoded.ingestToken) or nil
-		end)
+			if not activeStates.BGSI_Lite_DashboardHostUnreachable(requestOk, response) then
+				activeStates.BGSI_Lite_UseDashboardHost(host)
+				pcall(function()
+					local decoded = HttpService:JSONDecode(tostring(response.Body or response.body or ""))
+					issuedKey = type(decoded) == "table" and validKey(decoded.ingestToken) or nil
+				end)
+				break
+			end
+		end
 		requestInFlight = false
 		if canUseFiles() and type(delfile) == "function" then
 			pcall(delfile, LOCK_FILE)
@@ -16755,18 +16816,33 @@ do
 			dashboardRequest = type(httpTable) == "table" and rawget(httpTable, "request") or nil
 		end
 		local function sendDashboardHeartbeat(encodedPayload, useRelay)
-			local requestOk, response = pcall(dashboardRequest, {
-				Url = useRelay and "http://127.0.0.1:17676/v1/heartbeat" or dashboardEndpoint,
-				Method = "POST",
-				Headers = {
-					["Content-Type"] = "application/json",
-					["Authorization"] = "Bearer " .. dashboardIngestToken,
-					["X-Larplite-Protocol"] = "2",
-					["X-Larplite-Upstream"] = dashboardEndpoint,
-				},
-				Body = encodedPayload,
-				Timeout = useRelay and 1 or 10,
-			})
+			local function post(url, upstream)
+				return pcall(dashboardRequest, {
+					Url = url,
+					Method = "POST",
+					Headers = {
+						["Content-Type"] = "application/json",
+						["Authorization"] = "Bearer " .. dashboardIngestToken,
+						["X-Larplite-Protocol"] = "2",
+						["X-Larplite-Upstream"] = upstream,
+					},
+					Body = encodedPayload,
+					Timeout = useRelay and 1 or 10,
+				})
+			end
+			local requestOk, response
+			if useRelay then
+				requestOk, response = post("http://127.0.0.1:17676/v1/heartbeat", dashboardEndpoint)
+			else
+				local path = dashboardEndpoint:match("^https?://[^/]+(/.*)$") or "/api/proxy/heartbeat"
+				for _, host in ipairs(activeStates.BGSI_Lite_DashboardHosts()) do
+					requestOk, response = post(host .. path, host .. path)
+					if not activeStates.BGSI_Lite_DashboardHostUnreachable(requestOk, response) then
+						activeStates.BGSI_Lite_UseDashboardHost(host)
+						break
+					end
+				end
+			end
 			local statusCode = requestOk
 					and type(response) == "table"
 					and tonumber(response.StatusCode or response.Status or response.status_code)
