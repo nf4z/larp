@@ -27,6 +27,34 @@ if type(getgenv) == "function" then
 		end
 	end)
 	globalEnv.RayfieldGen2Window = nil
+	-- Every window any earlier run made, even one whose handle a later run overwrote.
+	for _, w in ipairs(rawget(globalEnv, "BGSI_Lite_Windows") or {}) do
+		pcall(function()
+			if not w.unloaded then
+				w:Unload()
+			end
+		end)
+	end
+	globalEnv.BGSI_Lite_Windows = {}
+	-- A menu left by an older version (before windows were tracked) is found by its title.
+	pcall(function()
+		local roots = { game:GetService("CoreGui") }
+		if type(gethui) == "function" then
+			table.insert(roots, gethui())
+		end
+		for _, root in ipairs(roots) do
+			for _, gui in ipairs(root:GetChildren()) do
+				if gui:IsA("ScreenGui") then
+					for _, label in ipairs(gui:GetDescendants()) do
+						if label:IsA("TextLabel") and label.Text == "LarpLite - BGSI" then
+							gui:Destroy()
+							break
+						end
+					end
+				end
+			end
+		end
+	end)
 	-- Unload above may only flag the old window for removal rather than tearing it down
 	-- synchronously - give it a frame before this run builds its own window, so the two
 	-- don't ever exist on screen at the same time.
@@ -67,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.67"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.68"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.68",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "No leftover menus", description = "Reloading closes every menu from earlier loads, so a stuck duplicate window can't stay on screen.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.15.67",
 		releasedAt = "November 15, 2026",
@@ -4531,6 +4566,16 @@ end
 			sidebarLayout = true,
 		})
 		activeStates.RayfieldGen2Window = rayfieldWindow
+		activeStates.BGSI_Lite_Windows = activeStates.BGSI_Lite_Windows or {}
+		table.insert(activeStates.BGSI_Lite_Windows, rayfieldWindow)
+		-- A run replaced while it was still loading must not leave its window behind.
+		if activeStates._1rzHubLiteRunToken ~= currentRunToken then
+			task.defer(function()
+				pcall(function()
+					rayfieldWindow:Unload()
+				end)
+			end)
+		end
 		return setmetatable({ Native = rayfieldWindow, Tabs = {} }, { __index = windowMethods })
 	end
 	function Interface:CreateCompetitionPopup(properties)
