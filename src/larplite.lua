@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.61"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.62"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.62",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Admin egg banner", description = "Reads the luck multiplier from the summoned egg's own sign and the egg name from its label.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.61",
 		releasedAt = "November 15, 2026",
@@ -10397,6 +10404,15 @@ do
 		end
 		local objects = root:GetDescendants()
 		table.insert(objects, 1, root)
+		for _, extraName in ipairs({ "EggText", "EggPlatformSpawn" }) do
+			local extra = Workspace:FindFirstChild(extraName)
+			if extra then
+				table.insert(objects, extra)
+				for _, child in ipairs(extra:GetDescendants()) do
+					table.insert(objects, child)
+				end
+			end
+		end
 		for _, object in ipairs(objects) do
 			local found = match(object.Name)
 			if not found and object:IsA("StringValue") then
@@ -10580,11 +10596,42 @@ do
 			end
 		end
 		eggName = activeStates.BGSI_Lite_FindAdminEggName() or eggName
+		for _, extraName in ipairs({ "EggText", "EggPlatformSpawn" }) do
+			local extra = Workspace:FindFirstChild(extraName)
+			if extra then
+				for _, object in ipairs(extra:GetDescendants()) do
+					if object:IsA("TextLabel") or object:IsA("TextButton") then
+						consider(extraName .. ".text", object.Text)
+					end
+				end
+				for attributeName, attributeValue in pairs(extra:GetAttributes()) do
+					consider(extraName .. "." .. attributeName, attributeValue)
+				end
+			end
+		end
 		if not eggName then
 			local luckName = activeStates.BGSI_Lite_FindLuckEggName and activeStates.BGSI_Lite_FindLuckEggName()
 			eggName = luckName
 		end
 		local sign = activeStates.BGSI_Lite_FindLuckSign()
+		local eggSign = root and root:FindFirstChild("Sign")
+		local signGui = eggSign and eggSign:FindFirstChild("Display") and eggSign.Display:FindFirstChildWhichIsA("SurfaceGui")
+		if signGui then
+			for _, label in ipairs(signGui:GetDescendants()) do
+				if label:IsA("TextLabel") or label:IsA("TextButton") then
+					local text = tostring(label.Text or ""):gsub("<[^>]->", ""):match("^%s*(.-)%s*$")
+					local multi = text:match("^[xX×]%s*([%d,%.]+)$")
+					local value = multi and tonumber((multi:gsub(",", "")))
+					if value and value > 1 then
+						multiplier = value
+					end
+					local m, sec = text:match("(%d+):(%d%d)")
+					if m and not timeLeft then
+						timeLeft = tonumber(m) * 60 + tonumber(sec)
+					end
+				end
+			end
+		end
 		if sign then
 			multiplier = sign.multiplier
 			timeLeft = timeLeft or sign.seconds
@@ -18329,10 +18376,15 @@ do
 									activeStates.BGSI_Lite_BuildGlobalEventSnapshot,
 									{}
 								),
-								luckEvent = activeStates.BGSI_Lite_SafeDashboardBuild(
-									activeStates.BGSI_Lite_BuildLuckEventSnapshot,
-									nil
-								),
+								luckEvent = (function()
+									local ok, result = pcall(activeStates.BGSI_Lite_BuildLuckEventSnapshot)
+									if ok then
+										return result
+									end
+									return Workspace:FindFirstChild("SummonedEgg")
+											and { id = "error", name = "", error = tostring(result):sub(1, 300) }
+										or nil
+								end)(),
 								fourXEgg = activeStates.BGSI_Lite_SafeDashboardBuild(
 									activeStates.BGSI_Lite_BuildFourXEggSnapshot,
 									nil
