@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.59"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.60"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.60",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Reliable updates", description = "Updating from the dashboard loads the exact new version, so it no longer fails while GitHub catches up.", icon = "refresh-cw" },
+		},
+	},
 	{
 		version = "2026.11.15.59",
 		releasedAt = "November 15, 2026",
@@ -18766,6 +18773,12 @@ do
 														requestedVersion,
 													}, "-")
 													local sourceReference = "main"
+													-- The dashboard sends the exact commit for the version it wants; that
+													-- needs no GitHub API call and is never served stale by the cache.
+													local commandRevision = tostring(dashboardCommand.sourceRevision or "")
+													if commandRevision:match("^%x+$") and #commandRevision >= 7 then
+														sourceReference = commandRevision
+													else
 													pcall(function()
 														local commitMetadata = HttpService:JSONDecode(game:HttpGet(
 															"https://api.github.com/repos/nf4z/larp/commits/main?reload="
@@ -18779,6 +18792,7 @@ do
 															sourceReference = commitSha
 														end
 													end)
+													end
 													scriptSource = game:HttpGet(
 														"https://raw.githubusercontent.com/nf4z/larp/"
 															.. sourceReference
