@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.69"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.70"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.70",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Real admin egg name", description = "The site names the admin egg after the egg your pets hatch from, like Admin DIY Egg.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.15.69",
 		releasedAt = "November 15, 2026",
@@ -10686,7 +10693,15 @@ do
 				consider(attributeName, attributeValue)
 			end
 		end
-		eggName = activeStates.BGSI_Lite_FindAdminEggName() or eggName
+		local hatchedEgg = os.clock() - (activeStates.BGSI_Lite_LastHatchedEggAt or -1e9) < 30
+			and activeStates.BGSI_Lite_LastHatchedEggName
+		local hatchedInfo = hatchedEgg and type(eggs[hatchedEgg]) == "table" and eggs[hatchedEgg] or nil
+		if hatchedEgg and (hatchedEgg:lower():find("admin", 1, true) or (hatchedInfo and hatchedInfo.IsAdminEgg == true)) then
+			eggName = hatchedEgg
+		end
+		if not (hatchedEgg and eggName == hatchedEgg) then
+			eggName = activeStates.BGSI_Lite_FindAdminEggName() or eggName
+		end
 		for _, extraName in ipairs({ "EggText", "EggPlatformSpawn" }) do
 			local extra = Workspace:FindFirstChild(extraName)
 			if extra then
@@ -16917,7 +16932,8 @@ do
 					and tostring(activeStates.BGSI_Lite_LastHatchRequestedEgg or "")
 					or nil
 				if currentEggName and currentEggName:lower():match("^%d+x%s+luck") and type(activeStates.BGSI_Lite_FindAdminEggName) == "function" then
-					currentEggName = activeStates.BGSI_Lite_FindAdminEggName()
+					currentEggName = (os.clock() - (activeStates.BGSI_Lite_LastHatchedEggAt or -1e9) < 30 and activeStates.BGSI_Lite_LastHatchedEggName)
+						or activeStates.BGSI_Lite_FindAdminEggName()
 						or (Workspace:FindFirstChild("SummonedEgg") and os.clock() - (activeStates.BGSI_Lite_LuckEventSeenAt or -1e9) < 60 and activeStates.BGSI_Lite_LuckEventName)
 						or currentEggName
 				end
@@ -17545,6 +17561,20 @@ do
 						closeShell()
 					end)
 				end
+			end
+		end
+		-- The egg a pet really came from ("Admin DIY Egg") names the egg being hatched,
+		-- which in game can carry a dormant "4x Luck" egg's name.
+		if type(getWebhookHatchEggName) == "function" and not activeStates.BGSI_Lite_HatchEggTracked then
+			activeStates.BGSI_Lite_HatchEggTracked = true
+			local resolveHatchEggName = getWebhookHatchEggName
+			getWebhookHatchEggName = function(...)
+				local result = resolveHatchEggName(...)
+				if type(result) == "string" and result ~= "Unknown" and not result:lower():match("^%d+x%s+luck") then
+					activeStates.BGSI_Lite_LastHatchedEggName = result
+					activeStates.BGSI_Lite_LastHatchedEggAt = os.clock()
+				end
+				return result
 			end
 		end
 		activeStates.BGSI_Lite_GetDashboardPetAssetId = function(pet, petInfo)
