@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.54"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.55"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.14.55",
+		releasedAt = "November 14, 2026",
+		notes = {
+			{ title = "Correct egg collection", description = "Hatches are filed under the egg they really came from, and the dashboard gets each egg's real icon and pet list.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.14.54",
 		releasedAt = "November 14, 2026",
@@ -16400,6 +16407,104 @@ do
 		activeStates.BGSI_Lite_DashboardHandledCommands = {}
 		activeStates.BGSI_Lite_DashboardPendingHatches = {}
 		activeStates.BGSI_Lite_DashboardEggDiscoveries = {}
+		-- Which egg a hatched pet really came from. The collection used to file every
+		-- hatch under the egg the script believed was selected, which lags behind when
+		-- quests or rifts switch eggs - so one egg's pets piled up under another.
+		activeStates.BGSI_Lite_DiscoveryEggByPet = {}
+		activeStates.BGSI_Lite_EggHasPet = function(eggName, petName)
+			local egg = type(eggDataModule) == "table" and eggDataModule[eggName]
+			if type(egg) ~= "table" or type(egg.Pool) ~= "table" then
+				return false
+			end
+			for _, entry in pairs(egg.Pool) do
+				local item = type(entry) == "table" and entry.Item
+				if type(item) == "table" and item.Type == "Pet" and item.Name == petName then
+					return true
+				end
+			end
+			return false
+		end
+		activeStates.BGSI_Lite_ResolveDiscoveryEgg = function(hatchedPet, petInfo, eventName, hatchResult)
+			local function clean(value)
+				if type(value) == "table" then
+					value = value.Name or value.EggName
+				end
+				if type(value) ~= "string" then
+					return nil
+				end
+				value = value:match("^%s*(.-)%s*$")
+				if value ~= "" and value ~= "Unknown" and value ~= "None" then
+					return value
+				end
+				return nil
+			end
+			-- The hatch result names its egg; that is the cheap, exact answer.
+			if type(hatchResult) == "table" then
+				local resultEgg = clean(hatchResult.EggName)
+					or clean(hatchResult.Egg)
+					or (type(hatchResult.Pets) == "table" and clean(hatchResult.Name))
+				if resultEgg then
+					return resultEgg
+				end
+			end
+			local petName = activeStates.BGSI_Lite_GetHatchPetName(hatchedPet)
+			-- The selected egg is only trusted when the game's own data says it holds this pet.
+			local currentEgg = clean(activeStates.BGSI_Lite_CurrentEggName)
+			if currentEgg and activeStates.BGSI_Lite_EggHasPet(currentEgg, petName) then
+				return currentEgg
+			end
+			local cached = activeStates.BGSI_Lite_DiscoveryEggByPet[petName]
+			if cached == nil then
+				cached = false
+				if type(getWebhookHatchEggName) == "function" then
+					local ok, resolved = pcall(getWebhookHatchEggName, hatchedPet, petInfo, eventName, hatchResult)
+					cached = ok and clean(resolved) or false
+				end
+				activeStates.BGSI_Lite_DiscoveryEggByPet[petName] = cached
+			end
+			return cached or "Unknown Egg"
+		end
+		-- Every egg's real pet list and icon, straight from the game data. The dashboard
+		-- uses it to show the right egg icon, to list pets not hatched yet, and to drop
+		-- pets that were filed under the wrong egg by older versions.
+		activeStates.BGSI_Lite_BuildEggPoolQueue = function()
+			local queue = {}
+			for eggName, egg in pairs(type(eggDataModule) == "table" and eggDataModule or {}) do
+				if type(eggName) == "string" and type(egg) == "table" and type(egg.Pool) == "table" then
+					local pets = {}
+					for _, entry in pairs(egg.Pool) do
+						local item = type(entry) == "table" and entry.Item
+						if type(item) == "table" and item.Type == "Pet" and type(item.Name) == "string" and #pets < 60 then
+							local petInfo = type(petRarityData) == "table" and petRarityData[item.Name] or nil
+							local assetId
+							if type(petInfo) == "table" and type(activeStates.BGSI_Lite_GetDashboardPetAssetId) == "function" then
+								local ok, resolved = pcall(activeStates.BGSI_Lite_GetDashboardPetAssetId, {}, petInfo)
+								assetId = ok and resolved or nil
+							end
+							table.insert(pets, {
+								name = item.Name,
+								rarity = type(petInfo) == "table" and tostring(petInfo.Rarity or "") or "",
+								imageAssetId = assetId,
+								chance = tonumber(entry.Chance),
+							})
+						end
+					end
+					if #pets > 0 then
+						table.insert(queue, {
+							name = eggName,
+							iconAssetId = tostring(egg.Image or ""):match("%d+") or "",
+							pets = pets,
+						})
+					end
+				end
+			end
+			table.sort(queue, function(left, right)
+				return left.name < right.name
+			end)
+			return queue
+		end
+		activeStates.BGSI_Lite_EggPoolQueue = nil
+		activeStates.BGSI_Lite_EggPoolCursor = 0
 		activeStates.BGSI_Lite_RecordEggDiscovery = function(
 			eggName,
 			petName,
@@ -17763,6 +17868,23 @@ do
 									sentDashboardEggDiscoveries[discoveryKey] = sentQuantity
 								end
 							end
+							-- Egg pet lists go out a few at a time until every egg has been sent once.
+							local sentEggPoolCount = 0
+							if activeStates.BGSI_Lite_EggPoolQueue == nil then
+								local queueOk, queue = pcall(activeStates.BGSI_Lite_BuildEggPoolQueue)
+								activeStates.BGSI_Lite_EggPoolQueue = queueOk and queue or {}
+							end
+							do
+								local queue = activeStates.BGSI_Lite_EggPoolQueue
+								local cursor = activeStates.BGSI_Lite_EggPoolCursor
+								if cursor < #queue then
+									payload.eggPools = {}
+									for queueIndex = cursor + 1, math.min(#queue, cursor + 12) do
+										table.insert(payload.eggPools, queue[queueIndex])
+									end
+									sentEggPoolCount = #payload.eggPools
+								end
+							end
 							activeStates.BGSI_Lite_SentDashboardCommandResultCount = #pendingDashboardCommandResults
 							if activeStates.BGSI_Lite_SentDashboardCommandResultCount > 0 then
 								payload.commandResults = pendingDashboardCommandResults
@@ -17863,6 +17985,7 @@ do
 								for _ = 1, sentDashboardHatchCount do
 									table.remove(pendingDashboardHatches, 1)
 								end
+								activeStates.BGSI_Lite_EggPoolCursor = activeStates.BGSI_Lite_EggPoolCursor + sentEggPoolCount
 								for discoveryKey, sentQuantity in pairs(sentDashboardEggDiscoveries) do
 									local discovery = dashboardEggDiscoveries[discoveryKey]
 									if discovery then
@@ -26240,7 +26363,7 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 									getWebhookSuperLegendaryEnchantText(hatchedPet, petName, shiny, mythic, xl)
 								enchantments = enchantNames or {}
 							end
-							local eggName = tostring(activeStates.BGSI_Lite_CurrentEggName or "Unknown Egg")
+							local eggName = activeStates.BGSI_Lite_ResolveDiscoveryEgg(hatchedPet, petInfo, scriptStateKW, scriptStateNY)
 							local assetId = type(activeStates.BGSI_Lite_GetDashboardPetAssetId) == "function"
 									and activeStates.BGSI_Lite_GetDashboardPetAssetId(hatchedPet, petInfo)
 								or nil
