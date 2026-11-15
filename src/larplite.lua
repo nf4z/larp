@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.14.55"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.56"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.56",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Luck egg alerts", description = "The dashboard shows summoned 4x and admin eggs with their multiplier and a live countdown.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.11.14.55",
 		releasedAt = "November 14, 2026",
@@ -10264,6 +10271,144 @@ do
 		return activeEvents
 	end
 
+	-- A summoned luck egg (4x Luck, or an admin egg with its own multiplier such as
+	-- "x250,000 Admin DIY Egg"). Reads the real egg name from the game's egg list, the
+	-- multiplier and timing from the summoned egg's attributes or its billboard text,
+	-- and sends a short sample of what it saw so the dashboard can be tuned against it.
+	activeStates.BGSI_Lite_BuildLuckEventSnapshot = function()
+		local root = Workspace:FindFirstChild("SummonedEgg")
+		if not root then
+			return nil
+		end
+		local objects = root:GetDescendants()
+		table.insert(objects, 1, root)
+		local eggs = type(eggDataModule) == "table" and eggDataModule or {}
+		local function parseNumber(text)
+			local digits = tostring(text or ""):gsub(",", "")
+			local number = tonumber(digits)
+			if not number then
+				local value, suffix = digits:match("^([%d%.]+)([kKmMbB])$")
+				local scale = suffix and ({ k = 1e3, m = 1e6, b = 1e9 })[suffix:lower()]
+				number = value and scale and tonumber(value) and tonumber(value) * scale or nil
+			end
+			return number
+		end
+		local function parseClock(text)
+			local h, m, sec = text:match("(%d+):(%d%d):(%d%d)")
+			if h then
+				return tonumber(h) * 3600 + tonumber(m) * 60 + tonumber(sec)
+			end
+			m, sec = text:match("(%d+):(%d%d)")
+			if m then
+				return tonumber(m) * 60 + tonumber(sec)
+			end
+			local total, found = 0, false
+			for amount, unit in text:lower():gmatch("(%d+)%s*([hms])%f[%A]") do
+				found = true
+				total += tonumber(amount) * (unit == "h" and 3600 or unit == "m" and 60 or 1)
+			end
+			return found and total or nil
+		end
+		local eggName, multiplier, spawnAt, endsAt, duration
+		local spawnIn, timeLeft
+		local sample = {}
+		local now = getCurrentTimestamp()
+		local function consider(label, value)
+			if #sample < 40 then
+				table.insert(sample, { key = tostring(label):sub(1, 40), value = tostring(value):sub(1, 80) })
+			end
+			if type(value) == "number" then
+				local key = tostring(label):lower()
+				if key:find("luck") or key:find("multi") or key:find("boost") then
+					if value > 1 then
+						multiplier = math.max(multiplier or 0, value)
+					end
+				elseif key:find("despawn") or key:find("expire") or key:find("endat") or key:find("endtime") or key:find("endsat") then
+					endsAt = math.max(endsAt or 0, value)
+				elseif key:find("spawn") or key:find("start") or key:find("open") then
+					spawnAt = math.max(spawnAt or 0, value)
+				elseif key:find("duration") or key:find("lifetime") then
+					duration = value
+				end
+				return
+			end
+			if type(value) ~= "string" or value == "" then
+				return
+			end
+			local text = value:gsub("<[^>]->", ""):gsub("&nbsp;", " ")
+			if not eggName then
+				if type(eggs[text]) == "table" then
+					eggName = text
+				else
+					for name, info in pairs(eggs) do
+						if type(name) == "string" and type(info) == "table"
+							and (info.IsAdminEgg == true or name:lower():match("^%d+x%s+luck"))
+							and text:lower():find(name:lower(), 1, true)
+						then
+							eggName = name
+							break
+						end
+					end
+				end
+			end
+			-- "x250,000", "250,000x", "250K x Luck"
+			local multi = text:match("[xX]%s*([%d,%.]+[kKmMbB]?)") or text:match("([%d,%.]+[kKmMbB]?)%s*[xX]%f[%A]")
+			local parsed = multi and parseNumber(multi)
+			if parsed and parsed > 1 then
+				multiplier = math.max(multiplier or 0, parsed)
+			end
+			local seconds = parseClock(text)
+			if seconds then
+				local lower = text:lower()
+				if lower:find("spawn") or lower:find("arriv") or lower:find("in ") or lower:find("soon") then
+					spawnIn = seconds
+				else
+					timeLeft = seconds
+				end
+			end
+		end
+		for _, object in ipairs(objects) do
+			consider("name", object.Name)
+			if object:IsA("StringValue") or object:IsA("NumberValue") or object:IsA("IntValue") then
+				consider(object.Name, object.Value)
+			end
+			if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
+				consider("text", object.Text)
+			end
+			for attributeName, attributeValue in pairs(object:GetAttributes()) do
+				consider(attributeName, attributeValue)
+			end
+		end
+		if not eggName then
+			local luckName = activeStates.BGSI_Lite_FindLuckEggName and activeStates.BGSI_Lite_FindLuckEggName()
+			eggName = luckName
+		end
+		if not eggName then
+			return nil
+		end
+		if not multiplier then
+			multiplier = tonumber(eggName:lower():match("^(%d+)x%s+luck"))
+		end
+		local secondsUntilSpawn = spawnIn or (spawnAt and spawnAt > now and spawnAt - now) or 0
+		local secondsLeft = timeLeft or (endsAt and endsAt > now and endsAt - now) or 0
+		if secondsLeft <= 0 and duration and secondsUntilSpawn > 0 then
+			secondsLeft = secondsUntilSpawn + duration
+		end
+		local info = eggs[eggName]
+		return {
+			id = string.lower(eggName),
+			name = eggName,
+			admin = type(info) == "table" and info.IsAdminEgg == true or false,
+			multiplier = multiplier or 0,
+			iconAssetId = type(info) == "table" and tostring(info.Image or ""):match("%d+") or "",
+			world = type(info) == "table" and tostring(info.World or "") or "",
+			secondsUntilSpawn = math.max(0, math.floor(secondsUntilSpawn)),
+			secondsLeft = math.max(0, math.floor(secondsLeft)),
+			duration = duration and math.floor(duration) or nil,
+			sample = sample,
+		}
+	end
+
 	activeStates.BGSI_Lite_BuildFourXEggSnapshot = function()
 		local luckEggName = activeStates.BGSI_Lite_FindLuckEggName
 				and activeStates.BGSI_Lite_FindLuckEggName()
@@ -17823,6 +17968,10 @@ do
 								gameEvents = activeStates.BGSI_Lite_SafeDashboardBuild(
 									activeStates.BGSI_Lite_BuildGlobalEventSnapshot,
 									{}
+								),
+								luckEvent = activeStates.BGSI_Lite_SafeDashboardBuild(
+									activeStates.BGSI_Lite_BuildLuckEventSnapshot,
+									nil
 								),
 								fourXEgg = activeStates.BGSI_Lite_SafeDashboardBuild(
 									activeStates.BGSI_Lite_BuildFourXEggSnapshot,
