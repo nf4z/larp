@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.63"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.64"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.64",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Webhook sends every hatch", description = "Repeat hatches are no longer dropped as duplicates, and alerts queue and retry through Discord's rate limit.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.15.63",
 		releasedAt = "November 15, 2026",
@@ -4612,45 +4619,8 @@ end
 				options = properties.Options,
 				dismissable = properties.Dismissable ~= false,
 			})
-			-- The library's popup can end up under another on-screen layer (or lose its
-			-- button input) and then nothing closes it. Keep it on top, let Escape or
-			-- Enter close it, and close it on its own after a while if asked to.
-			if type(shell) == "table" then
-				local function closeShell()
-					if not shell._closed and type(shell.Close) == "function" then
-						pcall(shell.Close, shell)
-					end
-				end
-				pcall(function()
-					local gui = shell.screenGui
-					if gui then
-						gui.DisplayOrder = 2147483000
-						if gui:IsA("ScreenGui") then
-							gui.IgnoreGuiInset = true
-						end
-					end
-				end)
-				local keyConnection
-				keyConnection = UserInputService.InputBegan:Connect(function(input)
-					if shell._closed then
-						keyConnection:Disconnect()
-						return
-					end
-					if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Return
-						or input.KeyCode == Enum.KeyCode.ButtonA or input.KeyCode == Enum.KeyCode.ButtonB then
-						keyConnection:Disconnect()
-						closeShell()
-					end
-				end)
-				local seconds = tonumber(properties.AutoCloseSeconds)
-				if seconds and seconds > 0 then
-					task.delay(seconds, function()
-						if keyConnection.Connected then
-							keyConnection:Disconnect()
-						end
-						closeShell()
-					end)
-				end
+			if type(activeStates.BGSI_Lite_HardenPopup) == "function" then
+				pcall(activeStates.BGSI_Lite_HardenPopup, shell, properties)
 			end
 			return shell
 		end
@@ -17384,6 +17354,86 @@ do
 				fields = fields,
 			}
 		end
+		-- Hatch alerts go through one queue per webhook URL and are sent in order, a little
+		-- under Discord's rate limit. A rejected or failed send waits (as long as Discord asks)
+		-- and tries again, so a burst of hatches arrives late rather than not at all. Only a
+		-- webhook Discord says no longer exists (404) or will never accept (400/401/403) is
+		-- given up on.
+		activeStates.BGSI_Lite_WebhookQueue = type(activeStates.BGSI_Lite_WebhookQueue) == "table"
+				and activeStates.BGSI_Lite_WebhookQueue
+			or {}
+		activeStates.BGSI_Lite_QueueWebhook = function(url, payload)
+			local queue = activeStates.BGSI_Lite_WebhookQueue
+			table.insert(queue, { url = url, payload = payload, attempts = 0 })
+			while #queue > 2000 do
+				table.remove(queue, 1)
+			end
+			if activeStates.BGSI_Lite_WebhookWorkerRunning then
+				return
+			end
+			activeStates.BGSI_Lite_WebhookWorkerRunning = true
+			task.spawn(function()
+				while #queue > 0 do
+					local item = queue[1]
+					local ok, status, retryAfter = runRebirthFuse(item.url, item.payload)
+					if ok or status == 400 or status == 401 or status == 403 or status == 404 then
+						table.remove(queue, 1)
+						task.wait(0.45)
+					else
+						item.attempts += 1
+						local delay = tonumber(retryAfter)
+						if delay and delay > 60 then
+							delay = delay / 1000
+						end
+						task.wait(math.clamp(delay or math.min(30, 2 ^ math.min(item.attempts, 5)), 0.5, 60))
+					end
+				end
+				activeStates.BGSI_Lite_WebhookWorkerRunning = false
+			end)
+		end
+
+		activeStates.BGSI_Lite_HardenPopup = function(shell, properties)
+			-- The library's popup can end up under another on-screen layer (or lose its
+			-- button input) and then nothing closes it. Keep it on top, let Escape or
+			-- Enter close it, and close it on its own after a while if asked to.
+			if type(shell) == "table" then
+				local function closeShell()
+					if not shell._closed and type(shell.Close) == "function" then
+						pcall(shell.Close, shell)
+					end
+				end
+				pcall(function()
+					local gui = shell.screenGui
+					if gui then
+						gui.DisplayOrder = 2147483000
+						if gui:IsA("ScreenGui") then
+							gui.IgnoreGuiInset = true
+						end
+					end
+				end)
+				local keyConnection
+				keyConnection = UserInputService.InputBegan:Connect(function(input)
+					if shell._closed then
+						keyConnection:Disconnect()
+						return
+					end
+					if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Return
+						or input.KeyCode == Enum.KeyCode.ButtonA or input.KeyCode == Enum.KeyCode.ButtonB then
+						keyConnection:Disconnect()
+						closeShell()
+					end
+				end)
+				local seconds = tonumber(properties.AutoCloseSeconds)
+				if seconds and seconds > 0 then
+					task.delay(seconds, function()
+						if keyConnection.Connected then
+							keyConnection:Disconnect()
+						end
+						closeShell()
+					end)
+				end
+			end
+		end
 		activeStates.BGSI_Lite_GetDashboardPetAssetId = function(pet, petInfo)
 			local images = petInfo and petInfo.Images
 			if type(images) ~= "table" then
@@ -25726,11 +25776,20 @@ function runRebirthFuse(scriptStateQZ, scriptStateACW, suppressPing)
 	if scriptStateSX and scriptStatePK then
 		local scriptStateUJ = tonumber(scriptStatePK.StatusCode or scriptStatePK.status_code)
 		if scriptStateUJ == nil or (scriptStateUJ >= 200 and scriptStateUJ < 300) then
-			return true
+			return true, scriptStateUJ
 		end
+		local retryAfter
+		pcall(function()
+			local decoded = HttpService:JSONDecode(tostring(scriptStatePK.Body or scriptStatePK.body or ""))
+			retryAfter = type(decoded) == "table" and tonumber(decoded.retry_after) or nil
+		end)
+		local headers = type(scriptStatePK.Headers) == "table" and scriptStatePK.Headers or {}
+		retryAfter = retryAfter or tonumber(headers["retry-after"] or headers["Retry-After"])
+		return false, scriptStateUJ, retryAfter
 	end
-	return false
+	return false, nil
 end
+
 -- ============================================================================
 -- LIVE WEBHOOK
 -- Completely separate from the existing hatching webhook.
@@ -26168,24 +26227,22 @@ function runRebirthMachineLoop(
 			end
 		end
 	end
-	local duplicateKey = table.concat({
-		tostring(scriptStateYR or scriptStateEI or ""),
-		tostring(scriptStateOR or ""),
-		tostring(scriptStateBZ or ""),
-		petInfoText ~= "" and petInfoText or HttpService:JSONEncode(scriptStateXO or {}),
-		chanceText,
-		type(scriptStateAEL) == "table" and tostring(scriptStateAEL.footerText or "") or "",
-	}, "|")
-	if sendCache[duplicateKey] and now - sendCache[duplicateKey] < 90 then
-		return
+	-- Two hatches of the same pet look identical, so the old check (same text within
+	-- 90 seconds) threw away every repeat. Only the same pet entry - the game's own id
+	-- for that copy - counts as a duplicate now.
+	local dedupeId = type(scriptStateAEL) == "table" and scriptStateAEL.dedupeId or nil
+	if dedupeId and dedupeId ~= "" and dedupeId ~= "Unknown" then
+		if sendCache[dedupeId] and now - sendCache[dedupeId] < 120 then
+			return
+		end
+		sendCache[dedupeId] = now
 	end
-	sendCache[duplicateKey] = now
 	local scriptStateABR = getShrineLevelValue(Config.webhookURL)
 	for loopSlotBY, webhookURLEntry in ipairs(scriptStateABR) do
 		local scriptStateAAK = Config.webhookHidePlayerName == true
 		local scriptStateGN = (scriptStateAAK and scriptStateYR) or scriptStateEI
 		local scriptStateQV = type(scriptStateAEL) == "table" and scriptStateAEL or {}
-		runRebirthFuse(webhookURLEntry, {
+		activeStates.BGSI_Lite_QueueWebhook(webhookURLEntry, {
 			embeds = {
 				{
 					title = scriptStateQV.titleText,
@@ -26205,7 +26262,6 @@ function runRebirthMachineLoop(
 				},
 			},
 		})
-		task.wait(0.1)
 	end
 end
 activeStates.LiteSendWebhook = runRebirthMachineLoop
@@ -27226,12 +27282,14 @@ activeStates.BGSI_Lite_InstallPetWebhookListener = function()
 						imageUrl = hatchImage,
 						footerText = hatchFooter,
 						timestamp = hatchTimestamp,
+						dedupeId = webhookPetId ~= "Unknown" and ("pet:" .. tostring(webhookPetId)) or nil,
 					}
 				)
 			end
 		end
 	)
 end
+
 
 pcall(activeStates.BGSI_Lite_InstallPetWebhookListener)
 activeStates.BGSI_Lite_InstallPetWebhookListener = nil
