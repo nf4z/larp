@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.62"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.63"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.63",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "Update notes can't get stuck", description = "The update popup closes on its own after 12 seconds, or with Escape or Enter.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.15.62",
 		releasedAt = "November 15, 2026",
@@ -4597,7 +4604,7 @@ end
 	end
 	function Interface:Popup(properties)
 		if rayfieldWindow and type(rayfieldWindow.Popup) == "function" then
-			return rayfieldWindow:Popup({
+			local shell = rayfieldWindow:Popup({
 				title = properties.Title,
 				subtitle = properties.SubTitle,
 				content = properties.Content,
@@ -4605,6 +4612,47 @@ end
 				options = properties.Options,
 				dismissable = properties.Dismissable ~= false,
 			})
+			-- The library's popup can end up under another on-screen layer (or lose its
+			-- button input) and then nothing closes it. Keep it on top, let Escape or
+			-- Enter close it, and close it on its own after a while if asked to.
+			if type(shell) == "table" then
+				local function closeShell()
+					if not shell._closed and type(shell.Close) == "function" then
+						pcall(shell.Close, shell)
+					end
+				end
+				pcall(function()
+					local gui = shell.screenGui
+					if gui then
+						gui.DisplayOrder = 2147483000
+						if gui:IsA("ScreenGui") then
+							gui.IgnoreGuiInset = true
+						end
+					end
+				end)
+				local keyConnection
+				keyConnection = UserInputService.InputBegan:Connect(function(input)
+					if shell._closed then
+						keyConnection:Disconnect()
+						return
+					end
+					if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Return
+						or input.KeyCode == Enum.KeyCode.ButtonA or input.KeyCode == Enum.KeyCode.ButtonB then
+						keyConnection:Disconnect()
+						closeShell()
+					end
+				end)
+				local seconds = tonumber(properties.AutoCloseSeconds)
+				if seconds and seconds > 0 then
+					task.delay(seconds, function()
+						if keyConnection.Connected then
+							keyConnection:Disconnect()
+						end
+						closeShell()
+					end)
+				end
+			end
+			return shell
 		end
 		Interface:Notify({
 			Title = properties.Title,
@@ -28569,6 +28617,7 @@ if tostring(Config.lastSeenScriptVersion or "") ~= tostring(activeStates.BGSI_Li
 				style = "primary",
 			},
 		},
+		AutoCloseSeconds = 12,
 	})
 	Config.lastSeenScriptVersion = activeStates.BGSI_Lite_ScriptVersion
 	saveConfig()
