@@ -67,7 +67,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.58"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.59"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -102,6 +102,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.15.59",
+		releasedAt = "November 15, 2026",
+		notes = {
+			{ title = "View other players", description = "The dashboard can load any player's pets in your server, the same way the game's trade menu does.", icon = "users" },
+		},
+	},
 	{
 		version = "2026.11.15.58",
 		releasedAt = "November 15, 2026",
@@ -4722,6 +4729,7 @@ local networkRemote =
 	ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote")
 local remoteEvent = networkRemote:WaitForChild("RemoteEvent")
 local remoteFunction = networkRemote:WaitForChild("RemoteFunction")
+
 activeStates.BGSI_Lite_FireGameRemote = function(actionName, ...)
 	if Config.safeMode == true then
 		return nil
@@ -17063,6 +17071,89 @@ do
 			end
 		end
 
+		activeStates.BGSI_Lite_PendingViewedPlayers = activeStates.BGSI_Lite_PendingViewedPlayers or {}
+		activeStates.BGSI_Lite_ViewPlayerInventory = function(targetUserId)
+			local target = Players:GetPlayerByUserId(tonumber(targetUserId) or 0)
+			if not target then
+				error("That player is no longer in this server")
+			end
+			local invokeOk, data = pcall(function()
+				return remoteFunction:InvokeServer("TradeViewInventory", target)
+			end)
+			if not invokeOk or type(data) ~= "table" then
+				error("The game did not share this player's inventory")
+			end
+			local rarityRank = { Common = 1, Unique = 2, Rare = 3, Epic = 4, Legendary = 5, Secret = 6, Infinity = 7, Void = 8, Celestial = 9 }
+			local stacks, totals, totalPets = {}, {}, 0
+			local idToName = {}
+			for key, entry in pairs(type(data.Pets) == "table" and data.Pets or {}) do
+				if type(entry) == "table" then
+					local name = activeStates.BGSI_Lite_GetHatchPetName(entry)
+					local info = type(petRarityData) == "table" and petRarityData[name] or nil
+					local amount = math.max(1, math.floor(tonumber(entry.Amount) or 1))
+					local shiny = activeStates.BGSI_Lite_GetHatchPetFlag(entry, "Shiny") == true
+					local mythic = activeStates.BGSI_Lite_GetHatchPetFlag(entry, "Mythic") == true
+					local xl = activeStates.BGSI_Lite_GetHatchPetFlag(entry, "XL") == true
+					local super = activeStates.BGSI_Lite_GetHatchPetFlag(entry, "Super") == true
+						or activeStates.BGSI_Lite_GetHatchPetFlag(entry, "SuperLegendary") == true
+					local rarity = tostring(activeStates.BGSI_Lite_ResolvePetRarity(entry, info) or "")
+					local id = tostring(entry.Id or key)
+					idToName[id] = name
+					totalPets += amount
+					totals[rarity] = (totals[rarity] or 0) + amount
+					local stackKey = table.concat({ name, tostring(shiny), tostring(mythic), tostring(xl), tostring(super) }, "|")
+					local stack = stacks[stackKey]
+					if not stack then
+						local assetId
+						if type(activeStates.BGSI_Lite_GetDashboardPetAssetId) == "function" and type(info) == "table" then
+							local ok, resolved = pcall(activeStates.BGSI_Lite_GetDashboardPetAssetId, entry, info)
+							assetId = ok and resolved or nil
+						end
+						stack = { name = name, rarity = rarity, shiny = shiny, mythic = mythic, xl = xl, super = super, amount = 0, imageAssetId = assetId }
+						stacks[stackKey] = stack
+					end
+					stack.amount += amount
+				end
+			end
+			local list = {}
+			for _, stack in pairs(stacks) do
+				table.insert(list, stack)
+			end
+			table.sort(list, function(left, right)
+				local leftRank = (left.super and 10 or 0) + (rarityRank[left.rarity] or 0)
+				local rightRank = (right.super and 10 or 0) + (rarityRank[right.rarity] or 0)
+				if leftRank ~= rightRank then
+					return leftRank > rightRank
+				end
+				return left.amount > right.amount
+			end)
+			while #list > 150 do
+				table.remove(list)
+			end
+			local team = {}
+			local teams = type(data.Teams) == "table" and data.Teams or {}
+			local equipped = teams[data.TeamEquipped]
+			for _, petId in ipairs(type(equipped) == "table" and type(equipped.Pets) == "table" and equipped.Pets or {}) do
+				table.insert(team, idToName[tostring(petId)] or tostring(petId))
+			end
+			local fields = {}
+			for key, value in pairs(data) do
+				if type(key) == "string" and #fields < 30 then
+					table.insert(fields, key .. ":" .. type(value))
+				end
+			end
+			return {
+				userId = tostring(target.UserId),
+				username = target.Name,
+				displayName = target.DisplayName,
+				totalPets = totalPets,
+				uniquePets = #list,
+				rarityTotals = totals,
+				pets = list,
+				team = team,
+				fields = fields,
+			}
+		end
 		activeStates.BGSI_Lite_GetDashboardPetAssetId = function(pet, petInfo)
 			local images = petInfo and petInfo.Images
 			if type(images) ~= "table" then
@@ -18151,6 +18242,10 @@ do
 									sentDashboardEggDiscoveries[discoveryKey] = sentQuantity
 								end
 							end
+							local sentViewedPlayers = #activeStates.BGSI_Lite_PendingViewedPlayers
+							if sentViewedPlayers > 0 then
+								payload.viewedPlayers = activeStates.BGSI_Lite_PendingViewedPlayers
+							end
 							-- Egg pet lists go out a few at a time until every egg has been sent once.
 							local sentEggPoolCount = 0
 							if activeStates.BGSI_Lite_EggPoolQueue == nil then
@@ -18269,6 +18364,9 @@ do
 									table.remove(pendingDashboardHatches, 1)
 								end
 								activeStates.BGSI_Lite_EggPoolCursor = activeStates.BGSI_Lite_EggPoolCursor + sentEggPoolCount
+								for _ = 1, sentViewedPlayers do
+									table.remove(activeStates.BGSI_Lite_PendingViewedPlayers, 1)
+								end
 								for discoveryKey, sentQuantity in pairs(sentDashboardEggDiscoveries) do
 									local discovery = dashboardEggDiscoveries[discoveryKey]
 									if discovery then
@@ -18549,6 +18647,14 @@ do
 												activeStates.BGSI_Lite_DashboardPlayerDetailsSync = 0
 												activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
 											end
+										elseif dashboardCommand.type == "view-player" then
+											commandSucceeded, commandError = pcall(function()
+												local snapshot = activeStates.BGSI_Lite_ViewPlayerInventory(dashboardCommand.targetUserId)
+												table.insert(activeStates.BGSI_Lite_PendingViewedPlayers, snapshot)
+												while #activeStates.BGSI_Lite_PendingViewedPlayers > 3 do
+													table.remove(activeStates.BGSI_Lite_PendingViewedPlayers, 1)
+												end
+											end)
 										elseif
 											dashboardCommand.type == "rift-action"
 											and tostring(dashboardCommand.riftId or "") ~= ""
