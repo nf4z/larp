@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.73"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.74"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.16.74",
+		releasedAt = "November 16, 2026",
+		notes = {
+			{ title = "Live schedule progress", description = "The Schedule page shows each account's current step and time left.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.16.73",
 		releasedAt = "November 16, 2026",
@@ -18843,6 +18850,22 @@ do
 									activeStates.BGSI_Lite_BuildFourXEggSnapshot,
 									nil
 								),
+								-- Where the hatch schedule is, for the dashboard's Schedule page.
+								hatchSchedule = (function()
+									local status = activeStates.BGSI_Lite_HatchScheduleStatus
+									if type(status) ~= "table" then
+										return nil
+									end
+									if status.done then
+										return { done = true }
+									end
+									return {
+										egg = tostring(status.egg or ""),
+										step = tonumber(status.step) or 0,
+										steps = tonumber(status.steps) or 0,
+										secondsLeft = math.max(0, (tonumber(status.endsAt) or 0) - os.time()),
+									}
+								end)(),
 							}
 							if type(activeQuest) == "table" then
 								payload.activeQuest = {
