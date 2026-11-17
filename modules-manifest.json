@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.15.70",
+  "version": "2026.11.16.71",
   "modules": {
     "core": {
-      "path": "modules/core/890b66a0766c81935117.lua",
+      "path": "modules/core/45fa3fa71ef254f6154f.lua",
       "bytes": 494001,
       "blocks": 21
     },
     "changelog": {
-      "path": "modules/changelog/456f725885ada24c04ef.lua",
-      "bytes": 71335,
+      "path": "modules/changelog/a5713362d574423c18ca.lua",
+      "bytes": 71584,
       "blocks": 1
     },
     "main": {
@@ -57,8 +57,8 @@
       "blocks": 2
     },
     "rifts": {
-      "path": "modules/rifts/198713ffc4bb387c5268.lua",
-      "bytes": 23875,
+      "path": "modules/rifts/b051734413c9a32014dc.lua",
+      "bytes": 24165,
       "blocks": 2
     },
     "game": {

@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.15.70"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.71"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.16.71",
+		releasedAt = "November 16, 2026",
+		notes = {
+			{ title = "Rift on account cards", description = "The dashboard shows when an account is at a rift, with its luck boost and time left.", icon = "map-pin" },
+		},
+	},
 	{
 		version = "2026.11.15.70",
 		releasedAt = "November 15, 2026",
@@ -10358,6 +10365,8 @@ do
 		end
 		local activeRifts = {}
 		local currentTime = getCurrentTimestamp()
+		local character = LocalPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
 		for _, riftModel in ipairs(riftsFolder:GetChildren()) do
 			if riftModel:IsA("Model") then
 				local despawnAt = tonumber(riftModel:GetAttribute("DespawnAt"))
@@ -10417,6 +10426,8 @@ do
 						bonusLuck = bonusLuck,
 						timeRemaining = string.format("%.1f min", timeRemaining / 60),
 						timeRemainingSeconds = math.max(0, math.floor(timeRemaining)),
+						-- Standing at this rift (hatching or opening it), not just in its server.
+						here = root ~= nil and (riftModel:GetPivot().Position - root.Position).Magnitude < 60,
 					})
 				end
 			end
