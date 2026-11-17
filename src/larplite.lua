@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.71"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.72"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.16.72",
+		releasedAt = "November 16, 2026",
+		notes = {
+			{ title = "Season Pass pets in Hatches", description = "Pets you get from the Season Pass now show in the dashboard's Hatches tab.", icon = "gift" },
+		},
+	},
 	{
 		version = "2026.11.16.71",
 		releasedAt = "November 16, 2026",
@@ -17588,6 +17595,70 @@ do
 				return result
 			end
 		end
+		-- Pets the Season Pass hands out arrive as received items, not hatches, so they
+		-- never reached the dashboard's Hatches tab. They are listed there under
+		-- "Season Pass".
+		activeStates.BGSI_Lite_RecordRewardPets = function(pets)
+			local pending = activeStates.BGSI_Lite_DashboardPendingHatches
+			if Config.dashboardSyncEnabled ~= true or type(pending) ~= "table" then
+				return
+			end
+			for _, pet in ipairs(pets) do
+				local petName = activeStates.BGSI_Lite_GetHatchPetName(pet)
+				local petInfo = type(petRarityData) == "table" and petRarityData[petName] or {}
+				local origin = table.concat({
+					tostring(type(petInfo) == "table" and (petInfo.Tag or petInfo.Origin or petInfo.Origins) or ""),
+					tostring(type(pet) == "table" and (pet.Origin or pet.Source or pet.Tag) or ""),
+				}, " "):lower()
+				local fromSeason = origin:find("season", 1, true) or origin:find("mega shop", 1, true)
+				if not fromSeason and type(getWebhookPetSource) == "function" then
+					local ok, source = pcall(getWebhookPetSource, pet, petInfo, "ItemsReceived")
+					fromSeason = ok and source == "Season Pass"
+				end
+				if fromSeason and petName ~= "Unknown" then
+					local shiny = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Shiny") == true
+					local mythic = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "Mythic") == true
+					local xl = activeStates.BGSI_Lite_GetHatchPetFlag(pet, "XL") == true
+					table.insert(pending, {
+						eventId = HttpService:GenerateGUID(false),
+						petName = tostring(petName),
+						rarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo),
+						chance = 0,
+						eggName = "Season Pass",
+						imageAssetId = type(activeStates.BGSI_Lite_GetDashboardPetAssetId) == "function"
+								and activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
+							or nil,
+						shiny = shiny,
+						mythic = mythic,
+						xl = xl,
+						super = false,
+						enchantments = {},
+					})
+					if #pending > 500 then
+						table.remove(pending, 1)
+					end
+				end
+			end
+		end
+		if activeStates.BGSI_Lite_RewardPetConnection then
+			pcall(function()
+				activeStates.BGSI_Lite_RewardPetConnection:Disconnect()
+			end)
+		end
+		activeStates.BGSI_Lite_RewardPetConnection = remoteEvent.OnClientEvent:Connect(function(eventName, items)
+			if eventName ~= "ItemsReceived" or type(items) ~= "table" or not isCurrentRun() then
+				return
+			end
+			local pets = {}
+			for _, item in ipairs(items) do
+				if type(item) == "table" and item.Type == "Pet" then
+					table.insert(pets, item)
+				end
+			end
+			if #pets > 0 then
+				pcall(activeStates.BGSI_Lite_RecordRewardPets, pets)
+			end
+		end)
 		activeStates.BGSI_Lite_GetDashboardPetAssetId = function(pet, petInfo)
 			local images = petInfo and petInfo.Images
 			if type(images) ~= "table" then
