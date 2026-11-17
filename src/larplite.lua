@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.72"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.73"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.16.73",
+		releasedAt = "November 16, 2026",
+		notes = {
+			{ title = "Hatch schedule", description = "Hatch other eggs for set times, then go back to your main egg.", icon = "egg" },
+		},
+	},
 	{
 		version = "2026.11.16.72",
 		releasedAt = "November 16, 2026",
@@ -11955,7 +11962,7 @@ task.spawn(function()
 		if not scriptStateRX or not scriptStateRX:FindFirstChild("HumanoidRootPart") then
 			continue
 		end
-		local scriptStateEL = Config.selectedEgg
+		local scriptStateEL = activeStates.BGSI_Lite_ScheduledEgg and activeStates.BGSI_Lite_ScheduledEgg() or Config.selectedEgg
 		if type(scriptStateEL) ~= "string" or scriptStateEL == "" then
 			continue
 		end
@@ -16990,6 +16997,130 @@ do
 			previousSampleTime = currentSampleTime
 		end
 	end)
+	-- Hatch schedule: hatch other eggs for set times, then go back to the main
+	-- (selected) egg. Steps look like "Admin DIY Egg=60" (minutes; 1h30m and 45s
+	-- also work), separated by ";" or new lines. Changing the schedule or turning
+	-- it off and on starts it again from the first step.
+	do
+		local scheduleDefaults = { hatchScheduleEnabled = false, hatchSchedule = "", hatchScheduleRepeat = false }
+		local savedConfig = {}
+		pcall(function()
+			if isfile and isfile(configFile) then
+				savedConfig = HttpService:JSONDecode(readfile(configFile))
+			end
+		end)
+		for key, value in pairs(scheduleDefaults) do
+			defaultConfig[key] = value
+			if type(Config[key]) ~= type(value) then
+				local saved = type(savedConfig) == "table" and savedConfig[key]
+				Config[key] = type(saved) == type(value) and saved or value
+			end
+		end
+		local stateFile = "larplite_hatch_schedule_" .. tostring(LocalPlayer.UserId) .. ".json"
+		local state = {}
+		pcall(function()
+			if isfile and isfile(stateFile) then
+				local decoded = HttpService:JSONDecode(readfile(stateFile))
+				if type(decoded) == "table" then
+					state = decoded
+				end
+			end
+		end)
+		local function saveState()
+			pcall(function()
+				if writefile then
+					writefile(stateFile, HttpService:JSONEncode(state))
+				end
+			end)
+		end
+		local function parseDuration(text)
+			text = tostring(text or ""):lower():gsub("%s+", "")
+			if text:match("^%d+%.?%d*$") then
+				return tonumber(text) * 60
+			end
+			local total, matched = 0, false
+			for amount, unit in text:gmatch("(%d+%.?%d*)([hms])") do
+				matched = true
+				total = total + tonumber(amount) * (unit == "h" and 3600 or unit == "m" and 60 or 1)
+			end
+			return matched and total or nil
+		end
+		local parsedText, parsedSteps
+		local function parseSchedule(text)
+			text = tostring(text or "")
+			if text == parsedText then
+				return parsedSteps
+			end
+			local steps = {}
+			for entry in (text .. ";"):gmatch("([^;\n]+)") do
+				local egg, duration = entry:match("^%s*(.-)%s*[=,|]%s*(.-)%s*$")
+				local seconds = egg and egg ~= "" and parseDuration(duration)
+				if seconds and seconds > 0 then
+					table.insert(steps, { egg = egg, seconds = math.min(seconds, 7 * 86400) })
+				end
+			end
+			parsedText, parsedSteps = text, steps
+			return steps
+		end
+		local lastScheduledEgg
+		local function announce(egg, secondsLeft)
+			if egg == lastScheduledEgg then
+				return
+			end
+			lastScheduledEgg = egg
+			local prefix = "[" .. LocalPlayer.Name .. "] Hatch schedule: "
+			if egg then
+				print(prefix .. "hatching " .. egg .. " for " .. math.ceil(secondsLeft / 60) .. " min")
+			else
+				print(prefix .. "back to " .. tostring(Config.selectedEgg or "the main egg"))
+			end
+		end
+		-- The egg auto hatch should open right now, or nil for the main egg.
+		activeStates.BGSI_Lite_ScheduledEgg = function()
+			if Config.hatchScheduleEnabled ~= true then
+				if state.key then
+					state = {}
+					saveState()
+					announce(nil)
+				end
+				activeStates.BGSI_Lite_HatchScheduleStatus = nil
+				return nil
+			end
+			local steps = parseSchedule(Config.hatchSchedule)
+			local key = tostring(Config.hatchSchedule) .. "|" .. tostring(Config.hatchScheduleRepeat == true)
+			local now = os.time()
+			if state.key ~= key or type(state.startedAt) ~= "number" then
+				state = { key = key, startedAt = now }
+				saveState()
+			end
+			local total = 0
+			for _, step in ipairs(steps) do
+				total = total + step.seconds
+			end
+			local elapsed = now - state.startedAt
+			if total <= 0 or (elapsed >= total and Config.hatchScheduleRepeat ~= true) then
+				activeStates.BGSI_Lite_HatchScheduleStatus = total > 0 and { done = true } or nil
+				announce(nil)
+				return nil
+			end
+			elapsed = elapsed % total
+			for index, step in ipairs(steps) do
+				if elapsed < step.seconds then
+					local secondsLeft = step.seconds - elapsed
+					activeStates.BGSI_Lite_HatchScheduleStatus = {
+						egg = step.egg,
+						step = index,
+						steps = #steps,
+						endsAt = now + secondsLeft,
+					}
+					announce(step.egg, secondsLeft)
+					return step.egg
+				end
+				elapsed = elapsed - step.seconds
+			end
+			return nil
+		end
+	end
 	activeStates.BGSI_Lite_SafeDashboardBuild = function(builder, fallbackValue)
 		local buildOk, builtValue = pcall(builder)
 		return buildOk and type(builtValue) == "table" and builtValue or fallbackValue
