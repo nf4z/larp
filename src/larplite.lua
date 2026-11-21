@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.76"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.77"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.21.77",
+		releasedAt = "November 21, 2026",
+		notes = {
+			{ title = "Smaller inventory updates", description = "The dashboard inventory is about a third of the size, and deleting a stack still removes every copy.", icon = "gauge" },
+		},
+	},
 	{
 		version = "2026.11.21.76",
 		releasedAt = "November 21, 2026",
@@ -18064,7 +18071,9 @@ do
 								inventoryStacks[stackKey] = stack
 								table.insert(inventory, stack)
 							end
-							if petId ~= "" then
+							-- A few ids per stack are enough: deleting from the dashboard finds the
+							-- rest of the stack in-game. Every id made the inventory ~200 KB.
+							if petId ~= "" and #stack.ids < 10 then
 								table.insert(stack.ids, petId)
 							end
 							stack.amount = stack.amount
@@ -19136,6 +19145,36 @@ do
 												for _, commandPetId in ipairs(commandPetIds) do
 													commandPetIdSet[commandPetId] = true
 												end
+												-- The dashboard only knows a few ids per stack, so add every pet in
+												-- the same stack (same name and Shiny/Mythic/XL/Super flags).
+												pcall(function()
+													local playerData = profileStore:IsReady() and profileStore:Get() or nil
+													local pets = playerData and playerData.Pets or {}
+													local template
+													for _, inventoryPet in ipairs(pets) do
+														if commandPetIdSet[tostring(inventoryPet.Id or "")] then
+															template = inventoryPet
+															break
+														end
+													end
+													if not template then
+														return
+													end
+													for _, inventoryPet in ipairs(pets) do
+														if
+															inventoryPet.Name == template.Name
+															and (inventoryPet.Shiny == true) == (template.Shiny == true)
+															and (inventoryPet.Mythic == true) == (template.Mythic == true)
+															and (inventoryPet.XL == true) == (template.XL == true)
+															and (inventoryPet.Super == true) == (template.Super == true)
+														then
+															local inventoryPetId = tostring(inventoryPet.Id or "")
+															if inventoryPetId ~= "" then
+																commandPetIdSet[inventoryPetId] = true
+															end
+														end
+													end
+												end)
 												local function getCommandPetAmount()
 													local amount = 0
 													local playerData = profileStore:IsReady() and profileStore:Get()
