@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.77"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.78"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.21.78",
+		releasedAt = "November 21, 2026",
+		notes = {
+			{ title = "Every account syncs", description = "Accounts with large game lists no longer get stuck sending updates the dashboard turns away.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.21.77",
 		releasedAt = "November 21, 2026",
@@ -17283,6 +17290,18 @@ do
 				{ eggName, petName, tostring(shiny), tostring(mythic), tostring(xl), tostring(super) },
 				"|"
 			)
+			-- The site keeps a running count only for rare pets. A common pet it already
+			-- has is never sent again, which keeps heartbeats small.
+			local rarityName = string.lower(tostring(rarity or ""))
+			local isRare = super == true
+				or rarityName == "secret"
+				or rarityName == "infinity"
+				or rarityName == "void"
+				or rarityName == "celestial"
+			activeStates.BGSI_Lite_DashboardKnownDiscoveries = activeStates.BGSI_Lite_DashboardKnownDiscoveries or {}
+			if not isRare and activeStates.BGSI_Lite_DashboardKnownDiscoveries[discoveryKey] then
+				return
+			end
 			local discovery = activeStates.BGSI_Lite_DashboardEggDiscoveries[discoveryKey]
 			if not discovery then
 				discovery = {
@@ -18973,26 +18992,44 @@ do
 								lastInventorySignature = inventorySignature
 								activeStates.BGSI_Lite_DashboardInventorySentAt = tick()
 							end
-							if activeStates.BGSI_Lite_DashboardIncludePlayerDetails then
-								-- The game's choice lists (~165 KB) rarely change, so they go only when
-								-- they do (or every 30 minutes). The site keeps the last copy it got.
-								local details = activeStates.BGSI_Lite_DashboardPlayerDetails
-								local optionsSignature = type(details.configOptions) == "table"
-										and HttpService:JSONEncode(details.configOptions)
-									or ""
-								if optionsSignature == activeStates.BGSI_Lite_DashboardConfigOptionsSent
-									and tick() - (activeStates.BGSI_Lite_DashboardConfigOptionsSentAt or 0) < 1800
-								then
-									local trimmed = {}
-									for key, value in pairs(details) do
-										if key ~= "configOptions" then
-											trimmed[key] = value
+							if activeStates.BGSI_Lite_DashboardIncludePlayerDetails and includeInventory then
+								-- One big piece per beat: the details wait for the next one.
+								activeStates.BGSI_Lite_DashboardIncludePlayerDetails = false
+								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick() - 55
+							end
+							-- The game's choice lists (~165 KB) go a few at a time, only when a list
+							-- changes or every 30 minutes; the site keeps the lists it already has.
+							local currentDetails = activeStates.BGSI_Lite_DashboardPlayerDetails
+							if not includeInventory and type(currentDetails) == "table" and type(currentDetails.configOptions) == "table" then
+								activeStates.BGSI_Lite_DashboardOptionsSent = activeStates.BGSI_Lite_DashboardOptionsSent or {}
+								local sentOptions = activeStates.BGSI_Lite_DashboardOptionsSent
+								if tick() - (activeStates.BGSI_Lite_DashboardOptionsRefreshAt or 0) >= 1800 then
+									table.clear(sentOptions)
+									activeStates.BGSI_Lite_DashboardOptionsRefreshAt = tick()
+								end
+								local part, partSize, partSignatures = {}, 0, {}
+								for optionKey, optionList in pairs(currentDetails.configOptions) do
+									local listSignature = HttpService:JSONEncode(optionList)
+									if sentOptions[optionKey] ~= listSignature then
+										if partSize > 0 and partSize + #listSignature > 40000 then
+											break
 										end
+										part[optionKey] = optionList
+										partSignatures[optionKey] = listSignature
+										partSize += #listSignature
 									end
-									details = trimmed
-								else
-									activeStates.BGSI_Lite_DashboardConfigOptionsSent = optionsSignature
-									activeStates.BGSI_Lite_DashboardConfigOptionsSentAt = tick()
+								end
+								if partSize > 0 then
+									payload.configOptionsPart = part
+									activeStates.BGSI_Lite_DashboardOptionsPending = partSignatures
+								end
+							end
+							if activeStates.BGSI_Lite_DashboardIncludePlayerDetails then
+								local details = {}
+								for key, value in pairs(activeStates.BGSI_Lite_DashboardPlayerDetails) do
+									if key ~= "configOptions" then
+										details[key] = value
+									end
 								end
 								payload.playerDetails = details
 								activeStates.BGSI_Lite_DashboardPlayerDetailsFullAt = tick()
@@ -19093,9 +19130,22 @@ do
 								for _ = 1, sentViewedPlayers do
 									table.remove(activeStates.BGSI_Lite_PendingViewedPlayers, 1)
 								end
+								if payload.configOptionsPart and type(activeStates.BGSI_Lite_DashboardOptionsPending) == "table" then
+									for optionKey, listSignature in pairs(activeStates.BGSI_Lite_DashboardOptionsPending) do
+										activeStates.BGSI_Lite_DashboardOptionsSent[optionKey] = listSignature
+									end
+								end
+								activeStates.BGSI_Lite_DashboardOptionsPending = nil
 								for discoveryKey, sentQuantity in pairs(sentDashboardEggDiscoveries) do
 									local discovery = dashboardEggDiscoveries[discoveryKey]
 									if discovery then
+										local sentRarity = string.lower(tostring(discovery.rarity or ""))
+										if discovery.super ~= true and sentRarity ~= "secret" and sentRarity ~= "infinity"
+											and sentRarity ~= "void" and sentRarity ~= "celestial"
+										then
+											activeStates.BGSI_Lite_DashboardKnownDiscoveries = activeStates.BGSI_Lite_DashboardKnownDiscoveries or {}
+											activeStates.BGSI_Lite_DashboardKnownDiscoveries[discoveryKey] = true
+										end
 										discovery.quantity =
 											math.max(0, (tonumber(discovery.quantity) or 0) - sentQuantity)
 										if discovery.quantity <= 0 then
