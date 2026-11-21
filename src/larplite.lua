@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.16.74"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.75"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.21.75",
+		releasedAt = "November 21, 2026",
+		notes = {
+			{ title = "Lighter dashboard updates", description = "Accounts send their inventory and game lists only when they change, so the site stays fast.", icon = "gauge" },
+		},
+	},
 	{
 		version = "2026.11.16.74",
 		releasedAt = "November 16, 2026",
@@ -18778,9 +18785,12 @@ do
 								currentInventory = activeStates.BGSI_Lite_SafeDashboardBuild(buildDashboardInventory)
 								if currentInventory then
 									inventorySignature = HttpService:JSONEncode(currentInventory)
+									-- Sent when it changes, plus a full copy every 15 minutes. Resending
+									-- 100-200 KB every two minutes cost the site more CPU than it has.
 									includeInventory = inventorySignature ~= lastInventorySignature
-										or tick() - lastInventorySync >= 120
-								else
+										or tick() - (activeStates.BGSI_Lite_DashboardInventorySentAt or 0) >= 900
+								end
+								if not includeInventory then
 									lastInventorySync = tick()
 								end
 							end
@@ -18935,9 +18945,30 @@ do
 								payload.inventory = currentInventory
 								lastInventorySync = tick()
 								lastInventorySignature = inventorySignature
+								activeStates.BGSI_Lite_DashboardInventorySentAt = tick()
 							end
 							if activeStates.BGSI_Lite_DashboardIncludePlayerDetails then
-								payload.playerDetails = activeStates.BGSI_Lite_DashboardPlayerDetails
+								-- The game's choice lists (~165 KB) rarely change, so they go only when
+								-- they do (or every 30 minutes). The site keeps the last copy it got.
+								local details = activeStates.BGSI_Lite_DashboardPlayerDetails
+								local optionsSignature = type(details.configOptions) == "table"
+										and HttpService:JSONEncode(details.configOptions)
+									or ""
+								if optionsSignature == activeStates.BGSI_Lite_DashboardConfigOptionsSent
+									and tick() - (activeStates.BGSI_Lite_DashboardConfigOptionsSentAt or 0) < 1800
+								then
+									local trimmed = {}
+									for key, value in pairs(details) do
+										if key ~= "configOptions" then
+											trimmed[key] = value
+										end
+									end
+									details = trimmed
+								else
+									activeStates.BGSI_Lite_DashboardConfigOptionsSent = optionsSignature
+									activeStates.BGSI_Lite_DashboardConfigOptionsSentAt = tick()
+								end
+								payload.playerDetails = details
 								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
 								activeStates.BGSI_Lite_DashboardPlayerDetailsSignature =
 									activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature
@@ -18969,6 +19000,7 @@ do
 							end
 							if #encodedPayload > 700000 and payload.playerDetails then
 								payload.playerDetails = nil
+								activeStates.BGSI_Lite_DashboardConfigOptionsSent = nil
 								encodedPayload = HttpService:JSONEncode(payload)
 								activeStates.BGSI_Lite_DashboardIncludePlayerDetails = false
 								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = 0
@@ -19701,6 +19733,7 @@ do
 								if payload.playerDetails then
 									activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick() - 45
 									activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
+									activeStates.BGSI_Lite_DashboardConfigOptionsSent = nil
 								end
 							end
 						else
