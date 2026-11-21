@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.75"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.76"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.21.76",
+		releasedAt = "November 21, 2026",
+		notes = {
+			{ title = "Smaller dashboard updates", description = "Live stats still update every minute, with the full player details every 5 minutes.", icon = "gauge" },
+		},
+	},
 	{
 		version = "2026.11.21.75",
 		releasedAt = "November 21, 2026",
@@ -18802,10 +18809,20 @@ do
 									nil
 								)
 								if activeStates.BGSI_Lite_DashboardPlayerDetails then
-									activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature = HttpService:JSONEncode(
-										activeStates.BGSI_Lite_DashboardPlayerDetails
-									)
-									activeStates.BGSI_Lite_DashboardIncludePlayerDetails = true
+									-- The full details (~90 KB) go every 5 minutes. In between, only the
+									-- parts that change minute to minute: stats, leaderstats, currencies.
+									local details = activeStates.BGSI_Lite_DashboardPlayerDetails
+									if tick() - (activeStates.BGSI_Lite_DashboardPlayerDetailsFullAt or 0) >= 300 then
+										activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature = HttpService:JSONEncode(details)
+										activeStates.BGSI_Lite_DashboardIncludePlayerDetails = true
+									else
+										activeStates.BGSI_Lite_DashboardLiveDetails = {
+											debugStats = details.debugStats,
+											leaderstats = details.leaderstats,
+											currencies = details.currencies,
+										}
+										activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
+									end
 								else
 									activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
 								end
@@ -18969,9 +18986,13 @@ do
 									activeStates.BGSI_Lite_DashboardConfigOptionsSentAt = tick()
 								end
 								payload.playerDetails = details
+								activeStates.BGSI_Lite_DashboardPlayerDetailsFullAt = tick()
 								activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick()
 								activeStates.BGSI_Lite_DashboardPlayerDetailsSignature =
 									activeStates.BGSI_Lite_DashboardCurrentPlayerDetailsSignature
+							elseif type(activeStates.BGSI_Lite_DashboardLiveDetails) == "table" then
+								payload.liveDetails = activeStates.BGSI_Lite_DashboardLiveDetails
+								activeStates.BGSI_Lite_DashboardLiveDetails = nil
 							end
 							if type(activeStates.BGSI_Lite_PendingDashboardLog) == "table" then
 								payload.log = tostring(activeStates.BGSI_Lite_PendingDashboardLog.message or "")
@@ -19734,6 +19755,7 @@ do
 									activeStates.BGSI_Lite_DashboardPlayerDetailsSync = tick() - 45
 									activeStates.BGSI_Lite_DashboardPlayerDetailsSignature = nil
 									activeStates.BGSI_Lite_DashboardConfigOptionsSent = nil
+									activeStates.BGSI_Lite_DashboardPlayerDetailsFullAt = nil
 								end
 							end
 						else
