@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.80"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.81"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.23.81",
+		releasedAt = "November 23, 2026",
+		notes = {
+			{ title = "Dashboard changes stick", description = "The fleet Leader no longer undoes dashboard changes, including turning a hatch schedule off.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.23.80",
 		releasedAt = "November 23, 2026",
@@ -19572,6 +19579,14 @@ do
 														appliedConfigCount = appliedConfigCount + 1
 													end
 												end
+												-- Remembered across rejoins so the fleet Leader's older
+												-- settings can't undo what the dashboard just set.
+												activeStates.BGSI_Lite_DashboardAppliedAt = tick()
+												pcall(function()
+													if writefile then
+														writefile("larplite_dashboard_applied_" .. tostring(LocalPlayer.UserId) .. ".txt", tostring(activeStates.BGSI_Lite_DashboardAppliedAt))
+													end
+												end)
 												if type(dashboardCommand.config.safeMode) == "boolean" then
 													activeStates.BGSI_Lite_SetSafeMode(dashboardCommand.config.safeMode)
 													appliedConfigCount = appliedConfigCount + 1
@@ -28126,6 +28141,11 @@ activeStates.BGSI_Lite_FleetInit = function()
 		dashboardBestHatchChance = true,
 		fleetFollowMaster = true,
 		fleetAutoPush = true,
+		-- The hatch schedule is set per account from the dashboard. Syncing it made the
+		-- Leader switch a schedule back on that the dashboard had just turned off.
+		hatchScheduleEnabled = true,
+		hatchSchedule = true,
+		hatchScheduleRepeat = true,
 	}
 	local function isSyncKey(key)
 		if type(key) ~= "string" or excludedKeys[key] then
@@ -28457,6 +28477,25 @@ activeStates.BGSI_Lite_FleetInit = function()
 		end
 		if Config.fleetFollowMaster ~= true and payload.forceApply ~= true then
 			lastSeenRevText = text
+			return
+		end
+		-- Settings the Leader published before the dashboard last changed this account
+		-- are older than what it has now (an account that rejoins re-reads the Leader's
+		-- last file), so the newer dashboard change wins.
+		local dashboardAppliedAt = activeStates.BGSI_Lite_DashboardAppliedAt
+		if dashboardAppliedAt == nil then
+			dashboardAppliedAt = 0
+			pcall(function()
+				local path = "larplite_dashboard_applied_" .. tostring(LocalPlayer.UserId) .. ".txt"
+				if isfile and isfile(path) then
+					dashboardAppliedAt = tonumber(readfile(path)) or 0
+				end
+			end)
+			activeStates.BGSI_Lite_DashboardAppliedAt = dashboardAppliedAt
+		end
+		if (tonumber(payload.at) or 0) < dashboardAppliedAt and payload.forceApply ~= true then
+			lastSeenRevText = text
+			fleet.appliedRev = rev
 			return
 		end
 		local ok, applied, err = applyRemoteConfig(payload.config)
