@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.21.78"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.22.79"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/13e03b3ec791c770f055.lua", bytes = 494082, blocks = 21 },
-	["changelog"] = { path = "modules/changelog/d2f89b43e22931fd1220.lua", bytes = 73296, blocks = 1 },
+	["core"] = { path = "modules/core/5578e0a3b5d792bb7b3b.lua", bytes = 494082, blocks = 21 },
+	["changelog"] = { path = "modules/changelog/caea47437e1ca1bedbcd.lua", bytes = 73520, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -40,7 +40,7 @@ local modules = {
 	["fishing"] = { path = "modules/fishing/c039ea74eb14395ff187.lua", bytes = 15769, blocks = 1 },
 	["webhooks"] = { path = "modules/webhooks/0538a8ad0246f4beaac5.lua", bytes = 10119, blocks = 2 },
 	["other"] = { path = "modules/other/a7a13c5ffe30832c0e6f.lua", bytes = 6971, blocks = 2 },
-	["leader"] = { path = "modules/leader/7c7aa3ae6005b7bfba96.lua", bytes = 35552, blocks = 1 }
+	["leader"] = { path = "modules/leader/5cc90146fa34f6835272.lua", bytes = 36644, blocks = 1 }
 }
 local steps = {
 	{ "core", 1 },
@@ -226,4 +226,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.21.78" }
+return { Version = "2026.11.22.79" }

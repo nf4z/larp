@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.21.78"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.22.79"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.22.79",
+		releasedAt = "November 22, 2026",
+		notes = {
+			{ title = "Steady fleet Leader", description = "The Leader no longer flips on and off, and its notice can't spam.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.21.78",
 		releasedAt = "November 21, 2026",
@@ -28201,7 +28208,16 @@ activeStates.BGSI_Lite_FleetInit = function()
 					follow = Config.fleetFollowMaster == true,
 				}
 			else
+				-- A file caught mid-write reads as nothing. Dropping that account for one
+				-- poll made a two-account fleet flip Leader on and off, so the last good
+				-- record stands in (it still expires after ALIVE_SECONDS like any other).
+				fleet.lastRecords = fleet.lastRecords or {}
 				record = readJson(PREFIX .. "acct_" .. id .. ".json")
+				if type(record) == "table" then
+					fleet.lastRecords[id] = record
+				else
+					record = fleet.lastRecords[id]
+				end
 			end
 			if record and record.stopped ~= true and now - (tonumber(record.lastSeen) or 0) >= 0
 				and now - (tonumber(record.lastSeen) or 0) <= ALIVE_SECONDS then
@@ -29074,11 +29090,15 @@ end)
 			if Config.fleetAutoPush == true then
 				pushSettings(true)
 			end
-			notify("This account is now the Leader. The Leader tab is in the sidebar.", 6)
+			if tick() - (fleet.lastRoleNoticeAt or 0) >= 30 then
+				fleet.lastRoleNoticeAt = tick()
+				notify("This account is now the Leader. The Leader tab is in the sidebar.", 6)
+			end
 		else
 			setMasterTint(false)
 			setMasterControlsLocked(true)
-			if oldRole == "master" then
+			if oldRole == "master" and tick() - (fleet.lastRoleNoticeAt or 0) >= 30 then
+				fleet.lastRoleNoticeAt = tick()
 				notify("This account is no longer the Leader.", 5)
 			end
 			if newRole == "alt" then
@@ -29102,11 +29122,26 @@ end)
 		else
 			newRole = "alt"
 		end
+		-- A role only changes after the same answer three polls in a row (~1.5 s), so a
+		-- single odd read can't bounce the Leader back and forth.
 		if newRole ~= fleet.role then
-			local oldRole = fleet.role
-			fleet.role = newRole
-			writeHeartbeat()
-			onRoleChanged(oldRole, newRole)
+			if fleet.pendingRole == newRole then
+				fleet.pendingRoleCount = (fleet.pendingRoleCount or 0) + 1
+			else
+				fleet.pendingRole = newRole
+				fleet.pendingRoleCount = 1
+			end
+			if fleet.pendingRoleCount >= 3 then
+				local oldRole = fleet.role
+				fleet.role = newRole
+				fleet.pendingRole = nil
+				fleet.pendingRoleCount = 0
+				writeHeartbeat()
+				onRoleChanged(oldRole, newRole)
+			end
+		else
+			fleet.pendingRole = nil
+			fleet.pendingRoleCount = 0
 		end
 		updateUi()
 	end
