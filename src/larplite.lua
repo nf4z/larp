@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.22.79"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.80"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.23.80",
+		releasedAt = "November 23, 2026",
+		notes = {
+			{ title = "Reliable shop buying", description = "Auto Buy Shops now buys all affordable stock, retries dropped buys while hatching, and can use free rerolls.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.22.79",
 		releasedAt = "November 22, 2026",
@@ -2741,6 +2748,7 @@ local defaultConfig = {
 	autoCollectCarnivalCoins = false,
 	autoCarnivalChest = false,
 	autoBuyShops = false,
+	autoShopFreeReroll = true,
 	autoGuessThatPet = false,
 	selectedShops = {},
 	selectedShopItems = {},
@@ -16260,7 +16268,7 @@ do
 					Name = getShopItemName(item.Product), Available = available })
 			end
 		end
-		return slots
+		return slots, true
 	end
 	local function tryFreeShopReroll(shopName, playerData)
 		local shopData = getShopData()[shopName]
@@ -16512,21 +16520,40 @@ do
 
 	gameTab:AddToggle("AutoBuyShops", {
 		Title = "Auto Buy Shops",
-		Description = "Buys affordable live stock from selected shops. Selected items may use available free rerolls.",
+		Description = "Buys all affordable live stock from the selected shops (or only the selected items), and retries anything the game drops.",
 		Default = Config.autoBuyShops == true,
 		Callback = function(enabled)
 			Config.autoBuyShops = enabled == true
 			saveConfig()
 		end,
 	})
+	gameTab:AddToggle("AutoShopFreeReroll", {
+		Title = "Use Free Shop Rerolls",
+		Description = "Spends free rerolls to find selected items, or to restock a shop once it is sold out.",
+		Default = Config.autoShopFreeReroll ~= false,
+		Callback = function(enabled)
+			Config.autoShopFreeReroll = enabled == true
+			saveConfig()
+		end,
+	})
 
+	-- Buying used to send one single-item purchase per tick and never check it landed.
+	-- While hatching, the game drops some of those requests, so a slot could sit unbought
+	-- until the shop restocked. Now every affordable slot gets the game's own "Buy All"
+	-- (as many as the currency covers, capped at the stock), and a slot whose stock has
+	-- not gone down a moment later is simply sent again on the next pass.
 	local lastShopBuyAttempt = {}
 	local lastShopRerollAttempt = {}
+	local SHOP_RETRY_SECONDS = 1.25
+	local function shopSlotAffordable(playerData, slot)
+		local ok, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
+		return ok and canAfford == true
+	end
 	task.spawn(function()
 		while isCurrentRun() do
-			task.wait(Config.autoBuyShops == true and math.max(0.1, tonumber(Config.shopInterval) or 1) or 0.85)
+			task.wait(Config.autoBuyShops == true and math.clamp(tonumber(Config.shopInterval) or 1, 0.25, 60) or 0.85)
 			if Config.autoBuyShops ~= true or Config.safeMode == true then continue end
-			pcall(function()
+			local ok, buyError = pcall(function()
 				local playerData = profileStore:IsReady() and profileStore:Get() or nil
 				if type(playerData) ~= "table" then return end
 				local selectedShops = getSelectedValues(Config.selectedShops or {})
@@ -16534,49 +16561,57 @@ do
 				local selectedItems = getSelectedValues(Config.selectedShopItems or {})
 				local wanted = {}
 				for _, name in ipairs(selectedItems) do wanted[string.lower(name)] = true end
-				local candidates = {}
-				local rerollShops = {}
+				local useRerolls = Config.autoShopFreeReroll ~= false
+				local bought = 0
 				for _, shopName in ipairs(selectedShops) do
-					if type(getShopData()[shopName]) == "table" then
+					local shopData = getShopData()[shopName]
+					if type(shopData) == "table" then
+						local slots, readOk = getLiveShopSlots(shopName, playerData)
 						local targetVisible = false
-						for _, slot in ipairs(getLiveShopSlots(shopName, playerData)) do
+						for _, slot in ipairs(slots) do
 							if #selectedItems == 0 or (slot.Name and wanted[string.lower(slot.Name)]) then
 								targetVisible = true
-								local affordOk, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
-								if affordOk and canAfford then table.insert(candidates, slot) end
+								local key = shopName .. "|" .. tostring(slot.Slot)
+								if shopSlotAffordable(playerData, slot)
+									and tick() - (lastShopBuyAttempt[key] or 0) >= SHOP_RETRY_SECONDS then
+									lastShopBuyAttempt[key] = tick()
+									pcall(function()
+										remoteEvent:FireServer("BuyShopItem", shopName, slot.Slot, true)
+									end)
+									bought += 1
+									task.wait(0.12)
+								end
 							end
 						end
-						if #selectedItems > 0 and not targetVisible then
-							local canStockTarget = false
-							eachShopSlot(shopName, getShopData()[shopName], function(_, _, item)
-								local name = getShopItemName(item)
-								if name and wanted[string.lower(name)] then canStockTarget = true end
-							end)
-							if canStockTarget then table.insert(rerollShops, shopName) end
+						if useRerolls and readOk and shopData.Rerollable == true
+							and tick() - (lastShopRerollAttempt[shopName] or 0) >= 5 then
+							local shouldReroll = false
+							if #selectedItems > 0 then
+								-- Hunting for a selected item this shop can stock but isn't showing.
+								if not targetVisible then
+									eachShopSlot(shopName, shopData, function(_, _, item)
+										local name = getShopItemName(item)
+										if name and wanted[string.lower(name)] then shouldReroll = true end
+									end)
+								end
+							else
+								-- Buying everything: restock once the shop is completely sold out.
+								shouldReroll = #slots == 0
+							end
+							if shouldReroll then
+								lastShopRerollAttempt[shopName] = tick()
+								if tryFreeShopReroll(shopName, playerData) then
+									playerData = profileStore:IsReady() and profileStore:Get() or playerData
+								end
+							end
 						end
 					end
 				end
-				if #candidates > 0 then
-					table.sort(candidates, function(left, right)
-						return left.Shop .. "|" .. left.Slot < right.Shop .. "|" .. right.Slot
-					end)
-					for _, slot in ipairs(candidates) do
-						local key = slot.Shop .. "|" .. slot.Slot
-						if tick() - (lastShopBuyAttempt[key] or 0) >= 2 then
-							lastShopBuyAttempt[key] = tick()
-							remoteEvent:FireServer("BuyShopItem", slot.Shop, slot.Slot, false)
-							break
-						end
-					end
-				elseif #rerollShops > 0 then
-					for _, shopName in ipairs(rerollShops) do
-						if tick() - (lastShopRerollAttempt[shopName] or 0) >= 5 then
-							lastShopRerollAttempt[shopName] = tick()
-							if tryFreeShopReroll(shopName, playerData) then break end
-						end
-					end
-				end
+				activeStates.BGSI_Lite_LastShopBuyCount = bought
 			end)
+			if not ok then
+				warn("[larp] Shop buy pass failed: " .. tostring(buyError))
+			end
 		end
 	end)
 
@@ -17477,6 +17512,7 @@ do
 			"selectedShopItems",
 			"shopInterval",
 			"autoBuyShops",
+			"autoShopFreeReroll",
 			"selectedMysteryBox",
 			"selectedMysteryBoxes",
 			"autoOpenMystery",
