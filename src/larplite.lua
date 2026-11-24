@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.101"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.102"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.102",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop probe", description = "The local developer probe can test a single shop purchase.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.101",
 		releasedAt = "November 24, 2026",
@@ -14924,6 +14931,20 @@ do
 						rendering = tostring(Config.disableRendering),
 						attributes = HttpService:JSONEncode(LocalPlayer:GetAttributes()),
 					}
+				elseif probe.action == "$buyshop" and activeStates.BGSI_Lite_BuyShopSlot then
+					-- Buys one shop slot through the shop window, the way auto buy does.
+					local function bought()
+						local data = profileStore:IsReady() and profileStore:Get() or nil
+						local state = type(data) == "table" and type(data.Shops) == "table" and data.Shops[probe.shop] or nil
+						local good, text = pcall(HttpService.JSONEncode, HttpService, state)
+						return good and text or "?"
+					end
+					output.before = bought()
+					local good, result = pcall(activeStates.BGSI_Lite_BuyShopSlot, probe.shop, tonumber(probe.slot) or 1, probe.all == true, probe.stay == true)
+					output.items = { tostring(good) .. " " .. tostring(result), tostring(activeStates.BGSI_Lite_LastShopBuyNote) }
+					task.wait(tonumber(probe.wait) or 2)
+					output.after = bought()
+					pcall(activeStates.BGSI_Lite_CloseShopWindow)
 				elseif probe.action == "$data" then
 					local data = profileStore:IsReady() and profileStore:Get() or nil
 					for key in pairs(type(data) == "table" and data or {}) do table.insert(output.items, tostring(key)) end
@@ -17229,9 +17250,9 @@ do
 		shopWindowOpenedByScript = false
 		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
 	end
-	local function buyShopSlot(shopName, slotIndex, buyAll)
+	local function buyShopSlot(shopName, slotIndex, buyAll, stayPut)
 		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(3) end
-		local nearShop = standAtShop(shopName)
+		local nearShop = not stayPut and standAtShop(shopName)
 		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
 		local shopGui = openShopWindow(shopName)
 		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
@@ -17246,6 +17267,8 @@ do
 		pcall(function() remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, buyAll == true) end)
 		return false
 	end
+	activeStates.BGSI_Lite_BuyShopSlot = buyShopSlot
+	activeStates.BGSI_Lite_CloseShopWindow = closeShopWindow
 	local function getLiveShopSlots(shopName, playerData)
 		local shopUtil = activeStates.BGSI_Lite_ShopUtil
 		if not shopUtil then
