@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.90"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.91"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.91",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe paths", description = "More local diagnostics for game requests.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.90",
 		releasedAt = "November 24, 2026",
@@ -14844,7 +14851,25 @@ do
 				end
 				local returned
 				local fired, fireError = pcall(function()
-					if probe.method == "InvokeServer" then
+					local via = probe.via or "event"
+					if via == "module" then
+						-- The game's own Remote module, the path its scripts use.
+						local module = require(networkRemote)
+						if probe.method == "InvokeServer" then
+							returned = module:InvokeServer(probe.action, table.unpack(args, 1, count))
+						else
+							module:FireServer(probe.action, table.unpack(args, 1, count))
+						end
+					elseif via == "fresh" then
+						-- A fresh lookup of the instance, in case the cached one went stale.
+						local live = ReplicatedStorage.Shared.Framework.Network.Remote:FindFirstChild(probe.method == "InvokeServer" and "RemoteFunction" or "RemoteEvent")
+						if probe.method == "InvokeServer" then
+							returned = live:InvokeServer(probe.action, table.unpack(args, 1, count))
+						else
+							live:FireServer(probe.action, table.unpack(args, 1, count))
+						end
+						returned = returned or (live == remoteEvent or live == remoteFunction) and "same-instance" or "different-instance"
+					elseif probe.method == "InvokeServer" then
 						returned = remoteFunction:InvokeServer(probe.action, table.unpack(args, 1, count))
 					else
 						remoteEvent:FireServer(probe.action, table.unpack(args, 1, count))
