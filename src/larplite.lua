@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.92"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.93"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.93",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe UI", description = "Local diagnostics for using items through the game's own buttons.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.92",
 		releasedAt = "November 24, 2026",
@@ -14757,7 +14764,93 @@ do
 				local roots = { ReplicatedStorage, LocalPlayer:FindFirstChild("PlayerScripts"), LocalPlayer:FindFirstChild("PlayerGui"), game:GetService("StarterPlayer") }
 				local decompiler = type(decompile) == "function" and decompile or nil
 				output.canDecompile = decompiler ~= nil
-				if probe.action == "$state" then
+				if probe.action == "$ui" then
+					-- Steps: open a GuiFrame, fire a button's handlers (client-only), press a
+					-- button for real (selected + Enter, so the engine raises Activated), set
+					-- text, wait, or dump a subtree. Paths start at PlayerGui.ScreenGui.
+					local screenGui = LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
+					local GuiService = game:GetService("GuiService")
+					local function resolve(step)
+						local node = screenGui
+						for part in tostring(step.path or ""):gmatch("[^%.]+") do
+							node = node and node:FindFirstChild(part)
+						end
+						if node and step.find then node = node:FindFirstChild(step.find, true) end
+						return node
+					end
+					local check = type(probe.check) == "table" and { Type = "Potion", Name = probe.check.Name, Level = probe.check.Level } or nil
+					local function owned()
+						if not check then return nil end
+						local data = profileStore:IsReady() and profileStore:Get() or nil
+						local good, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, data, check)
+						return good and amount or nil
+					end
+					output.before = owned()
+					for index, step in ipairs(type(probe.steps) == "table" and probe.steps or {}) do
+						local good, note = pcall(function()
+							if step.op == "open" then
+								require(ReplicatedStorage.Client.Gui.GuiFrame):Open(step.frame)
+								return "opened " .. tostring(step.frame)
+							elseif step.op == "wait" then
+								task.wait(tonumber(step.s) or 0.5)
+								return "waited"
+							end
+							local node = resolve(step)
+							if not node then return "missing " .. tostring(step.path) .. "/" .. tostring(step.find) end
+							local button = node
+							if not (button:IsA("GuiButton")) then
+								button = node:FindFirstChild("Activation") or node:FindFirstChildWhichIsA("GuiButton", true) or node
+							end
+							if step.op == "fire" then
+								local fired = 0
+								for _, connection in ipairs(getconnections(button.Activated)) do
+									pcall(function() connection:Fire() end)
+									fired += 1
+								end
+								return "fired " .. fired .. " on " .. button:GetFullName()
+							elseif step.op == "press" then
+								GuiService.SelectedObject = button
+								task.wait(0.1)
+								for _, key in ipairs({ Enum.KeyCode.Return, Enum.KeyCode.ButtonA }) do
+									VirtualInputManager:SendKeyEvent(true, key, false, game)
+									task.wait(0.05)
+									VirtualInputManager:SendKeyEvent(false, key, false, game)
+									task.wait(0.1)
+								end
+								local selected = GuiService.SelectedObject
+								GuiService.SelectedObject = nil
+								return "pressed " .. button:GetFullName() .. " (selected=" .. tostring(selected) .. ")"
+							elseif step.op == "click" then
+								local inset = game:GetService("GuiService"):GetGuiInset()
+								local center = button.AbsolutePosition + button.AbsoluteSize / 2 + inset
+								VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 0)
+								task.wait(0.05)
+								VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 0)
+								return "clicked " .. button:GetFullName() .. " at " .. tostring(center) .. " visible=" .. tostring(button.Visible)
+							elseif step.op == "text" then
+								local box = node:IsA("TextBox") and node or node:FindFirstChildWhichIsA("TextBox", true)
+								if not box then return "no textbox" end
+								box.Text = tostring(step.value)
+								return "text " .. box:GetFullName()
+							elseif step.op == "dump" then
+								local lines = {}
+								local function walk(item, depth)
+									if #lines > 120 or depth > (tonumber(step.depth) or 4) then return end
+									local extra = item:IsA("GuiObject") and (" vis=" .. tostring(item.Visible)) or ""
+									if item:IsA("TextLabel") or item:IsA("TextButton") or item:IsA("TextBox") then extra ..= " text=" .. tostring(item.Text):sub(1, 40) end
+									table.insert(lines, string.rep(" ", depth) .. item.Name .. " [" .. item.ClassName .. "]" .. extra)
+									for _, child in ipairs(item:GetChildren()) do walk(child, depth + 1) end
+								end
+								walk(node, 0)
+								return table.concat(lines, "\n")
+							end
+							return "unknown op"
+						end)
+						table.insert(output.items, index .. ": " .. tostring(step.op) .. " -> " .. (good and tostring(note) or ("error " .. tostring(note))))
+					end
+					task.wait(tonumber(probe.wait) or 2)
+					output.after = owned()
+				elseif probe.action == "$state" then
 					local character = LocalPlayer.Character
 					local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 					local root = character and character:FindFirstChild("HumanoidRootPart")
