@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.24.87",
+  "version": "2026.11.24.88",
   "modules": {
     "core": {
-      "path": "modules/core/f7b6f8f0f1e90f934640.lua",
+      "path": "modules/core/e33dc4cdfa92e1c246bd.lua",
       "bytes": 494110,
       "blocks": 21
     },
     "changelog": {
-      "path": "modules/changelog/fabc35dabba841c81416.lua",
-      "bytes": 75541,
+      "path": "modules/changelog/38e962c860269eb3b7c5.lua",
+      "bytes": 75753,
       "blocks": 1
     },
     "main": {
@@ -52,8 +52,8 @@
       "blocks": 2
     },
     "potions": {
-      "path": "modules/potions/1c88da69b5b8d62d29aa.lua",
-      "bytes": 32259,
+      "path": "modules/potions/93c95ba36290ccfd8029.lua",
+      "bytes": 35026,
       "blocks": 2
     },
     "rifts": {

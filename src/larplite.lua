@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.87"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.88"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.88",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe", description = "Adds local diagnostics used to fix dashboard potion use.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.87",
 		releasedAt = "November 24, 2026",
@@ -14713,7 +14720,57 @@ do
 			local ok, probe = pcall(function()
 				return isfile and isfile(probeFile) and HttpService:JSONDecode(readfile(probeFile)) or nil
 			end)
-			if ok and type(probe) == "table" and probe.id ~= nil and probe.id ~= lastId and type(probe.action) == "string" then
+			-- Inspection actions: "$tree" lists remotes, "$decompile" saves named modules'
+			-- source, "$grep" searches every client module's source for a string.
+			if ok and type(probe) == "table" and probe.id ~= nil and probe.id ~= lastId and type(probe.action) == "string"
+				and probe.action:sub(1, 1) == "$" then
+				lastId = probe.id
+				local output = { id = probe.id, action = probe.action, items = {}, at = os.time() }
+				local roots = { ReplicatedStorage, LocalPlayer:FindFirstChild("PlayerScripts"), LocalPlayer:FindFirstChild("PlayerGui"), game:GetService("StarterPlayer") }
+				local decompiler = type(decompile) == "function" and decompile or nil
+				output.canDecompile = decompiler ~= nil
+				if probe.action == "$tree" then
+					for _, root in ipairs(roots) do
+						for _, instance in ipairs(root and root:GetDescendants() or {}) do
+							if instance:IsA("RemoteEvent") or instance:IsA("RemoteFunction") or instance.ClassName == "UnreliableRemoteEvent" then
+								table.insert(output.items, instance.ClassName .. " " .. instance:GetFullName())
+							end
+						end
+					end
+				elseif probe.action == "$decompile" and decompiler then
+					for _, root in ipairs(roots) do
+						for _, instance in ipairs(root and root:GetDescendants() or {}) do
+							if (instance:IsA("ModuleScript") or instance:IsA("LocalScript")) and instance.Name == probe.name then
+								local good, source = pcall(decompiler, instance)
+								local fileName = "larplite_src_" .. probe.name .. "_" .. (#output.items + 1) .. ".lua"
+								pcall(writefile, fileName, "-- " .. instance:GetFullName() .. "\n" .. tostring(good and source or ("decompile failed: " .. tostring(source))))
+								table.insert(output.items, instance:GetFullName() .. " -> " .. fileName)
+								task.wait()
+							end
+						end
+					end
+				elseif probe.action == "$grep" and decompiler and type(probe.text) == "string" then
+					local scanned = 0
+					for _, root in ipairs(roots) do
+						for _, instance in ipairs(root and root:GetDescendants() or {}) do
+							if (instance:IsA("ModuleScript") or instance:IsA("LocalScript")) and scanned < (tonumber(probe.limit) or 1500) then
+								scanned += 1
+								local good, source = pcall(decompiler, instance)
+								if good and type(source) == "string" then
+									local at = source:find(probe.text, 1, true)
+									while at and #output.items < 60 do
+										table.insert(output.items, instance:GetFullName() .. " :: " .. source:sub(math.max(1, at - 300), at + 300))
+										at = source:find(probe.text, at + #probe.text, true)
+									end
+								end
+								if scanned % 10 == 0 then task.wait() end
+							end
+						end
+					end
+					output.scanned = scanned
+				end
+				pcall(writefile, resultFile, HttpService:JSONEncode(output))
+			elseif ok and type(probe) == "table" and probe.id ~= nil and probe.id ~= lastId and type(probe.action) == "string" then
 				lastId = probe.id
 				local check = type(probe.check) == "table" and { Type = probe.check.Type or "Potion", Name = probe.check.Name, Level = probe.check.Level } or nil
 				local function owned()
