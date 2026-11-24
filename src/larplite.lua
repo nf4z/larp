@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.106"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.107"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.107",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop diagnostics", description = "Records where each shop purchase was attempted, for troubleshooting.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.106",
 		releasedAt = "November 24, 2026",
@@ -17322,9 +17329,12 @@ do
 		if not (holder and buyAll and holder.Visible) then holder = buttons and buttons:FindFirstChild("Buy") end
 		local button = holder and holder:FindFirstChild("Button")
 		if button and button.Visible ~= false then
+			local rootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			activeStates.BGSI_Lite_LastShopBuyNote ..= " | press " .. button:GetFullName():sub(-40) .. " at " .. (rootPart and tostring(rootPart.Position) or "?")
 			pressGameButton(button)
 			return true
 		end
+		activeStates.BGSI_Lite_LastShopBuyNote ..= " | no button (window " .. tostring(shopGui ~= nil) .. ")"
 		pcall(function() remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, buyAll == true) end)
 		return false
 	end
