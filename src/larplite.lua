@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.96"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.97"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.97",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Bulk potion use works", description = "Auto close popups no longer shuts the Use Multiple window while the dashboard uses potions.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.96",
 		releasedAt = "November 24, 2026",
@@ -15099,6 +15106,11 @@ do
 			return fireLocal(entry:FindFirstChild("Inner") and entry.Inner:FindFirstChild("Button") or entry)
 		end
 		local details = inventory.Frame.Inner.Items.Details.Buttons
+		-- The script's own popup closer destroys every game prompt, which included the Use
+		-- Multiple window. Hold it off while this runs (restored below, never saved).
+		local previousAutoClose = Config.autoClosePopups
+		Config.autoClosePopups = false
+		local singleOnly = false
 		local before = ownedNow()
 		local target = math.max(0, before - requestedAmount)
 		local stalls = 0
@@ -15110,8 +15122,13 @@ do
 				lastError = "Couldn't find " .. frameName .. " in the inventory"
 				break
 			end
-			if chunk <= 1 then
-				press(details.Use)
+			if chunk <= 1 or singleOnly then
+				-- One potion per press; used when the Use Multiple window won't cooperate.
+				local presses = math.min(current - target, 25)
+				for _ = 1, presses do
+					press(details.Use)
+					task.wait(0.05)
+				end
 			else
 				-- Opening the Use Multiple window is client-only (it just builds the prompt).
 				fireLocal(details.Multi)
@@ -15123,7 +15140,7 @@ do
 				until prompt or tick() >= promptDeadline
 				if not prompt then
 					lastError = "The Use Multiple window didn't open"
-					stalls += 1
+					singleOnly = true
 					continue
 				end
 				local box = prompt:FindFirstChild("TextBox", true)
@@ -15140,7 +15157,7 @@ do
 				end
 				if not useButton then
 					lastError = "The Use Multiple window had no 'Use " .. tostring(chunk) .. "' button"
-					stalls += 1
+					singleOnly = true
 					pcall(function() prompt:Destroy() end)
 					continue
 				end
@@ -15153,6 +15170,7 @@ do
 		local leftover = screenGui:FindFirstChild("Prompt")
 		if leftover then pcall(function() leftover:Destroy() end) end
 		pcall(function() GuiFrame:Close("Inventory") end)
+		Config.autoClosePopups = previousAutoClose
 		GuiService.SelectedObject = nil
 		local used = math.max(0, before - ownedNow())
 		return used, used < requestedAmount and lastError or nil
