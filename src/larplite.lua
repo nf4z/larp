@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.108"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.109"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.109",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buying keeps hatching on", description = "Auto buy no longer pauses hatching while it shops.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.108",
 		releasedAt = "November 24, 2026",
@@ -17335,7 +17342,6 @@ do
 		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
 	end
 	local function buyShopSlot(shopName, slotIndex, buyAll, stayPut)
-		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(5) end
 		local nearShop = stayPut or standAtShop(shopName)
 		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
 		-- A shop that isn't in the world (like the merchant on weekdays) can't sell anything.
