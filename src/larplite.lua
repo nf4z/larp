@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.103"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.104"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.104",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop probe costs", description = "The shop probe now reports each slot's cost and whether it is affordable.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.103",
 		releasedAt = "November 24, 2026",
@@ -14965,6 +14972,16 @@ do
 						return good and text or "?"
 					end
 					output.before = bought()
+					pcall(function()
+						local data = profileStore:IsReady() and profileStore:Get() or nil
+						local items, stocks = require(ReplicatedStorage.Shared.Utils.ShopUtil):GetItemsData(probe.shop, LocalPlayer, data)
+						output.slots = {}
+						for index, entry in ipairs(items) do
+							local okAfford, afford = pcall(itemUtil.CanAfford, itemUtil, data, entry.Cost)
+							table.insert(output.slots, index .. ": " .. HttpService:JSONEncode(entry.Product):sub(1, 80) .. " cost " .. HttpService:JSONEncode(entry.Cost):sub(1, 80)
+								.. " stock " .. tostring(stocks[index]) .. " afford " .. tostring(okAfford and afford))
+						end
+					end)
 					local good, result = pcall(activeStates.BGSI_Lite_BuyShopSlot, probe.shop, tonumber(probe.slot) or 1, probe.all == true, probe.stay == true)
 					output.items = { tostring(good) .. " " .. tostring(result), tostring(activeStates.BGSI_Lite_LastShopBuyNote) }
 					task.wait(tonumber(probe.wait) or 2)
