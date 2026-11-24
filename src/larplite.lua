@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.83"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.84"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.84",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Potion failure reasons", description = "When the game refuses a potion, the dashboard now shows the game's own reason.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.83",
 		releasedAt = "November 24, 2026",
@@ -14558,6 +14565,21 @@ do
 			return 0, "Another potion use is still running"
 		end
 		activeStates.BGSI_Lite_PotionUseActive = true
+		-- The server explains a refused potion with a "Notification" event; keep what it
+		-- says so a failure reports the game's reason instead of just "used 0".
+		local gameMessages = {}
+		local messageConnection = remoteEvent.OnClientEvent:Connect(function(action, ...)
+			if action ~= "Notification" or #gameMessages >= 3 then return end
+			for _, value in ipairs({ ... }) do
+				local text = type(value) == "string" and value
+					or type(value) == "table" and (value.Text or value.Message or value.Title)
+				if type(text) == "string" and text ~= "" then
+					text = text:gsub("<[^>]->", ""):gsub("%s+", " ")
+					if not table.find(gameMessages, text) then table.insert(gameMessages, text:sub(1, 140)) end
+					break
+				end
+			end
+		end)
 		local useOk, usedAmount = pcall(function()
 			local playerData = profileStore:IsReady() and profileStore:Get() or nil
 			-- The game matches a stored potion on Name AND Level, comparing Level by
@@ -14618,10 +14640,21 @@ do
 			return amountBefore - currentAmount
 		end)
 		activeStates.BGSI_Lite_PotionUseActive = false
+		messageConnection:Disconnect()
 		if not useOk then
 			return 0, tostring(usedAmount)
 		end
-		return math.max(0, tonumber(usedAmount) or 0)
+		usedAmount = math.max(0, tonumber(usedAmount) or 0)
+		if usedAmount < math.max(1, math.floor(tonumber(requestedAmount) or 1)) then
+			local reason = "The game only used " .. tostring(usedAmount) .. " of " .. tostring(requestedAmount) .. " " .. tostring(potionType)
+			if #gameMessages > 0 then
+				reason = reason .. ". Game said: " .. table.concat(gameMessages, " / ")
+			else
+				reason = reason .. " (the game gave no reason)"
+			end
+			return usedAmount, reason
+		end
+		return usedAmount
 	end
 	task.spawn(function()
 		while isCurrentRun() do
