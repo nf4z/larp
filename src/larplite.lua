@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.89"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.90"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.90",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe state", description = "More local diagnostics for dashboard potion use.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.89",
 		releasedAt = "November 24, 2026",
@@ -14736,7 +14743,21 @@ do
 				local roots = { ReplicatedStorage, LocalPlayer:FindFirstChild("PlayerScripts"), LocalPlayer:FindFirstChild("PlayerGui"), game:GetService("StarterPlayer") }
 				local decompiler = type(decompile) == "function" and decompile or nil
 				output.canDecompile = decompiler ~= nil
-				if probe.action == "$data" then
+				if probe.action == "$state" then
+					local character = LocalPlayer.Character
+					local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+					local root = character and character:FindFirstChild("HumanoidRootPart")
+					output.values = {
+						character = character and character:GetFullName() or "none",
+						characterParent = character and tostring(character.Parent) or "none",
+						humanoid = humanoid and (tostring(humanoid.Health) .. "/" .. tostring(humanoid.MaxHealth) .. " " .. tostring(humanoid:GetState())) or "none",
+						root = root and tostring(root.Position) or "none",
+						anchored = root and tostring(root.Anchored) or "none",
+						safeMode = tostring(Config.safeMode),
+						rendering = tostring(Config.disableRendering),
+						attributes = HttpService:JSONEncode(LocalPlayer:GetAttributes()),
+					}
+				elseif probe.action == "$data" then
 					local data = profileStore:IsReady() and profileStore:Get() or nil
 					for key in pairs(type(data) == "table" and data or {}) do table.insert(output.items, tostring(key)) end
 					table.sort(output.items)
