@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.97"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.98"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.98",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Lighter potion code", description = "Removed a game request watcher that is no longer needed.", icon = "zap" },
+		},
+	},
 	{
 		version = "2026.11.24.97",
 		releasedAt = "November 24, 2026",
@@ -14696,32 +14703,6 @@ do
 		end)
 		print("[" .. LocalPlayer.Name .. "] Learned the game's potion request: " .. method .. " " .. action .. " (" .. HttpService:JSONEncode(described):sub(1, 300) .. ")")
 	end
-	if not activeStates.BGSI_Lite_PotionSpyInstalled and type(hookmetamethod) == "function"
-		and type(getnamecallmethod) == "function" and type(checkcaller) == "function" then
-		activeStates.BGSI_Lite_PotionSpyInstalled = true
-		pcall(function()
-			local originalNamecall
-			local handler = function(self, ...)
-				if not checkcaller() then
-					local method = getnamecallmethod()
-					if method == "FireServer" or method == "InvokeServer" then
-						local action = ...
-						if type(action) == "string" and string.find(string.lower(action), "potion", 1, true) then
-							local packed = table.pack(...)
-							task.defer(function()
-								local record = activeStates.BGSI_Lite_RecordPotionRequest
-								if type(record) == "function" then
-									pcall(record, method, action, { n = packed.n - 1, table.unpack(packed, 2, packed.n) })
-								end
-							end)
-						end
-					end
-				end
-				return originalNamecall(self, ...)
-			end
-			originalNamecall = hookmetamethod(game, "__namecall", type(newcclosure) == "function" and newcclosure(handler) or handler)
-		end)
-	end
 	-- Rebuild a learned request for another potion: swap the learned potion's name,
 	-- level and amount for the ones wanted (in plain arguments and inside tables).
 	local function buildLearnedPotionArgs(format, name, level, amount)
@@ -15311,10 +15292,6 @@ do
 			if type(learned) == "table" then
 				local ok, text = pcall(HttpService.JSONEncode, HttpService, learned.args)
 				reason = reason .. " [game format: " .. tostring(learned.method) .. " " .. tostring(learned.action) .. " " .. (ok and text:sub(1, 400) or "?") .. "]"
-			elseif activeStates.BGSI_Lite_PotionSpyInstalled then
-				reason = reason .. " [Use one potion by hand in game on this account, then try again: the script will copy how the game does it.]"
-			else
-				reason = reason .. " [This executor can't watch game requests (no hookmetamethod).]"
 			end
 			return usedAmount, reason
 		end
