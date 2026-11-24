@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.98"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.99"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.99",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shops and items use game buttons", description = "Shop buys, rerolls, mystery boxes, runes and other items now go through the game's own windows.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.98",
 		releasedAt = "November 24, 2026",
@@ -15041,15 +15048,35 @@ do
 	-- verified to do nothing), while a real button press - the button selected, then
 	-- Enter - makes the engine run the game's own handler, which the server accepts.
 	-- Verified live: one press of Use took Leaf Elixir IV from 228 to 227.
-	activeStates.BGSI_Lite_UsePotionViaInventory = function(potionName, potionLevel, requestedAmount, potionItem)
+	-- Generalised to every item the inventory can use: potions and the Golden Orb go
+	-- through the Use Multiple window, mystery boxes and powerup eggs through the prompt
+	-- their Use button opens, runes through their Confirm prompt, fragments one press each.
+	activeStates.BGSI_Lite_UseItemViaInventory = function(item, requestedAmount)
 		local GuiService = game:GetService("GuiService")
 		local screenGui = LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
 		local GuiFrame = require(ReplicatedStorage.Client.Gui.GuiFrame)
 		if not screenGui or not screenGui:FindFirstChild("Inventory") then return 0, "The inventory isn't loaded" end
 		if type(getconnections) ~= "function" or not VirtualInputManager then return 0, "This executor can't press game buttons" end
+		local itemType, itemName = tostring(item.Type or ""), tostring(item.Name or "")
+		local powerup = itemType == "Powerup" and type(giftData) == "table" and giftData[itemName] or nil
+		local powerupType = type(powerup) == "table" and powerup.Type or nil
+		local kind, verb, cap = nil, "Use", 250
+		if itemType == "Potion" or (itemType == "Powerup" and itemName == "Golden Orb") then
+			kind = "multi"
+		elseif powerupType == "Gift" then
+			kind, cap = "prompt", 50
+		elseif powerupType == "Egg" then
+			kind, verb, cap = "prompt", "Hatch", 12
+		elseif itemType == "Rune" then
+			kind, verb = "prompt", "Confirm"
+		elseif powerupType == "Fragment" then
+			kind = "single"
+		else
+			return 0, "This item can't be used from the inventory"
+		end
 		local function ownedNow()
 			local data = profileStore:IsReady() and profileStore:Get() or nil
-			local good, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, data, potionItem)
+			local good, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, data, item)
 			return good and math.max(0, math.floor(tonumber(amount) or 0)) or 0
 		end
 		local function buttonOf(node)
@@ -15075,9 +15102,23 @@ do
 			if GuiService.SelectedObject == button then GuiService.SelectedObject = nil end
 			return true
 		end
+		local function clearPrompt()
+			local stale = screenGui:FindFirstChild("Prompt")
+			if stale then pcall(function() stale:Destroy() end) end
+		end
+		-- Finds a prompt button by its label ("Use 50", "Hatch", "Confirm" ...).
+		local function promptButton(prompt, labels)
+			for _, node in ipairs(prompt:GetDescendants()) do
+				if node.Name == "Label" and node:IsA("TextLabel") and table.find(labels, node.Text) then
+					return buttonOf(node.Parent)
+				end
+			end
+			return nil
+		end
 		local inventory = screenGui.Inventory
-		local frameName = potionLevel and (tostring(potionName) .. "/" .. tostring(potionLevel)) or tostring(potionName)
-		local function selectPotion()
+		local suffix = itemType == "Rune" and item.Tier or itemType == "Potion" and item.Level or nil
+		local frameName = suffix and (itemName .. "/" .. tostring(suffix)) or itemName
+		local function selectItem()
 			pcall(function() GuiFrame:Open("Inventory") end)
 			task.wait(0.3)
 			fireLocal(inventory.Frame.Sidebar.Buttons:FindFirstChild("Items"))
@@ -15091,28 +15132,33 @@ do
 		-- Multiple window. Hold it off while this runs (restored below, never saved).
 		local previousAutoClose = Config.autoClosePopups
 		Config.autoClosePopups = false
-		local singleOnly = false
+		activeStates.BGSI_Lite_InventoryUseActive = true
+		local singleOnly = kind == "single"
 		local before = ownedNow()
 		local target = math.max(0, before - requestedAmount)
 		local stalls = 0
 		local lastError
 		while isCurrentRun() and ownedNow() > target and stalls < 3 do
+			if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(6) end
 			local current = ownedNow()
-			local chunk = math.min(current - target, 250, current)
-			if not selectPotion() then
+			local chunk = math.min(current - target, cap, current)
+			clearPrompt()
+			if not selectItem() then
 				lastError = "Couldn't find " .. frameName .. " in the inventory"
 				break
 			end
-			if chunk <= 1 or singleOnly then
-				-- One potion per press; used when the Use Multiple window won't cooperate.
-				local presses = math.min(current - target, 25)
+			if (kind == "multi" and (chunk <= 1 or singleOnly)) or kind == "single"
+				or (kind == "prompt" and itemType == "Rune" and current == 1) then
+				-- One per press; also the fallback when the Use Multiple window won't cooperate.
+				local presses = itemType == "Rune" and 1 or math.min(current - target, 25)
 				for _ = 1, presses do
 					press(details.Use)
 					task.wait(0.05)
 				end
 			else
-				-- Opening the Use Multiple window is client-only (it just builds the prompt).
-				fireLocal(details.Multi)
+				-- Opening either window is client-only (it just builds the prompt); only the
+				-- final button press has to be a real one.
+				fireLocal(kind == "multi" and details.Multi or details.Use)
 				local prompt
 				local promptDeadline = tick() + 3
 				repeat
@@ -15120,41 +15166,42 @@ do
 					prompt = screenGui:FindFirstChild("Prompt")
 				until prompt or tick() >= promptDeadline
 				if not prompt then
-					lastError = "The Use Multiple window didn't open"
-					singleOnly = true
+					lastError = "The game's use window didn't open"
+					if kind == "multi" then singleOnly = true else stalls += 1 end
 					continue
 				end
 				local box = prompt:FindFirstChild("TextBox", true)
 				if box then box.Text = tostring(chunk) end
 				task.wait(0.25)
-				local useButton
-				local buttons = prompt.Frame.Main:FindFirstChild("Buttons")
-				for _, option in ipairs(buttons and buttons:GetChildren() or {}) do
-					local label = option:FindFirstChild("Label", true)
-					if label and label:IsA("TextLabel") and label.Text == ("Use " .. tostring(chunk)) then
-						useButton = option
-						break
-					end
-				end
+				local labels = kind == "multi" and { "Use " .. tostring(chunk) }
+					or { verb .. " " .. tostring(chunk), verb }
+				local useButton = promptButton(prompt, labels)
 				if not useButton then
-					lastError = "The Use Multiple window had no 'Use " .. tostring(chunk) .. "' button"
-					singleOnly = true
-					pcall(function() prompt:Destroy() end)
-					continue
+					local closeButton = promptButton(prompt, { "Close" })
+					lastError = closeButton and itemType == "Rune" and "That rune is still active, so the game won't apply another yet"
+						or closeButton and powerupType == "Gift" and "Open the gifts already on the ground first"
+						or ("The game's use window had no '" .. labels[1] .. "' button")
+					clearPrompt()
+					if kind == "multi" then singleOnly = true; continue end
+					break
 				end
 				press(useButton)
 			end
 			local deadline = tick() + 4
 			repeat task.wait(0.1) until ownedNow() < current or tick() >= deadline
-			if ownedNow() < current then stalls = 0 else stalls += 1; lastError = "The game didn't take the potion" end
+			if ownedNow() < current then stalls = 0 else stalls += 1; lastError = lastError or "The game didn't take the item" end
 		end
-		local leftover = screenGui:FindFirstChild("Prompt")
-		if leftover then pcall(function() leftover:Destroy() end) end
+		clearPrompt()
 		pcall(function() GuiFrame:Close("Inventory") end)
 		Config.autoClosePopups = previousAutoClose
+		activeStates.BGSI_Lite_InventoryUseActive = nil
 		GuiService.SelectedObject = nil
 		local used = math.max(0, before - ownedNow())
 		return used, used < requestedAmount and lastError or nil
+	end
+	activeStates.BGSI_Lite_UsePotionViaInventory = function(potionName, potionLevel, requestedAmount, potionItem)
+		return activeStates.BGSI_Lite_UseItemViaInventory(
+			potionItem or { Type = "Potion", Name = potionName, Level = potionLevel }, requestedAmount)
 	end
 	activeStates.BGSI_Lite_PauseHatching = function(seconds)
 		activeStates.BGSI_Lite_HatchPauseUntil = math.max(tonumber(activeStates.BGSI_Lite_HatchPauseUntil) or 0, tick() + seconds)
@@ -17084,6 +17131,57 @@ do
 		table.sort(fragmentNames)
 		return fragmentNames
 	end
+	-- Shops through the game's own shop window, for the same reason as potions: some
+	-- executors' script requests are ignored by the server, while a real press of the
+	-- window's Buy All button runs the game's handler. The remote stays as a fallback.
+	local shopWindowOpenedByScript = false
+	local function pressGameButton(button)
+		local GuiService = game:GetService("GuiService")
+		GuiService.SelectedObject = button
+		task.wait(0.08)
+		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+		task.wait(0.04)
+		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+		task.wait(0.1)
+		if GuiService.SelectedObject == button then GuiService.SelectedObject = nil end
+	end
+	local function openShopWindow(shopName)
+		if activeStates.BGSI_Lite_InventoryUseActive or not VirtualInputManager then return nil end
+		local screenGui = LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
+		local shopGui = screenGui and screenGui:FindFirstChild("ItemShop")
+		if not shopGui then return nil end
+		local ok = pcall(function()
+			local guiFrame = require(ReplicatedStorage.Client.Gui.GuiFrame)
+			local shopModule = require(ReplicatedStorage.Client.Gui.Frames.ItemShop)
+			if shopModule:GetShopId() ~= shopName or not guiFrame:IsOpen("ItemShop") then
+				shopModule:SetShopId(shopName)
+				guiFrame:Open("ItemShop")
+				shopWindowOpenedByScript = true
+				task.wait(0.4)
+			end
+		end)
+		return ok and shopGui or nil
+	end
+	local function closeShopWindow()
+		if not shopWindowOpenedByScript then return end
+		shopWindowOpenedByScript = false
+		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
+	end
+	local function buyShopSlot(shopName, slotIndex, buyAll)
+		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(3) end
+		local shopGui = openShopWindow(shopName)
+		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
+		local buttons = entry and entry:FindFirstChild("Buttons")
+		local holder = buttons and buttons:FindFirstChild("BuyAll")
+		if not (holder and buyAll and holder.Visible) then holder = buttons and buttons:FindFirstChild("Buy") end
+		local button = holder and holder:FindFirstChild("Button")
+		if button and button.Visible ~= false then
+			pressGameButton(button)
+			return true
+		end
+		pcall(function() remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, buyAll == true) end)
+		return false
+	end
 	local function getLiveShopSlots(shopName, playerData)
 		local shopUtil = activeStates.BGSI_Lite_ShopUtil
 		if not shopUtil then
@@ -17120,8 +17218,14 @@ do
 			and tonumber(playerData.ShopFreeRerolls.Used) or 0
 		if not ok or used >= (tonumber(maxRerolls) or 0) then return false end
 		local previousPeriod, previousBegan = oldState.Period, oldState.Began
-		local sent = pcall(function() remoteEvent:FireServer("ShopFreeReroll", shopName) end)
-		if not sent then return false end
+		local shopGui = openShopWindow(shopName)
+		local rerollButton = shopGui and shopGui.Frame:FindFirstChild("FreeReroll")
+		rerollButton = rerollButton and rerollButton:FindFirstChild("Reroll") and rerollButton.Reroll:FindFirstChild("Button")
+		if rerollButton then
+			pressGameButton(rerollButton)
+		elseif not pcall(function() remoteEvent:FireServer("ShopFreeReroll", shopName) end) then
+			return false
+		end
 		local deadline = tick() + 2
 		repeat
 			task.wait(0.1)
@@ -17224,7 +17328,7 @@ do
 							)
 							if not canAffordOk or canAfford then
 								local amountBefore = getOwnedAmount()
-								remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, false)
+								buyShopSlot(shopName, slotIndex, false)
 								task.wait(0.35)
 								playerData = profileStore:IsReady() and profileStore:Get() or playerData
 								purchasedAmount += math.max(0, getOwnedAmount() - amountBefore)
@@ -17233,6 +17337,7 @@ do
 					end
 				end
 			end
+			closeShopWindow()
 			return purchasedAmount, targetVisible
 		end
 		local purchasedAmount, targetVisible = buyCurrentStock()
@@ -17413,9 +17518,7 @@ do
 								if shopSlotAffordable(playerData, slot)
 									and tick() - (lastShopBuyAttempt[key] or 0) >= SHOP_RETRY_SECONDS then
 									lastShopBuyAttempt[key] = tick()
-									pcall(function()
-										remoteEvent:FireServer("BuyShopItem", shopName, slot.Slot, true)
-									end)
+									buyShopSlot(shopName, slot.Slot, true)
 									bought += 1
 									task.wait(0.12)
 								end
@@ -17447,6 +17550,7 @@ do
 				end
 				activeStates.BGSI_Lite_LastShopBuyCount = bought
 			end)
+			closeShopWindow()
 			if not ok then
 				warn("[larp] Shop buy pass failed: " .. tostring(buyError))
 			end
@@ -17474,7 +17578,8 @@ do
 							local affordable, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
 							if affordable and canAfford and tick() - (lastShopBuyAttempt[key] or 0) >= 2 then
 								lastShopBuyAttempt[key] = tick()
-								remoteEvent:FireServer("BuyShopItem", shopName, slot.Slot, false)
+								buyShopSlot(shopName, slot.Slot, false)
+								closeShopWindow()
 								return
 							end
 						end
@@ -20276,6 +20381,16 @@ do
 													return
 												end
 												local updatedAmount = amountBefore
+												local viaError
+												if activeStates.BGSI_Lite_UseItemViaInventory then
+													-- Through the inventory's own buttons first; the remotes below only
+													-- run for whatever the game didn't take.
+													local _, inventoryError = activeStates.BGSI_Lite_UseItemViaInventory(item, quantity)
+													viaError = inventoryError
+													playerData = profileStore:IsReady() and profileStore:Get() or playerData
+													local nowOk, nowAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, item)
+													if nowOk then updatedAmount = math.max(0, math.floor(tonumber(nowAmount) or updatedAmount)) end
+												end
 												local failedAttempts = 0
 												local commandDeadline = tick() + math.clamp(20 + quantity * 0.55, 20, 180)
 												local powerup = type(giftData) == "table" and giftData[itemName] or nil
@@ -20320,7 +20435,7 @@ do
 												end
 												if updatedAmount > targetAmount then
 													error(
-														"The game only used "
+														(viaError and (viaError .. ". ") or "") .. "The game only used "
 															.. tostring(amountBefore - updatedAmount)
 															.. " of "
 															.. tostring(quantity)
@@ -20975,6 +21090,13 @@ do
 			end
 		local onBatchConfirmed = options.onBatchConfirmed
 		local giftItem = { Type = "Powerup", Name = itemName }
+		if activeStates.BGSI_Lite_UseItemViaInventory and shouldContinue() then
+			local viaUsed = activeStates.BGSI_Lite_UseItemViaInventory(giftItem, targetTotal)
+			if viaUsed > 0 then
+				if type(onBatchConfirmed) == "function" then pcall(onBatchConfirmed, viaUsed) end
+				return viaUsed
+			end
+		end
 
 		local function getOwned()
 			local ownedAmount = 0
