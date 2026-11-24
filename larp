@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.24.100"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.24.101"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/1bef98f5be60671dc6f7.lua", bytes = 494111, blocks = 21 },
-	["changelog"] = { path = "modules/changelog/fd0ac6c179de00dc90e4.lua", bytes = 78489, blocks = 1 },
+	["core"] = { path = "modules/core/d99084de7318e5d2a955.lua", bytes = 494111, blocks = 21 },
+	["changelog"] = { path = "modules/changelog/bfca3575164da4fd825d.lua", bytes = 78702, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -29,7 +29,7 @@ local modules = {
 	["comp"] = { path = "modules/comp/3d15cde4568623505866.lua", bytes = 6364, blocks = 2 },
 	["event"] = { path = "modules/event/402e630e2e462d98adc9.lua", bytes = 4526, blocks = 2 },
 	["chests"] = { path = "modules/chests/dddfb9396648bf0c2718.lua", bytes = 8207, blocks = 2 },
-	["potions"] = { path = "modules/potions/9834da7ebbf6c0ad0642.lua", bytes = 50906, blocks = 2 },
+	["potions"] = { path = "modules/potions/b3ff0df6fbf147b6bac0.lua", bytes = 51750, blocks = 2 },
 	["rifts"] = { path = "modules/rifts/b051734413c9a32014dc.lua", bytes = 24165, blocks = 2 },
 	["game"] = { path = "modules/game/7e57e24610ca884719a4.lua", bytes = 227377, blocks = 2 },
 	["enchant"] = { path = "modules/enchant/3c9d620a40839b4d93bd.lua", bytes = 9107, blocks = 3 },
@@ -226,4 +226,4 @@ for _, step in ipairs(steps) do
 end
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.24.100" }
+return { Version = "2026.11.24.101" }

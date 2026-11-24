@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.100"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.101"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.101",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop diagnostics", description = "Adds shop location details to the local developer probe.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.100",
 		releasedAt = "November 24, 2026",
@@ -14893,6 +14900,21 @@ do
 					output.values = {
 						character = character and character:GetFullName() or "none",
 						shopNote = tostring(activeStates.BGSI_Lite_LastShopBuyNote),
+						streaming = tostring(workspace.StreamingEnabled),
+						shops = (function()
+							local list = {}
+							for _, tagged in ipairs(game:GetService("CollectionService"):GetTagged("Shop")) do
+								local okPivot, pivot = pcall(function() return tagged:GetPivot().Position end)
+								table.insert(list, tostring(tagged:GetAttribute("ShopId")) .. " @ " .. tagged:GetFullName() .. " " .. (okPivot and tostring(pivot) or "?"))
+							end
+							for _, node in ipairs(workspace:GetDescendants()) do
+								if #list > 80 then break end
+								if node:GetAttribute("ShopId") ~= nil and not game:GetService("CollectionService"):HasTag(node, "Shop") then
+									table.insert(list, "untagged " .. tostring(node:GetAttribute("ShopId")) .. " @ " .. node:GetFullName())
+								end
+							end
+							return table.concat(list, "\n")
+						end)(),
 						position = root and tostring(root.Position) or "none",
 						characterParent = character and tostring(character.Parent) or "none",
 						humanoid = humanoid and (tostring(humanoid.Health) .. "/" .. tostring(humanoid.MaxHealth) .. " " .. tostring(humanoid:GetState())) or "none",
