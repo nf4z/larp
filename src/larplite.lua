@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.95"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.96"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.96",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe calls", description = "Local diagnostics for the Use Multiple window.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.95",
 		releasedAt = "November 24, 2026",
@@ -14814,6 +14821,19 @@ do
 							local button = node
 							if not (button:IsA("GuiButton")) then
 								button = node:FindFirstChild("Activation") or node:FindFirstChildWhichIsA("GuiButton", true) or node
+							end
+							if step.op == "call" then
+								local notes = {}
+								for _, connection in ipairs(getconnections(button.Activated)) do
+									local fn = connection.Function
+									if type(fn) == "function" then
+										local good, err = xpcall(fn, function(e) return tostring(e) .. " | " .. debug.traceback() end)
+										table.insert(notes, good and "ok" or ("error: " .. tostring(err):sub(1, 900)))
+									else
+										table.insert(notes, "no function")
+									end
+								end
+								return "called " .. #notes .. ": " .. table.concat(notes, " || ")
 							end
 							if step.op == "fire" then
 								local fired = 0
