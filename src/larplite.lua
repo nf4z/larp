@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.81"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.82"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.23.82",
+		releasedAt = "November 23, 2026",
+		notes = {
+			{ title = "Thanksgiving wheel and minigames", description = "Auto spins the Thanksgiving wheel and can auto play Cart Escape or Pet Match.", icon = "gift" },
+		},
+	},
 	{
 		version = "2026.11.23.81",
 		releasedAt = "November 23, 2026",
@@ -9875,6 +9882,113 @@ do
 			activeStates.BGSI_Lite_FishingEventConnection = nil
 		end
 	end)
+	-- Minigames: start through the game's own remote, stay in for the game's duration, then
+	-- report the finish the same way the client does (Cart Escape reports it even after a crash).
+	activeStates.BGSI_Lite_InstallMinigames = function(tab)
+		-- Registered here rather than in the core defaults (core module byte budget).
+		for key, value in pairs({ autoThanksgivingWheel = true, autoMinigame = false, minigameName = "Cart Escape",
+			minigameDifficulty = "Best Unlocked", minigameSkipCooldown = false }) do
+			defaultConfig[key] = value
+			if type(Config[key]) ~= type(value) then Config[key] = value end
+		end
+		local MINIGAMES = { "Cart Escape", "Pet Match" }
+		local DIFFICULTIES = { "Best Unlocked", "Easy", "Medium", "Hard", "Insane" }
+		if not table.find(MINIGAMES, Config.minigameName) then Config.minigameName = "Cart Escape" end
+		if not table.find(DIFFICULTIES, Config.minigameDifficulty) then Config.minigameDifficulty = "Best Unlocked" end
+		tab:AddSection("Minigames")
+		tab:AddDropdown("MinigameName", {
+			Title = "Minigame",
+			Values = MINIGAMES,
+			Multi = false,
+			Default = Config.minigameName,
+			Callback = function(value)
+				Config.minigameName = type(value) == "string" and value or Config.minigameName
+				saveConfig()
+			end,
+		})
+		tab:AddDropdown("MinigameDifficulty", {
+			Title = "Difficulty",
+			Description = "Harder modes give more drops. Best Unlocked picks the hardest you can play.",
+			Values = DIFFICULTIES,
+			Multi = false,
+			Default = Config.minigameDifficulty,
+			Callback = function(value)
+				Config.minigameDifficulty = type(value) == "string" and value or Config.minigameDifficulty
+				saveConfig()
+			end,
+		})
+		tab:AddToggle("AutoMinigame", {
+			Title = "Auto Play Minigame",
+			Description = "Plays the selected minigame whenever it's off cooldown and you have the tickets.",
+			Default = Config.autoMinigame == true,
+			Callback = function(isEnabled)
+				Config.autoMinigame = isEnabled == true
+				saveConfig()
+			end,
+		})
+		tab:AddToggle("MinigameSkipCooldown", {
+			Title = "Skip Cooldown With Super Tickets",
+			Description = "Spends a Super Ticket to skip the minigame cooldown.",
+			Default = Config.minigameSkipCooldown == true,
+			Callback = function(isEnabled)
+				Config.minigameSkipCooldown = isEnabled == true
+				saveConfig()
+			end,
+		})
+		local started, finished, startedName = 0, 0, nil
+		local connection = remoteEvent.OnClientEvent:Connect(function(action, payload)
+			if action == "StartMinigame" then
+				started = os.clock()
+				startedName = type(payload) == "table" and payload.Name or nil
+			elseif action == "FinishMinigame" then
+				finished = os.clock()
+			end
+		end)
+		activeStates.BGSI_Lite_MinigameConnection = connection
+		local minigameData
+		pcall(function()
+			local module = ReplicatedStorage.Shared.Data:FindFirstChild("Minigames")
+			minigameData = module and require(module)
+		end)
+		local function difficultyFor(name)
+			if Config.minigameDifficulty ~= "Best Unlocked" then return Config.minigameDifficulty end
+			local data = profileStore:IsReady() and profileStore:Get() or nil
+			local level = tonumber(data and data.MinigameLevels and data.MinigameLevels[name]) or 1
+			return ({ "Easy", "Medium", "Hard", "Insane" })[math.clamp(level, 1, 4)]
+		end
+		task.spawn(function()
+			while isCurrentRun() do
+				task.wait(1)
+				if Config.autoMinigame ~= true or Config.safeMode == true then continue end
+				local name = Config.minigameName
+				local mode = difficultyFor(name)
+				local requestedAt = os.clock()
+				pcall(remoteEvent.FireServer, remoteEvent, "StartMinigame", name, mode)
+				local deadline = os.clock() + 6
+				while started < requestedAt and os.clock() < deadline do task.wait(0.1) end
+				if started < requestedAt then
+					if Config.minigameSkipCooldown == true then
+						pcall(remoteEvent.FireServer, remoteEvent, "SkipMinigameCooldown", name)
+						task.wait(5)
+					else
+						task.wait(30)
+					end
+					continue
+				end
+				local definition = type(minigameData) == "table" and minigameData[startedName or name] or nil
+				local duration = tonumber(definition and definition.Duration) or (name == "Pet Match" and 12 or 20)
+				print("[" .. LocalPlayer.Name .. "] Minigame: playing " .. name .. " (" .. tostring(mode) .. ")")
+				task.wait(duration + 0.5)
+				if not isCurrentRun() then break end
+				pcall(remoteEvent.FireServer, remoteEvent, "FinishMinigame")
+				local finishDeadline = os.clock() + 8
+				while finished < started and os.clock() < finishDeadline do task.wait(0.1) end
+				task.wait(2)
+			end
+			connection:Disconnect()
+		end)
+	end
+	pcall(activeStates.BGSI_Lite_InstallMinigames, fishingTab)
 end
 
 scriptStateOG:AddSection("Integrations")
@@ -15298,6 +15412,30 @@ do
 				end
 			end
 		end
+		-- Event wheel. Uses the game's naming for event wheels; a wheel that isn't live just ignores it.
+		if Config.autoThanksgivingWheel == true then
+			if tick() - (tonumber(activeStates.BGSI_Lite_LastThanksgivingFreeAttempt) or 0) >= 60 then
+				activeStates.BGSI_Lite_LastThanksgivingFreeAttempt = tick()
+				pcall(remoteEvent.FireServer, remoteEvent, "ClaimThanksgivingFreeWheelSpin")
+			end
+			local eventTickets = getInventoryItemAmount("Thanksgiving Spin Ticket")
+			local eventFreeAt = tonumber(playerData.ThanksgivingNextWheelSpin) or math.huge
+			local retryAfter = (activeStates.BGSI_Lite_ThanksgivingSpinFailures or 0) >= 3 and 60 or 4
+			if
+				(eventTickets > 0 or eventFreeAt <= getCurrentTimestamp())
+				and tick() - (tonumber(activeStates.BGSI_Lite_LastThanksgivingSpinAttempt) or 0) >= retryAfter
+			then
+				activeStates.BGSI_Lite_LastThanksgivingSpinAttempt = tick()
+				local spinOk, spinResult = pcall(remoteFunction.InvokeServer, remoteFunction, "ThanksgivingWheelSpin")
+				if spinOk and spinResult ~= nil then
+					activeStates.BGSI_Lite_ThanksgivingSpinFailures = 0
+					task.wait(0.2)
+					pcall(remoteEvent.FireServer, remoteEvent, "ClaimThanksgivingWheelSpinQueue")
+				else
+					activeStates.BGSI_Lite_ThanksgivingSpinFailures = (activeStates.BGSI_Lite_ThanksgivingSpinFailures or 0) + 1
+				end
+			end
+		end
 	end
 	local function useFragment(fragmentType)
 		local playerData = profileStore:IsReady() and profileStore:Get() or nil
@@ -15357,6 +15495,15 @@ do
 		Default = Config.autoWheelSpin,
 		Callback = function(isEnabled)
 			Config.autoWheelSpin = isEnabled
+			saveConfig()
+		end,
+	})
+	gameTab:AddToggle("AutoThanksgivingWheel", {
+		Title = "Auto Thanksgiving Wheel",
+		Description = "Claims the free Thanksgiving spin and spends Thanksgiving Spin Tickets.",
+		Default = Config.autoThanksgivingWheel ~= false,
+		Callback = function(isEnabled)
+			Config.autoThanksgivingWheel = isEnabled == true
 			saveConfig()
 		end,
 	})
