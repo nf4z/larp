@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.88"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.89"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.89",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe data", description = "More local diagnostics for dashboard potion use.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.88",
 		releasedAt = "November 24, 2026",
@@ -14729,7 +14736,16 @@ do
 				local roots = { ReplicatedStorage, LocalPlayer:FindFirstChild("PlayerScripts"), LocalPlayer:FindFirstChild("PlayerGui"), game:GetService("StarterPlayer") }
 				local decompiler = type(decompile) == "function" and decompile or nil
 				output.canDecompile = decompiler ~= nil
-				if probe.action == "$tree" then
+				if probe.action == "$data" then
+					local data = profileStore:IsReady() and profileStore:Get() or nil
+					for key in pairs(type(data) == "table" and data or {}) do table.insert(output.items, tostring(key)) end
+					table.sort(output.items)
+					output.values = {}
+					for _, key in ipairs(type(probe.keys) == "table" and probe.keys or {}) do
+						local good, text = pcall(HttpService.JSONEncode, HttpService, type(data) == "table" and data[key] or nil)
+						output.values[key] = good and text:sub(1, 6000) or "?"
+					end
+				elseif probe.action == "$tree" then
 					for _, root in ipairs(roots) do
 						for _, instance in ipairs(root and root:GetDescendants() or {}) do
 							if instance:IsA("RemoteEvent") or instance:IsA("RemoteFunction") or instance.ClassName == "UnreliableRemoteEvent" then
@@ -14788,6 +14804,16 @@ do
 				end)
 				activeStates.BGSI_Lite_PauseHatching(6)
 				task.wait(0.5)
+				local function snapshot()
+					local data = profileStore:IsReady() and profileStore:Get() or nil
+					local result = {}
+					for _, key in ipairs(type(probe.dataKeys) == "table" and probe.dataKeys or {}) do
+						local good, text = pcall(HttpService.JSONEncode, HttpService, type(data) == "table" and data[key] or nil)
+						result[key] = good and text:sub(1, 3000) or "?"
+					end
+					return result
+				end
+				local dataBefore = snapshot()
 				local before = owned()
 				local args = {}
 				local count = 0
@@ -14816,6 +14842,7 @@ do
 				pcall(writefile, resultFile, HttpService:JSONEncode({
 					id = probe.id, fired = fired, error = fireError and tostring(fireError) or nil,
 					before = before, after = after, events = events, returned = returnedText, at = os.time(),
+					dataBefore = dataBefore, dataAfter = snapshot(),
 				}))
 			end
 		end
