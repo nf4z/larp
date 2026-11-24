@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.104"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.105"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.105",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buying works in every world", description = "Auto buy now waits at the shop long enough for the game to accept the purchase.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.104",
 		releasedAt = "November 24, 2026",
@@ -17266,17 +17273,17 @@ do
 		if not rootPart then return false end
 		local shopInstance
 		for _, tagged in ipairs(game:GetService("CollectionService"):GetTagged("Shop")) do
-			if tagged:GetAttribute("ShopId") == shopName then shopInstance = tagged; break end
+			-- Rift shops also keep an unplaced copy in ReplicatedStorage; only use the world one.
+			if tagged:GetAttribute("ShopId") == shopName and tagged:IsDescendantOf(workspace) then shopInstance = tagged; break end
 		end
 		if not shopInstance then return false end
-		local okPivot, shopCFrame = pcall(function()
-			return activeStates.BGSI_Lite_GetInstanceTargetCFrame(shopInstance, "Root") or shopInstance:GetPivot()
-		end)
+		local okPivot, shopCFrame = pcall(function() return shopInstance:GetPivot() end)
 		if not okPivot or typeof(shopCFrame) ~= "CFrame" then return false end
 		if (rootPart.Position - shopCFrame.Position).Magnitude > 12 then
 			shopReturnCFrame = shopReturnCFrame or rootPart.CFrame
-			rootPart.CFrame = shopCFrame + Vector3.new(0, 3, 0)
-			task.wait(0.45)
+			rootPart.CFrame = shopCFrame + Vector3.new(0, 4, 0)
+			-- Verified live: the server takes about a second to see the new position.
+			task.wait(1.5)
 		end
 		return true
 	end
@@ -17284,7 +17291,7 @@ do
 		if shopReturnCFrame then
 			local character = LocalPlayer.Character
 			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-			task.wait(0.3)
+			task.wait(0.6)
 			if rootPart then rootPart.CFrame = shopReturnCFrame end
 			shopReturnCFrame = nil
 		end
@@ -17293,10 +17300,11 @@ do
 		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
 	end
 	local function buyShopSlot(shopName, slotIndex, buyAll, stayPut)
-		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(3) end
-		local nearShop = not stayPut and standAtShop(shopName)
+		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(5) end
+		local nearShop = stayPut or standAtShop(shopName)
 		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
-		local shopGui = openShopWindow(shopName)
+		-- A shop that isn't in the world (like the merchant on weekdays) can't sell anything.
+		local shopGui = nearShop and openShopWindow(shopName)
 		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
 		local buttons = entry and entry:FindFirstChild("Buttons")
 		local holder = buttons and buttons:FindFirstChild("BuyAll")
@@ -17347,8 +17355,7 @@ do
 			and tonumber(playerData.ShopFreeRerolls.Used) or 0
 		if not ok or used >= (tonumber(maxRerolls) or 0) then return false end
 		local previousPeriod, previousBegan = oldState.Period, oldState.Began
-		standAtShop(shopName)
-		local shopGui = openShopWindow(shopName)
+		local shopGui = standAtShop(shopName) and openShopWindow(shopName)
 		local rerollButton = shopGui and shopGui.Frame:FindFirstChild("FreeReroll")
 		rerollButton = rerollButton and rerollButton:FindFirstChild("Reroll") and rerollButton.Reroll:FindFirstChild("Button")
 		if rerollButton then
