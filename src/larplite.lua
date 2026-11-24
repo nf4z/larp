@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.110"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.111"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.111",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop diagnostics", description = "Records the player's distance from the shop while auto buy waits there.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.110",
 		releasedAt = "November 24, 2026",
@@ -17333,7 +17340,12 @@ do
 			rootPart.CFrame = shopCFrame + Vector3.new(0, 4, 0)
 			-- Verified live: 1.5 seconds at the shop wasn't enough for the server to accept a
 			-- purchase, about 3 seconds was.
-			task.wait(3)
+			local trail = {}
+			for _ = 1, 6 do
+				task.wait(0.5)
+				table.insert(trail, string.format("%.0f", (rootPart.Position - shopCFrame.Position).Magnitude))
+			end
+			activeStates.BGSI_Lite_ShopTrail = table.concat(trail, ",")
 		end
 		return true
 	end
@@ -17351,7 +17363,7 @@ do
 	end
 	local function buyShopSlot(shopName, slotIndex, buyAll, stayPut)
 		local nearShop = stayPut or standAtShop(shopName)
-		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
+		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded") .. " trail " .. tostring(activeStates.BGSI_Lite_ShopTrail)
 		-- A shop that isn't in the world (like the merchant on weekdays) can't sell anything.
 		local shopGui = nearShop and openShopWindow(shopName)
 		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
