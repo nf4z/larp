@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.105"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.106"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.106",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buttons press reliably", description = "Shop purchases use the same button press that was verified to buy.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.105",
 		releasedAt = "November 24, 2026",
@@ -17237,13 +17244,17 @@ do
 	-- window's Buy All button runs the game's handler. The remote stays as a fallback.
 	local shopWindowOpenedByScript = false
 	local function pressGameButton(button)
+		-- Return alone doesn't trigger the shop's buttons; Return then ButtonA (gamepad
+		-- confirm) is what was verified to buy.
 		local GuiService = game:GetService("GuiService")
 		GuiService.SelectedObject = button
-		task.wait(0.08)
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-		task.wait(0.04)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
 		task.wait(0.1)
+		for _, key in ipairs({ Enum.KeyCode.Return, Enum.KeyCode.ButtonA }) do
+			VirtualInputManager:SendKeyEvent(true, key, false, game)
+			task.wait(0.05)
+			VirtualInputManager:SendKeyEvent(false, key, false, game)
+			task.wait(0.1)
+		end
 		if GuiService.SelectedObject == button then GuiService.SelectedObject = nil end
 	end
 	local function openShopWindow(shopName)
