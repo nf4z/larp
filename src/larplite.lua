@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.112"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.113"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.113",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buying checks each purchase", description = "Auto buy confirms every purchase, buys one at a time when Buy All is refused, and backs off slots it can't buy.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.112",
 		releasedAt = "November 24, 2026",
@@ -17388,10 +17395,28 @@ do
 		if not (holder and buyAll and holder.Visible) then holder = buttons and buttons:FindFirstChild("Buy") end
 		local button = holder and holder:FindFirstChild("Button")
 		if button and button.Visible ~= false then
-			local rootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-			activeStates.BGSI_Lite_LastShopBuyNote ..= " | press " .. button:GetFullName():sub(-40) .. " at " .. (rootPart and tostring(rootPart.Position) or "?")
+			local function boughtCount()
+				local data = profileStore:IsReady() and profileStore:Get() or nil
+				local state = type(data) == "table" and type(data.Shops) == "table" and data.Shops[shopName] or nil
+				return type(state) == "table" and type(state.Bought) == "table" and tonumber(state.Bought[slotIndex]) or 0
+			end
+			local before = boughtCount()
+			local function landed()
+				local deadline = tick() + 1.5
+				repeat task.wait(0.1) until boughtCount() > before or tick() >= deadline
+				return boughtCount() > before
+			end
 			pressGameButton(button)
-			return true
+			if landed() then activeStates.BGSI_Lite_LastShopBuyNote ..= " | bought"; return true end
+			-- Buy All can be refused when the full amount costs more than you have; one at a time still works.
+			local single = holder.Name == "BuyAll" and buttons:FindFirstChild("Buy")
+			single = single and single:FindFirstChild("Button")
+			if single then
+				pressGameButton(single)
+				if landed() then activeStates.BGSI_Lite_LastShopBuyNote ..= " | bought one"; return true end
+			end
+			activeStates.BGSI_Lite_LastShopBuyNote ..= " | not bought"
+			return false
 		end
 		activeStates.BGSI_Lite_LastShopBuyNote ..= " | no button (window " .. tostring(shopGui ~= nil) .. ")"
 		pcall(function() remoteEvent:FireServer("BuyShopItem", shopName, slotIndex, buyAll == true) end)
@@ -17735,8 +17760,12 @@ do
 								if shopSlotAffordable(playerData, slot)
 									and tick() - (lastShopBuyAttempt[key] or 0) >= SHOP_RETRY_SECONDS then
 									lastShopBuyAttempt[key] = tick()
-									buyShopSlot(shopName, slot.Slot, true)
-									bought += 1
+									if buyShopSlot(shopName, slot.Slot, true) then
+										bought += 1
+									else
+										-- Don't walk back to a slot the game keeps refusing every second.
+										lastShopBuyAttempt[key] = tick() + 30
+									end
 									task.wait(0.12)
 								end
 							end
@@ -17795,7 +17824,7 @@ do
 							local affordable, canAfford = pcall(itemUtil.CanAfford, itemUtil, playerData, slot.Item.Cost)
 							if affordable and canAfford and tick() - (lastShopBuyAttempt[key] or 0) >= 2 then
 								lastShopBuyAttempt[key] = tick()
-								buyShopSlot(shopName, slot.Slot, false)
+								if not buyShopSlot(shopName, slot.Slot, false) then lastShopBuyAttempt[key] = tick() + 30 end
 								closeShopWindow()
 								return
 							end
