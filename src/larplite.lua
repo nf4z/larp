@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.111"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.112"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.112",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "One shop trip at a time", description = "Shop buying, restocking and fragment buying no longer pull the player away from each other's shop.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.111",
 		releasedAt = "November 24, 2026",
@@ -17313,6 +17320,18 @@ do
 	-- from the shop's own proximity prompt), so step over to it for the purchase and
 	-- come back afterwards. Shops that aren't loaded in this world are skipped.
 	local shopReturnCFrame
+	local shopVisitOwner, shopVisitSince = nil, 0
+	local function claimShopVisit()
+		local me = coroutine.running()
+		local deadline = tick() + 12
+		while shopVisitOwner and shopVisitOwner ~= me and tick() < deadline and tick() - shopVisitSince < 30 do
+			task.wait(0.1)
+		end
+		if shopVisitOwner and shopVisitOwner ~= me and tick() - shopVisitSince < 30 then return false end
+		if shopVisitOwner ~= me then shopVisitSince = tick() end
+		shopVisitOwner = me
+		return true
+	end
 	-- Egg/rift automation teleports back to its spot every few moments, which pulled the
 	-- player off the shop before the purchase landed (seen live: pressed from 25 studs
 	-- away). Hold those teleports while standing at a shop.
@@ -17338,18 +17357,14 @@ do
 		if (rootPart.Position - shopCFrame.Position).Magnitude > 12 then
 			shopReturnCFrame = shopReturnCFrame or rootPart.CFrame
 			rootPart.CFrame = shopCFrame + Vector3.new(0, 4, 0)
-			-- Verified live: 1.5 seconds at the shop wasn't enough for the server to accept a
-			-- purchase, about 3 seconds was.
-			local trail = {}
-			for _ = 1, 6 do
-				task.wait(0.5)
-				table.insert(trail, string.format("%.0f", (rootPart.Position - shopCFrame.Position).Magnitude))
-			end
-			activeStates.BGSI_Lite_ShopTrail = table.concat(trail, ",")
+			-- Give the server a moment to see the new position before buying.
+			task.wait(2)
 		end
 		return true
 	end
 	local function closeShopWindow()
+		if shopVisitOwner ~= coroutine.running() then return end
+		shopVisitOwner = nil
 		if shopReturnCFrame then
 			local character = LocalPlayer.Character
 			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -17362,8 +17377,9 @@ do
 		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
 	end
 	local function buyShopSlot(shopName, slotIndex, buyAll, stayPut)
+		if not claimShopVisit() then return false end
 		local nearShop = stayPut or standAtShop(shopName)
-		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded") .. " trail " .. tostring(activeStates.BGSI_Lite_ShopTrail)
+		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
 		-- A shop that isn't in the world (like the merchant on weekdays) can't sell anything.
 		local shopGui = nearShop and openShopWindow(shopName)
 		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
@@ -17419,7 +17435,7 @@ do
 			and tonumber(playerData.ShopFreeRerolls.Used) or 0
 		if not ok or used >= (tonumber(maxRerolls) or 0) then return false end
 		local previousPeriod, previousBegan = oldState.Period, oldState.Began
-		local shopGui = standAtShop(shopName) and openShopWindow(shopName)
+		local shopGui = claimShopVisit() and standAtShop(shopName) and openShopWindow(shopName)
 		local rerollButton = shopGui and shopGui.Frame:FindFirstChild("FreeReroll")
 		rerollButton = rerollButton and rerollButton:FindFirstChild("Reroll") and rerollButton.Reroll:FindFirstChild("Button")
 		if rerollButton then
