@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.93"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.94"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.94",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Potions use the game's own buttons", description = "Dashboard potion use now presses the inventory's Use buttons, which the game accepts.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.11.24.93",
 		releasedAt = "November 24, 2026",
@@ -15014,6 +15021,114 @@ do
 			end
 		end
 	end)
+	-- Potions through the game's own inventory buttons. On this executor the server
+	-- ignores requests sent from the script's threads (potions, favorites, teleports all
+	-- verified to do nothing), while a real button press - the button selected, then
+	-- Enter - makes the engine run the game's own handler, which the server accepts.
+	-- Verified live: one press of Use took Leaf Elixir IV from 228 to 227.
+	activeStates.BGSI_Lite_UsePotionViaInventory = function(potionName, potionLevel, requestedAmount, potionItem)
+		local GuiService = game:GetService("GuiService")
+		local screenGui = LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
+		local GuiFrame = require(ReplicatedStorage.Client.Gui.GuiFrame)
+		if not screenGui or not screenGui:FindFirstChild("Inventory") then return 0, "The inventory isn't loaded" end
+		if type(getconnections) ~= "function" or not VirtualInputManager then return 0, "This executor can't press game buttons" end
+		local function ownedNow()
+			local data = profileStore:IsReady() and profileStore:Get() or nil
+			local good, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, data, potionItem)
+			return good and math.max(0, math.floor(tonumber(amount) or 0)) or 0
+		end
+		local function buttonOf(node)
+			if not node then return nil end
+			if node:IsA("GuiButton") then return node end
+			return node:FindFirstChild("Activation") or node:FindFirstChildWhichIsA("GuiButton", true)
+		end
+		local function fireLocal(node)
+			local button = buttonOf(node)
+			if not button then return false end
+			for _, connection in ipairs(getconnections(button.Activated)) do pcall(function() connection:Fire() end) end
+			return true
+		end
+		local function press(node)
+			local button = buttonOf(node)
+			if not button then return false end
+			GuiService.SelectedObject = button
+			task.wait(0.08)
+			VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+			task.wait(0.04)
+			VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+			task.wait(0.1)
+			if GuiService.SelectedObject == button then GuiService.SelectedObject = nil end
+			return true
+		end
+		local inventory = screenGui.Inventory
+		local frameName = potionLevel and (tostring(potionName) .. "/" .. tostring(potionLevel)) or tostring(potionName)
+		local function selectPotion()
+			pcall(function() GuiFrame:Open("Inventory") end)
+			task.wait(0.3)
+			fireLocal(inventory.Frame.Sidebar.Buttons:FindFirstChild("Items"))
+			task.wait(0.2)
+			local entry = inventory.Frame.Inner.Items:FindFirstChild(frameName, true)
+			if not entry then return false end
+			return fireLocal(entry:FindFirstChild("Inner") and entry.Inner:FindFirstChild("Button") or entry)
+		end
+		local details = inventory.Frame.Inner.Items.Details.Buttons
+		local before = ownedNow()
+		local target = math.max(0, before - requestedAmount)
+		local stalls = 0
+		local lastError
+		while isCurrentRun() and ownedNow() > target and stalls < 3 do
+			local current = ownedNow()
+			local chunk = math.min(current - target, 250, current)
+			if not selectPotion() then
+				lastError = "Couldn't find " .. frameName .. " in the inventory"
+				break
+			end
+			if chunk <= 1 then
+				press(details.Use)
+			else
+				press(details.Multi)
+				local prompt
+				local promptDeadline = tick() + 3
+				repeat
+					task.wait(0.1)
+					prompt = screenGui:FindFirstChild("Prompt")
+				until prompt or tick() >= promptDeadline
+				if not prompt then
+					lastError = "The Use Multiple window didn't open"
+					stalls += 1
+					continue
+				end
+				local box = prompt:FindFirstChild("TextBox", true)
+				if box then box.Text = tostring(chunk) end
+				task.wait(0.25)
+				local useButton
+				local buttons = prompt.Frame.Main:FindFirstChild("Buttons")
+				for _, option in ipairs(buttons and buttons:GetChildren() or {}) do
+					local label = option:FindFirstChild("Label", true)
+					if label and label:IsA("TextLabel") and label.Text == ("Use " .. tostring(chunk)) then
+						useButton = option
+						break
+					end
+				end
+				if not useButton then
+					lastError = "The Use Multiple window had no 'Use " .. tostring(chunk) .. "' button"
+					stalls += 1
+					pcall(function() prompt:Destroy() end)
+					continue
+				end
+				press(useButton)
+			end
+			local deadline = tick() + 4
+			repeat task.wait(0.1) until ownedNow() < current or tick() >= deadline
+			if ownedNow() < current then stalls = 0 else stalls += 1; lastError = "The game didn't take the potion" end
+		end
+		local leftover = screenGui:FindFirstChild("Prompt")
+		if leftover then pcall(function() leftover:Destroy() end) end
+		pcall(function() GuiFrame:Close("Inventory") end)
+		GuiService.SelectedObject = nil
+		local used = math.max(0, before - ownedNow())
+		return used, used < requestedAmount and lastError or nil
+	end
 	activeStates.BGSI_Lite_PauseHatching = function(seconds)
 		activeStates.BGSI_Lite_HatchPauseUntil = math.max(tonumber(activeStates.BGSI_Lite_HatchPauseUntil) or 0, tick() + seconds)
 	end
@@ -15063,6 +15178,13 @@ do
 			-- Constants.MultiPotionMaxAmount (250) per request, with level 1 for potions that
 			-- have none. Single requests (name, level) consume one each and are the fallback.
 			local multiMax = tonumber(sharedConstants and sharedConstants.MultiPotionMaxAmount) or 250
+			local uiUsed, uiError = activeStates.BGSI_Lite_UsePotionViaInventory(potionItem.Name, potionItem.Level, amountBefore - targetAmount, potionItem)
+			diag.ui = tostring(uiUsed) .. (uiError and (" (" .. uiError .. ")") or "")
+			currentAmount = math.max(0, amountBefore - (tonumber(uiUsed) or 0))
+			if currentAmount <= targetAmount then
+				diag.after = currentAmount
+				return amountBefore - currentAmount
+			end
 			local attempts = {}
 			local learned = activeStates.BGSI_Lite_PotionFormat
 			if type(learned) == "table" and type(learned.args) == "table" then
@@ -15137,7 +15259,7 @@ do
 			end
 			local forms = {}
 			for form in pairs(diag.forms) do table.insert(forms, form) end
-			reason = reason .. string.format(" [sent %d: %s; owned %s -> %s]", diag.sent,
+			reason = reason .. string.format(" [inventory: %s; sent %d: %s; owned %s -> %s]", tostring(diag.ui), diag.sent,
 				table.concat(forms, ","), tostring(diag.before), tostring(diag.after))
 			local learned = activeStates.BGSI_Lite_PotionFormat
 			if type(learned) == "table" then
