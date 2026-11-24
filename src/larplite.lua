@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.107"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.108"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.108",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop visits aren't cut short", description = "Egg teleports wait while auto buy is standing at a shop.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.107",
 		releasedAt = "November 24, 2026",
@@ -17285,6 +17292,16 @@ do
 	-- from the shop's own proximity prompt), so step over to it for the purchase and
 	-- come back afterwards. Shops that aren't loaded in this world are skipped.
 	local shopReturnCFrame
+	-- Egg/rift automation teleports back to its spot every few moments, which pulled the
+	-- player off the shop before the purchase landed (seen live: pressed from 25 studs
+	-- away). Hold those teleports while standing at a shop.
+	if type(teleportToCFrame) == "function" then
+		local originalTeleportToCFrame = teleportToCFrame
+		teleportToCFrame = function(...)
+			if shopReturnCFrame then return false end
+			return originalTeleportToCFrame(...)
+		end
+	end
 	local function standAtShop(shopName)
 		local character = LocalPlayer.Character
 		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
