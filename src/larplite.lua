@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.91"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.92"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.92",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Developer probe identity", description = "More local diagnostics for game requests.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.91",
 		releasedAt = "November 24, 2026",
@@ -14852,7 +14859,28 @@ do
 				local returned
 				local fired, fireError = pcall(function()
 					local via = probe.via or "event"
-					if via == "module" then
+					if via == "identity2" then
+						local setIdentity = (type(setthreadidentity) == "function" and setthreadidentity)
+							or (type(set_thread_identity) == "function" and set_thread_identity)
+							or (type(setidentity) == "function" and setidentity)
+						local getIdentity = (type(getthreadidentity) == "function" and getthreadidentity)
+							or (type(get_thread_identity) == "function" and get_thread_identity)
+							or (type(getidentity) == "function" and getidentity)
+						local previous = getIdentity and getIdentity() or nil
+						returned = "identity " .. tostring(previous) .. " -> 2" .. (setIdentity and "" or " (no setter)")
+						if setIdentity then setIdentity(2) end
+						remoteEvent:FireServer(probe.action, table.unpack(args, 1, count))
+						if setIdentity and previous then setIdentity(previous) end
+					elseif via == "heartbeat" then
+						local done = false
+						RunService.Heartbeat:Once(function()
+							remoteEvent:FireServer(probe.action, table.unpack(args, 1, count))
+							done = true
+						end)
+						local waitUntil = tick() + 2
+						while not done and tick() < waitUntil do task.wait() end
+						returned = "heartbeat " .. tostring(done)
+					elseif via == "module" then
 						-- The game's own Remote module, the path its scripts use.
 						local module = require(networkRemote)
 						if probe.method == "InvokeServer" then
