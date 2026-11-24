@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.99"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.100"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.100",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buying steps to the shop", description = "The game only sells at the shop, so auto buy walks over for the purchase and returns.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.99",
 		releasedAt = "November 24, 2026",
@@ -14885,6 +14892,8 @@ do
 					local root = character and character:FindFirstChild("HumanoidRootPart")
 					output.values = {
 						character = character and character:GetFullName() or "none",
+						shopNote = tostring(activeStates.BGSI_Lite_LastShopBuyNote),
+						position = root and tostring(root.Position) or "none",
 						characterParent = character and tostring(character.Parent) or "none",
 						humanoid = humanoid and (tostring(humanoid.Health) .. "/" .. tostring(humanoid.MaxHealth) .. " " .. tostring(humanoid:GetState())) or "none",
 						root = root and tostring(root.Position) or "none",
@@ -17162,13 +17171,46 @@ do
 		end)
 		return ok and shopGui or nil
 	end
+	-- The server only sells to players standing at the shop (the game opens the window
+	-- from the shop's own proximity prompt), so step over to it for the purchase and
+	-- come back afterwards. Shops that aren't loaded in this world are skipped.
+	local shopReturnCFrame
+	local function standAtShop(shopName)
+		local character = LocalPlayer.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		if not rootPart then return false end
+		local shopInstance
+		for _, tagged in ipairs(game:GetService("CollectionService"):GetTagged("Shop")) do
+			if tagged:GetAttribute("ShopId") == shopName then shopInstance = tagged; break end
+		end
+		if not shopInstance then return false end
+		local okPivot, shopCFrame = pcall(function()
+			return activeStates.BGSI_Lite_GetInstanceTargetCFrame(shopInstance, "Root") or shopInstance:GetPivot()
+		end)
+		if not okPivot or typeof(shopCFrame) ~= "CFrame" then return false end
+		if (rootPart.Position - shopCFrame.Position).Magnitude > 12 then
+			shopReturnCFrame = shopReturnCFrame or rootPart.CFrame
+			rootPart.CFrame = shopCFrame + Vector3.new(0, 3, 0)
+			task.wait(0.45)
+		end
+		return true
+	end
 	local function closeShopWindow()
+		if shopReturnCFrame then
+			local character = LocalPlayer.Character
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			task.wait(0.3)
+			if rootPart then rootPart.CFrame = shopReturnCFrame end
+			shopReturnCFrame = nil
+		end
 		if not shopWindowOpenedByScript then return end
 		shopWindowOpenedByScript = false
 		pcall(function() require(ReplicatedStorage.Client.Gui.GuiFrame):Close("ItemShop") end)
 	end
 	local function buyShopSlot(shopName, slotIndex, buyAll)
 		if activeStates.BGSI_Lite_PauseHatching then activeStates.BGSI_Lite_PauseHatching(3) end
+		local nearShop = standAtShop(shopName)
+		activeStates.BGSI_Lite_LastShopBuyNote = shopName .. " slot " .. tostring(slotIndex) .. (nearShop and " at shop" or " shop not loaded")
 		local shopGui = openShopWindow(shopName)
 		local entry = shopGui and shopGui.Frame.Main.ScrollingFrame:FindFirstChild("Item" .. tostring(slotIndex))
 		local buttons = entry and entry:FindFirstChild("Buttons")
@@ -17218,6 +17260,7 @@ do
 			and tonumber(playerData.ShopFreeRerolls.Used) or 0
 		if not ok or used >= (tonumber(maxRerolls) or 0) then return false end
 		local previousPeriod, previousBegan = oldState.Period, oldState.Began
+		standAtShop(shopName)
 		local shopGui = openShopWindow(shopName)
 		local rerollButton = shopGui and shopGui.Frame:FindFirstChild("FreeReroll")
 		rerollButton = rerollButton and rerollButton:FindFirstChild("Reroll") and rerollButton.Reroll:FindFirstChild("Button")
