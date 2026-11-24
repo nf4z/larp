@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.85"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.86"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.86",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Potion diagnostics", description = "Failed potion uses now report exactly what was sent, to track down the remaining issue.", icon = "info" },
+		},
+	},
 	{
 		version = "2026.11.24.85",
 		releasedAt = "November 24, 2026",
@@ -14592,6 +14599,7 @@ do
 		-- The server explains a refused potion with a "Notification" event; keep what it
 		-- says so a failure reports the game's reason instead of just "used 0".
 		local gameMessages = {}
+		local diag = { sent = 0, forms = {}, before = nil, after = nil, run = isCurrentRun(), safe = Config.safeMode == true }
 		local messageConnection = remoteEvent.OnClientEvent:Connect(function(action, ...)
 			if action ~= "Notification" or #gameMessages >= 3 then return end
 			for _, value in ipairs({ ... }) do
@@ -14618,6 +14626,7 @@ do
 			}
 			local amountOk, amountBefore = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
 			amountBefore = amountOk and math.max(0, math.floor(tonumber(amountBefore) or 0)) or 0
+			diag.before = amountBefore
 			local targetAmount = math.max(0, amountBefore - math.max(1, math.floor(tonumber(requestedAmount) or 1)))
 			local currentAmount = amountBefore
 			-- The game's own "Use Multiple" button sends UsePotion(name, level, amount), up to
@@ -14636,10 +14645,13 @@ do
 				local attempt = attempts[attemptIndex]
 				local remaining = currentAmount - targetAmount
 				activeStates.BGSI_Lite_PauseHatching(3)
+				diag.sent += 1
+				diag.forms[(attempt.bulk and "bulk" or "single") .. ":" .. tostring(attempt.level)] = true
+				-- Straight to the RemoteEvent, exactly as the game's Remote module does.
 				if attempt.bulk then
-					activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, attempt.level, math.min(multiMax, remaining))
+					remoteEvent:FireServer("UsePotion", potionItem.Name, attempt.level, math.min(multiMax, remaining))
 				else
-					activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, attempt.level)
+					remoteEvent:FireServer("UsePotion", potionItem.Name, attempt.level)
 				end
 				local previousAmount = currentAmount
 				local replicationDeadline = tick() + (attempt.bulk and 2.5 or 0.75)
@@ -14664,6 +14676,7 @@ do
 					task.wait(0.15)
 				end
 			end
+			diag.after = currentAmount
 			return amountBefore - currentAmount
 		end)
 		activeStates.BGSI_Lite_PotionUseActive = false
@@ -14680,6 +14693,10 @@ do
 			else
 				reason = reason .. " (the game gave no reason)"
 			end
+			local forms = {}
+			for form in pairs(diag.forms) do table.insert(forms, form) end
+			reason = reason .. string.format(" [sent %d: %s; owned %s -> %s; run %s; safe %s]", diag.sent,
+				table.concat(forms, ","), tostring(diag.before), tostring(diag.after), tostring(diag.run), tostring(diag.safe))
 			return usedAmount, reason
 		end
 		return usedAmount
