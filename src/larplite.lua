@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.86"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.87"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.87",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Potions learn the game's format", description = "Use one potion by hand and dashboard potion use copies exactly how the game does it.", icon = "sparkles" },
+		},
+	},
 	{
 		version = "2026.11.24.86",
 		releasedAt = "November 24, 2026",
@@ -14584,6 +14591,178 @@ do
 		end
 		activeStates.BGSI_Lite_HatchPauseWrapped = true
 	end
+	-- Learn the game's potion request: record what the game itself sends when a potion
+	-- is used by hand, so dashboard uses can copy a format the game changed.
+	local potionFormatFile = "larplite_potion_format.json"
+	if activeStates.BGSI_Lite_PotionFormat == nil then
+		activeStates.BGSI_Lite_PotionFormat = false
+		pcall(function()
+			if isfile and isfile(potionFormatFile) then
+				local saved = HttpService:JSONDecode(readfile(potionFormatFile))
+				if type(saved) == "table" and type(saved.action) == "string" then activeStates.BGSI_Lite_PotionFormat = saved end
+			end
+		end)
+	end
+	local function describeArg(value, depth)
+		local kind = typeof(value)
+		if kind == "table" and (depth or 0) < 2 then
+			local fields = {}
+			for key, inner in pairs(value) do
+				fields[tostring(key)] = describeArg(inner, (depth or 0) + 1)
+			end
+			return { t = "table", v = fields }
+		elseif kind == "string" or kind == "number" or kind == "boolean" then
+			return { t = kind, v = value }
+		end
+		return { t = kind }
+	end
+	activeStates.BGSI_Lite_RecordPotionRequest = function(method, action, args)
+		local described = {}
+		for index = 1, args.n do described[index] = describeArg(args[index]) end
+		local format = { method = method, action = action, args = described, at = os.time() }
+		activeStates.BGSI_Lite_PotionFormat = format
+		pcall(function()
+			if writefile then writefile(potionFormatFile, HttpService:JSONEncode(format)) end
+		end)
+		print("[" .. LocalPlayer.Name .. "] Learned the game's potion request: " .. method .. " " .. action .. " (" .. HttpService:JSONEncode(described):sub(1, 300) .. ")")
+	end
+	if not activeStates.BGSI_Lite_PotionSpyInstalled and type(hookmetamethod) == "function"
+		and type(getnamecallmethod) == "function" and type(checkcaller) == "function" then
+		activeStates.BGSI_Lite_PotionSpyInstalled = true
+		pcall(function()
+			local originalNamecall
+			local handler = function(self, ...)
+				if not checkcaller() then
+					local method = getnamecallmethod()
+					if method == "FireServer" or method == "InvokeServer" then
+						local action = ...
+						if type(action) == "string" and string.find(string.lower(action), "potion", 1, true) then
+							local packed = table.pack(...)
+							task.defer(function()
+								local record = activeStates.BGSI_Lite_RecordPotionRequest
+								if type(record) == "function" then
+									pcall(record, method, action, { n = packed.n - 1, table.unpack(packed, 2, packed.n) })
+								end
+							end)
+						end
+					end
+				end
+				return originalNamecall(self, ...)
+			end
+			originalNamecall = hookmetamethod(game, "__namecall", type(newcclosure) == "function" and newcclosure(handler) or handler)
+		end)
+	end
+	-- Rebuild a learned request for another potion: swap the learned potion's name,
+	-- level and amount for the ones wanted (in plain arguments and inside tables).
+	local function buildLearnedPotionArgs(format, name, level, amount)
+		local learnedName, learnedLevel, learnedAmount
+		for _, arg in ipairs(format.args) do
+			if arg.t == "string" and not learnedName then learnedName = arg.v end
+			if arg.t == "table" and type(arg.v) == "table" then
+				for key, inner in pairs(arg.v) do
+					if key == "Name" and inner.t == "string" then learnedName = inner.v end
+					if key == "Level" and inner.t == "number" then learnedLevel = inner.v end
+					if key == "Amount" and inner.t == "number" then learnedAmount = inner.v end
+				end
+			end
+		end
+		local numberIndex = 0
+		local function rebuild(arg)
+			if arg.t == "string" then return arg.v == learnedName and name or arg.v end
+			if arg.t == "number" then
+				numberIndex += 1
+				-- Plain numbers follow the game's old order: level first, then amount.
+				if learnedLevel == nil and numberIndex == 1 then return level or 1 end
+				return amount
+			end
+			if arg.t == "boolean" then return arg.v end
+			if arg.t == "table" and type(arg.v) == "table" then
+				local result = {}
+				for key, inner in pairs(arg.v) do
+					if key == "Name" then result[key] = name
+					elseif key == "Level" then result[key] = level
+					elseif key == "Amount" then result[key] = amount
+					else result[key] = rebuild(inner) end
+				end
+				return result
+			end
+			return nil
+		end
+		local built = {}
+		for index, arg in ipairs(format.args) do built[index] = rebuild(arg) end
+		return built, #format.args
+	end
+	-- Local remote probe (developer tool): when larplite_probe_<UserId>.json exists in the
+	-- executor workspace, fire the request it describes once, then write what changed to
+	-- larplite_probe_<UserId>_result.json. Only files on this PC can drive it.
+	task.spawn(function()
+		local probeFile = "larplite_probe_" .. tostring(LocalPlayer.UserId) .. ".json"
+		local resultFile = "larplite_probe_" .. tostring(LocalPlayer.UserId) .. "_result.json"
+		local lastId
+		local function decodeArg(value)
+			if type(value) == "table" then
+				if value["$nil"] then return nil end
+				local result = {}
+				for key, inner in pairs(value) do result[key] = decodeArg(inner) end
+				return result
+			end
+			return value
+		end
+		while isCurrentRun() do
+			task.wait(2)
+			local ok, probe = pcall(function()
+				return isfile and isfile(probeFile) and HttpService:JSONDecode(readfile(probeFile)) or nil
+			end)
+			if ok and type(probe) == "table" and probe.id ~= nil and probe.id ~= lastId and type(probe.action) == "string" then
+				lastId = probe.id
+				local check = type(probe.check) == "table" and { Type = probe.check.Type or "Potion", Name = probe.check.Name, Level = probe.check.Level } or nil
+				local function owned()
+					if not check then return nil end
+					local data = profileStore:IsReady() and profileStore:Get() or nil
+					local good, amount = pcall(itemUtil.GetOwnedAmount, itemUtil, data, check)
+					return good and amount or nil
+				end
+				local events = {}
+				local connection = remoteEvent.OnClientEvent:Connect(function(action, ...)
+					if #events < 12 and type(action) == "string" and action ~= "HatchEgg" then
+						local first = ...
+						table.insert(events, action .. (type(first) == "string" and (": " .. first:sub(1, 80)) or ""))
+					end
+				end)
+				activeStates.BGSI_Lite_PauseHatching(6)
+				task.wait(0.5)
+				local before = owned()
+				local args = {}
+				local count = 0
+				for index, value in ipairs(type(probe.args) == "table" and probe.args or {}) do
+					args[index] = decodeArg(value)
+					count = index
+				end
+				local returned
+				local fired, fireError = pcall(function()
+					if probe.method == "InvokeServer" then
+						returned = remoteFunction:InvokeServer(probe.action, table.unpack(args, 1, count))
+					else
+						remoteEvent:FireServer(probe.action, table.unpack(args, 1, count))
+					end
+				end)
+				local after = before
+				local deadline = tick() + (tonumber(probe.wait) or 3)
+				repeat
+					task.wait(0.1)
+					after = owned()
+				until tick() >= deadline or (before and after and after ~= before)
+				connection:Disconnect()
+				activeStates.BGSI_Lite_HatchPauseUntil = 0
+				local returnedText
+				pcall(function() returnedText = HttpService:JSONEncode({ returned }) end)
+				pcall(writefile, resultFile, HttpService:JSONEncode({
+					id = probe.id, fired = fired, error = fireError and tostring(fireError) or nil,
+					before = before, after = after, events = events, returned = returnedText, at = os.time(),
+				}))
+			end
+		end
+	end)
 	activeStates.BGSI_Lite_PauseHatching = function(seconds)
 		activeStates.BGSI_Lite_HatchPauseUntil = math.max(tonumber(activeStates.BGSI_Lite_HatchPauseUntil) or 0, tick() + seconds)
 	end
@@ -14633,7 +14812,12 @@ do
 			-- Constants.MultiPotionMaxAmount (250) per request, with level 1 for potions that
 			-- have none. Single requests (name, level) consume one each and are the fallback.
 			local multiMax = tonumber(sharedConstants and sharedConstants.MultiPotionMaxAmount) or 250
-			local attempts = { { bulk = true, level = potionItem.Level or 1 } }
+			local attempts = {}
+			local learned = activeStates.BGSI_Lite_PotionFormat
+			if type(learned) == "table" and type(learned.args) == "table" then
+				table.insert(attempts, { learned = learned })
+			end
+			table.insert(attempts, { bulk = true, level = potionItem.Level or 1 })
 			if potionItem.Level == nil then table.insert(attempts, { bulk = true, level = nil }) end
 			table.insert(attempts, { bulk = false, level = potionItem.Level })
 			local attemptIndex = 1
@@ -14646,9 +14830,16 @@ do
 				local remaining = currentAmount - targetAmount
 				activeStates.BGSI_Lite_PauseHatching(3)
 				diag.sent += 1
-				diag.forms[(attempt.bulk and "bulk" or "single") .. ":" .. tostring(attempt.level)] = true
+				diag.forms[attempt.learned and ("learned:" .. attempt.learned.action) or ((attempt.bulk and "bulk" or "single") .. ":" .. tostring(attempt.level))] = true
 				-- Straight to the RemoteEvent, exactly as the game's Remote module does.
-				if attempt.bulk then
+				if attempt.learned then
+					local args, count = buildLearnedPotionArgs(attempt.learned, potionItem.Name, potionItem.Level, math.min(multiMax, remaining))
+					if attempt.learned.method == "InvokeServer" then
+						task.spawn(function() pcall(remoteFunction.InvokeServer, remoteFunction, attempt.learned.action, table.unpack(args, 1, count)) end)
+					else
+						remoteEvent:FireServer(attempt.learned.action, table.unpack(args, 1, count))
+					end
+				elseif attempt.bulk then
 					remoteEvent:FireServer("UsePotion", potionItem.Name, attempt.level, math.min(multiMax, remaining))
 				else
 					remoteEvent:FireServer("UsePotion", potionItem.Name, attempt.level)
@@ -14695,8 +14886,17 @@ do
 			end
 			local forms = {}
 			for form in pairs(diag.forms) do table.insert(forms, form) end
-			reason = reason .. string.format(" [sent %d: %s; owned %s -> %s; run %s; safe %s]", diag.sent,
-				table.concat(forms, ","), tostring(diag.before), tostring(diag.after), tostring(diag.run), tostring(diag.safe))
+			reason = reason .. string.format(" [sent %d: %s; owned %s -> %s]", diag.sent,
+				table.concat(forms, ","), tostring(diag.before), tostring(diag.after))
+			local learned = activeStates.BGSI_Lite_PotionFormat
+			if type(learned) == "table" then
+				local ok, text = pcall(HttpService.JSONEncode, HttpService, learned.args)
+				reason = reason .. " [game format: " .. tostring(learned.method) .. " " .. tostring(learned.action) .. " " .. (ok and text:sub(1, 400) or "?") .. "]"
+			elseif activeStates.BGSI_Lite_PotionSpyInstalled then
+				reason = reason .. " [Use one potion by hand in game on this account, then try again: the script will copy how the game does it.]"
+			else
+				reason = reason .. " [This executor can't watch game requests (no hookmetamethod).]"
+			end
 			return usedAmount, reason
 		end
 		return usedAmount
