@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.109"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.110"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.110",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Shop buying lands", description = "Auto buy waits a little longer at each shop so the game accepts the purchase.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.109",
 		releasedAt = "November 24, 2026",
@@ -17324,8 +17331,9 @@ do
 		if (rootPart.Position - shopCFrame.Position).Magnitude > 12 then
 			shopReturnCFrame = shopReturnCFrame or rootPart.CFrame
 			rootPart.CFrame = shopCFrame + Vector3.new(0, 4, 0)
-			-- Verified live: the server takes about a second to see the new position.
-			task.wait(1.5)
+			-- Verified live: 1.5 seconds at the shop wasn't enough for the server to accept a
+			-- purchase, about 3 seconds was.
+			task.wait(3)
 		end
 		return true
 	end
