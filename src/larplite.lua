@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.84"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.85"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.85",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Potions work while hatching", description = "Hatching pauses for a moment while a potion is used, so the game stops ignoring it.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.84",
 		releasedAt = "November 24, 2026",
@@ -14556,6 +14563,23 @@ do
 		end
 		return math.max(0, remainingSeconds)
 	end
+	-- Auto hatch fires HatchEgg every few milliseconds, and the game silently drops a
+	-- player's other requests while it does - which is why dashboard potion uses (and
+	-- some shop buys) did nothing with no reason given. Hatching pauses briefly around
+	-- each potion request instead.
+	if type(fireHatchEgg) == "function" and not activeStates.BGSI_Lite_HatchPauseWrapped then
+		local originalFireHatchEgg = fireHatchEgg
+		fireHatchEgg = function(...)
+			if tick() < (tonumber(activeStates.BGSI_Lite_HatchPauseUntil) or 0) then
+				return false
+			end
+			return originalFireHatchEgg(...)
+		end
+		activeStates.BGSI_Lite_HatchPauseWrapped = true
+	end
+	activeStates.BGSI_Lite_PauseHatching = function(seconds)
+		activeStates.BGSI_Lite_HatchPauseUntil = math.max(tonumber(activeStates.BGSI_Lite_HatchPauseUntil) or 0, tick() + seconds)
+	end
 	activeStates.BGSI_Lite_UsePotionAmount = function(potionType, potionLevel, requestedAmount)
 		local waitDeadline = tick() + 2
 		while activeStates.BGSI_Lite_PotionUseActive and tick() < waitDeadline do
@@ -14606,9 +14630,12 @@ do
 			local attemptIndex = 1
 			local stalled = 0
 			local useDeadline = tick() + 12 + math.ceil((amountBefore - targetAmount) / multiMax) * 4
+			activeStates.BGSI_Lite_PauseHatching(1.5)
+			task.wait(0.4)
 			while isCurrentRun() and currentAmount > targetAmount and tick() < useDeadline and attemptIndex <= #attempts do
 				local attempt = attempts[attemptIndex]
 				local remaining = currentAmount - targetAmount
+				activeStates.BGSI_Lite_PauseHatching(3)
 				if attempt.bulk then
 					activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, attempt.level, math.min(multiMax, remaining))
 				else
@@ -14640,6 +14667,7 @@ do
 			return amountBefore - currentAmount
 		end)
 		activeStates.BGSI_Lite_PotionUseActive = false
+		activeStates.BGSI_Lite_HatchPauseUntil = 0
 		messageConnection:Disconnect()
 		if not useOk then
 			return 0, tostring(usedAmount)
