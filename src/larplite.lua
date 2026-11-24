@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.102"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.103"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.103",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Probe movement", description = "The local developer probe can open a shop and move the character for tests.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.24.102",
 		releasedAt = "November 24, 2026",
@@ -14831,6 +14838,24 @@ do
 							elseif step.op == "wait" then
 								task.wait(tonumber(step.s) or 0.5)
 								return "waited"
+							elseif step.op == "shop" then
+								require(ReplicatedStorage.Client.Gui.Frames.ItemShop):SetShopId(step.id)
+								require(ReplicatedStorage.Client.Gui.GuiFrame):Open("ItemShop")
+								return "shop " .. tostring(step.id)
+							elseif step.op == "goto" or step.op == "home" or step.op == "where" then
+								local rootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+								if not rootPart then return "no root" end
+								if step.op == "goto" then
+									local target = game
+									for part in tostring(step.target or ""):gmatch("[^%.]+") do target = target and target:FindFirstChild(part) end
+									if not target then return "no target" end
+									activeStates.BGSI_Lite_ProbeHome = activeStates.BGSI_Lite_ProbeHome or rootPart.CFrame
+									rootPart.CFrame = target:GetPivot() + Vector3.new(tonumber(step.dx) or 0, 4, tonumber(step.dz) or 0)
+								elseif step.op == "home" and activeStates.BGSI_Lite_ProbeHome then
+									rootPart.CFrame = activeStates.BGSI_Lite_ProbeHome
+									activeStates.BGSI_Lite_ProbeHome = nil
+								end
+								return step.op .. " " .. tostring(rootPart.Position)
 							end
 							local node = resolve(step)
 							if not node then return "missing " .. tostring(step.path) .. "/" .. tostring(step.find) end
