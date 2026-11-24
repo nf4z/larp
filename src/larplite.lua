@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.23.82"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.83"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.24.83",
+		releasedAt = "November 24, 2026",
+		notes = {
+			{ title = "Bulk potion use", description = "Potions are used up to 250 at a time with the game's own multi-use, so dashboard item use works.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.23.82",
 		releasedAt = "November 23, 2026",
@@ -14567,42 +14574,45 @@ do
 			amountBefore = amountOk and math.max(0, math.floor(tonumber(amountBefore) or 0)) or 0
 			local targetAmount = math.max(0, amountBefore - math.max(1, math.floor(tonumber(requestedAmount) or 1)))
 			local currentAmount = amountBefore
-			local stalledAttempts = 0
-			-- One request per potion, so the budget has to scale with how many were
-			-- asked for. 250 is a normal request and needs well over the old 90s cap.
-			local useDeadline = tick() + math.max(8, 6 + (amountBefore - targetAmount) * 0.9)
-			while
-				isCurrentRun()
-				and currentAmount > targetAmount
-				and tick() < useDeadline
-				and stalledAttempts < 4
-			do
-				-- UsePotion takes the name and the level, and consumes exactly one. There
-				-- is no bulk form anywhere in the game, so using 250 means firing 250
-				-- times. The old third argument was invented here and ignored by the
-				-- server, while the loop assumed a call had consumed up to ten - so it
-				-- fired a tenth of the requests needed and then gave up.
-				activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, potionItem.Level)
+			-- The game's own "Use Multiple" button sends UsePotion(name, level, amount), up to
+			-- Constants.MultiPotionMaxAmount (250) per request, with level 1 for potions that
+			-- have none. Single requests (name, level) consume one each and are the fallback.
+			local multiMax = tonumber(sharedConstants and sharedConstants.MultiPotionMaxAmount) or 250
+			local attempts = { { bulk = true, level = potionItem.Level or 1 } }
+			if potionItem.Level == nil then table.insert(attempts, { bulk = true, level = nil }) end
+			table.insert(attempts, { bulk = false, level = potionItem.Level })
+			local attemptIndex = 1
+			local stalled = 0
+			local useDeadline = tick() + 12 + math.ceil((amountBefore - targetAmount) / multiMax) * 4
+			while isCurrentRun() and currentAmount > targetAmount and tick() < useDeadline and attemptIndex <= #attempts do
+				local attempt = attempts[attemptIndex]
+				local remaining = currentAmount - targetAmount
+				if attempt.bulk then
+					activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, attempt.level, math.min(multiMax, remaining))
+				else
+					activeStates.BGSI_Lite_FireGameRemote("UsePotion", potionItem.Name, attempt.level)
+				end
 				local previousAmount = currentAmount
-				local replicationDeadline = tick() + 0.75
+				local replicationDeadline = tick() + (attempt.bulk and 2.5 or 0.75)
 				repeat
 					task.wait(0.05)
 					playerData = profileStore:IsReady() and profileStore:Get() or nil
-					local updatedOk, updatedAmount =
-						pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
+					local updatedOk, updatedAmount = pcall(itemUtil.GetOwnedAmount, itemUtil, playerData, potionItem)
 					if updatedOk then
 						currentAmount = math.max(0, math.floor(tonumber(updatedAmount) or previousAmount))
 					end
-				until
-					not isCurrentRun()
-					or currentAmount < previousAmount
-					or tick() >= replicationDeadline
+				until not isCurrentRun() or currentAmount < previousAmount or tick() >= replicationDeadline
 				if currentAmount < previousAmount then
-					stalledAttempts = 0
-					task.wait(0.05)
+					stalled = 0
+					task.wait(attempt.bulk and 0.15 or 0.05)
 				else
-					stalledAttempts = stalledAttempts + 1
-					task.wait(0.12)
+					stalled += 1
+					-- Two silent requests in a row: this form isn't accepted, try the next one.
+					if stalled >= 2 then
+						attemptIndex += 1
+						stalled = 0
+					end
+					task.wait(0.15)
 				end
 			end
 			return amountBefore - currentAmount
