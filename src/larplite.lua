@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.6"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.7"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.7",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Hub opens on every account", description = "The menu now opens even when the executor blocks CoreGui at startup.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.25.6",
 		releasedAt = "November 25, 2026",
@@ -4494,21 +4501,7 @@ end
 		return normalizedOptions
 	end
 
-	-- Per-option dropdown icons.
-	--
-	-- Rayfield's Dropdown only supports one icon for the whole control (next to its
-	-- title) - individual options in the list are plain strings, no icon slot. Rather than
-	-- rebuild the option list rendering ourselves, this hooks Dropdown:_rebindOption -
-	-- a real method on the shared Dropdown class table (every dropdown is
-	-- setmetatable(self, Dropdown), so patching it once via getmetatable affects every
-	-- dropdown that exists now and every one created later) that Rayfield already calls
-	-- whenever a recycled row gets pointed at a different option name (scrolling,
-	-- searching, :Refresh()). Patching it means a row's icon updates in lockstep with
-	-- Rayfield's own row-recycling instead of drifting out of sync with it.
-	--
-	-- The name -> icon lookup itself is built once, lazily, from the game's own data
-	-- modules and cached in activeStates.BGSI_Lite_ItemIconLookup - after that first
-	-- build every row just does one table read, no re-scanning ever.
+	-- Per-option dropdown icons (see the dropdown builder below).
 	local function buildGlobalItemIconLookup()
 		local lookup = {}
 		local function setIcon(name, iconValue)
