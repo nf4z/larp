@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.11"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.12"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.12",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Equip respects the Super limit", description = "Dashboard equips make room under the separate Super Legendary limit and unequip from the team list.", icon = "paw-print" },
+		},
+	},
 	{
 		version = "2026.11.25.11",
 		releasedAt = "November 25, 2026",
@@ -19479,8 +19486,39 @@ do
 							end
 						end
 						table.sort(removable, function(left, right) return (left.super and 1 or 0) < (right.super and 1 or 0) end)
-						local removeCount = command.mode == "replace" and #removable
-							or math.max(0, equippedCount + missing - maxEquipped)
+						-- Supers have their own limit (StatsUtil:GetMaxSupersEquipped); the game
+						-- hides Equip on a Super while that limit is reached.
+						local maxSupers = 1000
+						pcall(function()
+							maxSupers = tonumber(require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil):GetMaxSupersEquipped(data)) or maxSupers
+						end)
+						local equippedSupers, missingSupers = 0, 0
+						for petId in pairs(equipped) do
+							if owned[petId] and owned[petId].Super == true then equippedSupers += 1 end
+						end
+						for _, petId in ipairs(selected) do
+							if not equipped[petId] and owned[petId].Super == true then missingSupers += 1 end
+						end
+						local toRemove = {}
+						if command.mode == "replace" then
+							for _, entry in ipairs(removable) do table.insert(toRemove, entry.id) end
+						else
+							local superExcess = math.max(0, equippedSupers + missingSupers - maxSupers)
+							for index = #removable, 1, -1 do
+								if superExcess <= 0 then break end
+								if removable[index].super then
+									table.insert(toRemove, removable[index].id)
+									removable[index].taken = true
+									superExcess -= 1
+								end
+							end
+							local excess = math.max(0, equippedCount + missing - maxEquipped) - #toRemove
+							for _, entry in ipairs(removable) do
+								if excess <= 0 then break end
+								if not entry.taken then table.insert(toRemove, entry.id); excess -= 1 end
+							end
+						end
+						local removeCount = #toRemove
 						local function waitUntil(check, seconds)
 							local deadline = tick() + (seconds or 5)
 							repeat task.wait(0.1) until check() or tick() >= deadline
@@ -19518,7 +19556,7 @@ do
 							return true
 						end
 						local opened = false
-						local function selectInInventory(petId)
+						local function selectInInventory(petId, fromTeam)
 							if not canPress then return false end
 							if not opened then
 								opened = true
@@ -19529,11 +19567,14 @@ do
 							end
 							-- The pet list only builds rows on screen; borrow one, point it at this pet
 							-- and click it (the game selects whatever id the row is named).
-							local list = inventory.Frame.Inner.Pets.Main.ScrollingFrame
+							-- Team rows select a pet as "on the team" (shows Unequip), pet rows as
+							-- "in the inventory" (shows Equip).
+							local scroll = inventory.Frame.Inner.Pets.Main.ScrollingFrame
+							local list = scroll:FindFirstChild(fromTeam and "Team" or "Pets") or scroll
 							for _, row in ipairs(list:GetDescendants()) do
 								local inner = row:FindFirstChild("Inner")
 								if inner and inner:FindFirstChild("Button") and row.Name:match("^%x+%-%x+%-%x+%-%x+%-%x+") then
-									row.Name = petId .. "-0"
+									row.Name = petId .. (fromTeam and "-team-1" or "-0")
 									fireLocal(inner.Button)
 									task.wait(0.15)
 									return true
@@ -19543,15 +19584,15 @@ do
 						end
 						local function setEquipped(petId, equip)
 							local buttons = inventory and inventory.Frame.Inner.Pets.Details.Buttons
-							if selectInInventory(petId) and buttons then
+							if selectInInventory(petId, not equip) and buttons then
 								press(buttons:FindFirstChild(equip and "Equip" or "Unequip"))
 							else
 								remoteEvent:FireServer(equip and "EquipPet" or "UnequipPet", petId)
 							end
 							return waitUntil(function() return (teamIds(getData())[petId] == true) == equip end, 3)
 						end
-						for index = 1, math.min(removeCount, #removable) do
-							setEquipped(removable[index].id, false)
+						for _, petId in ipairs(toRemove) do
+							setEquipped(petId, false)
 						end
 						for _, petId in ipairs(selected) do
 							if not teamIds(getData())[petId] then setEquipped(petId, true) end
@@ -19564,7 +19605,7 @@ do
 						for _, petId in ipairs(selected) do if not now[petId] then failed += 1 end end
 						if failed > 0 then
 							error(string.format("The game didn't equip %d of %d pets (team %d/%d, made room for %d, buttons %s)",
-								failed, #selected, equippedCount, maxEquipped, math.min(removeCount, #removable), canPress and "yes" or "no"))
+								failed, #selected, equippedCount, maxEquipped, removeCount, canPress and "yes" or "no"))
 						end
 						return #selected
 					end
