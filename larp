@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.5"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.6"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/5008e2eef734f7ebe84f.lua", bytes = 493692, blocks = 21 },
-	["changelog"] = { path = "modules/changelog/713efa46802f305a3cff.lua", bytes = 82746, blocks = 1 },
+	["core"] = { path = "modules/core/786c0f08ea982bb5c7a9.lua", bytes = 493692, blocks = 21 },
+	["changelog"] = { path = "modules/changelog/2002b82d20f3f2568759.lua", bytes = 82962, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -240,7 +240,7 @@ for index, step in ipairs(steps) do
 	local block = blocks[step[2]]
 	blocks[step[2]] = nil
 	bootNote("running " .. step[1] .. " block " .. step[2] .. " (" .. index .. "/" .. #steps .. ")")
-	local ok, err = pcall(block)
+	local ok, err = xpcall(block, function(message) return tostring(message) .. string.char(10) .. debug.traceback() end)
 	remaining[step[1]]-=1
 	if remaining[step[1]]==0 then compiledModules[step[1]]=nil;modules[step[1]]=nil;remaining[step[1]]=nil end
 	if not ok then
@@ -252,4 +252,4 @@ end
 bootNote("started")
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.25.5" }
+return { Version = "2026.11.25.6" }
