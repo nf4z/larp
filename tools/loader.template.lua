@@ -128,19 +128,45 @@ if #failures>0 then local reason=table.concat(failures,"\n");discard();error(rea
 table.clear(queue)
 globalEnv.BGSI_Lite_LoaderMetrics={SourceBudgetBytes=budget,PeakFetchBytes=peakBytes,Modules=moduleCount}
 globalEnv._1rzHubLiteLoaderOptions = options
-for _, step in ipairs(steps) do
-	if not current() then discard();return end
+-- Autoexec sometimes starts this thread without access to CoreGui ("lacking capability
+-- Plugin"), which killed the start in core block 2 on about half the accounts. Raise the
+-- thread to the executor's normal level first; blocks and everything they spawn inherit it.
+local function canUseCoreGui()
+	return pcall(function() return game:GetService("CoreGui"):FindFirstChild("RobloxGui") end)
+end
+-- Always: Rayfield also needs the full level (seen: "cannot access 'Instance'" in its
+-- locale setup) even on threads that can already reach CoreGui.
+do
+	for _, setIdentity in ipairs({ rawget(originalEnv, "setthreadidentity") or setthreadidentity,
+		rawget(originalEnv, "set_thread_identity") or set_thread_identity, rawget(originalEnv, "setidentity") or setidentity }) do
+		if type(setIdentity) == "function" and pcall(setIdentity, 8) then break end
+	end
+end
+-- Startup progress in LarpLiteBoot_<UserId>.txt: shows which block a stalled start is stuck in.
+local bootFile, bootStarted = nil, os.clock()
+pcall(function() bootFile = "LarpLiteBoot_" .. tostring(game:GetService("Players").LocalPlayer.UserId) .. ".txt" end)
+local function bootNote(text)
+	if bootFile and type(writefile) == "function" then
+		pcall(writefile, bootFile, os.date("%H:%M:%S") .. string.format(" +%.1fs ", os.clock() - bootStarted) .. text)
+	end
+end
+if not canUseCoreGui() then bootNote("warning: no CoreGui access on this thread") end
+for index, step in ipairs(steps) do
+	if not current() then bootNote("replaced by a newer start");discard();return end
 	local blocks = compiledModules[step[1]]
 	local block = blocks[step[2]]
 	blocks[step[2]] = nil
-	local ok, err = pcall(block)
+	bootNote("running " .. step[1] .. " block " .. step[2] .. " (" .. index .. "/" .. #steps .. ")")
+	local ok, err = xpcall(block, function(message) return tostring(message) .. string.char(10) .. debug.traceback() end)
 	remaining[step[1]]-=1
 	if remaining[step[1]]==0 then compiledModules[step[1]]=nil;modules[step[1]]=nil;remaining[step[1]]=nil end
 	if not ok then
+		bootNote("failed in " .. step[1] .. " block " .. step[2] .. ": " .. tostring(err))
 		discard()
 		error("[LarpLite] " .. step[1] .. " block " .. step[2] .. ": " .. tostring(err), 0)
 	end
 end
+bootNote("started")
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
 return { Version = "@VERSION@" }
