@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.13"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.14"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.14",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Dashboard pet equip lands", description = "Automation pauses for a moment while pets are equipped, so the game accepts the change.", icon = "paw-print" },
+		},
+	},
 	{
 		version = "2026.11.25.13",
 		releasedAt = "November 25, 2026",
@@ -19457,7 +19464,21 @@ do
 						return inventory
 					end
 
+					local equipPetsNow
+					-- Verified live: while hatching/enchanting runs, the server ignores equip and
+					-- unequip requests; with automation paused for a moment they go straight
+					-- through. So pause (Safe Mode, not saved), equip, and restore.
 					activeStates.BGSI_Lite_EquipPetsCommand = function(command)
+						local previousSafeMode = Config.safeMode
+						Config.safeMode = true
+						task.wait(1.5)
+						local ok, result = pcall(equipPetsNow, command)
+						Config.safeMode = previousSafeMode
+						pcall(saveConfig)
+						if not ok then error(result, 0) end
+						return result
+					end
+					equipPetsNow = function(command)
 						local wanted, order = {}, {}
 						for _, petId in ipairs(type(command.petIds) == "table" and command.petIds or {}) do
 							petId = tostring(petId)
@@ -19601,13 +19622,15 @@ do
 							return false
 						end
 						local function setEquipped(petId, equip)
+							local function done() return (teamIds(getData())[petId] == true) == equip end
+							remoteEvent:FireServer(equip and "EquipPet" or "UnequipPet", petId)
+							if waitUntil(done, 2.5) then return true end
+							-- Fallback: the inventory's own button.
 							local buttons = inventory and inventory.Frame.Inner.Pets.Details.Buttons
 							if selectInInventory(petId, not equip) and buttons then
 								press(buttons:FindFirstChild(equip and "Equip" or "Unequip"))
-							else
-								remoteEvent:FireServer(equip and "EquipPet" or "UnequipPet", petId)
 							end
-							return waitUntil(function() return (teamIds(getData())[petId] == true) == equip end, 3)
+							return waitUntil(done, 3)
 						end
 						for _, petId in ipairs(toRemove) do
 							setEquipped(petId, false)
