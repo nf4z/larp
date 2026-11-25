@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.24.113"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.1"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.1",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "New dashboard address", description = "The dashboard moved to dash.robloxarchive.com; accounts connect there automatically.", icon = "server" },
+		},
+	},
 	{
 		version = "2026.11.24.113",
 		releasedAt = "November 24, 2026",
@@ -3405,7 +3412,7 @@ end
 -- request that cannot reach one host is retried on the other, the working one is kept,
 -- and the main host is tried again every few minutes.
 do
-	local PRIMARY = "https://larplite.xyz"
+	local PRIMARY = "https://dash.robloxarchive.com"
 	local BACKUP = "https://phantom.lathanscommunity.workers.dev"
 	activeStates.BGSI_Lite_DashboardHostPreferred = activeStates.BGSI_Lite_DashboardHostPreferred or nil
 	activeStates.BGSI_Lite_DashboardHostCheckedAt = activeStates.BGSI_Lite_DashboardHostCheckedAt or 0
@@ -3419,7 +3426,7 @@ do
 			configured = "https://" .. configured
 		end
 		-- A self-hosted dashboard has no backup address.
-		if configured:lower() ~= PRIMARY then
+		if configured:lower() ~= PRIMARY and configured:lower() ~= "https://larplite.xyz" then
 			return { configured }
 		end
 		local preferred = activeStates.BGSI_Lite_DashboardHostPreferred
@@ -3432,7 +3439,7 @@ do
 		if activeStates.BGSI_Lite_DashboardHostPreferred ~= host then
 			activeStates.BGSI_Lite_DashboardHostPreferred = host
 			if host == BACKUP then
-				print("[" .. LocalPlayer.Name .. "] larplite.xyz is unreachable from this network; using the backup dashboard address.")
+				print("[larp] Dashboard unreachable; using backup address.")
 			end
 		end
 		if host == BACKUP then
