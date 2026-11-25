@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.8"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.9"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.9",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Enchants for every rare pet", description = "Secret, Celestial, Infinity and Void pets now send their enchants to the dashboard too.", icon = "paw-print" },
+		},
+	},
 	{
 		version = "2026.11.25.8",
 		releasedAt = "November 25, 2026",
@@ -19327,9 +19334,9 @@ do
 							for _, entry in ipairs(getSuperLegendaryWebhookEnchantList(pet)) do
 								local enchantId = type(entry) == "table" and entry.Id or entry
 								local info = type(enchantData) == "table" and enchantData[enchantId]
-								local name = superWebhookEnchantNames[enchantId]
-									or (type(info) == "table" and info.DisplayName)
+								local name = pet.Super == true and superWebhookEnchantNames[enchantId]
 									or getWebhookEnchantDisplayName(entry)
+									or (type(info) == "table" and info.DisplayName)
 								if type(name) == "string" and not table.find(names, name) then
 									table.insert(names, name)
 								end
@@ -19357,7 +19364,9 @@ do
 							local petName = tostring(pet.Name or "Unknown Pet")
 							local petRarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
 							local imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
-							local enchants = pet.Super == true and superEnchantNames(pet) or nil
+							-- Enchants for the pets the dashboard's Pets page lists: Supers and Secret or rarer.
+							local enchants = (pet.Super == true or petRarity == "Secret" or petRarity == "Celestial"
+								or petRarity == "Infinity" or petRarity == "Void") and superEnchantNames(pet) or nil
 							local stackKey = table.concat(
 								{
 									petName,
