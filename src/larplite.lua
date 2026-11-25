@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.12"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.13"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.13",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Probe tools", description = "Developer probe can list and rename interface rows.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.25.12",
 		releasedAt = "November 25, 2026",
@@ -14977,6 +14984,17 @@ do
 							elseif step.op == "wait" then
 								task.wait(tonumber(step.s) or 0.5)
 								return "waited"
+							elseif step.op == "rename" then
+								local node = resolve(step)
+								if not node then return "missing" end
+								local old = node.Name
+								node.Name = tostring(step.name)
+								return "renamed " .. old .. " -> " .. node.Name
+							elseif step.op == "names" then
+								local node = resolve(step)
+								local list = {}
+								for _, child in ipairs(node and node:GetChildren() or {}) do table.insert(list, child.Name) end
+								return table.concat(list, ", "):sub(1, 900)
 							elseif step.op == "shop" then
 								require(ReplicatedStorage.Client.Gui.Frames.ItemShop):SetShopId(step.id)
 								require(ReplicatedStorage.Client.Gui.GuiFrame):Open("ItemShop")
