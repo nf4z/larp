@@ -1,10 +1,10 @@
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 30 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 31 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 30 then
+if prior and prior.Starting and prior.Revision == 31 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -71,7 +71,7 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 30, ScriptVersion = "v115", State = private}
+local runtime = {Starting = true, Revision = 31, ScriptVersion = "v115", State = private}
 -- The rarest real hatches this session (server-confirmed egg hatches only), for the Stats tab and stats panel.
 do
     local session = {Top = {}, Count = 0, StartedAt = os.clock(), Listeners = {}}
@@ -13438,11 +13438,13 @@ end
             settings.rebirthCombo=type(settings.rebirthCombo)=="table" and settings.rebirthCombo or {}
             local config=settings.rebirthCombo
             local CUSTOM="Custom (pick pets below)"
+            -- Machines left out of the list on request.
+            local HIDDEN_MACHINES={CrystalAltar=true}
             local VARIANTS={"Normal","Shiny","Mythic","Shiny Mythic"}
             local function machines()
                 local list={}
                 for key,machine in pairs(type(util.Machines)=="table" and util.Machines or {}) do
-                    if type(machine)=="table" and machine.Enabled~=false then
+                    if type(machine)=="table" and machine.Enabled~=false and not HIDDEN_MACHINES[key] then
                         table.insert(list,{Key=key,Name=tostring(machine.DisplayName or key),Machine=machine})
                     end
                 end
