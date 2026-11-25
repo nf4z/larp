@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.10"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.11"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.11",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Equip diagnostics", description = "Failed dashboard equips now say how full the team was.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.25.10",
 		releasedAt = "November 25, 2026",
@@ -19555,7 +19562,10 @@ do
 						end
 						local now, failed = teamIds(getData()), 0
 						for _, petId in ipairs(selected) do if not now[petId] then failed += 1 end end
-						if failed > 0 then error("The game didn't equip " .. failed .. " of " .. #selected .. " pets") end
+						if failed > 0 then
+							error(string.format("The game didn't equip %d of %d pets (team %d/%d, made room for %d, buttons %s)",
+								failed, #selected, equippedCount, maxEquipped, math.min(removeCount, #removable), canPress and "yes" or "no"))
+						end
 						return #selected
 					end
 
