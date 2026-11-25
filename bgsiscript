@@ -1,10 +1,10 @@
 local actualGlobals = (getgenv and getgenv()) or _G
 local prior = rawget(actualGlobals, "_BGSI_TestHub")
-if prior and prior.Revision == 29 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
+if prior and prior.Revision == 30 and prior.UI and prior.UI.Window and prior.UI.ScreenGui.Parent then
     prior.UI.Window:Open()
     return prior.UI.Window
 end
-if prior and prior.Starting and prior.Revision == 29 then
+if prior and prior.Starting and prior.Revision == 30 then
     warn("[TestHub] Already starting; please wait")
     return
 end
@@ -71,14 +71,14 @@ end)()
 pcall(repairTopbar, actualGlobals._BGSI_TopbarPlus)
 if prior and prior.Unload then prior.Unload()
 elseif prior and prior.UI then pcall(function() prior.UI:Destroy() end) end
-local runtime = {Starting = true, Revision = 29, ScriptVersion = "v114", State = private}
+local runtime = {Starting = true, Revision = 30, ScriptVersion = "v115", State = private}
 -- The rarest real hatches this session (server-confirmed egg hatches only), for the Stats tab and stats panel.
 do
     local session = {Top = {}, Count = 0, StartedAt = os.clock(), Listeners = {}}
-    function session.Record(name, variant, oneIn, rarity)
+    function session.Record(name, variant, oneIn, rarity, super, enchants)
         if type(oneIn) ~= "number" or oneIn ~= oneIn or oneIn <= 0 or oneIn == math.huge then return end
         session.Count += 1
-        table.insert(session.Top, {Name = tostring(name), Variant = variant or "", OneIn = oneIn, Rarity = rarity, At = os.time()})
+        table.insert(session.Top, {Name = tostring(name), Variant = variant or "", OneIn = oneIn, Rarity = rarity, Super = super == true, Enchants = enchants, At = os.time()})
         table.sort(session.Top, function(a, b) return a.OneIn > b.OneIn end)
         while #session.Top > 5 do table.remove(session.Top) end
         for _, listener in ipairs(session.Listeners) do pcall(listener) end
@@ -1278,7 +1278,7 @@ function methods:SetDesc(text)
 	self:Layout(false); applyFilter()
 end
 function methods:SetIcon(asset)
-	local image = type(asset) == "string" and asset:match("^rbxassetid://%d+$") or nil
+	local image = type(asset) == "string" and (asset:match("^rbxassetid://%d+$") or asset:match("^rbxasset://.+$")) or nil
 	if image and not self.StatusIcon then
 		self.StatusIcon = create("ImageLabel", {Name = "GameStatusIcon", BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 2, 0.5, 0),
@@ -5505,7 +5505,19 @@ local function processAcceptedHatch(pet,eventName,hatchResult)
     local name,info,rarity,isSuper,isShiny,isMythic,isXL=HatchWebhook.Describe(pet)
     pcall(function()
         local oneIn,known=HatchWebhook.GetOdds(pet,name,info,isShiny,isMythic,isXL)
-        if known then runtime.SessionHatches.Record(name,(isXL and "XL " or "")..(isShiny and "Shiny " or "")..(isMythic and "Mythic " or ""),oneIn,rarity) end
+        if known then
+            local variant=(isXL and "XL " or "")..(isShiny and "Shiny " or "")..(isMythic and "Mythic " or "")
+            if isSuper and type(getWebhookSuperLegendaryEnchantText)=="function" then
+                -- The enchant can take a moment to appear on the stored pet; don't hold up the hatch.
+                task.spawn(function()
+                    local good,_,names=pcall(getWebhookSuperLegendaryEnchantText,pet,name,isShiny,isMythic,isXL)
+                    local enchants=good and type(names)=="table" and #names>0 and table.concat(names,", ") or nil
+                    runtime.SessionHatches.Record(name,variant,oneIn,rarity,true,enchants)
+                end)
+            else
+                runtime.SessionHatches.Record(name,variant,oneIn,rarity,isSuper)
+            end
+        end
     end)
     local hatchedCount=hatchHistory.Record(name,isSuper,isShiny,isMythic,isXL)
     local origin=getPetOrigin(info)
@@ -9143,218 +9155,6 @@ EventTab:Toggle({
 })
 
 -- ======================================
--- UI - NONE (Spawnable Special Rift)
--- ======================================
-EventTab:Section({ Title = "None" })
-
-EventTab:Toggle({
-    Title = "Auto Hatch",
-    Desc = "Hatches Cloudy Rift Egg automatically",
-    Value = autoHatchRiftEnabled,
-    Callback = function(v)
-        autoHatchRiftEnabled = v
-        eventSettings.autoHatchRift = v
-        getgenv().HubSettings.event = eventSettings
-        saveHubSettings()
-        if v then
-            autoHatchRiftThread = task.spawn(function()
-                local wasActive = false
-                local currentLuck = 0
-                local lastCheckTime = 0
-                local riftExists = false
-                
-                while autoHatchRiftEnabled do
-                    while getgenv().questActive and autoHatchRiftEnabled do
-                        wasActive = false
-                        task.wait(0.5)
-                    end
-                    
-                    local higherPriorityActive = false
-                    if isRiftExists("corruptshadow-rift") or isRiftExists("shadow-rift") or isRiftExists("doodle-rift") then
-                        higherPriorityActive = true
-                    end
-                    
-                    if higherPriorityActive then
-                        wasActive = false
-                        riftExists = false
-                        task.wait(1)
-                        continue
-                    end
-                    
-                    local now = tick()
-                    if now - lastCheckTime >= 5 then
-                        lastCheckTime = now
-                        riftExists = isRiftExists(riftName)
-                        if riftExists then
-                            currentLuck = teleportToBestRift(riftName)
-                        end
-                    end
-                    
-                    if riftExists then
-                        if getgenv().questActive then continue end
-                        
-                        getgenv().questActive = true
-                        getgenv().questEgg = riftEgg
-                        
-                        if not wasActive then
-                            getgenv().ActivityStatus.current = "Hatching " .. riftEgg .. (currentLuck > 0 and " (x" .. currentLuck .. " luck)" or "")
-                            getgenv().ActivityStatus.trigger = true
-                            wasActive = true
-                        end
-                        
-                        pcall(function() RE:FireServer("HatchEgg", riftEgg, HATCH_AMOUNT) end)
-                        task.wait(0.05)
-                    else
-                        if wasActive then
-                            getgenv().ActivityStatus.current = "Rift gone, waiting..."
-                            getgenv().ActivityStatus.trigger = true
-                            wasActive = false
-                        end
-                        getgenv().questActive = false
-                        getgenv().questEgg = nil
-                        task.wait(1)
-                    end
-                end
-            end)
-        else
-            if autoHatchRiftThread then task.cancel(autoHatchRiftThread) end
-            getgenv().questActive = false
-            getgenv().questEgg = nil
-        end
-    end,
-})
-
-EventTab:Toggle({
-    Title = "Auto Summon",
-    Desc = "Summons Cloudy Rift every 55 minutes",
-    Value = autoSummonRiftEnabled,
-    Callback = function(v)
-        autoSummonRiftEnabled = v
-        eventSettings.autoSummonRift = v
-        getgenv().HubSettings.event = eventSettings
-        saveHubSettings()
-        if v then
-            autoSummonRiftThread = task.spawn(function()
-                while autoSummonRiftEnabled do
-                    getgenv().ActivityStatus.current = "Summoning " .. riftName
-                    getgenv().ActivityStatus.trigger = true
-                    
-                    summonRift()
-                    task.wait(5)
-                    
-                    if isRiftExists(riftName) then
-                        sendSummonWebhook(true)
-                    else
-                        sendSummonWebhook(false)
-                    end
-                    
-                    task.wait(3300)
-                end
-            end)
-        else
-            if autoSummonRiftThread then task.cancel(autoSummonRiftThread) end
-        end
-    end,
-})
-
--- ======================================
--- UI - NONE (Event Altar)
--- ======================================
-EventTab:Section({ Title = "None" })
-
-EventTab:Paragraph({
-    Title = "⚠️ Warning",
-    Desc = "Make sure to LOCK your Rainshine if you don't want it to be used!",
-})
-
-EventTab:Paragraph({
-    Title = "Priority",
-    Desc = "Celestial (Rainshine) > Secret (Empyrean Bolt). Groups by variant: Normal, Shiny, Mythic, ShinyMythic, XL.",
-})
-
-local altarTrackerParagraph = EventTab:Paragraph({
-    Title = "Last Used: None",
-    Desc = "Waiting for first conversion",
-})
-
-local altarEnabled = false
-local altarThread = nil
-
-EventTab:Toggle({
-    Title = "Auto Event Altar",
-    Value = false,
-    Callback = function(v)
-        altarEnabled = v
-        if v then
-            altarThread = task.spawn(function()
-                while altarEnabled do
-                    local cooldownText = getCooldownText()
-                    local cooldownSeconds = parseCooldown(cooldownText)
-                    
-                    if cooldownSeconds and cooldownSeconds > 0 then
-                        pcall(function() altarTrackerParagraph:SetDesc("Cooldown: " .. cooldownText) end)
-                        task.wait(math.min(cooldownSeconds + 5, 60))
-                    else
-                        local groups = getSkyAltarPets()
-                        local selectedPets = {}
-                        local mode = ""
-                        
-                        if #groups.Celestial.Normal >= 3 then
-                            selectedPets = groups.Celestial.Normal
-                            mode = "Celestial Normal"
-                        elseif #groups.Celestial.Shiny >= 3 then
-                            selectedPets = groups.Celestial.Shiny
-                            mode = "Celestial Shiny"
-                        elseif #groups.Celestial.Mythic >= 3 then
-                            selectedPets = groups.Celestial.Mythic
-                            mode = "Celestial Mythic"
-                        elseif #groups.Celestial.ShinyMythic >= 3 then
-                            selectedPets = groups.Celestial.ShinyMythic
-                            mode = "Celestial Shiny Mythic"
-                        elseif #groups.Celestial.XL >= 3 then
-                            selectedPets = groups.Celestial.XL
-                            mode = "Celestial XL"
-                        elseif #groups.Secret.Normal >= 3 then
-                            selectedPets = groups.Secret.Normal
-                            mode = "Secret Normal"
-                        elseif #groups.Secret.Shiny >= 3 then
-                            selectedPets = groups.Secret.Shiny
-                            mode = "Secret Shiny"
-                        elseif #groups.Secret.Mythic >= 3 then
-                            selectedPets = groups.Secret.Mythic
-                            mode = "Secret Mythic"
-                        elseif #groups.Secret.ShinyMythic >= 3 then
-                            selectedPets = groups.Secret.ShinyMythic
-                            mode = "Secret Shiny Mythic"
-                        elseif #groups.Secret.XL >= 3 then
-                            selectedPets = groups.Secret.XL
-                            mode = "Secret XL"
-                        end
-                        
-                        if #selectedPets >= 3 then
-                            pcall(function() altarTrackerParagraph:SetTitle("Converting: " .. mode) end)
-                            local success = useSkyAltar(selectedPets)
-                            if success then
-                                getgenv().ActivityStatus.current = "Event Altar used (" .. mode .. ")"
-                                getgenv().ActivityStatus.trigger = true
-                                task.wait(10)
-                            else
-                                task.wait(5)
-                            end
-                        else
-                            pcall(function() altarTrackerParagraph:SetDesc("Not enough pets (same variant)") end)
-                            task.wait(60)
-                        end
-                    end
-                end
-            end)
-        else
-            if altarThread then task.cancel(altarThread) end
-        end
-    end,
-})
-
--- ======================================
 -- AUTO-START SAVED TOGGLES
 -- ======================================
 task.spawn(function()
@@ -9375,83 +9175,6 @@ task.spawn(function()
         end)
     end
     
-    if eventSettings.autoHatchRift then
-        autoHatchRiftEnabled = true
-        autoHatchRiftThread = task.spawn(function()
-            local wasActive = false
-            local currentLuck = 0
-            local lastCheckTime = 0
-            local riftExists = false
-            
-            while autoHatchRiftEnabled do
-                while getgenv().questActive and autoHatchRiftEnabled do
-                    wasActive = false
-                    task.wait(0.5)
-                end
-                
-                local higherPriorityActive = false
-                if isRiftExists("corruptshadow-rift") or isRiftExists("shadow-rift") or isRiftExists("doodle-rift") then
-                    higherPriorityActive = true
-                end
-                
-                if higherPriorityActive then
-                    wasActive = false
-                    riftExists = false
-                    task.wait(1)
-                    continue
-                end
-                
-                local now = tick()
-                if now - lastCheckTime >= 5 then
-                    lastCheckTime = now
-                    riftExists = isRiftExists(riftName)
-                    if riftExists then
-                        currentLuck = teleportToBestRift(riftName)
-                    end
-                end
-                
-                if riftExists then
-                    if getgenv().questActive then continue end
-                    getgenv().questActive = true
-                    getgenv().questEgg = riftEgg
-                    if not wasActive then
-                        getgenv().ActivityStatus.current = "Hatching " .. riftEgg .. (currentLuck > 0 and " (x" .. currentLuck .. " luck)" or "")
-                        getgenv().ActivityStatus.trigger = true
-                        wasActive = true
-                    end
-                    pcall(function() RE:FireServer("HatchEgg", riftEgg, HATCH_AMOUNT) end)
-                    task.wait(0.05)
-                else
-                    if wasActive then
-                        getgenv().ActivityStatus.current = "Rift gone, waiting..."
-                        getgenv().ActivityStatus.trigger = true
-                        wasActive = false
-                    end
-                    getgenv().questActive = false
-                    getgenv().questEgg = nil
-                    task.wait(1)
-                end
-            end
-        end)
-    end
-    
-    if eventSettings.autoSummonRift then
-        autoSummonRiftEnabled = true
-        autoSummonRiftThread = task.spawn(function()
-            while autoSummonRiftEnabled do
-                getgenv().ActivityStatus.current = "Summoning " .. riftName
-                getgenv().ActivityStatus.trigger = true
-                summonRift()
-                task.wait(5)
-                if isRiftExists(riftName) then
-                    sendSummonWebhook(true)
-                else
-                    sendSummonWebhook(false)
-                end
-                task.wait(3300)
-            end
-        end)
-    end
 end)
 
 print("[Event] Loaded!")
@@ -10805,7 +10528,8 @@ local function getPermShrineData()
     return nil
 end
 
-local function getPermShrineRemaining()
+local getPermShrineRemaining
+getPermShrineRemaining = function()
     local shrine = getPermShrineData()
     if shrine and shrine.StartTime and shrine.StartTime > 0 then
         local currentTime = os.time()
@@ -10826,61 +10550,62 @@ local function getPermShrineXP()
     return shrine and shrine.XPOffered or 0
 end
 
-local function forceShrineUIVisible()
-    local playerGui = player:FindFirstChild("PlayerGui")
-    local screenGui = playerGui and playerGui:FindFirstChild("ScreenGui")
-    local shrineUI = screenGui and screenGui:FindFirstChild("PermanentShrine")
-    
-    if shrineUI and not shrineUI.Visible then
-        runtime.Set(shrineUI, "Visible", true)
-        return true
-    end
-    return false
+-- Game rules (ReplicatedStorage.Shared.Shrines.PermanentShrine): 1,000,000 XP fills the
+-- shrine, claiming it picks the egg and rolls a 12 hour buff, and each reroll costs one
+-- Shrine Ticket. The old loop opened the shrine window over the game every pass, claimed
+-- even when the donation fell short, and asked to donate more potions than you owned, which
+-- the server refuses outright.
+local PermShrineInfo
+pcall(function() PermShrineInfo = require(ReplicatedStorage.Shared.Shrines.PermanentShrine) end)
+local PERM_XP_REQUIRED = PermShrineInfo and tonumber(PermShrineInfo.XPRequired) or 1000000
+local PERM_DURATION = PermShrineInfo and tonumber(PermShrineInfo.Duration) or 43200
+
+local function permNow()
+    local ok, now = pcall(Time.now)
+    return ok and tonumber(now) or os.time()
 end
 
+getPermShrineRemaining = function()
+    local shrine = getPermShrineData()
+    if shrine and shrine.Buff and tonumber(shrine.StartTime) then
+        return math.max(0, tonumber(shrine.StartTime) + PERM_DURATION - permNow())
+    end
+    return 0
+end
+
+local function permPotionXP(name, level)
+    for _, entry in ipairs(PermShrineInfo and PermShrineInfo.Potions or {}) do
+        local item = entry.Item
+        if item and item.Name == name and tonumber(item.Level) == level then return tonumber(entry.XP) end
+    end
+    return level >= 7 and 25000 or 2500
+end
+
+local function hasShrineTicket()
+    local data = LocalData:Get()
+    local ok, canAfford = pcall(ItemUtil.CanAfford, ItemUtil, data, {Type = "Powerup", Name = "Shrine Ticket", Amount = 1})
+    return ok and canAfford == true
+end
+
+-- Donates only what you own and only what the shrine still needs. Returns ok, reason.
 local function donatePermShrine(potionName)
-    local parts = {}
-    for part in string.gmatch(potionName, "%S+") do
-        table.insert(parts, part)
-    end
-    local name = table.concat(parts, " ", 1, #parts - 1)
-    local level = tonumber(parts[#parts]) or 6
-    
-    local currentXP = getPermShrineXP()
-    
-    if currentXP >= 1000000 then return true end
-    
-    local neededXP = 1000000 - currentXP
-    local xpPerPotion = 2500
-    local amountNeeded = math.ceil(neededXP / xpPerPotion)
-    
-    forceShrineUIVisible()
-    task.wait(0.5)
-    
-    pcall(function()
-        RemoteFunction:InvokeServer("DonateToPermanentShrine", name, level, amountNeeded)
+    local name, level = tostring(potionName):match("^(.-)%s+(%d+)$")
+    level = tonumber(level) or 6
+    name = name or tostring(potionName)
+    local needed = PERM_XP_REQUIRED - getPermShrineXP()
+    if needed <= 0 then return true end
+    local data = LocalData:Get()
+    local ok, owned = pcall(ItemUtil.GetOwnedAmount, ItemUtil, data, {Type = "Potion", Name = name, Level = level})
+    owned = ok and math.max(0, math.floor(tonumber(owned) or 0)) or 0
+    local amount = math.min(owned, math.ceil(needed / permPotionXP(name, level)))
+    if amount <= 0 then return false, "no " .. potionName .. " potions left to donate" end
+    local before = getPermShrineXP()
+    local good, result = pcall(function()
+        return RemoteFunction:InvokeServer("DonateToPermanentShrine", name, level, amount)
     end)
-    task.wait(2)
-    
-    return getPermShrineXP() >= 1000000
-end
-
-local function claimPermShrineBuff(eggName)
-    forceShrineUIVisible()
-    task.wait(0.5)
-    
-    pcall(function()
-        RemoteEvent:FireServer("ClaimPermanentShrineBuff", eggName)
-    end)
-end
-
-local function rerollPermShrine()
-    forceShrineUIVisible()
-    task.wait(0.5)
-    
-    pcall(function()
-        RemoteEvent:FireServer("RerollPermanentShrine")
-    end)
+    task.wait(1)
+    if good and result and getPermShrineXP() > before then return true end
+    return false, "the shrine refused the donation"
 end
 
 -- ======================================
@@ -11082,10 +10807,10 @@ task.spawn(function()
         task.wait(10)
         local shrine = getPermShrineData()
         if shrine then
-            local buff = shrine.Buff or "None"
-            local egg = shrine.Egg or "None"
-            local xp = shrine.XPOffered or 0
             local remaining = getPermShrineRemaining()
+            local buff = remaining > 0 and shrine.Buff or "None"
+            local egg = remaining > 0 and shrine.Egg or "None"
+            local xp = math.min(tonumber(shrine.XPOffered) or 0, PERM_XP_REQUIRED)
             
             local timeText = ""
             if remaining > 0 then
@@ -11103,8 +10828,9 @@ task.spawn(function()
 end)
 
 ShrineTab:Dropdown({
-    Title = "Donate Potion (Level 6 Only)",
-    Values = {"Lucky 6", "Speed 6", "Coins 6", "Mythic 6", "Tickets 6"},
+    Title = "Donate Potion",
+    Desc = "Level 6 gives 2,500 XP each, level 7 gives 25,000. Only what you own is donated.",
+    Values = {"Lucky 6", "Speed 6", "Coins 6", "Mythic 6", "Tickets 6", "Lucky 7", "Speed 7", "Coins 7", "Mythic 7", "Tickets 7"},
     Value = permSelectedPotion,
     Callback = function(v)
         permSelectedPotion = v
@@ -11153,6 +10879,71 @@ ShrineTab:Toggle({
     end,
 })
 
+local function permLoop()
+    local lastSaid
+    local function say(text)
+        if text == lastSaid then return end
+        lastSaid = text
+        getgenv().ActivityStatus.current = text
+        getgenv().ActivityStatus.trigger = true
+    end
+    while permEnabled and isCurrentShrineGeneration() do
+        local ok, err = pcall(function()
+            local shrine = getPermShrineData()
+            if not shrine then task.wait(5); return end
+            local remaining = getPermShrineRemaining()
+            local buff = shrine.Buff
+            if remaining > 0 and buff then
+                if permRerollEnabled and buff ~= permTargetBuff then
+                    if not hasShrineTicket() then
+                        if not permRerollNotified then
+                            permRerollNotified = true
+                            say("Perm Shrine: out of Shrine Tickets, keeping " .. tostring(buff))
+                        end
+                        task.wait(60)
+                        return
+                    end
+                    say("Perm Shrine: rerolling " .. tostring(buff) .. " for " .. permTargetBuff)
+                    pcall(function() RemoteEvent:FireServer("RerollPermanentShrine") end)
+                    local deadline = tick() + 6
+                    repeat task.wait(0.25) until getPermShrineBuff() ~= buff or tick() >= deadline
+                    task.wait(0.75)
+                    return
+                end
+                permRerollNotified = false
+                say("Perm Shrine: " .. tostring(buff) .. " on " .. tostring(shrine.Egg) .. (buff == permTargetBuff and " (target)" or ""))
+                task.wait(math.clamp(remaining + 2, 5, 60))
+                return
+            end
+            if getPermShrineXP() < PERM_XP_REQUIRED then
+                say("Perm Shrine: donating " .. permSelectedPotion)
+                local donated, reason = donatePermShrine(permSelectedPotion)
+                if not donated then
+                    say("Perm Shrine: " .. tostring(reason))
+                    task.wait(60)
+                end
+                return
+            end
+            say("Perm Shrine: claiming for " .. permSelectedEgg)
+            pcall(function() RemoteEvent:FireServer("ClaimPermanentShrineBuff", permSelectedEgg) end)
+            local deadline = tick() + 6
+            repeat task.wait(0.25) until getPermShrineRemaining() > 0 or tick() >= deadline
+            if getPermShrineRemaining() <= 0 then
+                say("Perm Shrine: claim didn't go through, retrying")
+                task.wait(10)
+            end
+        end)
+        if not ok then warn("[Shrine] Perm Shrine check failed: " .. tostring(err)); task.wait(10) end
+        task.wait(1)
+    end
+end
+
+local function startPermLoop()
+    if permThread then task.cancel(permThread); permThread = nil end
+    permRerollNotified = false
+    permThread = task.spawn(permLoop)
+end
+
 ShrineTab:Toggle({
     Title = "Auto Perm Shrine",
     Desc = "Automatically donates + claims + rerolls Perm Shrine",
@@ -11164,83 +10955,9 @@ ShrineTab:Toggle({
         saveHubSettings()
         
         if v then
-            permRerollNotified = false
-            
-            permThread = task.spawn(function()
-                forceShrineUIVisible()
-                task.wait(1)
-                
-                while permEnabled do
-                    local remaining = getPermShrineRemaining()
-                    local currentBuff = getPermShrineBuff()
-                    local currentXP = getPermShrineXP()
-                    
-                    if remaining > 0 then
-                        if permRerollEnabled and currentBuff ~= permTargetBuff then
-                            getgenv().ActivityStatus.current = "Rerolling for " .. permTargetBuff .. " (current: " .. currentBuff .. ")"
-                            getgenv().ActivityStatus.trigger = true
-                            
-                            forceShrineUIVisible()
-                            rerollPermShrine()
-                            task.wait(3)
-                            
-                            local newBuff = getPermShrineBuff()
-                            if newBuff == currentBuff then
-                                if not permRerollNotified then
-                                    permRerollNotified = true
-                                    
-                                    local discordID = settings.activity and settings.activity.userId or ""
-                                    local pingMsg = ""
-                                    if discordID ~= "" then
-                                        pingMsg = "<@" .. discordID .. "> "
-                                    end
-                                    
-                                    getgenv().ActivityStatus.current = pingMsg .. "Perm Shrine: Out of rerolls! Final buff: " .. currentBuff
-                                    getgenv().ActivityStatus.trigger = true
-                                end
-                                task.wait(30)
-                            end
-                        elseif currentBuff == permTargetBuff then
-                            getgenv().ActivityStatus.current = "Perm Shrine got target buff: " .. currentBuff .. "!"
-                            getgenv().ActivityStatus.trigger = true
-                            
-                            task.wait(math.min(remaining + 5, 300))
-                            permRerollNotified = false
-                        else
-                            task.wait(math.min(remaining + 5, 300))
-                        end
-                    else
-                        getgenv().ActivityStatus.current = "Perm Shrine: Starting new cycle"
-                        getgenv().ActivityStatus.trigger = true
-                        
-                        forceShrineUIVisible()
-                        task.wait(1)
-                        
-                        local xp = getPermShrineXP()
-                        if xp < 1000000 then
-                            getgenv().ActivityStatus.current = "Donating " .. permSelectedPotion .. " to Perm Shrine"
-                            getgenv().ActivityStatus.trigger = true
-                            
-                            donatePermShrine(permSelectedPotion)
-                            task.wait(3)
-                        end
-                        
-                        getgenv().ActivityStatus.current = "Claiming Perm Shrine for " .. permSelectedEgg
-                        getgenv().ActivityStatus.trigger = true
-                        
-                        forceShrineUIVisible()
-                        task.wait(1)
-                        claimPermShrineBuff(permSelectedEgg)
-                        task.wait(5)
-                        
-                        permRerollNotified = false
-                    end
-                    
-                    task.wait(2)
-                end
-            end)
+            startPermLoop()
         else
-            if permThread then task.cancel(permThread) end
+            if permThread then task.cancel(permThread); permThread = nil end
         end
     end,
 })
@@ -11264,83 +10981,9 @@ task.spawn(function()
         dreamerThread = task.spawn(dreamerLoop)
     end
     
-    if shrineSettings.autoPermShrine then
+    if shrineSettings.autoPermShrine and not permThread then
         permEnabled = true
-        permRerollNotified = false
-        
-        permThread = task.spawn(function()
-            forceShrineUIVisible()
-            task.wait(1)
-            
-            while permEnabled do
-                local remaining = getPermShrineRemaining()
-                local currentBuff = getPermShrineBuff()
-                local currentXP = getPermShrineXP()
-                
-                if remaining > 0 then
-                    if permRerollEnabled and currentBuff ~= permTargetBuff then
-                        getgenv().ActivityStatus.current = "Rerolling for " .. permTargetBuff .. " (current: " .. currentBuff .. ")"
-                        getgenv().ActivityStatus.trigger = true
-                        
-                        forceShrineUIVisible()
-                        rerollPermShrine()
-                        task.wait(3)
-                        
-                        local newBuff = getPermShrineBuff()
-                        if newBuff == currentBuff then
-                            if not permRerollNotified then
-                                permRerollNotified = true
-                                
-                                local discordID = settings.activity and settings.activity.userId or ""
-                                local pingMsg = ""
-                                if discordID ~= "" then
-                                    pingMsg = "<@" .. discordID .. "> "
-                                end
-                                
-                                getgenv().ActivityStatus.current = pingMsg .. "Perm Shrine: Out of rerolls! Final buff: " .. currentBuff
-                                getgenv().ActivityStatus.trigger = true
-                            end
-                            task.wait(30)
-                        end
-                    elseif currentBuff == permTargetBuff then
-                        getgenv().ActivityStatus.current = "Perm Shrine got target buff: " .. currentBuff .. "!"
-                        getgenv().ActivityStatus.trigger = true
-                        
-                        task.wait(math.min(remaining + 5, 300))
-                        permRerollNotified = false
-                    else
-                        task.wait(math.min(remaining + 5, 300))
-                    end
-                else
-                    getgenv().ActivityStatus.current = "Perm Shrine: Starting new cycle"
-                    getgenv().ActivityStatus.trigger = true
-                    
-                    forceShrineUIVisible()
-                    task.wait(1)
-                    
-                    local xp = getPermShrineXP()
-                    if xp < 1000000 then
-                        getgenv().ActivityStatus.current = "Donating " .. permSelectedPotion .. " to Perm Shrine"
-                        getgenv().ActivityStatus.trigger = true
-                        
-                        donatePermShrine(permSelectedPotion)
-                        task.wait(3)
-                    end
-                    
-                    getgenv().ActivityStatus.current = "Claiming Perm Shrine for " .. permSelectedEgg
-                    getgenv().ActivityStatus.trigger = true
-                    
-                    forceShrineUIVisible()
-                    task.wait(1)
-                    claimPermShrineBuff(permSelectedEgg)
-                    task.wait(5)
-                    
-                    permRerollNotified = false
-                end
-                
-                task.wait(2)
-            end
-        end)
+        startPermLoop()
     end
 end)
 
@@ -13704,12 +13347,37 @@ end
                 end
                 return nil
             end
+            local function commas(value)
+                local text=tostring(math.floor(tonumber(value) or 0))
+                local count
+                repeat text,count=text:gsub("^(-?%d+)(%d%d%d)","%1,%2") until count==0
+                return text
+            end
+            -- Rarity art (hosted with the script) cached in the workspace and shown through
+            -- the executor's custom asset support; rows simply show no icon without it.
+            local rarityIcons={}
+            local rarityFiles={Super="super",Secret="secret",Celestial="celestial",Infinity="infinity",Void="void"}
+            task.spawn(function()
+                local getAsset=getcustomasset or getsynasset
+                if type(getAsset)~="function" or type(writefile)~="function" then return end
+                pcall(function() if makefolder and not (isfolder and isfolder("QtrzipIcons")) then makefolder("QtrzipIcons") end end)
+                for rarity,file in pairs(rarityFiles) do
+                    pcall(function()
+                        local path="QtrzipIcons/rarity-"..file..".png"
+                        if not (isfile and isfile(path)) then
+                            local body=game:HttpGet("https://raw.githubusercontent.com/nf4z/larp/main/assets/rarity/"..file..".png",true)
+                            if type(body)=="string" and body:sub(2,4)=="PNG" then writefile(path,body) end
+                        end
+                        if isfile and isfile(path) then rarityIcons[rarity]=getAsset(path) end
+                    end)
+                end
+            end)
+            tab:Section({Title="All Time"})
+            local eggsCard=tab:Paragraph({Title="Eggs Hatched",Desc="Loading...",Icon="rbxassetid://104145017008309"})
+            local bubblesCard=tab:Paragraph({Title="Bubbles Blown",Desc="Loading...",Icon="rbxassetid://139415836850114"})
             tab:Section({Title="Top Hatches This Session"})
             local rows={}
             for index=1,5 do rows[index]=tab:Paragraph({Title="#"..index.."  -",Desc="Waiting for a Secret or rarer hatch."}) end
-            tab:Section({Title="All Time"})
-            local eggsCard=tab:Paragraph({Title="Eggs Hatched",Desc="Loading..."})
-            local bubblesCard=tab:Paragraph({Title="Bubbles Blown",Desc="Loading..."})
             tab:Section({Title="This Session"})
             local sessionCard=tab:Paragraph({Title="Session",Desc="Loading..."})
             local startHatches=tonumber(stat("Hatches"))
@@ -13718,16 +13386,22 @@ end
                     local entry=session.Top[index]
                     if entry then
                         rows[index]:SetTitle("#"..index.."  "..entry.Variant..entry.Name)
-                        rows[index]:SetDesc(string.format("1 in %s  |  %s  |  %s",short(entry.OneIn),tostring(entry.Rarity or "?"),os.date("%H:%M:%S",entry.At)))
+                        local parts={"1 in "..short(entry.OneIn)}
+                        if entry.Super then table.insert(parts,entry.Enchants or "No enchant") end
+                        table.insert(parts,os.date("%H:%M:%S",entry.At))
+                        rows[index]:SetDesc(table.concat(parts,"  |  "))
+                        local icon=rarityIcons[entry.Super and "Super" or tostring(entry.Rarity)]
+                        if rows[index].ShownIcon~=icon then rows[index].ShownIcon=icon;rows[index]:SetIcon(icon) end
                     else
                         rows[index]:SetTitle("#"..index.."  -")
                         rows[index]:SetDesc("Waiting for a Secret or rarer hatch.")
+                        if rows[index].ShownIcon then rows[index].ShownIcon=nil;rows[index]:SetIcon(nil) end
                     end
                 end
                 local hatches=stat("Hatches")
                 local bubbles=stat("Bubbles")
-                eggsCard:SetDesc(hatches and short(hatches).."  ("..tostring(hatches)..")" or "Not available")
-                bubblesCard:SetDesc(bubbles and short(bubbles).."  ("..tostring(bubbles)..")" or "Not available")
+                eggsCard:SetDesc(hatches and short(hatches).."  ("..commas(hatches)..")" or "Not available")
+                bubblesCard:SetDesc(bubbles and short(bubbles).."  ("..commas(bubbles)..")" or "Not available")
                 local elapsed=os.clock()-session.StartedAt
                 local now=tonumber(hatches)
                 startHatches=startHatches or now
@@ -13745,6 +13419,223 @@ end
             end)
         end)
         if not ok then WindUI:ModuleFailed("Stats: "..tostring(err)) end
+    end
+
+
+    -- Rebirth combos: every rebirth machine and altar the game defines (read live from
+    -- RebirthMachineUtil.Machines, so new ones appear on their own), its special combos
+    -- (Big King Doggy, The Duallord, Rainbow Champion...) or a custom mix of eligible pets.
+    do
+        local ok,err=pcall(function()
+            local storage=game:GetService("ReplicatedStorage")
+            local util=require(storage.Shared.Utils.RebirthMachineUtil)
+            local Profile=require(storage.Client.Framework.Services.LocalData)
+            local Time=require(storage.Shared.Framework.Utilities.Math.Time)
+            local remote=storage.Shared.Framework.Network.Remote.RemoteFunction
+            local CollectionService=game:GetService("CollectionService")
+            local LocalPlayer=Players.LocalPlayer
+            local settings=getgenv().HubSettings
+            settings.rebirthCombo=type(settings.rebirthCombo)=="table" and settings.rebirthCombo or {}
+            local config=settings.rebirthCombo
+            local CUSTOM="Custom (pick pets below)"
+            local VARIANTS={"Normal","Shiny","Mythic","Shiny Mythic"}
+            local function machines()
+                local list={}
+                for key,machine in pairs(type(util.Machines)=="table" and util.Machines or {}) do
+                    if type(machine)=="table" and machine.Enabled~=false then
+                        table.insert(list,{Key=key,Name=tostring(machine.DisplayName or key),Machine=machine})
+                    end
+                end
+                table.sort(list,function(a,b) return a.Name<b.Name end)
+                return list
+            end
+            local function findMachine(name)
+                for _,entry in ipairs(machines()) do if entry.Name==name or entry.Key==name then return entry end end
+                return machines()[1]
+            end
+            local function comboLabel(combo)
+                local item=combo.Item
+                if type(item)=="table" then item=item.Name end
+                return tostring(item or table.concat(combo.Pets or {},", "))
+            end
+            local function comboNames(entry)
+                local names={CUSTOM}
+                for _,combo in ipairs(entry and entry.Machine.SpecialCombinations or {}) do
+                    if type(combo)=="table" and type(combo.Pets)=="table" then table.insert(names,comboLabel(combo)) end
+                end
+                return names
+            end
+            local function variantMatches(pet)
+                local variant=config.variant or "Normal"
+                local shiny=variant=="Shiny" or variant=="Shiny Mythic"
+                local mythic=variant=="Mythic" or variant=="Shiny Mythic"
+                return (pet.Shiny==true)==shiny and (pet.Mythic==true)==mythic
+            end
+            local function usable(key,pet)
+                if type(pet)~="table" or pet.Id==nil or pet.Locked==true or pet.XL==true or not variantMatches(pet) then return false end
+                local good,eligible=pcall(util.IsPetEligible,util,key,pet)
+                return good and eligible==true
+            end
+            local function ownedEligibleNames(entry)
+                local names,seen={},{}
+                local data=Profile:Get()
+                for _,pet in pairs(entry and type(data)=="table" and type(data.Pets)=="table" and data.Pets or {}) do
+                    if usable(entry.Key,pet) and not seen[pet.Name] then seen[pet.Name]=true;table.insert(names,pet.Name) end
+                end
+                table.sort(names)
+                if #names==0 then names={"(No eligible pets owned)"} end
+                return names
+            end
+            local function selected(value)
+                local result={}
+                for k,v in pairs(type(value)=="table" and value or {}) do
+                    local name=type(k)=="string" and v==true and k or v
+                    if type(name)=="string" and name:sub(1,1)~="(" then table.insert(result,name) end
+                end
+                return result
+            end
+
+            local tab=Window:Tab({Title="Pets"})
+            tab:Section({Title="Rebirth Combos"})
+            local current=findMachine(config.machine)
+            config.machine=current and current.Name or nil
+            config.combo=config.combo or CUSTOM
+            config.pets=selected(config.pets)
+            local machineNames={}
+            for _,entry in ipairs(machines()) do table.insert(machineNames,entry.Name) end
+            local comboDropdown,petsDropdown,machineDropdown
+            machineDropdown=tab:Dropdown({Title="Machine",Desc="Every rebirth machine and altar in the game, found automatically.",
+                Values=#machineNames>0 and machineNames or {"(None in this game version)"},Value=config.machine,Callback=function(value)
+                    current=findMachine(value);config.machine=current and current.Name or nil
+                    config.combo=CUSTOM;config.pets={}
+                    if comboDropdown then comboDropdown:Refresh(comboNames(current));comboDropdown:Select(CUSTOM,true) end
+                    if petsDropdown then petsDropdown:Refresh(ownedEligibleNames(current)) end
+                    saveHubSettings()
+                end})
+            comboDropdown=tab:Dropdown({Title="Combo",Desc="A guaranteed special combo, or Custom to fuse the pets you pick.",
+                Values=comboNames(current),Value=config.combo,Callback=function(value)config.combo=value;saveHubSettings()end})
+            petsDropdown=tab:Dropdown({Title="Custom Pets",Desc="Eligible pets you own for this machine. Used when Combo is Custom.",
+                Values=ownedEligibleNames(current),Value=config.pets,Multi=true,Callback=function(value)config.pets=selected(value);saveHubSettings()end})
+            tab:Dropdown({Title="Variant",Desc="Only pets of this variant are used.",Values=VARIANTS,Value=config.variant or "Normal",
+                Callback=function(value)config.variant=value;if petsDropdown then petsDropdown:Refresh(ownedEligibleNames(current)) end;saveHubSettings()end})
+            tab:Button({Title="Refresh Pets",Desc="Re-reads your inventory and the game's machines.",Callback=function()
+                if petsDropdown then petsDropdown:Refresh(ownedEligibleNames(current)) end
+                if comboDropdown then comboDropdown:Refresh(comboNames(current)) end
+            end})
+            tab:Toggle({Title="Auto Rebirth Combo",Desc="Fuses the selected combo whenever the machine's cooldown is ready. Locked and XL pets are never used.",
+                Value=config.auto==true,Callback=function(value)config.auto=value==true;saveHubSettings()end})
+            local status=tab:Paragraph({Title="Rebirth Combo Status",Desc="Pick a machine and combo."})
+            local function setStatus(text) pcall(function() status:SetDesc(text) end) end
+
+            -- Picks pets for one fuse: the combo's exact pets, or a custom mix of the picked names.
+            local function choosePets(entry,data)
+                local byName={}
+                for _,pet in pairs(type(data.Pets)=="table" and data.Pets or {}) do
+                    if usable(entry.Key,pet) then byName[pet.Name]=byName[pet.Name] or {};table.insert(byName[pet.Name],pet) end
+                end
+                local chosen={}
+                if config.combo~=CUSTOM then
+                    local combo
+                    for _,candidate in ipairs(entry.Machine.SpecialCombinations or {}) do
+                        if comboLabel(candidate)==config.combo then combo=candidate end
+                    end
+                    if not combo then return nil,"That combo isn't in this machine any more." end
+                    local missing={}
+                    for _,name in ipairs(combo.Pets) do
+                        local list=byName[name]
+                        local pet=list and table.remove(list)
+                        if pet then table.insert(chosen,pet) else missing[name]=(missing[name] or 0)+1 end
+                    end
+                    if next(missing) then
+                        local parts={}
+                        for name,count in pairs(missing) do table.insert(parts,count.."x "..name) end
+                        table.sort(parts)
+                        return nil,"Missing "..table.concat(parts,", ").." ("..(config.variant or "Normal")..")"
+                    end
+                else
+                    local need=tonumber(entry.Machine.NumPetsRequired) or 5
+                    for _,name in ipairs(config.pets or {}) do
+                        for _,pet in ipairs(byName[name] or {}) do
+                            if #chosen<need then table.insert(chosen,pet) end
+                        end
+                    end
+                    if #config.pets==0 then return nil,"Pick pets in Custom Pets." end
+                    if #chosen<need then return nil,"Need "..need.." picked pets, have "..#chosen.." ("..(config.variant or "Normal")..")" end
+                end
+                local good,can=pcall(util.CanFuse,util,entry.Key,chosen)
+                if not (good and can) then return nil,"The machine won't accept that mix." end
+                return chosen
+            end
+            local function machineActivation(key)
+                for _,activation in ipairs(CollectionService:GetTagged("Activation")) do
+                    if activation.Parent and activation.Parent.Name==key then return activation end
+                end
+                local model=workspace:FindFirstChild(key,true)
+                return model and (model:FindFirstChild("Activation") or model)
+            end
+            local function fuse(key,ids)
+                local good,result=pcall(remote.InvokeServer,remote,"UseRebirthMachine",key,ids)
+                if good and result~=nil and result~=false then return true end
+                -- Some machines only work up close: stand at it, try again, then go back.
+                local target=machineActivation(key)
+                local root=LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if not (target and root) then return false end
+                local okPivot,pivot=pcall(function() return target:GetPivot() end)
+                if not okPivot then return false end
+                local back=root.CFrame
+                root.CFrame=pivot+Vector3.new(0,4,0)
+                task.wait(1.5)
+                good,result=pcall(remote.InvokeServer,remote,"UseRebirthMachine",key,ids)
+                root.CFrame=back
+                return good and result~=nil and result~=false
+            end
+            local lastAttempt=0
+            task.spawn(function()
+                while runtime.Active~=false do
+                    task.wait(2)
+                    pcall(function()
+                        local entry=current
+                        local data=Profile:Get()
+                        if not entry or type(data)~="table" then return end
+                        local left=math.max(0,(tonumber(data[entry.Machine.CooldownKey]) or 0)-Time.now())
+                        local pets,reason=choosePets(entry,data)
+                        if left>0 then
+                            setStatus(string.format("%s cooldown %d:%02d  |  %s",entry.Name,left//60,math.floor(left%60),pets and "pets ready" or reason))
+                            return
+                        end
+                        if not pets then setStatus(reason);return end
+                        if config.auto~=true then setStatus("Ready: "..config.combo.." at "..entry.Name..". Turn on Auto Rebirth Combo.");return end
+                        if os.clock()-lastAttempt<6 then return end
+                        lastAttempt=os.clock()
+                        local ids={}
+                        for _,pet in ipairs(pets) do table.insert(ids,pet.Id) end
+                        if fuse(entry.Key,ids) then
+                            setStatus("Fused "..config.combo.." at "..entry.Name..".")
+                            getgenv().ActivityStatus.current="Rebirth combo: "..config.combo
+                            getgenv().ActivityStatus.trigger=true
+                        else
+                            setStatus("The machine didn't accept the fuse; retrying.")
+                        end
+                    end)
+                end
+            end)
+            -- Pick up machines or altars added mid-session (event updates).
+            task.spawn(function()
+                local known=#machineNames
+                while runtime.Active~=false do
+                    task.wait(60)
+                    local list=machines()
+                    if #list~=known then
+                        known=#list
+                        local names={}
+                        for _,entry in ipairs(list) do table.insert(names,entry.Name) end
+                        pcall(function() machineDropdown:Refresh(names) end)
+                        pcall(function() comboDropdown:Refresh(comboNames(current)) end)
+                    end
+                end
+            end)
+        end)
+        if not ok then WindUI:ModuleFailed("Rebirth combos: "..tostring(err)) end
     end
 
     -- Auto-buy for any game shop: The Dark Market (Potions tab) and the Thanksgiving shop (Event tab).
