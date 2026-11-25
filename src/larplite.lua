@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.7"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.8"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.8",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Equip pets from the dashboard", description = "The dashboard's Pets page can equip Super Legendaries by enchant on every account at once.", icon = "paw-print" },
+		},
+	},
 	{
 		version = "2026.11.25.7",
 		releasedAt = "November 25, 2026",
@@ -19314,10 +19321,33 @@ do
 						return serverCapacity
 					end
 
+					local function superEnchantNames(pet)
+						local names = {}
+						pcall(function()
+							for _, entry in ipairs(getSuperLegendaryWebhookEnchantList(pet)) do
+								local enchantId = type(entry) == "table" and entry.Id or entry
+								local info = type(enchantData) == "table" and enchantData[enchantId]
+								local name = superWebhookEnchantNames[enchantId]
+									or (type(info) == "table" and info.DisplayName)
+									or getWebhookEnchantDisplayName(entry)
+								if type(name) == "string" and not table.find(names, name) then
+									table.insert(names, name)
+								end
+							end
+						end)
+						table.sort(names)
+						return names
+					end
 					local function buildDashboardInventory()
 						local inventory = {}
 						local inventoryStacks = {}
 						local playerData = profileStore:IsReady() and profileStore:Get() or nil
+						local equippedIds = {}
+						local equippedTeam = type(playerData) == "table" and type(playerData.Teams) == "table"
+							and playerData.Teams[playerData.TeamEquipped] or nil
+						for _, equippedId in ipairs(type(equippedTeam) == "table" and type(equippedTeam.Pets) == "table" and equippedTeam.Pets or {}) do
+							equippedIds[tostring(equippedId)] = true
+						end
 						for _, pet in ipairs(playerData and playerData.Pets or {}) do
 							if type(pet) ~= "table" then
 								continue
@@ -19327,6 +19357,7 @@ do
 							local petName = tostring(pet.Name or "Unknown Pet")
 							local petRarity = activeStates.BGSI_Lite_ResolvePetRarity(pet, petInfo)
 							local imageAssetId = activeStates.BGSI_Lite_GetDashboardPetAssetId(pet, petInfo)
+							local enchants = pet.Super == true and superEnchantNames(pet) or nil
 							local stackKey = table.concat(
 								{
 									petName,
@@ -19336,6 +19367,7 @@ do
 									tostring(pet.Mythic == true),
 									tostring(pet.XL == true),
 									tostring(pet.Super == true),
+									enchants and table.concat(enchants, "+") or "",
 								},
 								"|"
 							)
@@ -19352,13 +19384,20 @@ do
 									mythic = pet.Mythic == true,
 									xl = pet.XL == true,
 									super = pet.Super == true,
+									enchants = enchants,
+									equipped = 0,
 								}
 								inventoryStacks[stackKey] = stack
 								table.insert(inventory, stack)
 							end
 							-- A few ids per stack are enough: deleting from the dashboard finds the
 							-- rest of the stack in-game. Every id made the inventory ~200 KB.
-							if petId ~= "" and #stack.ids < 10 then
+							-- Equipped pets go first so the dashboard can tell which copies are on the team.
+							if equippedIds[petId] then
+								stack.equipped += 1
+								table.insert(stack.ids, 1, petId)
+								if #stack.ids > 10 then table.remove(stack.ids) end
+							elseif petId ~= "" and #stack.ids < 10 then
 								table.insert(stack.ids, petId)
 							end
 							stack.amount = stack.amount
@@ -19368,6 +19407,85 @@ do
 							end
 						end
 						return inventory
+					end
+
+					activeStates.BGSI_Lite_EquipPetsCommand = function(command)
+						local wanted, order = {}, {}
+						for _, petId in ipairs(type(command.petIds) == "table" and command.petIds or {}) do
+							petId = tostring(petId)
+							if not wanted[petId] then wanted[petId] = true; table.insert(order, petId) end
+						end
+						if #order == 0 then error("No pets were picked") end
+						local function getData() return profileStore:IsReady() and profileStore:Get() or nil end
+						local function teamIds(data)
+							local team = type(data) == "table" and type(data.Teams) == "table" and data.Teams[data.TeamEquipped] or nil
+							local ids = {}
+							for _, petId in ipairs(type(team) == "table" and type(team.Pets) == "table" and team.Pets or {}) do
+								ids[tostring(petId)] = true
+							end
+							return ids
+						end
+						local data = getData()
+						if type(data) ~= "table" then error("Player data isn't loaded yet") end
+						local owned = {}
+						for _, pet in ipairs(type(data.Pets) == "table" and data.Pets or {}) do
+							owned[tostring(pet.Id)] = pet
+						end
+						local selected = {}
+						for _, petId in ipairs(order) do
+							if owned[petId] then table.insert(selected, petId) end
+						end
+						if #selected == 0 then error("Those pets aren't in this account's inventory any more") end
+						local maxEquipped = 1000
+						pcall(function()
+							maxEquipped = tonumber(require(ReplicatedStorage.Shared.Utils.Stats.StatsUtil):GetMaxPetsEquipped(data)) or maxEquipped
+						end)
+						if #selected > maxEquipped then
+							for index = #selected, maxEquipped + 1, -1 do table.remove(selected, index) end
+						end
+						local equipped = teamIds(data)
+						local equippedCount, missing = 0, 0
+						for _ in pairs(equipped) do equippedCount += 1 end
+						for _, petId in ipairs(selected) do
+							if not equipped[petId] then missing += 1 end
+						end
+						local removable = {}
+						for petId in pairs(equipped) do
+							if not wanted[petId] then
+								table.insert(removable, { id = petId, super = owned[petId] and owned[petId].Super == true })
+							end
+						end
+						table.sort(removable, function(left, right) return (left.super and 1 or 0) < (right.super and 1 or 0) end)
+						local removeCount = command.mode == "replace" and #removable
+							or math.max(0, equippedCount + missing - maxEquipped)
+						local function waitUntil(check)
+							local deadline = tick() + 5
+							repeat task.wait(0.1) until check() or tick() >= deadline
+						end
+						if removeCount > 0 then
+							local removing = {}
+							for index = 1, math.min(removeCount, #removable) do
+								table.insert(removing, removable[index].id)
+								remoteEvent:FireServer("UnequipPet", removable[index].id)
+							end
+							waitUntil(function()
+								local now = teamIds(getData())
+								for _, petId in ipairs(removing) do if now[petId] then return false end end
+								return true
+							end)
+						end
+						for _, petId in ipairs(selected) do
+							if not teamIds(getData())[petId] then remoteEvent:FireServer("EquipPet", petId) end
+						end
+						waitUntil(function()
+							local now = teamIds(getData())
+							for _, petId in ipairs(selected) do if not now[petId] then return false end end
+							return true
+						end)
+						local now, failed = teamIds(getData()), 0
+						for _, petId in ipairs(selected) do if not now[petId] then failed += 1 end end
+						if failed > 0 then error("The game didn't equip " .. failed .. " of " .. #selected .. " pets") end
+						return #selected
 					end
 
 					activeStates.BGSI_Lite_BuildDashboardPlayerDetails = function()
@@ -20612,6 +20730,12 @@ do
 														- amountAfterDelete
 												end
 											end)
+											if commandSucceeded then
+												commandError = nil
+												lastInventorySync = 0
+											end
+										elseif dashboardCommand.type == "equip-pets" then
+											commandSucceeded, commandError = pcall(activeStates.BGSI_Lite_EquipPetsCommand, dashboardCommand)
 											if commandSucceeded then
 												commandError = nil
 												lastInventorySync = 0
