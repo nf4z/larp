@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.2"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.3"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,8 +19,8 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/2b3751d2c7cffb4b460b.lua", bytes = 494108, blocks = 21 },
-	["changelog"] = { path = "modules/changelog/d7cb9ae264ba22dfaa7a.lua", bytes = 82019, blocks = 1 },
+	["core"] = { path = "modules/core/30f6617f74bdd1369785.lua", bytes = 494108, blocks = 21 },
+	["changelog"] = { path = "modules/changelog/652b159770e3961de609.lua", bytes = 82258, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
@@ -211,6 +211,18 @@ if #failures>0 then local reason=table.concat(failures,"\n");discard();error(rea
 table.clear(queue)
 globalEnv.BGSI_Lite_LoaderMetrics={SourceBudgetBytes=budget,PeakFetchBytes=peakBytes,Modules=moduleCount}
 globalEnv._1rzHubLiteLoaderOptions = options
+-- Autoexec sometimes starts this thread without access to CoreGui ("lacking capability
+-- Plugin"), which killed the start in core block 2 on about half the accounts. Raise the
+-- thread to the executor's normal level first; blocks and everything they spawn inherit it.
+local function canUseCoreGui()
+	return pcall(function() return game:GetService("CoreGui"):FindFirstChild("RobloxGui") end)
+end
+if not canUseCoreGui() then
+	for _, setIdentity in ipairs({ rawget(originalEnv, "setthreadidentity") or setthreadidentity,
+		rawget(originalEnv, "set_thread_identity") or set_thread_identity, rawget(originalEnv, "setidentity") or setidentity }) do
+		if type(setIdentity) == "function" and pcall(setIdentity, 8) and canUseCoreGui() then break end
+	end
+end
 -- Startup progress in LarpLiteBoot_<UserId>.txt: shows which block a stalled start is stuck in.
 local bootFile, bootStarted = nil, os.clock()
 pcall(function() bootFile = "LarpLiteBoot_" .. tostring(game:GetService("Players").LocalPlayer.UserId) .. ".txt" end)
@@ -219,6 +231,7 @@ local function bootNote(text)
 		pcall(writefile, bootFile, os.date("%H:%M:%S") .. string.format(" +%.1fs ", os.clock() - bootStarted) .. text)
 	end
 end
+if not canUseCoreGui() then bootNote("warning: no CoreGui access on this thread") end
 for index, step in ipairs(steps) do
 	if not current() then bootNote("replaced by a newer start");discard();return end
 	local blocks = compiledModules[step[1]]
@@ -237,4 +250,4 @@ end
 bootNote("started")
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.25.2" }
+return { Version = "2026.11.25.3" }
