@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.9"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.10"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.10",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Dashboard pet equip works", description = "Equipping pets from the dashboard now uses the inventory's own buttons so the game accepts it.", icon = "paw-print" },
+		},
+	},
 	{
 		version = "2026.11.25.9",
 		releasedAt = "November 25, 2026",
@@ -19467,30 +19474,85 @@ do
 						table.sort(removable, function(left, right) return (left.super and 1 or 0) < (right.super and 1 or 0) end)
 						local removeCount = command.mode == "replace" and #removable
 							or math.max(0, equippedCount + missing - maxEquipped)
-						local function waitUntil(check)
-							local deadline = tick() + 5
+						local function waitUntil(check, seconds)
+							local deadline = tick() + (seconds or 5)
 							repeat task.wait(0.1) until check() or tick() >= deadline
+							return check()
 						end
-						if removeCount > 0 then
-							local removing = {}
-							for index = 1, math.min(removeCount, #removable) do
-								table.insert(removing, removable[index].id)
-								remoteEvent:FireServer("UnequipPet", removable[index].id)
+						-- Like potions, a request sent from the script can be ignored on some
+						-- executors, so each pet goes through the inventory's own Equip/Unequip
+						-- buttons: the pet is selected client-side, then the button really pressed.
+						local GuiService = game:GetService("GuiService")
+						local screenGui = LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
+						local inventory = screenGui and screenGui:FindFirstChild("Inventory")
+						local GuiFrame = require(ReplicatedStorage.Client.Gui.GuiFrame)
+						local canPress = inventory and type(getconnections) == "function" and VirtualInputManager
+						local function buttonOf(node)
+							if not node then return nil end
+							if node:IsA("GuiButton") then return node end
+							return node:FindFirstChild("Button") or node:FindFirstChildWhichIsA("GuiButton", true)
+						end
+						local function fireLocal(node)
+							local button = buttonOf(node)
+							if not button then return false end
+							for _, connection in ipairs(getconnections(button.Activated)) do pcall(function() connection:Fire() end) end
+							return true
+						end
+						local function press(node)
+							local button = buttonOf(node)
+							if not button then return false end
+							GuiService.SelectedObject = button
+							task.wait(0.08)
+							VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+							task.wait(0.04)
+							VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+							task.wait(0.1)
+							if GuiService.SelectedObject == button then GuiService.SelectedObject = nil end
+							return true
+						end
+						local opened = false
+						local function selectInInventory(petId)
+							if not canPress then return false end
+							if not opened then
+								opened = true
+								pcall(function() GuiFrame:Open("Inventory") end)
+								task.wait(0.3)
+								fireLocal(inventory.Frame.Sidebar.Buttons:FindFirstChild("Pets"))
+								task.wait(0.4)
 							end
-							waitUntil(function()
-								local now = teamIds(getData())
-								for _, petId in ipairs(removing) do if now[petId] then return false end end
-								return true
-							end)
+							-- The pet list only builds rows on screen; borrow one, point it at this pet
+							-- and click it (the game selects whatever id the row is named).
+							local list = inventory.Frame.Inner.Pets.Main.ScrollingFrame
+							for _, row in ipairs(list:GetDescendants()) do
+								local inner = row:FindFirstChild("Inner")
+								if inner and inner:FindFirstChild("Button") and row.Name:match("^%x+%-%x+%-%x+%-%x+%-%x+") then
+									row.Name = petId .. "-0"
+									fireLocal(inner.Button)
+									task.wait(0.15)
+									return true
+								end
+							end
+							return false
+						end
+						local function setEquipped(petId, equip)
+							local buttons = inventory and inventory.Frame.Inner.Pets.Details.Buttons
+							if selectInInventory(petId) and buttons then
+								press(buttons:FindFirstChild(equip and "Equip" or "Unequip"))
+							else
+								remoteEvent:FireServer(equip and "EquipPet" or "UnequipPet", petId)
+							end
+							return waitUntil(function() return (teamIds(getData())[petId] == true) == equip end, 3)
+						end
+						for index = 1, math.min(removeCount, #removable) do
+							setEquipped(removable[index].id, false)
 						end
 						for _, petId in ipairs(selected) do
-							if not teamIds(getData())[petId] then remoteEvent:FireServer("EquipPet", petId) end
+							if not teamIds(getData())[petId] then setEquipped(petId, true) end
 						end
-						waitUntil(function()
-							local now = teamIds(getData())
-							for _, petId in ipairs(selected) do if not now[petId] then return false end end
-							return true
-						end)
+						if opened then
+							pcall(function() GuiFrame:Close("Inventory") end)
+							GuiService.SelectedObject = nil
+						end
 						local now, failed = teamIds(getData()), 0
 						for _, petId in ipairs(selected) do if not now[petId] then failed += 1 end end
 						if failed > 0 then error("The game didn't equip " .. failed .. " of " .. #selected .. " pets") end
