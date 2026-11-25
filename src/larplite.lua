@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.4"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.5"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.5",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Starts without CoreGui access", description = "The menu button falls back to the player's screen when the executor blocks CoreGui.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.25.4",
 		releasedAt = "November 25, 2026",
@@ -3427,11 +3434,8 @@ do
 	end
 end
 
--- Dashboard hosts. Some internet providers' security filters block larplite.xyz outright
--- (the connection is cut during the TLS handshake), which silently disconnected every
--- account at once. The same dashboard also answers on its workers.dev address, so a
--- request that cannot reach one host is retried on the other, the working one is kept,
--- and the main host is tried again every few minutes.
+-- Dashboard hosts: if the main address can't be reached, use the workers.dev backup and
+-- retry the main one every few minutes.
 do
 	local PRIMARY = "https://dash.robloxarchive.com"
 	local BACKUP = "https://phantom.lathanscommunity.workers.dev"
@@ -9245,7 +9249,7 @@ do
 		local scriptStateMV = Instance.new("ScreenGui")
 		scriptStateMV.Name = "OpenUI"
 		scriptStateMV.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-		scriptStateMV.Parent = CoreGui
+		if not pcall(function() scriptStateMV.Parent = CoreGui end) then scriptStateMV.Parent = LocalPlayer.PlayerGui end
 		local scriptStatePI = Instance.new("ImageButton")
 		scriptStatePI.Parent = scriptStateMV
 		scriptStatePI.BackgroundColor3 = Color3.fromRGB(105, 105, 105)
@@ -29199,14 +29203,8 @@ activeStates.BGSI_Lite_RunAutoUpdateCheck = function(forceCheck)
 		return "up-to-date", currentVersion
 	end
 
-	-- Circuit breaker: activeStates is getgenv() itself, so these two fields survive a
-	-- reload. If a script we just reloaded INTO still sees a mismatch against the exact
-	-- same downloadedVersion it was supposed to have just become, something is broken
-	-- (the new script errored before reaching its own version assignment, GitHub is
-	-- serving something inconsistent, etc.) - reloading again would only stack another
-	-- window on top of the one that never got torn down, repeating forever. Refuse to
-	-- reload to a target we already just reloaded to within the last two minutes, and
-	-- force-sync our version marker to it instead so the mismatch stops recurring.
+	-- Circuit breaker: these fields survive a reload. Never reload to the same version
+	-- twice within two minutes; that only stacks windows when a new start keeps failing.
 	if
 		activeStates.BGSI_Lite_LastAutoUpdateTarget == downloadedVersion
 		and type(activeStates.BGSI_Lite_LastAutoUpdateAt) == "number"
