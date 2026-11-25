@@ -1,14 +1,14 @@
 {
-  "version": "2026.11.25.3",
+  "version": "2026.11.25.4",
   "modules": {
     "core": {
-      "path": "modules/core/30f6617f74bdd1369785.lua",
+      "path": "modules/core/59d9a9c1443dd611e71c.lua",
       "bytes": 494108,
       "blocks": 21
     },
     "changelog": {
-      "path": "modules/changelog/652b159770e3961de609.lua",
-      "bytes": 82258,
+      "path": "modules/changelog/3e8f37539a06cb518f0a.lua",
+      "bytes": 82495,
       "blocks": 1
     },
     "main": {
@@ -27,8 +27,8 @@
       "blocks": 2
     },
     "eggs": {
-      "path": "modules/eggs/d3b530685972463b64fb.lua",
-      "bytes": 24804,
+      "path": "modules/eggs/50018a79744763022c0d.lua",
+      "bytes": 24951,
       "blocks": 3
     },
     "halloween": {

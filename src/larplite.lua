@@ -95,7 +95,7 @@ local activeStates = (getgenv and getgenv()) or {}
 activeStates.BGSI_Lite_LegacyPickupLoopWarning=activeStates.BGSI_Lite_ScriptVersion~=nil
 	and activeStates.BGSI_Lite_PickupLoopLifecycleVersion~=1
 activeStates.BGSI_Lite_PickupLoopLifecycleVersion=1
-activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.3"
+activeStates.BGSI_Lite_ScriptVersion = "2026.11.25.4"
 -- Choice lists shared by the in-game controls.
 activeStates.BGSI_Lite_ObbyDifficultyOptions = { "Easy", "Medium", "Hard" }
 activeStates.BGSI_Lite_PriorityEventOptions = {
@@ -130,6 +130,13 @@ do
 -- sentence saying what changed for the player - keep the description under about
 -- 120 characters, and leave the reasoning and implementation detail to the commit.
 activeStates.BGSI_Lite_ReleaseHistory = {
+	{
+		version = "2026.11.25.4",
+		releasedAt = "November 25, 2026",
+		notes = {
+			{ title = "Hub loads after the intro", description = "Fixes the menu not appearing on some accounts after the intro is skipped.", icon = "bug" },
+		},
+	},
 	{
 		version = "2026.11.25.3",
 		releasedAt = "November 25, 2026",
@@ -14236,7 +14243,9 @@ do
 				specialRiftTeleportAt = 0
 				continue
 			end
-			if activeStates.BGSI_Lite_HasLiveFourXLuckEgg() then
+			-- Defined by a later startup block (and cleared while a reload swaps runs).
+			local hasLuckEgg = activeStates.BGSI_Lite_HasLiveFourXLuckEgg
+			if type(hasLuckEgg) ~= "function" or hasLuckEgg() then
 				activeStates.BGSI_Lite_SpecialRiftActive = false
 				specialRiftTeleportAt = 0
 				continue

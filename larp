@@ -1,4 +1,4 @@
--- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.3"
+-- LarpLite modular loader. BGSI_Lite_ScriptVersion = "2026.11.25.4"
 -- Defaults are lower priority than saved settings. Config is an explicit override.
 local supplied = ...
 local globalEnv = (getgenv and getgenv()) or _G
@@ -19,12 +19,12 @@ end
 local options = copy(type(supplied) == "table" and supplied or globalEnv._1rzHubLiteLoaderOptions or {})
 local baseURL = "https://raw.githubusercontent.com/nf4z/larp/main/"
 local modules = {
-	["core"] = { path = "modules/core/30f6617f74bdd1369785.lua", bytes = 494108, blocks = 21 },
-	["changelog"] = { path = "modules/changelog/652b159770e3961de609.lua", bytes = 82258, blocks = 1 },
+	["core"] = { path = "modules/core/59d9a9c1443dd611e71c.lua", bytes = 494108, blocks = 21 },
+	["changelog"] = { path = "modules/changelog/3e8f37539a06cb518f0a.lua", bytes = 82495, blocks = 1 },
 	["main"] = { path = "modules/main/b41a8407a052e9f22b40.lua", bytes = 1437, blocks = 3 },
 	["stats"] = { path = "modules/stats/a60bb4c7f6ec0a8fe5ef.lua", bytes = 6510, blocks = 2 },
 	["server"] = { path = "modules/server/a04438ac59767b371ae6.lua", bytes = 17503, blocks = 2 },
-	["eggs"] = { path = "modules/eggs/d3b530685972463b64fb.lua", bytes = 24804, blocks = 3 },
+	["eggs"] = { path = "modules/eggs/50018a79744763022c0d.lua", bytes = 24951, blocks = 3 },
 	["halloween"] = { path = "modules/halloween/a6c425a51263adf9d2df.lua", bytes = 4648, blocks = 2 },
 	["comp"] = { path = "modules/comp/3d15cde4568623505866.lua", bytes = 6364, blocks = 2 },
 	["event"] = { path = "modules/event/402e630e2e462d98adc9.lua", bytes = 4526, blocks = 2 },
@@ -217,10 +217,12 @@ globalEnv._1rzHubLiteLoaderOptions = options
 local function canUseCoreGui()
 	return pcall(function() return game:GetService("CoreGui"):FindFirstChild("RobloxGui") end)
 end
-if not canUseCoreGui() then
+-- Always: Rayfield also needs the full level (seen: "cannot access 'Instance'" in its
+-- locale setup) even on threads that can already reach CoreGui.
+do
 	for _, setIdentity in ipairs({ rawget(originalEnv, "setthreadidentity") or setthreadidentity,
 		rawget(originalEnv, "set_thread_identity") or set_thread_identity, rawget(originalEnv, "setidentity") or setidentity }) do
-		if type(setIdentity) == "function" and pcall(setIdentity, 8) and canUseCoreGui() then break end
+		if type(setIdentity) == "function" and pcall(setIdentity, 8) then break end
 	end
 end
 -- Startup progress in LarpLiteBoot_<UserId>.txt: shows which block a stalled start is stuck in.
@@ -250,4 +252,4 @@ end
 bootNote("started")
 -- Drop manifest and initialization closures; running features retain their own closures.
 discard()
-return { Version = "2026.11.25.3" }
+return { Version = "2026.11.25.4" }
